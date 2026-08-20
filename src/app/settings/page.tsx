@@ -62,6 +62,13 @@ export default function SettingsPage() {
         }
       }
 
+      if (typeof window !== 'undefined') {
+        if (currentUser.email) {
+          localStorage.setItem(`design_orbit_pass_${currentUser.email.toLowerCase()}`, newPassword);
+        }
+        localStorage.setItem('design_orbit_master_password', newPassword);
+      }
+
       showToast('Your password has been updated successfully!', 'success');
       setNewPassword('');
       setConfirmPassword('');

@@ -19,6 +19,16 @@ const PRESET_ACCOUNTS = [
   { name: 'Shashiraj (Graphic Designer)', email: 'shashiraj@webtreeonline.com' },
 ];
 
+function getStoredPassword(email: string): string {
+  if (typeof window !== 'undefined') {
+    const customPass = localStorage.getItem(`design_orbit_pass_${email.toLowerCase()}`);
+    if (customPass) return customPass;
+    const globalPass = localStorage.getItem('design_orbit_master_password');
+    if (globalPass) return globalPass;
+  }
+  return 'strongpassword';
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,41 +71,52 @@ export default function LoginPage() {
       return;
     }
 
-    if (inputPassword.length < 4) {
-      showToast('Invalid password. Password must be at least 4 characters.', 'error');
-      setLoading(false);
-      return;
+    // STRICT PASSWORD VERIFICATION
+    const isConfigured = Boolean(
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase-project')
+    );
+
+    let authPassed = false;
+
+    if (isConfigured) {
+      try {
+        const supabase = createClient();
+        const { error: authErr } = await supabase.auth.signInWithPassword({
+          email: inputEmail,
+          password: inputPassword,
+        });
+
+        if (!authErr) {
+          authPassed = true;
+        } else if (authErr.message.includes('Invalid login credentials')) {
+          showToast('Incorrect password entered. Access denied.', 'error');
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Supabase auth check notice:', err);
+      }
+    }
+
+    if (!authPassed) {
+      const validPassword = getStoredPassword(inputEmail);
+      if (inputPassword !== validPassword) {
+        showToast('Incorrect password entered. Access denied.', 'error');
+        setLoading(false);
+        return;
+      }
     }
 
     let userName = profileMatch ? profileMatch.name : inputEmail.split('@')[0];
     userName = userName.charAt(0).toUpperCase() + userName.slice(1);
 
     setLoggedInUser(userName, inputEmail);
+    showToast(`Welcome back, ${userName}! Signed in successfully.`, 'success');
 
-    try {
-      const isConfigured = Boolean(
-        process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase-project')
-      );
-
-      if (isConfigured) {
-        const supabase = createClient();
-        await supabase.auth.signInWithPassword({
-          email: inputEmail,
-          password: inputPassword,
-        }).catch(() => null);
-      }
-
-      showToast(`Welcome back, ${userName}! Opening Dashboard...`, 'success');
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 400);
-    } catch {
-      showToast(`Signed in as ${userName}. Opening Dashboard...`, 'success');
+    setTimeout(() => {
       router.push('/dashboard');
-    } finally {
-      setLoading(false);
-    }
+    }, 400);
   };
 
   return (
@@ -122,7 +143,7 @@ export default function LoginPage() {
           <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5">
             <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 flex items-center space-x-1">
               <UserCheck className="w-3.5 h-3.5 text-sky-600" />
-              <span>Quick Select Member Account</span>
+              <span>Select Member Account</span>
             </label>
             <select
               value={email}
@@ -186,6 +207,7 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
+              <p className="mt-1 text-[11px] text-slate-500">Default team password: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-bold">strongpassword</code></p>
             </div>
 
             <div>
@@ -194,7 +216,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full flex justify-center items-center space-x-2 py-2.5 px-4 text-sm font-bold rounded-xl text-white webtree-gradient-btn shadow-sm disabled:opacity-50"
               >
-                <span>{loading ? 'Signing in...' : 'Sign In'}</span>
+                <span>{loading ? 'Authenticating...' : 'Sign In'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
