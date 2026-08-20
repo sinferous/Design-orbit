@@ -133,6 +133,38 @@ let mockWorkEntriesStore: WorkEntryWithDetails[] = [
   },
 ];
 
+function getStoredMockEntries(): WorkEntryWithDetails[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('design_orbit_local_work_entries');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const combined = [...parsed];
+          mockWorkEntriesStore.forEach(m => {
+            if (!combined.some(e => e.id === m.id)) combined.push(m);
+          });
+          return combined;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse local entries:', e);
+    }
+  }
+  return mockWorkEntriesStore;
+}
+
+function saveStoredMockEntries(entries: WorkEntryWithDetails[]) {
+  mockWorkEntriesStore = entries;
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('design_orbit_local_work_entries', JSON.stringify(entries));
+    } catch (e) {
+      console.warn('Failed to save local entries:', e);
+    }
+  }
+}
+
 function isSupabaseConfigured(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   return Boolean(url && !url.includes('your-supabase-project'));
@@ -211,8 +243,9 @@ export async function fetchProfiles(): Promise<Profile[]> {
 }
 
 export async function fetchWorkEntriesByDate(dateStr: string, userId?: string): Promise<WorkEntryWithDetails[]> {
+  const localEntries = getStoredMockEntries();
   if (!isSupabaseConfigured()) {
-    return mockWorkEntriesStore.filter(e => {
+    return localEntries.filter(e => {
       const matchDate = e.work_date === dateStr;
       const matchUser = userId ? e.user_id === userId : true;
       return matchDate && matchUser;
@@ -231,10 +264,32 @@ export async function fetchWorkEntriesByDate(dateStr: string, userId?: string): 
     }
 
     const { data, error } = await query;
-    if (error || !data) return mockWorkEntriesStore.filter(e => e.work_date === dateStr);
-    return data as WorkEntryWithDetails[];
+    if (error || !data) {
+      return localEntries.filter(e => {
+        const matchDate = e.work_date === dateStr;
+        const matchUser = userId ? e.user_id === userId : true;
+        return matchDate && matchUser;
+      });
+    }
+
+    const combined: WorkEntryWithDetails[] = [...(data as WorkEntryWithDetails[])];
+    localEntries.forEach(localEntry => {
+      if (!combined.some(e => e.id === localEntry.id)) {
+        const matchDate = localEntry.work_date === dateStr;
+        const matchUser = userId ? localEntry.user_id === userId : true;
+        if (matchDate && matchUser) {
+          combined.push(localEntry);
+        }
+      }
+    });
+
+    return combined;
   } catch {
-    return mockWorkEntriesStore.filter(e => e.work_date === dateStr);
+    return localEntries.filter(e => {
+      const matchDate = e.work_date === dateStr;
+      const matchUser = userId ? e.user_id === userId : true;
+      return matchDate && matchUser;
+    });
   }
 }
 
@@ -371,11 +426,12 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
     console.warn('Supabase insert exception fallback:', err);
   }
 
-  // Fallback to local mock store so user operations are NEVER blocked by RLS policies!
+  // Fallback to local store so user operations are NEVER blocked by RLS policies!
+  const currentLocal = getStoredMockEntries();
   const created: WorkEntryWithDetails[] = [];
   for (const formData of formDatas) {
     const profile = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id) || INITIAL_MOCK_PROFILES[1];
-    const client = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id);
+    const client = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id) || null;
     const work_type = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id) || INITIAL_MOCK_WORK_TYPES[0];
 
     const newEntry: WorkEntryWithDetails = {
@@ -397,9 +453,10 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
       work_type,
     };
 
-    mockWorkEntriesStore.unshift(newEntry);
     created.push(newEntry);
   }
+
+  saveStoredMockEntries([...created, ...currentLocal]);
   return created;
 }
 
@@ -489,7 +546,9 @@ export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFor
 
 export async function deleteWorkEntry(id: string): Promise<void> {
   // Remove from mock / local store immediately
-  mockWorkEntriesStore = mockWorkEntriesStore.filter(e => e.id !== id);
+  const currentLocal = getStoredMockEntries();
+  const filtered = currentLocal.filter(e => e.id !== id);
+  saveStoredMockEntries(filtered);
 
   if (!isSupabaseConfigured()) {
     return;
