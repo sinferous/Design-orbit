@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { setLoggedInUser, INITIAL_MOCK_PROFILES } from '@/lib/services/work-entry';
-import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck } from 'lucide-react';
 import { ToastAlert } from '@/components/ui/ToastAlert';
 
 const PRESET_ACCOUNTS = [
@@ -73,10 +73,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDemoAccess = () => {
-    router.push('/dashboard');
   };
 
   return (
@@ -182,17 +178,6 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
-
-          <div className="pt-2 border-t border-slate-200">
-            <button
-              onClick={handleDemoAccess}
-              type="button"
-              className="w-full flex items-center justify-center space-x-2 py-2 px-4 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
-            >
-              <ShieldCheck className="w-4 h-4 text-slate-500" />
-              <span>Explore Application in Preview Mode</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
