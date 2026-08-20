@@ -27,34 +27,34 @@ export const INITIAL_MOCK_WORK_TYPES: WorkType[] = [
 ];
 
 export const INITIAL_MOCK_CLIENTS: Client[] = [
-  { id: 'c1', name: 'Alsaraya', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c2', name: 'Webtree', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c3', name: 'Longveia', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: 'c4', name: '2am idea', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c5', name: 'Shaheen group', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c6', name: 'Ghumpa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c7', name: 'Voro', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c8', name: 'Tectory', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c9', name: 'Shamsha', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c10', name: 'Larosa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c11', name: 'Alrosta', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: 'c12', name: 'Abdulhameed', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c13', name: 'Allday', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c14', name: 'Shaheen', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c15', name: 'Calibar sports', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c16', name: 'Farhat', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c17', name: 'Priyadarshini', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c18', name: 'Easy lease', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c19', name: 'Ybyf', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c20', name: 'Vivant dental', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: 'c21', name: 'All day market', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c13', name: 'Allday', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c11', name: 'Alrosta', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c1', name: 'Alsaraya', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c26', name: 'Amaron', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: 'c22', name: 'Amwaj', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c23', name: 'Farhat tours', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c15', name: 'Calibar sports', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: 'c24', name: 'Cruise', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: 'c25', name: 'Cruise sm', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c26', name: 'Amaron', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c27', name: 'Internal Project', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: 'c28', name: 'Design Orbit', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c18', name: 'Easy lease', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c16', name: 'Farhat', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c23', name: 'Farhat tours', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c6', name: 'Ghumpa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c27', name: 'Internal Project', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c10', name: 'Larosa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c3', name: 'Longveia', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c17', name: 'Priyadarshini', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c14', name: 'Shaheen', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c5', name: 'Shaheen group', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c9', name: 'Shamsha', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c8', name: 'Tectory', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c20', name: 'Vivant dental', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c7', name: 'Voro', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c2', name: 'Webtree', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c19', name: 'Ybyf', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
 const todayStr = new Date().toISOString().split('T')[0];
@@ -68,25 +68,25 @@ let mockWorkEntriesStore: WorkEntryWithDetails[] = [
     work_date: todayStr,
     description: 'Homepage redesign & layout updates',
     quantity_done: 3,
-    quantity_approved: 2,
-    best_work_url: null,
-    notes: 'Homepage revised based on client feedback from morning call.',
-    status: 'Submitted',
+    quantity_approved: 3,
+    best_work_url: 'https://webtreeonline.com',
+    notes: 'Approved by lead',
+    status: 'Reviewed',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    profile: INITIAL_MOCK_PROFILES[0],
+    profile: INITIAL_MOCK_PROFILES[1],
     client: INITIAL_MOCK_CLIENTS[0],
     work_type: INITIAL_MOCK_WORK_TYPES[4],
   },
   {
     id: 'we2',
-    user_id: 'p1',
+    user_id: 'p2',
     client_id: 'c2',
-    work_type_id: 'wt6',
+    work_type_id: 'wt2',
     work_date: todayStr,
-    description: 'Design system tokens & button component states',
-    quantity_done: 5,
-    quantity_approved: 5,
+    description: 'Product walkthrough video edit',
+    quantity_done: 2,
+    quantity_approved: 1,
     best_work_url: null,
     notes: 'Approved during internal UI review.',
     status: 'Reviewed',
@@ -138,16 +138,20 @@ export async function fetchWorkTypes(): Promise<WorkType[]> {
 }
 
 export async function fetchClients(): Promise<Client[]> {
-  if (!isSupabaseConfigured()) return INITIAL_MOCK_CLIENTS;
+  if (!isSupabaseConfigured()) {
+    return [...INITIAL_MOCK_CLIENTS].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+  }
   try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('clients')
       .select('*')
       .eq('is_active', true)
-      .order('name');
+      .order('name', { ascending: true });
 
-    if (error || !data || data.length === 0) return INITIAL_MOCK_CLIENTS;
+    if (error || !data || data.length === 0) {
+      return [...INITIAL_MOCK_CLIENTS].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    }
 
     // Merge any newly added local mock clients that might not be in Supabase yet
     const combined: Client[] = [...data];
@@ -157,9 +161,9 @@ export async function fetchClients(): Promise<Client[]> {
       }
     });
 
-    return combined;
+    return combined.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
   } catch {
-    return INITIAL_MOCK_CLIENTS;
+    return [...INITIAL_MOCK_CLIENTS].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
   }
 }
 

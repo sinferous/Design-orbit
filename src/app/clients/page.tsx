@@ -68,9 +68,9 @@ export default function ClientsPage() {
     }
   };
 
-  const filteredClients = clients.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClients = clients
+    .filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
