@@ -30,7 +30,7 @@ export default function LoginPage() {
   const handleSelectAccount = (selectedEmail: string) => {
     if (!selectedEmail) return;
     setEmail(selectedEmail);
-    setPassword('strongpassword');
+    setPassword('');
   };
 
   const handleLogin = async (e: React.FormEvent) => {

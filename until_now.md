@@ -30,7 +30,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Enabled Row Level Security (RLS) policies for team reading and user-restricted writes.
 - [x] **Seed Script & Team Profiles**:
   - Created [`supabase/seed.sql`](file:///j:/Work/Webtree%20Online/Design%20orbit/supabase/seed.sql) with updated designations and `@webtreeonline.com` email addresses:
-    - **Admin**: System Administrator (`admin@webtreeonline.com`, password: `strongpassword`)
+    - **Admin**: Management viewing user (`admin@webtreeonline.com`, password: `strongpassword`)
     - **Samantha**: Design Team Lead (`sams@webtreeonline.com`)
     - **Moveena**: Senior Graphic Designer (`moveena@webtreeonline.com`)
     - **Fazil**: Senior UI/UX Designer (`fazil@webtreeonline.com`)
@@ -77,6 +77,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 ### Phase 3 & 4 — Reporting, Analytics & Polish (Completed)
 - [x] **Reports Aggregation & Data Export Service**:
   - Built [`src/lib/services/reports.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/reports.ts) for weekly date range math, monthly aggregations, overall groupings, and client-side CSV downloads (`exportToCSV`).
+  - **Management Exclusion**: Excluded `Admin` / `System Administrator` from reports data aggregations and designer breakdown lists.
 - [x] **Weekly Meeting Report Page (`/reports/weekly`)**:
   - Presentation-friendly screen view designed for weekly team review meetings.
   - Week selector (`← Previous Week | This Week | Next Week →`).
