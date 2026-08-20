@@ -372,43 +372,43 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
   if (formDatas.length === 0) return [];
 
   if (isSupabaseConfigured()) {
-    try {
-      const supabase = createClient();
+    const supabase = createClient();
 
-      const insertPayload = [];
-      for (const formData of formDatas) {
-        const dbUserId = await ensureProfileInDB(supabase, formData.user_id);
-        const dbClientId = await ensureClientInDB(supabase, formData.client_id || null);
-        const dbWorkTypeId = await ensureWorkTypeInDB(supabase, formData.work_type_id);
+    const insertPayload = [];
+    for (const formData of formDatas) {
+      const dbUserId = await ensureProfileInDB(supabase, formData.user_id);
+      const dbClientId = await ensureClientInDB(supabase, formData.client_id || null);
+      const dbWorkTypeId = await ensureWorkTypeInDB(supabase, formData.work_type_id);
 
-        insertPayload.push({
-          user_id: dbUserId,
-          client_id: dbClientId,
-          work_type_id: dbWorkTypeId,
-          work_date: formData.work_date,
-          description: formData.description,
-          quantity_done: formData.quantity_done,
-          quantity_approved: formData.quantity_approved,
-          best_work_url: formData.best_work_url || null,
-          notes: formData.notes || null,
-          status: formData.status || 'Submitted',
-        });
-      }
+      insertPayload.push({
+        user_id: dbUserId,
+        client_id: dbClientId,
+        work_type_id: dbWorkTypeId,
+        work_date: formData.work_date,
+        description: formData.description,
+        quantity_done: formData.quantity_done,
+        quantity_approved: formData.quantity_approved,
+        best_work_url: formData.best_work_url || null,
+        notes: formData.notes || null,
+        status: formData.status || 'Submitted',
+      });
+    }
 
-      const { data, error } = await (supabase.from('work_entries') as any)
-        .insert(insertPayload)
-        .select();
+    const { data, error } = await (supabase.from('work_entries') as any)
+      .insert(insertPayload)
+      .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)');
 
-      if (!error && data && data.length > 0) {
-        return data;
-      }
-      console.warn('Supabase insert notice:', error?.message);
-    } catch (err) {
-      console.warn('Supabase insert exception:', err);
+    if (error) {
+      console.error('Supabase work_entries insert error:', error.message);
+      throw new Error(`Database Error: ${error.message}`);
+    }
+
+    if (data && data.length > 0) {
+      return data as WorkEntry[];
     }
   }
 
-  // Local fallback
+  // Local offline fallback ONLY when Supabase URL is not set at all
   const currentLocal = getStoredMockEntries();
   const created: WorkEntryWithDetails[] = [];
   for (const formData of formDatas) {
@@ -443,48 +443,9 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
 }
 
 export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFormData>): Promise<WorkEntry> {
-  const updateLocal = () => {
-    const idx = mockWorkEntriesStore.findIndex(e => e.id === id);
-    if (idx !== -1) {
-      const existing = mockWorkEntriesStore[idx];
-      const updated: WorkEntryWithDetails = {
-        ...existing,
-        ...formData,
-        updated_at: new Date().toISOString(),
-      };
-      if (formData.user_id) updated.profile = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id);
-      if (formData.client_id) updated.client = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id);
-      if (formData.work_type_id) updated.work_type = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id);
-
-      mockWorkEntriesStore[idx] = updated;
-      return updated;
-    }
-    const fallbackEntry: WorkEntryWithDetails = {
-      id,
-      user_id: formData.user_id || '00000000-0000-4000-a000-000000000001',
-      client_id: formData.client_id || null,
-      work_type_id: formData.work_type_id || '10000000-0000-4000-a000-000000000001',
-      work_date: formData.work_date || new Date().toISOString().split('T')[0],
-      description: formData.description || 'Work Entry',
-      quantity_done: formData.quantity_done ?? 1,
-      quantity_approved: formData.quantity_approved ?? 0,
-      best_work_url: formData.best_work_url || null,
-      notes: formData.notes || null,
-      status: formData.status || 'Submitted',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    mockWorkEntriesStore.unshift(fallbackEntry);
-    return fallbackEntry;
-  };
-
-  if (!isSupabaseConfigured()) {
-    return updateLocal();
-  }
-
-  try {
+  if (isSupabaseConfigured()) {
     const supabase = createClient();
-    const payload: any = { ...formData };
+    const payload: any = { ...formData, updated_at: new Date().toISOString() };
 
     if (payload.client_id) {
       payload.client_id = await ensureClientInDB(supabase, payload.client_id);
@@ -501,29 +462,49 @@ export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFor
     const { data, error } = await (supabase.from('work_entries') as any)
       .update(payload)
       .eq('id', id)
-      .select()
+      .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
       .single();
 
-    if (!error && data) return data;
-    return updateLocal();
-  } catch {
-    return updateLocal();
+    if (error) {
+      console.error('Supabase update work entry error:', error.message);
+      throw new Error(`Database Error: ${error.message}`);
+    }
+
+    if (data) return data as WorkEntry;
   }
+
+  const idx = mockWorkEntriesStore.findIndex(e => e.id === id);
+  if (idx !== -1) {
+    const existing = mockWorkEntriesStore[idx];
+    const updated: WorkEntryWithDetails = {
+      ...existing,
+      ...formData,
+      updated_at: new Date().toISOString(),
+    };
+    if (formData.user_id) updated.profile = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id);
+    if (formData.client_id) updated.client = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id);
+    if (formData.work_type_id) updated.work_type = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id);
+
+    mockWorkEntriesStore[idx] = updated;
+    return updated;
+  }
+  throw new Error('Work entry not found');
 }
 
 export async function deleteWorkEntry(id: string): Promise<void> {
+  if (isSupabaseConfigured()) {
+    const supabase = createClient();
+    const { error } = await (supabase.from('work_entries') as any).delete().eq('id', id);
+    if (error) {
+      console.error('Supabase work entry delete error:', error.message);
+      throw new Error(`Database Error: ${error.message}`);
+    }
+    return;
+  }
+
   const currentLocal = getStoredMockEntries();
   const filtered = currentLocal.filter(e => e.id !== id);
   saveStoredMockEntries(filtered);
-
-  if (!isSupabaseConfigured()) return;
-
-  try {
-    const supabase = createClient();
-    await supabase.from('work_entries').delete().eq('id', id);
-  } catch (err) {
-    console.warn('Supabase work entry delete notice:', err);
-  }
 }
 
 export async function createClientRecord(name: string): Promise<Client> {
