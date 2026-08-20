@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { setLoggedInUser, INITIAL_MOCK_PROFILES } from '@/lib/services/work-entry';
 import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck } from 'lucide-react';
-import { ToastAlert } from '@/components/ui/ToastAlert';
+import { useToast } from '@/components/ui/ToastContext';
 
 const PRESET_ACCOUNTS = [
   { name: 'Select a Team Member (Optional)', email: '' },
@@ -24,27 +24,51 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const handleSelectAccount = (selectedEmail: string) => {
     if (!selectedEmail) return;
     setEmail(selectedEmail);
-    setPassword('');
+    setPassword('strongpassword');
+    showToast(`Loaded credentials for ${selectedEmail.split('@')[0]}`, 'success');
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setMessage(null);
 
-    const inputEmail = email.trim() || 'varun@webtreeonline.com';
-    const inputPassword = password.trim() || 'strongpassword';
+    const inputEmail = email.trim();
+    const inputPassword = password.trim();
 
-    // Find profile name matching email or capitalize email username
-    const profileMatch = INITIAL_MOCK_PROFILES.find(p => p.email && p.email.toLowerCase() === inputEmail.toLowerCase());
+    if (!inputEmail) {
+      showToast('Please enter your work email.', 'error');
+      setLoading(false);
+      return;
+    }
+
+    if (!inputPassword) {
+      showToast('Please enter your password.', 'error');
+      setLoading(false);
+      return;
+    }
+
+    const profileMatch = INITIAL_MOCK_PROFILES.find(
+      p => p.email && p.email.toLowerCase() === inputEmail.toLowerCase()
+    );
+
+    if (!profileMatch && !inputEmail.toLowerCase().endsWith('@webtreeonline.com')) {
+      showToast('Unauthorized email address. Only @webtreeonline.com accounts are permitted.', 'error');
+      setLoading(false);
+      return;
+    }
+
+    if (inputPassword.length < 4) {
+      showToast('Invalid password. Password must be at least 4 characters.', 'error');
+      setLoading(false);
+      return;
+    }
+
     let userName = profileMatch ? profileMatch.name : inputEmail.split('@')[0];
     userName = userName.charAt(0).toUpperCase() + userName.slice(1);
 
@@ -64,11 +88,12 @@ export default function LoginPage() {
         }).catch(() => null);
       }
 
-      setMessage(`Signed in as ${userName}! Opening Dashboard...`);
+      showToast(`Welcome back, ${userName}! Opening Dashboard...`, 'success');
       setTimeout(() => {
         router.push('/dashboard');
-      }, 500);
-    } catch (err: any) {
+      }, 400);
+    } catch {
+      showToast(`Signed in as ${userName}. Opening Dashboard...`, 'success');
       router.push('/dashboard');
     } finally {
       setLoading(false);
@@ -77,8 +102,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <ToastAlert message={error} type="error" onClose={() => setError(null)} />
-      <ToastAlert message={message} type="success" onClose={() => setMessage(null)} />
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <img

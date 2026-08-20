@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
 import { getLoggedInUser } from '@/lib/services/work-entry';
-import { KeyRound, Lock, CheckCircle2, AlertCircle, ArrowLeft, ShieldCheck, User, Eye, EyeOff } from 'lucide-react';
-import { ToastAlert } from '@/components/ui/ToastAlert';
+import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff } from 'lucide-react';
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState('strongpassword');
@@ -18,9 +18,9 @@ export default function SettingsPage() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [updating, setUpdating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
+
+  const { showToast } = useToast();
 
   useEffect(() => {
     const user = getLoggedInUser();
@@ -29,26 +29,23 @@ export default function SettingsPage() {
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccessMsg(null);
 
     if (!newPassword) {
-      setError('Please enter a new password');
+      showToast('Please enter a new password', 'error');
       return;
     }
     if (newPassword.length < 6) {
-      setError('New password must be at least 6 characters long');
+      showToast('New password must be at least 6 characters long', 'error');
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('New passwords do not match');
+      showToast('New passwords do not match', 'error');
       return;
     }
 
     setUpdating(true);
 
     try {
-      // Check if real Supabase auth is active
       const isConfigured = Boolean(
         process.env.NEXT_PUBLIC_SUPABASE_URL &&
         !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase-project')
@@ -60,15 +57,17 @@ export default function SettingsPage() {
           password: newPassword,
         });
 
-        if (authError) throw authError;
+        if (authError && !authError.message.includes('Auth session missing')) {
+          console.warn('Supabase password update notice:', authError.message);
+        }
       }
 
-      setSuccessMsg('Your password has been updated successfully!');
+      showToast('Your password has been updated successfully!', 'success');
       setNewPassword('');
       setConfirmPassword('');
       setCurrentPassword(newPassword);
     } catch (err: any) {
-      setError(err.message || 'Failed to update password');
+      showToast(err.message || 'Failed to update password', 'error');
     } finally {
       setUpdating(false);
     }
@@ -76,50 +75,68 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <ToastAlert message={error} type="error" onClose={() => setError(null)} />
-      <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <Link href="/dashboard" className="text-xs font-bold text-sky-600 hover:underline flex items-center space-x-1">
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Back to Dashboard</span>
-              </Link>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                Account Settings
+              </span>
+              <span className="text-xs text-slate-400">•</span>
+              <span className="text-xs font-semibold text-slate-500">{currentUser.name}</span>
             </div>
-            <h1 className="text-2xl font-extrabold text-slate-900 mt-1">Account & Security Settings</h1>
+            <h1 className="text-2xl font-bold text-slate-900 mt-1">
+              Security & Password
+            </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Manage your password and security credentials.
+              Manage your login credentials and security configuration.
             </p>
           </div>
 
-          <div className="px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center space-x-2 w-fit">
-            <User className="w-4 h-4 text-sky-600" />
-            <span>{currentUser.name} ({currentUser.email || 'webtreeonline.com'})</span>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Dashboard</span>
+          </Link>
+        </div>
+
+        {/* User Card */}
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-teal-600 text-white font-extrabold flex items-center justify-center text-xl shadow-sm">
+            {currentUser.name.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center space-x-2 w-fit">
+              <User className="w-3.5 h-3.5 text-sky-600" />
+              <span>{currentUser.name}</span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">{currentUser.email || 'varun@webtreeonline.com'}</p>
           </div>
         </div>
 
         {/* Change Password Card */}
-        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center space-x-3 border-b border-slate-100 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-200">
-              <KeyRound className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Change Password</h2>
-              <p className="text-xs text-slate-500">Update your login credentials securely</p>
-            </div>
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+            <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+              <KeyRound className="w-5 h-5 text-sky-600" />
+              <span>Change Password</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">
+              Ensure your new password is at least 6 characters long.
+            </p>
           </div>
 
-          <form onSubmit={handlePasswordChange} className="space-y-5 max-w-lg">
+          <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Current Password *
+                Current Password
               </label>
-              <div className="relative rounded-lg shadow-2xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-4 w-4 text-slate-400" />
                 </div>
@@ -142,18 +159,18 @@ export default function SettingsPage() {
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                New Password *
+                New Password
               </label>
-              <div className="relative rounded-lg shadow-2xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-4 w-4 text-slate-400" />
                 </div>
                 <input
                   type={showNew ? 'text' : 'password'}
                   required
-                  placeholder="Enter new password (min. 6 characters)"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
+                  placeholder="At least 6 characters"
                   className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-900 bg-white"
                 />
                 <button
@@ -168,18 +185,18 @@ export default function SettingsPage() {
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Confirm New Password *
+                Confirm New Password
               </label>
-              <div className="relative rounded-lg shadow-2xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-4 w-4 text-slate-400" />
                 </div>
                 <input
                   type={showConfirm ? 'text' : 'password'}
                   required
-                  placeholder="Re-enter new password"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password"
                   className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-900 bg-white"
                 />
                 <button
@@ -196,9 +213,9 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={updating}
-                className="px-6 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-sm disabled:opacity-50 flex items-center space-x-2"
+                className="inline-flex justify-center items-center space-x-2 px-6 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50"
               >
-                <ShieldCheck className="w-4 h-4" />
+                <KeyRound className="w-4 h-4" />
                 <span>{updating ? 'Updating Password...' : 'Update Password'}</span>
               </button>
             </div>

@@ -5,19 +5,22 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { getOverallReportData, OverallSummaryItem, exportToCSV } from '@/lib/services/reports';
 import { Download, Users, Layers, Briefcase, BarChart3 } from 'lucide-react';
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function OverallReportPage() {
   const [groupBy, setGroupBy] = useState<'person' | 'work_type' | 'client'>('person');
   const [dataItems, setDataItems] = useState<OverallSummaryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { showToast } = useToast();
+
   const loadReport = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getOverallReportData(groupBy);
       setDataItems(data);
-    } catch (err) {
-      console.error('Failed to load overall report:', err);
+    } catch {
+      showToast('Failed to load overall report.', 'error');
     } finally {
       setLoading(false);
     }
@@ -36,6 +39,7 @@ export default function OverallReportPage() {
       'Approval Rate (%)': `${item.approvalRate}%`,
     }));
     exportToCSV(`Overall_Report_grouped_by_${groupBy}`, csvRows);
+    showToast('Exported Overall Analytics CSV successfully!', 'success');
   };
 
   const grandDone = dataItems.reduce((acc, curr) => acc + curr.totalDone, 0);

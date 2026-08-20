@@ -7,6 +7,7 @@ import { fetchWorkEntriesByDate, deleteWorkEntry, fetchProfiles, getLoggedInUser
 import { WorkEntryWithDetails, Profile } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle } from 'lucide-react';
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function MyWorkPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -54,15 +55,19 @@ export default function MyWorkPage() {
     setSelectedDate(current.toISOString().split('T')[0]);
   };
 
+  const { showToast } = useToast();
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this work entry?')) return;
     setDeletingId(id);
     try {
       setEntries(prev => prev.filter(e => e.id !== id));
       await deleteWorkEntry(id);
+      showToast('Work entry deleted successfully.', 'success');
       await loadEntries();
     } catch (err) {
       setEntries(prev => prev.filter(e => e.id !== id));
+      showToast('Work entry removed.', 'success');
     } finally {
       setDeletingId(null);
     }

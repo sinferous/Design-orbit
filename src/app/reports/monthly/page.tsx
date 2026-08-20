@@ -7,6 +7,7 @@ import { getMonthlyReportData, exportToCSV } from '@/lib/services/reports';
 import { fetchProfiles, fetchWorkTypes, fetchClients } from '@/lib/services/work-entry';
 import { Profile, WorkType, Client } from '@/types';
 import { Download, Calendar, Filter } from 'lucide-react';
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function MonthlyReportPage() {
   const [selectedYear, setSelectedYear] = useState<number>(2026);
@@ -85,6 +86,8 @@ export default function MonthlyReportPage() {
     { value: 12, name: 'December' },
   ];
 
+  const { showToast } = useToast();
+
   const handleExportCSV = () => {
     const csvRows = reportData.summaries.map(s => ({
       'Work Type': s.workType.name,
@@ -93,6 +96,7 @@ export default function MonthlyReportPage() {
       'Approval Rate (%)': `${s.approvalRate}%`,
     }));
     exportToCSV(`Monthly_Report_${selectedYear}_${selectedMonth}`, csvRows);
+    showToast('Exported Monthly Report CSV successfully!', 'success');
   };
 
   return (

@@ -6,6 +6,7 @@ import { Profile, WorkType, Client, WorkEntryWithDetails } from '@/types';
 import { fetchProfiles, fetchWorkTypes, fetchClients, createWorkEntriesBatch, updateWorkEntry, createClientRecord, getLoggedInUser } from '@/lib/services/work-entry';
 import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2 } from 'lucide-react';
 import { ToastAlert } from '@/components/ui/ToastAlert';
+import { useToast } from '@/components/ui/ToastContext';
 
 interface WorkItemRow {
   id: string;
@@ -23,6 +24,7 @@ interface WorkEntryFormProps {
 
 export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryFormProps) {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [workTypes, setWorkTypes] = useState<WorkType[]>([]);
@@ -135,11 +137,9 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
         if (item.id !== id) return item;
         const updated = { ...item, ...fields };
 
-        // Sync quantity_approved & is_approved status if either changes
-        if (fields.is_approved !== undefined) {
+        // Default quantity_approved when is_approved status button is clicked if not explicitly provided
+        if (fields.is_approved !== undefined && fields.quantity_approved === undefined) {
           updated.quantity_approved = fields.is_approved ? updated.quantity_done : 0;
-        } else if (fields.quantity_done !== undefined && updated.is_approved) {
-          updated.quantity_approved = fields.quantity_done;
         }
         return updated;
       })
@@ -182,11 +182,11 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           work_date: workDate,
           description: item.description,
           quantity_done: item.quantity_done,
-          quantity_approved: item.is_approved ? item.quantity_done : 0,
+          quantity_approved: item.quantity_approved,
           status: item.is_approved ? 'Reviewed' : 'Submitted',
         });
-        setSuccessMsg('Work entry updated successfully!');
-        setTimeout(() => router.push('/work'), 800);
+        showToast('Work entry updated successfully!', 'success');
+        setTimeout(() => router.push('/work'), 600);
       } else {
         const payload = items.map(item => ({
           user_id: selectedUserId,
@@ -195,15 +195,14 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           work_date: workDate,
           description: item.description,
           quantity_done: item.quantity_done,
-          quantity_approved: item.is_approved ? item.quantity_done : 0,
+          quantity_approved: item.quantity_approved,
           status: (item.is_approved ? 'Reviewed' : 'Submitted') as any,
         }));
 
         await createWorkEntriesBatch(payload);
 
         if (addAnotherClient) {
-          setSuccessMsg(`Saved ${items.length} item(s)! Ready for another client.`);
-          // Select next client if available and reset items
+          showToast(`Saved ${items.length} work item(s)! Ready for another client.`, 'success');
           const currentIndex = clients.findIndex(c => c.id === selectedClientId);
           const nextClient = clients[(currentIndex + 1) % clients.length];
           if (nextClient) setSelectedClientId(nextClient.id);
@@ -219,12 +218,12 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
             },
           ]);
         } else {
-          setSuccessMsg(`Successfully saved ${items.length} work entry item(s)!`);
-          setTimeout(() => router.push('/work'), 800);
+          showToast(`Successfully saved ${items.length} work entry item(s)!`, 'success');
+          setTimeout(() => router.push('/work'), 600);
         }
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to save work entries.');
+      showToast(err.message || 'Failed to save work entries.', 'error');
     } finally {
       setSubmitting(false);
     }

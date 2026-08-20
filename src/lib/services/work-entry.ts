@@ -18,6 +18,34 @@ const LEGACY_ID_TO_NAME_MAP: Record<string, string> = {
   wt6: 'UI/UX', wt7: 'Logo', wt8: 'Edits', wt9: 'Working', wt10: 'Other',
 };
 
+// DELETED CLIENT TRACKER (persists across renders)
+let DELETED_CLIENT_IDS_AND_NAMES: string[] = [];
+
+function getDeletedClientFilter(): string[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('design_orbit_deleted_clients');
+      if (stored) return JSON.parse(stored);
+    } catch {}
+  }
+  return DELETED_CLIENT_IDS_AND_NAMES;
+}
+
+function addDeletedClientFilter(identifier: string) {
+  if (!identifier) return;
+  const current = getDeletedClientFilter();
+  const lower = identifier.toLowerCase();
+  if (!current.includes(lower)) {
+    current.push(lower);
+    DELETED_CLIENT_IDS_AND_NAMES = current;
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('design_orbit_deleted_clients', JSON.stringify(current));
+      } catch {}
+    }
+  }
+}
+
 // MOCK SEED DATA FOR OFFLINE / PREVIEW MODE
 export const INITIAL_MOCK_PROFILES: Profile[] = [
   { id: '00000000-0000-4000-a000-000000000000', auth_user_id: null, name: 'Admin', designation: 'System Administrator', email: 'admin@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
@@ -74,8 +102,6 @@ export const INITIAL_MOCK_CLIENTS: Client[] = [
   { id: '20000000-0000-4000-a000-000000000019', name: 'Ybyf', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
-const todayStr = new Date().toISOString().split('T')[0];
-
 let mockWorkEntriesStore: WorkEntryWithDetails[] = [];
 
 function getStoredMockEntries(): WorkEntryWithDetails[] {
@@ -84,9 +110,7 @@ function getStoredMockEntries(): WorkEntryWithDetails[] {
       const stored = localStorage.getItem('design_orbit_local_work_entries');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
       console.warn('Failed to parse local entries:', e);
@@ -111,6 +135,24 @@ function isSupabaseConfigured(): boolean {
   return Boolean(url && !url.includes('your-supabase-project'));
 }
 
+export function getLoggedInUser(): { name: string; email: string } {
+  if (typeof window !== 'undefined') {
+    const storedName = localStorage.getItem('design_orbit_logged_in_name');
+    const storedEmail = localStorage.getItem('design_orbit_logged_in_email');
+    if (storedName) {
+      return { name: storedName, email: storedEmail || 'varun@webtreeonline.com' };
+    }
+  }
+  return { name: 'Varun', email: 'varun@webtreeonline.com' };
+}
+
+export function setLoggedInUser(name: string, email: string) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('design_orbit_logged_in_name', name);
+    localStorage.setItem('design_orbit_logged_in_email', email);
+  }
+}
+
 export async function fetchWorkTypes(): Promise<WorkType[]> {
   if (!isSupabaseConfigured()) return INITIAL_MOCK_WORK_TYPES;
   try {
@@ -128,8 +170,11 @@ export async function fetchWorkTypes(): Promise<WorkType[]> {
 }
 
 export async function fetchClients(): Promise<Client[]> {
+  const deletedFilter = getDeletedClientFilter();
   if (!isSupabaseConfigured()) {
-    return [...INITIAL_MOCK_CLIENTS].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    return [...INITIAL_MOCK_CLIENTS]
+      .filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
   }
   try {
     const supabase = createClient();
@@ -139,21 +184,16 @@ export async function fetchClients(): Promise<Client[]> {
       .eq('is_active', true)
       .order('name', { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      return [...INITIAL_MOCK_CLIENTS].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-    }
-
-    // Merge any newly added local mock clients that might not be in Supabase yet
-    const combined: Client[] = [...data];
-    INITIAL_MOCK_CLIENTS.forEach(mockClient => {
-      if (!combined.some(c => c.name.toLowerCase() === mockClient.name.toLowerCase())) {
-        combined.push(mockClient);
-      }
-    });
-
+    let combined: Client[] = data && data.length > 0 ? [...data] : [...INITIAL_MOCK_CLIENTS];
+    
+    // Filter out deleted items
+    combined = combined.filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()));
+    
     return combined.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
   } catch {
-    return [...INITIAL_MOCK_CLIENTS].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    return [...INITIAL_MOCK_CLIENTS]
+      .filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
   }
 }
 
@@ -169,7 +209,6 @@ export async function fetchProfiles(): Promise<Profile[]> {
 
     if (error || !data || data.length === 0) return INITIAL_MOCK_PROFILES;
 
-    // Merge any mock profiles if Supabase has a subset
     const combined: Profile[] = [...data];
     INITIAL_MOCK_PROFILES.forEach(mockProf => {
       if (!combined.some(p => p.name.toLowerCase() === mockProf.name.toLowerCase() || (p.email && mockProf.email && p.email.toLowerCase() === mockProf.email.toLowerCase()))) {
@@ -205,26 +244,27 @@ export async function fetchWorkEntriesByDate(dateStr: string, userId?: string): 
     }
 
     const { data, error } = await query;
-    if (error || !data) {
-      return localEntries.filter(e => {
-        const matchDate = e.work_date === dateStr;
-        const matchUser = userId ? e.user_id === userId : true;
-        return matchDate && matchUser;
+    if (!error && data) {
+      const dbEntries = data as WorkEntryWithDetails[];
+      // Merge with local entries
+      const combined: WorkEntryWithDetails[] = [...dbEntries];
+      localEntries.forEach(localEntry => {
+        if (!combined.some(e => e.id === localEntry.id)) {
+          const matchDate = localEntry.work_date === dateStr;
+          const matchUser = userId ? localEntry.user_id === userId : true;
+          if (matchDate && matchUser) {
+            combined.push(localEntry);
+          }
+        }
       });
+      return combined;
     }
 
-    const combined: WorkEntryWithDetails[] = [...(data as WorkEntryWithDetails[])];
-    localEntries.forEach(localEntry => {
-      if (!combined.some(e => e.id === localEntry.id)) {
-        const matchDate = localEntry.work_date === dateStr;
-        const matchUser = userId ? localEntry.user_id === userId : true;
-        if (matchDate && matchUser) {
-          combined.push(localEntry);
-        }
-      }
+    return localEntries.filter(e => {
+      const matchDate = e.work_date === dateStr;
+      const matchUser = userId ? e.user_id === userId : true;
+      return matchDate && matchUser;
     });
-
-    return combined;
   } catch {
     return localEntries.filter(e => {
       const matchDate = e.work_date === dateStr;
@@ -236,8 +276,7 @@ export async function fetchWorkEntriesByDate(dateStr: string, userId?: string): 
 
 export async function fetchWorkEntryById(id: string): Promise<WorkEntryWithDetails | null> {
   if (!isSupabaseConfigured()) {
-    const found = mockWorkEntriesStore.find(e => e.id === id);
-    return found || null;
+    return mockWorkEntriesStore.find(e => e.id === id) || null;
   }
   try {
     const supabase = createClient();
@@ -254,6 +293,109 @@ export async function fetchWorkEntryById(id: string): Promise<WorkEntryWithDetai
   }
 }
 
+// AUTO-PROVISIONING HELPERS FOR SUPABASE DB INTEGRITY
+async function ensureProfileInDB(supabase: any, user_id: string): Promise<string> {
+  const legacyName = LEGACY_ID_TO_NAME_MAP[user_id];
+  const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === user_id || p.name.toLowerCase() === (legacyName || '').toLowerCase());
+  const profName = legacyName || mockProf?.name || user_id;
+  const profEmail = mockProf?.email || `${profName.toLowerCase().replace(/\s+/g, '')}@webtreeonline.com`;
+
+  if (isUUID(user_id)) {
+    const { data } = await supabase.from('profiles').select('id').eq('id', user_id).single();
+    if (data?.id) return data.id;
+  }
+
+  const { data: nameMatch } = await supabase
+    .from('profiles')
+    .select('id')
+    .or(`name.ilike.${profName},email.ilike.${profEmail}`)
+    .limit(1);
+
+  if (nameMatch && nameMatch.length > 0) return nameMatch[0].id;
+
+  const { data: created } = await supabase
+    .from('profiles')
+    .insert({
+      name: profName,
+      designation: mockProf?.designation || 'Team Member',
+      email: profEmail,
+      is_active: true,
+    })
+    .select('id')
+    .single();
+
+  if (created?.id) return created.id;
+
+  const { data: anyProf } = await supabase.from('profiles').select('id').limit(1);
+  return anyProf?.[0]?.id || '00000000-0000-4000-a000-000000000001';
+}
+
+async function ensureClientInDB(supabase: any, client_id: string | null): Promise<string | null> {
+  if (!client_id) return null;
+
+  const legacyName = LEGACY_ID_TO_NAME_MAP[client_id];
+  const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === client_id || c.name.toLowerCase() === (legacyName || '').toLowerCase());
+  const clientName = legacyName || mockClient?.name || client_id;
+
+  if (isUUID(client_id)) {
+    const { data } = await supabase.from('clients').select('id').eq('id', client_id).single();
+    if (data?.id) return data.id;
+  }
+
+  const { data: nameMatch } = await supabase
+    .from('clients')
+    .select('id')
+    .ilike('name', clientName)
+    .limit(1);
+
+  if (nameMatch && nameMatch.length > 0) return nameMatch[0].id;
+
+  const { data: created } = await supabase
+    .from('clients')
+    .insert({
+      name: clientName,
+      is_active: true,
+    })
+    .select('id')
+    .single();
+
+  if (created?.id) return created.id;
+  return null;
+}
+
+async function ensureWorkTypeInDB(supabase: any, work_type_id: string): Promise<string> {
+  const legacyName = LEGACY_ID_TO_NAME_MAP[work_type_id];
+  const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === work_type_id || w.name.toLowerCase() === (legacyName || '').toLowerCase());
+  const workTypeName = legacyName || mockWorkType?.name || work_type_id;
+
+  if (isUUID(work_type_id)) {
+    const { data } = await supabase.from('work_types').select('id').eq('id', work_type_id).single();
+    if (data?.id) return data.id;
+  }
+
+  const { data: nameMatch } = await supabase
+    .from('work_types')
+    .select('id')
+    .ilike('name', workTypeName)
+    .limit(1);
+
+  if (nameMatch && nameMatch.length > 0) return nameMatch[0].id;
+
+  const { data: created } = await supabase
+    .from('work_types')
+    .insert({
+      name: workTypeName,
+      is_active: true,
+    })
+    .select('id')
+    .single();
+
+  if (created?.id) return created.id;
+
+  const { data: anyType } = await supabase.from('work_types').select('id').limit(1);
+  return anyType?.[0]?.id || '10000000-0000-4000-a000-000000000001';
+}
+
 export async function createWorkEntry(formData: WorkEntryFormData): Promise<WorkEntry> {
   const results = await createWorkEntriesBatch([formData]);
   return results[0];
@@ -262,112 +404,44 @@ export async function createWorkEntry(formData: WorkEntryFormData): Promise<Work
 export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Promise<WorkEntry[]> {
   if (formDatas.length === 0) return [];
 
-  if (!isSupabaseConfigured()) {
-    const created: WorkEntryWithDetails[] = [];
-    for (let i = 0; i < formDatas.length; i++) {
-      const formData = formDatas[i];
-      const profile = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id) || INITIAL_MOCK_PROFILES[0];
-      const client = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id) || null;
-      const work_type = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id) || INITIAL_MOCK_WORK_TYPES[0];
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
 
-      const newEntry: WorkEntryWithDetails = {
-        id: `we_${Date.now()}_${i}`,
-        user_id: formData.user_id,
-        client_id: formData.client_id || null,
-        work_type_id: formData.work_type_id,
-        work_date: formData.work_date,
-        description: formData.description,
-        quantity_done: formData.quantity_done,
-        quantity_approved: formData.quantity_approved,
-        best_work_url: formData.best_work_url || null,
-        notes: formData.notes || null,
-        status: formData.status || 'Submitted',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        profile,
-        client,
-        work_type,
-      };
+      const insertPayload = [];
+      for (const formData of formDatas) {
+        const dbUserId = await ensureProfileInDB(supabase, formData.user_id);
+        const dbClientId = await ensureClientInDB(supabase, formData.client_id || null);
+        const dbWorkTypeId = await ensureWorkTypeInDB(supabase, formData.work_type_id);
 
-      mockWorkEntriesStore.unshift(newEntry);
-      created.push(newEntry);
-    }
-    return created;
-  }
-
-  const supabase = createClient();
-
-  // Fetch Supabase database tables to match exact database UUIDs
-  const [dbProfiles, dbClients, dbWorkTypes] = await Promise.all([
-    (supabase.from('profiles') as any).select('id, name').then((r: any) => r.data || []),
-    (supabase.from('clients') as any).select('id, name').then((r: any) => r.data || []),
-    (supabase.from('work_types') as any).select('id, name').then((r: any) => r.data || []),
-  ]);
-
-  const insertPayload = formDatas.map(formData => {
-    // Resolve user_id
-    let resolvedUserId = formData.user_id;
-    if (!isUUID(resolvedUserId)) {
-      const legacyName = LEGACY_ID_TO_NAME_MAP[formData.user_id];
-      const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id || p.name.toLowerCase() === (legacyName || '').toLowerCase());
-      const nameToMatch = legacyName || mockProf?.name || formData.user_id || '';
-      const dbMatch = dbProfiles.find((p: any) => p.name?.toLowerCase() === nameToMatch.toLowerCase());
-      resolvedUserId = dbMatch ? dbMatch.id : (dbProfiles[0]?.id || '00000000-0000-4000-a000-000000000001');
-    }
-
-    // Resolve client_id
-    let resolvedClientId: string | null = formData.client_id || null;
-    if (resolvedClientId && !isUUID(resolvedClientId)) {
-      const legacyName = LEGACY_ID_TO_NAME_MAP[formData.client_id!];
-      const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id || c.name.toLowerCase() === (legacyName || '').toLowerCase());
-      const nameToMatch = legacyName || mockClient?.name || formData.client_id || '';
-      const dbMatch = dbClients.find((c: any) => c.name?.toLowerCase() === nameToMatch.toLowerCase());
-      if (dbMatch) {
-        resolvedClientId = dbMatch.id;
-      } else {
-        const fallbackClient = INITIAL_MOCK_CLIENTS.find(c => c.name.toLowerCase() === nameToMatch.toLowerCase());
-        resolvedClientId = fallbackClient && isUUID(fallbackClient.id) ? fallbackClient.id : null;
+        insertPayload.push({
+          user_id: dbUserId,
+          client_id: dbClientId,
+          work_type_id: dbWorkTypeId,
+          work_date: formData.work_date,
+          description: formData.description,
+          quantity_done: formData.quantity_done,
+          quantity_approved: formData.quantity_approved,
+          best_work_url: formData.best_work_url || null,
+          notes: formData.notes || null,
+          status: formData.status || 'Submitted',
+        });
       }
+
+      const { data, error } = await (supabase.from('work_entries') as any)
+        .insert(insertPayload)
+        .select();
+
+      if (!error && data && data.length > 0) {
+        return data;
+      }
+      console.warn('Supabase insert notice:', error?.message);
+    } catch (err) {
+      console.warn('Supabase insert exception:', err);
     }
-
-    // Resolve work_type_id
-    let resolvedWorkTypeId = formData.work_type_id;
-    if (!isUUID(resolvedWorkTypeId)) {
-      const legacyName = LEGACY_ID_TO_NAME_MAP[formData.work_type_id];
-      const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id || w.name.toLowerCase() === (legacyName || '').toLowerCase());
-      const nameToMatch = legacyName || mockWorkType?.name || formData.work_type_id || '';
-      const dbMatch = dbWorkTypes.find((wt: any) => wt.name?.toLowerCase() === nameToMatch.toLowerCase());
-      resolvedWorkTypeId = dbMatch ? dbMatch.id : (dbWorkTypes[0]?.id || '10000000-0000-4000-a000-000000000001');
-    }
-
-    return {
-      user_id: isUUID(resolvedUserId) ? resolvedUserId : (dbProfiles[0]?.id || '00000000-0000-4000-a000-000000000001'),
-      client_id: isUUID(resolvedClientId) ? resolvedClientId : null,
-      work_type_id: isUUID(resolvedWorkTypeId) ? resolvedWorkTypeId : (dbWorkTypes[0]?.id || '10000000-0000-4000-a000-000000000001'),
-      work_date: formData.work_date,
-      description: formData.description,
-      quantity_done: formData.quantity_done,
-      quantity_approved: formData.quantity_approved,
-      best_work_url: formData.best_work_url || null,
-      notes: formData.notes || null,
-      status: formData.status || 'Submitted',
-    };
-  });
-
-  try {
-    const { data, error } = await (supabase.from('work_entries') as any)
-      .insert(insertPayload)
-      .select();
-
-    if (!error && data && data.length > 0) {
-      return data;
-    }
-    console.warn('Supabase insert fallback notice:', error?.message);
-  } catch (err) {
-    console.warn('Supabase insert exception fallback:', err);
   }
 
-  // Fallback to local store so user operations are NEVER blocked by RLS policies!
+  // Local fallback
   const currentLocal = getStoredMockEntries();
   const created: WorkEntryWithDetails[] = [];
   for (const formData of formDatas) {
@@ -445,31 +519,16 @@ export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFor
     const supabase = createClient();
     const payload: any = { ...formData };
 
-    if (payload.client_id && !isUUID(payload.client_id)) {
-      const legacyName = LEGACY_ID_TO_NAME_MAP[payload.client_id];
-      const dbClients = await (supabase.from('clients') as any).select('id, name').then((r: any) => r.data || []);
-      const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === payload.client_id || c.name.toLowerCase() === (legacyName || '').toLowerCase());
-      const nameToMatch = legacyName || mockClient?.name || payload.client_id || '';
-      const dbMatch = dbClients.find((c: any) => c.name?.toLowerCase() === nameToMatch.toLowerCase());
-      payload.client_id = dbMatch && isUUID(dbMatch.id) ? dbMatch.id : null;
+    if (payload.client_id) {
+      payload.client_id = await ensureClientInDB(supabase, payload.client_id);
     }
 
-    if (payload.user_id && !isUUID(payload.user_id)) {
-      const legacyName = LEGACY_ID_TO_NAME_MAP[payload.user_id];
-      const dbProfiles = await (supabase.from('profiles') as any).select('id, name').then((r: any) => r.data || []);
-      const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === payload.user_id || p.name.toLowerCase() === (legacyName || '').toLowerCase());
-      const nameToMatch = legacyName || mockProf?.name || payload.user_id || '';
-      const dbMatch = dbProfiles.find((p: any) => p.name?.toLowerCase() === nameToMatch.toLowerCase());
-      if (dbMatch && isUUID(dbMatch.id)) payload.user_id = dbMatch.id;
+    if (payload.user_id) {
+      payload.user_id = await ensureProfileInDB(supabase, payload.user_id);
     }
 
-    if (payload.work_type_id && !isUUID(payload.work_type_id)) {
-      const legacyName = LEGACY_ID_TO_NAME_MAP[payload.work_type_id];
-      const dbWorkTypes = await (supabase.from('work_types') as any).select('id, name').then((r: any) => r.data || []);
-      const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === payload.work_type_id || w.name.toLowerCase() === (legacyName || '').toLowerCase());
-      const nameToMatch = legacyName || mockWorkType?.name || payload.work_type_id || '';
-      const dbMatch = dbWorkTypes.find((wt: any) => wt.name?.toLowerCase() === nameToMatch.toLowerCase());
-      if (dbMatch && isUUID(dbMatch.id)) payload.work_type_id = dbMatch.id;
+    if (payload.work_type_id) {
+      payload.work_type_id = await ensureWorkTypeInDB(supabase, payload.work_type_id);
     }
 
     const { data, error } = await (supabase.from('work_entries') as any)
@@ -486,21 +545,15 @@ export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFor
 }
 
 export async function deleteWorkEntry(id: string): Promise<void> {
-  // Remove from mock / local store immediately
   const currentLocal = getStoredMockEntries();
   const filtered = currentLocal.filter(e => e.id !== id);
   saveStoredMockEntries(filtered);
 
-  if (!isSupabaseConfigured()) {
-    return;
-  }
+  if (!isSupabaseConfigured()) return;
 
   try {
     const supabase = createClient();
-    await supabase
-      .from('work_entries')
-      .delete()
-      .eq('id', id);
+    await supabase.from('work_entries').delete().eq('id', id);
   } catch (err) {
     console.warn('Supabase work entry delete notice:', err);
   }
@@ -509,9 +562,6 @@ export async function deleteWorkEntry(id: string): Promise<void> {
 export async function createClientRecord(name: string): Promise<Client> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error('Client name cannot be empty');
-
-  const existing = INITIAL_MOCK_CLIENTS.find(c => c.name.toLowerCase() === trimmed.toLowerCase());
-  if (existing) return existing;
 
   const newMockClient: Client = {
     id: `c_${Date.now()}`,
@@ -522,41 +572,42 @@ export async function createClientRecord(name: string): Promise<Client> {
   };
   INITIAL_MOCK_CLIENTS.unshift(newMockClient);
 
-  if (!isSupabaseConfigured()) {
-    return newMockClient;
-  }
+  if (!isSupabaseConfigured()) return newMockClient;
 
   try {
     const supabase = createClient();
-    const { data, error } = await (supabase.from('clients') as any)
-      .insert({ name: trimmed })
-      .select()
-      .single();
-
-    if (error || !data) return newMockClient;
-    return data;
+    const dbClientId = await ensureClientInDB(supabase, trimmed);
+    if (dbClientId) {
+      return { ...newMockClient, id: dbClientId };
+    }
+    return newMockClient;
   } catch {
     return newMockClient;
   }
 }
 
 export async function deleteClientRecord(id: string): Promise<void> {
-  // Remove from mock / local array by ID or name
+  const clientObj = INITIAL_MOCK_CLIENTS.find(c => c.id === id || c.name.toLowerCase() === id.toLowerCase());
+  const clientName = clientObj ? clientObj.name : id;
+
+  addDeletedClientFilter(id);
+  if (clientName) addDeletedClientFilter(clientName);
+
   const idx = INITIAL_MOCK_CLIENTS.findIndex(c => c.id === id || c.name.toLowerCase() === id.toLowerCase());
   if (idx !== -1) INITIAL_MOCK_CLIENTS.splice(idx, 1);
 
-  if (!isSupabaseConfigured()) {
-    return;
-  }
-
-  try {
-    const supabase = createClient();
-    await supabase
-      .from('clients')
-      .delete()
-      .or(`id.eq.${id},name.eq.${id}`);
-  } catch (err) {
-    console.warn('Supabase client delete notice:', err);
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      if (isUUID(id)) {
+        await (supabase.from('clients') as any).delete().eq('id', id);
+      }
+      if (clientName) {
+        await (supabase.from('clients') as any).delete().ilike('name', clientName);
+      }
+    } catch (err) {
+      console.warn('Supabase client delete notice:', err);
+    }
   }
 }
 
@@ -568,64 +619,44 @@ export async function createProfileRecord(data: { name: string; designation: str
   if (!name) throw new Error('Member name is required');
   if (!email) throw new Error('Email is required');
 
-  if (!isSupabaseConfigured()) {
-    const newProfile: Profile = {
-      id: `p_${Date.now()}`,
-      auth_user_id: null,
-      name,
-      designation: designation || 'Team Member',
-      email,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    INITIAL_MOCK_PROFILES.unshift(newProfile);
+  const newProfile: Profile = {
+    id: `p_${Date.now()}`,
+    auth_user_id: null,
+    name,
+    designation: designation || 'Team Member',
+    email,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  INITIAL_MOCK_PROFILES.unshift(newProfile);
+
+  if (!isSupabaseConfigured()) return newProfile;
+
+  try {
+    const supabase = createClient();
+    const dbProfId = await ensureProfileInDB(supabase, name);
+    if (dbProfId) {
+      return { ...newProfile, id: dbProfId };
+    }
+    return newProfile;
+  } catch (err: any) {
     return newProfile;
   }
-
-  const supabase = createClient();
-  const { data: created, error } = await (supabase.from('profiles') as any)
-    .insert({ name, designation, email })
-    .select()
-    .single();
-
-  if (error) throw new Error(error.message);
-  return created;
 }
 
 export async function deleteProfileRecord(id: string): Promise<void> {
-  if (!isSupabaseConfigured()) {
-    const idx = INITIAL_MOCK_PROFILES.findIndex(p => p.id === id);
-    if (idx !== -1) INITIAL_MOCK_PROFILES.splice(idx, 1);
-    return;
-  }
+  const idx = INITIAL_MOCK_PROFILES.findIndex(p => p.id === id);
+  if (idx !== -1) INITIAL_MOCK_PROFILES.splice(idx, 1);
 
-  const supabase = createClient();
-  const { error } = await supabase
-    .from('profiles')
-    .delete()
-    .eq('id', id);
-
-  if (error) throw new Error(error.message);
-}
-
-export function setLoggedInUser(name: string, email: string) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('design_orbit_user_name', name);
-    localStorage.setItem('design_orbit_user_email', email);
-  }
-}
-
-export function getLoggedInUser(): { name: string; email: string } {
-  if (typeof window !== 'undefined') {
-    const storedName = localStorage.getItem('design_orbit_user_name');
-    const storedEmail = localStorage.getItem('design_orbit_user_email');
-    if (storedName && storedEmail) {
-      return { name: storedName, email: storedEmail };
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      if (isUUID(id)) {
+        await (supabase.from('profiles') as any).delete().eq('id', id);
+      }
+    } catch (err) {
+      console.warn('Supabase profile delete notice:', err);
     }
   }
-  return { name: 'Varun', email: 'varun@webtreeonline.com' };
 }
-
-
-

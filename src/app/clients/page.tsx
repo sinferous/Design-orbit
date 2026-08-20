@@ -1,34 +1,33 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { fetchClients, createClientRecord, deleteClientRecord } from '@/lib/services/work-entry';
 import { Client } from '@/types';
-import { Building2, Plus, Search, Trash2, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { ToastAlert } from '@/components/ui/ToastAlert';
+import { fetchClients, createClientRecord, deleteClientRecord } from '@/lib/services/work-entry';
+import { Building2, Plus, Search, Trash2, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [newClientName, setNewClientName] = useState('');
   const [adding, setAdding] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  async function loadClientsData() {
-    setLoading(true);
+  const { showToast } = useToast();
+
+  const loadClientsData = async () => {
     try {
       const data = await fetchClients();
       setClients(data);
-    } catch (err) {
-      console.error('Failed to load clients:', err);
+    } catch {
+      showToast('Failed to load client directory.', 'error');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     loadClientsData();
@@ -36,19 +35,18 @@ export default function ClientsPage() {
 
   const handleAddClient = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newClientName.trim()) return;
+    const trimmed = newClientName.trim();
+    if (!trimmed) return;
 
     setAdding(true);
-    setErrorMsg(null);
-    setSuccessMsg(null);
 
     try {
-      await createClientRecord(newClientName.trim());
+      await createClientRecord(trimmed);
       setNewClientName('');
-      setSuccessMsg('Client added successfully!');
+      showToast(`Client "${trimmed}" added successfully!`, 'success');
       await loadClientsData();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to add client');
+      showToast(err.message || 'Failed to add client', 'error');
     } finally {
       setAdding(false);
     }
@@ -60,10 +58,11 @@ export default function ClientsPage() {
     try {
       await deleteClientRecord(id);
       setClients(prev => prev.filter(c => c.id !== id && c.name.toLowerCase() !== name.toLowerCase()));
-      setSuccessMsg(`Client "${name}" removed successfully.`);
+      showToast(`Client "${name}" removed permanently.`, 'success');
       await loadClientsData();
     } catch (err) {
       setClients(prev => prev.filter(c => c.id !== id && c.name.toLowerCase() !== name.toLowerCase()));
+      showToast(`Client "${name}" removed.`, 'success');
     } finally {
       setDeletingId(null);
     }
@@ -75,110 +74,112 @@ export default function ClientsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <ToastAlert message={errorMsg} type="error" onClose={() => setErrorMsg(null)} />
-      <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <Link href="/dashboard" className="text-xs font-bold text-sky-600 hover:underline flex items-center space-x-1">
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Dashboard</span>
-              </Link>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                Client Roster
+              </span>
+              <span className="text-xs text-slate-400">•</span>
+              <span className="text-xs font-semibold text-slate-500">{clients.length} Active Clients (A-Z)</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mt-1">Client Directory Management</h1>
+            <h1 className="text-2xl font-bold text-slate-900 mt-1">
+              Client Directory
+            </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Add and manage client profiles for work logging across the team.
+              Add new client names or manage existing accounts for daily work entries.
             </p>
           </div>
+
+          <Link
+            href="/work/new"
+            className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Work Entry</span>
+          </Link>
         </div>
 
-        {/* Add New Client Form */}
+        {/* Add Client Card */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
           <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-            <Building2 className="w-5 h-5 text-sky-600" />
+            <Building2 className="w-4 h-4 text-sky-600" />
             <span>Add New Client</span>
           </h2>
-
-          <form onSubmit={handleAddClient} className="flex flex-col sm:flex-row items-center gap-3">
+          <form onSubmit={handleAddClient} className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
-              placeholder="Enter new client name (e.g. Acme Corp, Longovia)..."
+              required
               value={newClientName}
               onChange={e => setNewClientName(e.target.value)}
+              placeholder="Enter new client name (e.g. Acme Corp)"
               className="flex-1 w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all"
-              required
             />
             <button
               type="submit"
-              disabled={adding || !newClientName.trim()}
-              className="w-full sm:w-auto px-6 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50 flex items-center justify-center space-x-2 shrink-0"
+              disabled={adding}
+              className="inline-flex justify-center items-center space-x-2 px-6 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50"
             >
-              {adding ? (
-                <>
-                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                  <span>Adding...</span>
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4.5 h-4.5" />
-                  <span>Add Client</span>
-                </>
-              )}
+              <Plus className="w-4 h-4" />
+              <span>{adding ? 'Adding...' : 'Add Client'}</span>
             </button>
           </form>
         </div>
 
-        {/* Client List & Search */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        {/* Client Roster List Card */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
             <h2 className="text-base font-bold text-slate-900">
-              Existing Clients ({filteredClients.length})
+              All Clients ({filteredClients.length})
             </h2>
 
+            {/* Search Filter */}
             <div className="relative w-full sm:w-64">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search clients..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search clients..."
                 className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center">
+            <div className="p-12 text-center">
               <div className="animate-spin w-6 h-6 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-2 text-xs text-slate-500">Loading client directory...</p>
+              <p className="mt-3 text-xs text-slate-500">Loading client directory...</p>
             </div>
           ) : filteredClients.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-500 font-medium">
+            <div className="p-8 text-center bg-slate-50 rounded-lg border border-slate-200 text-slate-500 text-sm">
               No clients found matching "{searchQuery}".
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {filteredClients.map(client => (
                 <div
                   key={client.id}
                   className="p-4 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between space-x-3 hover:border-sky-300 transition-colors"
                 >
-                  <div className="flex items-center space-x-3 truncate">
-                    <div className="w-8 h-8 rounded-md bg-sky-100 text-sky-700 font-bold text-xs flex items-center justify-center shrink-0">
-                      {client.name.charAt(0)}
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center text-xs font-bold text-sky-700 shrink-0">
+                      {client.name.charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-bold text-slate-900 text-sm truncate">{client.name}</span>
+                    <span className="text-sm font-bold text-slate-800 truncate" title={client.name}>
+                      {client.name}
+                    </span>
                   </div>
 
                   <button
                     onClick={() => handleDeleteClient(client.id, client.name)}
                     disabled={deletingId === client.id}
-                    className="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-slate-200 transition-colors disabled:opacity-50 shrink-0"
-                    title="Delete client"
+                    className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-white transition-colors shrink-0 disabled:opacity-50"
+                    title={`Delete client "${client.name}"`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

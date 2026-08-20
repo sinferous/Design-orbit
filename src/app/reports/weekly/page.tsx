@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { getWeeklyReportData, getWeekRange, WeeklyUserSummary, exportToCSV } from '@/lib/services/reports';
 import { ChevronLeft, ChevronRight, Calendar, Download, ChevronDown, ChevronUp, Link as LinkIcon, Award, Sparkles } from 'lucide-react';
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function WeeklyReportPage() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -18,6 +19,8 @@ export default function WeeklyReportPage() {
   const [tempLinks, setTempLinks] = useState<Record<string, string>>({});
   const [savedStatus, setSavedStatus] = useState<Record<string, boolean>>({});
 
+  const { showToast } = useToast();
+
   const loadReport = useCallback(async () => {
     setLoading(true);
     const range = getWeekRange(currentDate);
@@ -27,10 +30,11 @@ export default function WeeklyReportPage() {
       setSummaries(data);
     } catch (err) {
       console.error('Failed to load weekly report:', err);
+      showToast('Failed to load weekly report.', 'error');
     } finally {
       setLoading(false);
     }
-  }, [currentDate]);
+  }, [currentDate, showToast]);
 
   useEffect(() => {
     loadReport();
@@ -56,6 +60,7 @@ export default function WeeklyReportPage() {
       'Weekly Best Work Link': bestWorkLinks[s.profile.id] || '',
     }));
     exportToCSV(`Weekly_Report_${weekRange.startDate}_to_${weekRange.endDate}`, csvRows);
+    showToast('Exported Weekly Meeting Report CSV successfully!', 'success');
   };
 
   const grandTotalCreated = summaries.reduce((acc, curr) => acc + curr.totalCreated, 0);
@@ -276,6 +281,7 @@ export default function WeeklyReportPage() {
                             const val = tempLinks[s.profile.id] ?? bestWorkLinks[s.profile.id] ?? '';
                             setBestWorkLinks({ ...bestWorkLinks, [s.profile.id]: val });
                             setSavedStatus({ ...savedStatus, [s.profile.id]: true });
+                            showToast(`Best work link saved for ${s.profile.name}!`, 'success');
                             setTimeout(() => {
                               setSavedStatus(prev => ({ ...prev, [s.profile.id]: false }));
                             }, 2000);
