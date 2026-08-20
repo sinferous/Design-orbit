@@ -25,7 +25,8 @@ export default function TeamPage() {
     setLoading(true);
     try {
       const data = await fetchProfiles();
-      setProfiles(data);
+      const creativeMembers = data.filter(p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator'));
+      setProfiles(creativeMembers);
     } catch (err) {
       console.error('Failed to load team profiles:', err);
     } finally {

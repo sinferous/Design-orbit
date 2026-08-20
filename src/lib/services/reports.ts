@@ -70,7 +70,8 @@ export function getWeekRange(dateInput: Date = new Date()) {
 }
 
 export async function getWeeklyReportData(startDateStr: string, endDateStr: string): Promise<WeeklyUserSummary[]> {
-  const profiles = await fetchProfiles();
+  const allProfiles = await fetchProfiles();
+  const profiles = allProfiles.filter(p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator'));
   const workTypes = await fetchWorkTypes();
 
   // Fetch entries for all dates in the range
@@ -133,6 +134,9 @@ export async function getMonthlyReportData(year: number, month: number, userIdFi
     monthEntries.push(...dayEntries);
   }
 
+  // Filter out any entries by Admin
+  monthEntries = monthEntries.filter(e => e.profile?.name !== 'Admin');
+
   if (workTypeIdFilter) {
     monthEntries = monthEntries.filter(e => e.work_type_id === workTypeIdFilter);
   }
@@ -168,7 +172,8 @@ export async function getMonthlyReportData(year: number, month: number, userIdFi
 }
 
 export async function getOverallReportData(groupBy: 'person' | 'work_type' | 'client') {
-  const profiles = await fetchProfiles();
+  const allProfiles = await fetchProfiles();
+  const profiles = allProfiles.filter(p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator'));
   const workTypes = await fetchWorkTypes();
   const clients = await fetchClients();
 

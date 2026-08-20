@@ -40,7 +40,8 @@ export default function MonthlyReportPage() {
         fetchWorkTypes(),
         fetchClients(),
       ]);
-      setProfiles(pData);
+      const creativeProfiles = pData.filter(p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator'));
+      setProfiles(creativeProfiles);
       setWorkTypes(wtData);
       setClients(cData);
     }
