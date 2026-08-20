@@ -46,7 +46,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **UI Shell & Login Flow**:
   - Top Navigation bar ([`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx)) dynamically rendering active session user avatar & username.
   - Root Route (`/`): Default landing page renders **Login Page** directly. Signing in opens the **Dashboard** (`/dashboard`).
-  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and dynamic user session storage.
+  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and quick account selector without password auto-fill.
 
 ---
 

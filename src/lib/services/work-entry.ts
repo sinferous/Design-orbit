@@ -27,10 +27,34 @@ export const INITIAL_MOCK_WORK_TYPES: WorkType[] = [
 ];
 
 export const INITIAL_MOCK_CLIENTS: Client[] = [
-  { id: 'c1', name: 'Longovia', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c2', name: 'Design Orbit', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c3', name: 'Webtree Corporate', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c4', name: 'Internal Project', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c1', name: 'Alsaraya', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c2', name: 'Webtree', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c3', name: 'Longveia', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c4', name: '2am idea', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c5', name: 'Shaheen group', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c6', name: 'Ghumpa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c7', name: 'Voro', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c8', name: 'Tectory', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c9', name: 'Shamsha', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c10', name: 'Larosa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c11', name: 'Alrosta', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c12', name: 'Abdulhameed', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c13', name: 'Allday', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c14', name: 'Shaheen', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c15', name: 'Calibar sports', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c16', name: 'Farhat', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c17', name: 'Priyadarshini', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c18', name: 'Easy lease', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c19', name: 'Ybyf', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c20', name: 'Vivant dental', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c21', name: 'All day market', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c22', name: 'Amwaj', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c23', name: 'Farhat tours', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c24', name: 'Cruise', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c25', name: 'Cruise sm', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c26', name: 'Amaron', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c27', name: 'Internal Project', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'c28', name: 'Design Orbit', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
 const todayStr = new Date().toISOString().split('T')[0];

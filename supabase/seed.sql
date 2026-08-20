@@ -26,10 +26,34 @@ INSERT INTO public.profiles (name, designation, email) VALUES
     ('Gajesh', 'UI/UX Designer', 'gajesh@webtreeonline.com')
 ON CONFLICT DO NOTHING;
 
--- 3. SEED INITIAL SAMPLE CLIENTS
+-- 3. SEED REAL CLIENT LIST
 INSERT INTO public.clients (name) VALUES
+    ('Alsaraya'),
+    ('Webtree'),
+    ('Longveia'),
+    ('2am idea'),
+    ('Shaheen group'),
+    ('Ghumpa'),
+    ('Voro'),
+    ('Tectory'),
+    ('Shamsha'),
+    ('Larosa'),
+    ('Alrosta'),
+    ('Abdulhameed'),
+    ('Allday'),
+    ('Shaheen'),
+    ('Calibar sports'),
+    ('Farhat'),
+    ('Priyadarshini'),
+    ('Easy lease'),
+    ('Ybyf'),
+    ('Vivant dental'),
+    ('All day market'),
+    ('Amwaj'),
+    ('Farhat tours'),
+    ('Cruise'),
+    ('Cruise sm'),
+    ('Amaron'),
     ('Internal Project'),
-    ('Longovia'),
-    ('Design Orbit'),
-    ('Webtree Corporate')
+    ('Design Orbit')
 ON CONFLICT (name) DO NOTHING;
