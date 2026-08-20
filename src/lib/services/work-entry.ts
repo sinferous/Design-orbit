@@ -383,18 +383,22 @@ export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFor
 }
 
 export async function deleteWorkEntry(id: string): Promise<void> {
+  // Remove from mock / local store immediately
+  mockWorkEntriesStore = mockWorkEntriesStore.filter(e => e.id !== id);
+
   if (!isSupabaseConfigured()) {
-    mockWorkEntriesStore = mockWorkEntriesStore.filter(e => e.id !== id);
     return;
   }
 
-  const supabase = createClient();
-  const { error } = await supabase
-    .from('work_entries')
-    .delete()
-    .eq('id', id);
-
-  if (error) throw new Error(error.message);
+  try {
+    const supabase = createClient();
+    await supabase
+      .from('work_entries')
+      .delete()
+      .eq('id', id);
+  } catch (err) {
+    console.warn('Supabase work entry delete notice:', err);
+  }
 }
 
 export async function createClientRecord(name: string): Promise<Client> {

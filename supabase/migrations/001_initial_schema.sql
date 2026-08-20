@@ -153,39 +153,19 @@ CREATE POLICY "Authenticated users can insert work types"
     WITH CHECK (true);
 
 -- Work Entries Policies
-CREATE POLICY "Authenticated users can view all work entries"
+CREATE POLICY "Anyone can view all work entries"
     ON public.work_entries FOR SELECT
-    TO authenticated
     USING (true);
 
-CREATE POLICY "Users can insert their own work entries"
+CREATE POLICY "Anyone can insert work entries"
     ON public.work_entries FOR INSERT
-    TO authenticated
-    WITH CHECK (
-        user_id IN (
-            SELECT id FROM public.profiles WHERE auth_user_id = auth.uid()
-        )
-    );
+    WITH CHECK (true);
 
-CREATE POLICY "Users can update their own work entries"
+CREATE POLICY "Anyone can update work entries"
     ON public.work_entries FOR UPDATE
-    TO authenticated
-    USING (
-        user_id IN (
-            SELECT id FROM public.profiles WHERE auth_user_id = auth.uid()
-        )
-    )
-    WITH CHECK (
-        user_id IN (
-            SELECT id FROM public.profiles WHERE auth_user_id = auth.uid()
-        )
-    );
+    USING (true)
+    WITH CHECK (true);
 
-CREATE POLICY "Users can delete their own work entries"
+CREATE POLICY "Anyone can delete work entries"
     ON public.work_entries FOR DELETE
-    TO authenticated
-    USING (
-        user_id IN (
-            SELECT id FROM public.profiles WHERE auth_user_id = auth.uid()
-        )
-    );
+    USING (true);

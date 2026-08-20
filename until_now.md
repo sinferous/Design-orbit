@@ -39,7 +39,7 @@ This document provides a comprehensive summary of all progress, architecture, an
     - **Varun**: Graphic Designer (`varun@webtreeonline.com`)
     - **Shashiraj**: Graphic Designer (`shashiraj@webtreeonline.com`)
   - Seeded work types: `Static`, `Video`, `Mobile App`, `Landing Page`, `Website`, `UI/UX`, `Logo`, `Edits`, `Working`, `Other`.
-  - **Full Client Roster (28 Total)**: `Alsaraya`, `Webtree`, `Longveia`, `2am idea`, `Shaheen group`, `Ghumpa`, `Voro`, `Tectory`, `Shamsha`, `Larosa`, `Alrosta`, `Abdulhameed`, `Allday`, `Shaheen`, `Calibar sports`, `Farhat`, `Priyadarshini`, `Easy lease`, `Ybyf`, `Vivant dental`, `All day market`, `Amwaj`, `Farhat tours`, `Cruise`, `Cruise sm`, `Amaron`, `Internal Project`, `Design Orbit`.
+  - **Full Client Roster (28 Total Sorted A-Z)**: `2am idea`, `Abdulhameed`, `All day market`, `Allday`, `Alrosta`, `Alsaraya`, `Amaron`, `Amwaj`, `Calibar sports`, `Cruise`, `Cruise sm`, `Design Orbit`, `Easy lease`, `Farhat`, `Farhat tours`, `Ghumpa`, `Internal Project`, `Larosa`, `Longveia`, `Priyadarshini`, `Shaheen`, `Shaheen group`, `Shamsha`, `Tectory`, `Vivant dental`, `Voro`, `Webtree`, `Ybyf`.
 - [x] **Supabase Integration & Types**:
   - Built `@supabase/ssr` browser client ([`src/lib/supabase/client.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/client.ts)) and server client ([`src/lib/supabase/server.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/server.ts)).
   - Generated database TypeScript definitions ([`src/types/database.types.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/database.types.ts)) and domain models ([`src/types/index.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/index.ts)).
@@ -55,11 +55,11 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Work Entry Service Layer & Batch Creation**:
   - Built [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) supporting single and batch `createWorkEntriesBatch` operations.
 - [x] **Client Directory Management Module (`/clients`) & Quick Add**:
-  - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates.
+  - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates and A-Z alphabetical sorting.
   - Added **`+ Add New Client`** inline toggle button directly inside `WorkEntryForm.tsx` to add clients on the fly while filling out daily work.
   - Added `createClientRecord` and `deleteClientRecord` service operations.
 - [x] **Multi-Line Client Work Entry Form (`/work/new`)**:
-  - **Client Name Dropdown First**: Pick client at the top with inline client addition option.
+  - **Client Name Dropdown First**: Pick client at the top with inline client addition option (sorted A-Z).
   - **Multi-Item Repeater**: Add multiple work items for the same client in one batch (e.g. 2 Statics + 1 Video for Longovia).
   - **Ordered Item Fields**: Work Type → Description → Quantity Done → Approved Quantity → Submission Status (`Approved` vs `Not Approved`).
   - **Auto-bound Context**: Automatically defaults designer to active logged-in user profile (*e.g., Varun, Fazil, Moveena, Samantha, Gajesh, etc.*).
@@ -88,7 +88,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - One-click CSV export.
 - [x] **Monthly Report Page (`/reports/monthly`)**:
   - Month & Year selectors (e.g. August 2026).
-  - Filters for Team Member, Work Type, and Client.
+  - Filters for Team Member, Work Type, and Client (sorted A-Z).
   - Work Type breakdown table with Created, Approved, and Approval Rate %.
   - CSV export.
 - [x] **Overall / All-Time Analytics Page (`/reports/overall`)**:

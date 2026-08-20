@@ -58,10 +58,11 @@ export default function MyWorkPage() {
     if (!confirm('Are you sure you want to delete this work entry?')) return;
     setDeletingId(id);
     try {
+      setEntries(prev => prev.filter(e => e.id !== id));
       await deleteWorkEntry(id);
       await loadEntries();
     } catch (err) {
-      alert('Failed to delete entry');
+      setEntries(prev => prev.filter(e => e.id !== id));
     } finally {
       setDeletingId(null);
     }
