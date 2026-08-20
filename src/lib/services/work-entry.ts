@@ -259,55 +259,8 @@ export async function fetchWorkEntryById(id: string): Promise<WorkEntryWithDetai
 }
 
 export async function createWorkEntry(formData: WorkEntryFormData): Promise<WorkEntry> {
-  if (!isSupabaseConfigured()) {
-    const profile = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id) || INITIAL_MOCK_PROFILES[0];
-    const client = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id) || null;
-    const work_type = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id) || INITIAL_MOCK_WORK_TYPES[0];
-
-    const newEntry: WorkEntryWithDetails = {
-      id: `we_${Date.now()}`,
-      user_id: formData.user_id,
-      client_id: formData.client_id || null,
-      work_type_id: formData.work_type_id,
-      work_date: formData.work_date,
-      description: formData.description,
-      quantity_done: formData.quantity_done,
-      quantity_approved: formData.quantity_approved,
-      best_work_url: formData.best_work_url || null,
-      notes: formData.notes || null,
-      status: formData.status || 'Submitted',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      profile,
-      client,
-      work_type,
-    };
-
-    mockWorkEntriesStore.unshift(newEntry);
-    return newEntry;
-  }
-
-  const supabase = createClient();
-  const { data, error } = await (supabase.from('work_entries') as any)
-    .insert([
-      {
-        user_id: formData.user_id,
-        client_id: formData.client_id || null,
-        work_type_id: formData.work_type_id,
-        work_date: formData.work_date,
-        description: formData.description,
-        quantity_done: formData.quantity_done,
-        quantity_approved: formData.quantity_approved,
-        best_work_url: formData.best_work_url || null,
-        notes: formData.notes || null,
-        status: formData.status || 'Submitted',
-      },
-    ])
-    .select()
-    .single();
-
-  if (error) throw new Error(error.message);
-  return data;
+  const results = await createWorkEntriesBatch([formData]);
+  return results[0];
 }
 
 export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Promise<WorkEntry[]> {

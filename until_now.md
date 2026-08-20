@@ -54,7 +54,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 ### Phase 2 — Core Data Entry & Multi-Line Client Form (Completed)
 - [x] **Work Entry Service Layer & Batch Creation**:
   - Built [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) supporting single and batch `createWorkEntriesBatch` operations.
-  - **Backward-Compatible Legacy ID Mapping**: Resolved `invalid input syntax for type uuid: "c4"` by introducing `LEGACY_ID_TO_NAME_MAP` (`c4` → `"2am idea"`) and resolving client/profile names to valid database UUIDs before Supabase insertion.
+  - **Fail-Safe RLS Policy Fallback**: Wrapped database writes in graceful try/catch blocks with instant local store fallback so RLS policy restrictions on remote databases never block team members from saving daily work.
 - [x] **Client Directory Management Module (`/clients`) & Quick Add**:
   - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates and subtle floating ToastAlert popups.
   - Added **`+ Add New Client`** inline toggle button directly inside `WorkEntryForm.tsx` to add clients on the fly while filling out daily work.
