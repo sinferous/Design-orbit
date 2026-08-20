@@ -40,7 +40,8 @@ This document provides a comprehensive summary of all progress, architecture, an
     - **Shashiraj**: Graphic Designer (`shashiraj@webtreeonline.com`)
   - Seeded work types: `Static`, `Video`, `Mobile App`, `Landing Page`, `Website`, `UI/UX`, `Logo`, `Edits`, `Working`, `Other`.
   - **Full Client Roster (28 Total Sorted A-Z)**: `2am idea`, `Abdulhameed`, `All day market`, `Allday`, `Alrosta`, `Alsaraya`, `Amaron`, `Amwaj`, `Calibar sports`, `Cruise`, `Cruise sm`, `Design Orbit`, `Easy lease`, `Farhat`, `Farhat tours`, `Ghumpa`, `Internal Project`, `Larosa`, `Longveia`, `Priyadarshini`, `Shaheen`, `Shaheen group`, `Shamsha`, `Tectory`, `Vivant dental`, `Voro`, `Webtree`, `Ybyf`.
-- [x] **Supabase Integration & Types**:
+- [x] **Supabase Integration & Connection**:
+  - Verified active Supabase production database credentials (`https://xttbbandssespupfhgus.supabase.co`).
   - Built `@supabase/ssr` browser client ([`src/lib/supabase/client.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/client.ts)) and server client ([`src/lib/supabase/server.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/server.ts)).
   - Generated database TypeScript definitions ([`src/types/database.types.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/database.types.ts)) and domain models ([`src/types/index.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/index.ts)).
   - Added session cookie middleware ([`src/middleware.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/middleware.ts)).
@@ -52,9 +53,9 @@ This document provides a comprehensive summary of all progress, architecture, an
 ---
 
 ### Phase 2 — Core Data Entry & Multi-Line Client Form (Completed)
-- [x] **Work Entry Service Layer & Persistent Data Merger**:
+- [x] **Work Entry Service Layer & Dummy Data Removal**:
   - Built [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) supporting single and batch `createWorkEntriesBatch` operations.
-  - **Persistent LocalStorage & Data Merger**: Added `getStoredMockEntries` / `saveStoredMockEntries` and updated `fetchWorkEntriesByDate` to merge database records WITH local storage items. Saved entries now display immediately in `/work`, `/dashboard`, and all reports, even if database inserts are delayed or restricted.
+  - **Cleared Dummy Test Entries**: Removed initial hardcoded demo entries (`we1`, `we2`, `we3`) so that clearing the database correctly displays 0 entries logged, 0 created, and 0 approved across the Dashboard and reports.
 - [x] **Client Directory Management Module (`/clients`) & Quick Add**:
   - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates and subtle floating ToastAlert popups.
   - Added **`+ Add New Client`** inline toggle button directly inside `WorkEntryForm.tsx` to add clients on the fly while filling out daily work.
@@ -107,6 +108,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
 - **Live URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
+- **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: `npm run build` compiled successfully with **0 errors across all 14 routes**.
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`)

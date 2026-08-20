@@ -6,7 +6,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { fetchWorkEntriesByDate, getLoggedInUser } from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
 import { WorkEntryWithDetails } from '@/types';
-import { Plus, CheckCircle2, Clock, CalendarDays, ArrowUpRight, BarChart2, Layers, Users, PieChart, Sparkles } from 'lucide-react';
+import { Plus, CheckCircle2, Clock, CalendarDays, ArrowUpRight, BarChart2, Layers, Users, PieChart, Sparkles, User } from 'lucide-react';
 
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -167,24 +167,35 @@ export default function DashboardPage() {
                 {todayEntries.map(entry => (
                   <div
                     key={entry.id}
-                    className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                    className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                   >
-                    <div className="flex items-center space-x-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      {entry.profile && (
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200 shadow-2xs">
+                          <User className="w-3 h-3 text-teal-600" />
+                          <span>By {entry.profile.name}</span>
+                        </span>
+                      )}
+
                       <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
                         {entry.work_type?.name || 'Work'}
                       </span>
+
                       {entry.client && (
                         <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-200 text-slate-700">
                           {entry.client.name}
                         </span>
                       )}
+
                       <span className="font-semibold text-slate-900">{entry.description}</span>
                     </div>
 
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-4 shrink-0 text-slate-700">
                       <span>Done: <strong>{entry.quantity_done}</strong></span>
                       <span>Approved: <strong className="text-teal-700">{entry.quantity_approved}</strong></span>
-                      <span className="font-semibold text-slate-600">{entry.status}</span>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                        {entry.status}
+                      </span>
                     </div>
                   </div>
                 ))}
