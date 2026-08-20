@@ -39,6 +39,7 @@ This document provides a comprehensive summary of all progress, architecture, an
     - **Varun**: Graphic Designer (`varun@webtreeonline.com`)
     - **Shashiraj**: Graphic Designer (`shashiraj@webtreeonline.com`)
   - Seeded work types: `Static`, `Video`, `Mobile App`, `Landing Page`, `Website`, `UI/UX`, `Logo`, `Edits`, `Working`, `Other`.
+  - **Full Client Roster (28 Total)**: `Alsaraya`, `Webtree`, `Longveia`, `2am idea`, `Shaheen group`, `Ghumpa`, `Voro`, `Tectory`, `Shamsha`, `Larosa`, `Alrosta`, `Abdulhameed`, `Allday`, `Shaheen`, `Calibar sports`, `Farhat`, `Priyadarshini`, `Easy lease`, `Ybyf`, `Vivant dental`, `All day market`, `Amwaj`, `Farhat tours`, `Cruise`, `Cruise sm`, `Amaron`, `Internal Project`, `Design Orbit`.
 - [x] **Supabase Integration & Types**:
   - Built `@supabase/ssr` browser client ([`src/lib/supabase/client.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/client.ts)) and server client ([`src/lib/supabase/server.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/server.ts)).
   - Generated database TypeScript definitions ([`src/types/database.types.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/database.types.ts)) and domain models ([`src/types/index.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/index.ts)).

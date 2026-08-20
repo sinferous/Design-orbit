@@ -132,6 +132,15 @@ CREATE POLICY "Anyone can insert clients"
     ON public.clients FOR INSERT
     WITH CHECK (true);
 
+CREATE POLICY "Anyone can delete clients"
+    ON public.clients FOR DELETE
+    USING (true);
+
+CREATE POLICY "Anyone can update clients"
+    ON public.clients FOR UPDATE
+    USING (true)
+    WITH CHECK (true);
+
 -- Work Types Policies
 CREATE POLICY "Authenticated users can view work types"
     ON public.work_types FOR SELECT

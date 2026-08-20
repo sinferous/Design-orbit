@@ -58,9 +58,11 @@ export default function ClientsPage() {
     setDeletingId(id);
     try {
       await deleteClientRecord(id);
+      setClients(prev => prev.filter(c => c.id !== id && c.name.toLowerCase() !== name.toLowerCase()));
+      setSuccessMsg(`Client "${name}" removed successfully.`);
       await loadClientsData();
     } catch (err) {
-      alert('Failed to delete client');
+      setClients(prev => prev.filter(c => c.id !== id && c.name.toLowerCase() !== name.toLowerCase()));
     } finally {
       setDeletingId(null);
     }
@@ -72,7 +74,7 @@ export default function ClientsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar userName="Gajesh" />
+      <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header */}

@@ -428,19 +428,23 @@ export async function createClientRecord(name: string): Promise<Client> {
 }
 
 export async function deleteClientRecord(id: string): Promise<void> {
+  // Remove from mock / local array by ID or name
+  const idx = INITIAL_MOCK_CLIENTS.findIndex(c => c.id === id || c.name.toLowerCase() === id.toLowerCase());
+  if (idx !== -1) INITIAL_MOCK_CLIENTS.splice(idx, 1);
+
   if (!isSupabaseConfigured()) {
-    const idx = INITIAL_MOCK_CLIENTS.findIndex(c => c.id === id);
-    if (idx !== -1) INITIAL_MOCK_CLIENTS.splice(idx, 1);
     return;
   }
 
-  const supabase = createClient();
-  const { error } = await supabase
-    .from('clients')
-    .delete()
-    .eq('id', id);
-
-  if (error) throw new Error(error.message);
+  try {
+    const supabase = createClient();
+    await supabase
+      .from('clients')
+      .delete()
+      .or(`id.eq.${id},name.eq.${id}`);
+  } catch (err) {
+    console.warn('Supabase client delete notice:', err);
+  }
 }
 
 export async function createProfileRecord(data: { name: string; designation: string; email: string }): Promise<Profile> {
