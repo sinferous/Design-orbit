@@ -44,9 +44,9 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Generated database TypeScript definitions ([`src/types/database.types.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/database.types.ts)) and domain models ([`src/types/index.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/index.ts)).
   - Added session cookie middleware ([`src/middleware.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/middleware.ts)).
 - [x] **UI Shell & Login Flow**:
-  - Top Navigation bar ([`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx)).
+  - Top Navigation bar ([`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx)) dynamically rendering active session user avatar & username.
   - Root Route (`/`): Default landing page renders **Login Page** directly. Signing in opens the **Dashboard** (`/dashboard`).
-  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and seamless authentication redirection.
+  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and dynamic user session storage.
 
 ---
 
@@ -61,7 +61,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Client Name Dropdown First**: Pick client at the top with inline client addition option.
   - **Multi-Item Repeater**: Add multiple work items for the same client in one batch (e.g. 2 Statics + 1 Video for Longovia).
   - **Ordered Item Fields**: Work Type → Description → Quantity Done → Approved Quantity → Submission Status (`Approved` vs `Not Approved`).
-  - **Auto-bound Context**: Username (`Gajesh`) and system date automatically bound by default.
+  - **Auto-bound Context**: Automatically defaults designer to active logged-in user profile (*e.g., Varun, Fazil, Moveena, Samantha, Gajesh, etc.*).
   - **Actions**: `Save All Items` and `Save & Add For Another Client`.
 - [x] **Streamlined Daily Work Log View (`/work`)**:
   - Created [`src/app/work/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/page.tsx) defaulting to **ONLY the logged-in user's entries** (`My Log`).

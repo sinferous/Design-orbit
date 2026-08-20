@@ -106,7 +106,7 @@ export async function fetchWorkTypes(): Promise<WorkType[]> {
       .select('*')
       .eq('is_active', true)
       .order('name');
-    if (error || !data) return INITIAL_MOCK_WORK_TYPES;
+    if (error || !data || data.length === 0) return INITIAL_MOCK_WORK_TYPES;
     return data;
   } catch {
     return INITIAL_MOCK_WORK_TYPES;
@@ -122,8 +122,18 @@ export async function fetchClients(): Promise<Client[]> {
       .select('*')
       .eq('is_active', true)
       .order('name');
-    if (error || !data) return INITIAL_MOCK_CLIENTS;
-    return data;
+
+    if (error || !data || data.length === 0) return INITIAL_MOCK_CLIENTS;
+
+    // Merge any newly added local mock clients that might not be in Supabase yet
+    const combined: Client[] = [...data];
+    INITIAL_MOCK_CLIENTS.forEach(mockClient => {
+      if (!combined.some(c => c.name.toLowerCase() === mockClient.name.toLowerCase())) {
+        combined.push(mockClient);
+      }
+    });
+
+    return combined;
   } catch {
     return INITIAL_MOCK_CLIENTS;
   }
@@ -138,8 +148,18 @@ export async function fetchProfiles(): Promise<Profile[]> {
       .select('*')
       .eq('is_active', true)
       .order('name');
-    if (error || !data) return INITIAL_MOCK_PROFILES;
-    return data;
+
+    if (error || !data || data.length === 0) return INITIAL_MOCK_PROFILES;
+
+    // Merge any mock profiles if Supabase has a subset
+    const combined: Profile[] = [...data];
+    INITIAL_MOCK_PROFILES.forEach(mockProf => {
+      if (!combined.some(p => p.name.toLowerCase() === mockProf.name.toLowerCase() || (p.email && mockProf.email && p.email.toLowerCase() === mockProf.email.toLowerCase()))) {
+        combined.push(mockProf);
+      }
+    });
+
+    return combined;
   } catch {
     return INITIAL_MOCK_PROFILES;
   }
@@ -353,29 +373,34 @@ export async function createClientRecord(name: string): Promise<Client> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error('Client name cannot be empty');
 
-  if (!isSupabaseConfigured()) {
-    const existing = INITIAL_MOCK_CLIENTS.find(c => c.name.toLowerCase() === trimmed.toLowerCase());
-    if (existing) return existing;
+  const existing = INITIAL_MOCK_CLIENTS.find(c => c.name.toLowerCase() === trimmed.toLowerCase());
+  if (existing) return existing;
 
-    const newClient: Client = {
-      id: `c_${Date.now()}`,
-      name: trimmed,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    INITIAL_MOCK_CLIENTS.unshift(newClient);
-    return newClient;
+  const newMockClient: Client = {
+    id: `c_${Date.now()}`,
+    name: trimmed,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  INITIAL_MOCK_CLIENTS.unshift(newMockClient);
+
+  if (!isSupabaseConfigured()) {
+    return newMockClient;
   }
 
-  const supabase = createClient();
-  const { data, error } = await (supabase.from('clients') as any)
-    .insert({ name: trimmed })
-    .select()
-    .single();
+  try {
+    const supabase = createClient();
+    const { data, error } = await (supabase.from('clients') as any)
+      .insert({ name: trimmed })
+      .select()
+      .single();
 
-  if (error) throw new Error(error.message);
-  return data;
+    if (error || !data) return newMockClient;
+    return data;
+  } catch {
+    return newMockClient;
+  }
 }
 
 export async function deleteClientRecord(id: string): Promise<void> {

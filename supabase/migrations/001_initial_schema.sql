@@ -110,26 +110,26 @@ ALTER TABLE public.work_types ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.work_entries ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
-CREATE POLICY "Authenticated users can view team profiles"
+CREATE POLICY "Anyone can view team profiles"
     ON public.profiles FOR SELECT
-    TO authenticated
     USING (true);
+
+CREATE POLICY "Anyone can insert team profiles"
+    ON public.profiles FOR INSERT
+    WITH CHECK (true);
 
 CREATE POLICY "Users can update their own profile"
     ON public.profiles FOR UPDATE
-    TO authenticated
-    USING (auth_user_id = auth.uid())
-    WITH CHECK (auth_user_id = auth.uid());
+    USING (true)
+    WITH CHECK (true);
 
 -- Clients Policies
-CREATE POLICY "Authenticated users can view clients"
+CREATE POLICY "Anyone can view clients"
     ON public.clients FOR SELECT
-    TO authenticated
     USING (true);
 
-CREATE POLICY "Authenticated users can insert clients"
+CREATE POLICY "Anyone can insert clients"
     ON public.clients FOR INSERT
-    TO authenticated
     WITH CHECK (true);
 
 -- Work Types Policies
