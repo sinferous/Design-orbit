@@ -1,60 +1,65 @@
 import { createClient } from '@/lib/supabase/client';
 import { WorkEntry, WorkEntryFormData, WorkEntryWithDetails, WorkType, Client, Profile } from '@/types';
 
+const isUUID = (str: string | null | undefined): boolean => {
+  if (!str) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+};
+
 // MOCK SEED DATA FOR OFFLINE / PREVIEW MODE
 export const INITIAL_MOCK_PROFILES: Profile[] = [
-  { id: 'p0', auth_user_id: null, name: 'Admin', designation: 'System Administrator', email: 'admin@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'p1', auth_user_id: null, name: 'Gajesh', designation: 'UI/UX Designer', email: 'gajesh@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'p2', auth_user_id: null, name: 'Fazil', designation: 'Senior UI/UX Designer', email: 'fazil@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'p3', auth_user_id: null, name: 'Varun', designation: 'Graphic Designer', email: 'varun@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'p4', auth_user_id: null, name: 'Moveena', designation: 'Senior Graphic Designer', email: 'moveena@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'p5', auth_user_id: null, name: 'Shashiraj', designation: 'Graphic Designer', email: 'shashiraj@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'p6', auth_user_id: null, name: 'Prasanna Lakshmi', designation: 'Graphic Designer', email: 'prasanna@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'p7', auth_user_id: null, name: 'Samantha', designation: 'Design Team Lead', email: 'sams@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '00000000-0000-4000-a000-000000000000', auth_user_id: null, name: 'Admin', designation: 'System Administrator', email: 'admin@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '00000000-0000-4000-a000-000000000001', auth_user_id: null, name: 'Gajesh', designation: 'UI/UX Designer', email: 'gajesh@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '00000000-0000-4000-a000-000000000002', auth_user_id: null, name: 'Fazil', designation: 'Senior UI/UX Designer', email: 'fazil@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '00000000-0000-4000-a000-000000000003', auth_user_id: null, name: 'Varun', designation: 'Graphic Designer', email: 'varun@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '00000000-0000-4000-a000-000000000004', auth_user_id: null, name: 'Moveena', designation: 'Senior Graphic Designer', email: 'moveena@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '00000000-0000-4000-a000-000000000005', auth_user_id: null, name: 'Shashiraj', designation: 'Graphic Designer', email: 'shashiraj@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '00000000-0000-4000-a000-000000000006', auth_user_id: null, name: 'Prasanna Lakshmi', designation: 'Graphic Designer', email: 'prasanna@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '00000000-0000-4000-a000-000000000007', auth_user_id: null, name: 'Samantha', designation: 'Design Team Lead', email: 'sams@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
 export const INITIAL_MOCK_WORK_TYPES: WorkType[] = [
-  { id: 'wt1', name: 'Static', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt2', name: 'Video', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt3', name: 'Mobile App', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt4', name: 'Landing Page', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt5', name: 'Website', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt6', name: 'UI/UX', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt7', name: 'Logo', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt8', name: 'Edits', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt9', name: 'Working', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'wt10', name: 'Other', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000001', name: 'Static', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000002', name: 'Video', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000003', name: 'Mobile App', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000004', name: 'Landing Page', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000005', name: 'Website', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000006', name: 'UI/UX', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000007', name: 'Logo', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000008', name: 'Edits', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000009', name: 'Working', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000010', name: 'Other', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
 export const INITIAL_MOCK_CLIENTS: Client[] = [
-  { id: 'c4', name: '2am idea', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c12', name: 'Abdulhameed', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c21', name: 'All day market', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c13', name: 'Allday', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c11', name: 'Alrosta', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c1', name: 'Alsaraya', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c26', name: 'Amaron', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c22', name: 'Amwaj', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c15', name: 'Calibar sports', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c24', name: 'Cruise', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c25', name: 'Cruise sm', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c28', name: 'Design Orbit', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c18', name: 'Easy lease', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c16', name: 'Farhat', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c23', name: 'Farhat tours', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c6', name: 'Ghumpa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c27', name: 'Internal Project', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c10', name: 'Larosa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c3', name: 'Longveia', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c17', name: 'Priyadarshini', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c14', name: 'Shaheen', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c5', name: 'Shaheen group', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c9', name: 'Shamsha', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c8', name: 'Tectory', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c20', name: 'Vivant dental', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c7', name: 'Voro', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c2', name: 'Webtree', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'c19', name: 'Ybyf', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000004', name: '2am idea', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000012', name: 'Abdulhameed', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000021', name: 'All day market', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000013', name: 'Allday', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000011', name: 'Alrosta', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000001', name: 'Alsaraya', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000026', name: 'Amaron', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000022', name: 'Amwaj', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000015', name: 'Calibar sports', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000024', name: 'Cruise', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000025', name: 'Cruise sm', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000028', name: 'Design Orbit', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000018', name: 'Easy lease', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000016', name: 'Farhat', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000023', name: 'Farhat tours', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000006', name: 'Ghumpa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000027', name: 'Internal Project', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000010', name: 'Larosa', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000003', name: 'Longveia', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000017', name: 'Priyadarshini', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000014', name: 'Shaheen', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000005', name: 'Shaheen group', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000009', name: 'Shamsha', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000008', name: 'Tectory', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000020', name: 'Vivant dental', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000007', name: 'Voro', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000002', name: 'Webtree', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '20000000-0000-4000-a000-000000000019', name: 'Ybyf', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
 const todayStr = new Date().toISOString().split('T')[0];
@@ -330,18 +335,59 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
   }
 
   const supabase = createClient();
-  const insertPayload = formDatas.map(formData => ({
-    user_id: formData.user_id,
-    client_id: formData.client_id || null,
-    work_type_id: formData.work_type_id,
-    work_date: formData.work_date,
-    description: formData.description,
-    quantity_done: formData.quantity_done,
-    quantity_approved: formData.quantity_approved,
-    best_work_url: formData.best_work_url || null,
-    notes: formData.notes || null,
-    status: formData.status || 'Submitted',
-  }));
+
+  // Fetch Supabase database tables to match exact database UUIDs
+  const [dbProfiles, dbClients, dbWorkTypes] = await Promise.all([
+    (supabase.from('profiles') as any).select('id, name').then((r: any) => r.data || []),
+    (supabase.from('clients') as any).select('id, name').then((r: any) => r.data || []),
+    (supabase.from('work_types') as any).select('id, name').then((r: any) => r.data || []),
+  ]);
+
+  const insertPayload = formDatas.map(formData => {
+    // Resolve user_id
+    let resolvedUserId = formData.user_id;
+    if (!isUUID(resolvedUserId)) {
+      const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id);
+      const nameToMatch = mockProf?.name || formData.user_id || '';
+      const dbMatch = dbProfiles.find((p: any) => p.name?.toLowerCase() === nameToMatch.toLowerCase());
+      if (dbMatch) resolvedUserId = dbMatch.id;
+    }
+
+    // Resolve client_id
+    let resolvedClientId: string | null = formData.client_id || null;
+    if (resolvedClientId && !isUUID(resolvedClientId)) {
+      const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id);
+      const nameToMatch = mockClient?.name || formData.client_id || '';
+      const dbMatch = dbClients.find((c: any) => c.name?.toLowerCase() === nameToMatch.toLowerCase());
+      if (dbMatch) {
+        resolvedClientId = dbMatch.id;
+      } else {
+        resolvedClientId = null;
+      }
+    }
+
+    // Resolve work_type_id
+    let resolvedWorkTypeId = formData.work_type_id;
+    if (!isUUID(resolvedWorkTypeId)) {
+      const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id);
+      const nameToMatch = mockWorkType?.name || formData.work_type_id || '';
+      const dbMatch = dbWorkTypes.find((wt: any) => wt.name?.toLowerCase() === nameToMatch.toLowerCase());
+      if (dbMatch) resolvedWorkTypeId = dbMatch.id;
+    }
+
+    return {
+      user_id: resolvedUserId,
+      client_id: resolvedClientId,
+      work_type_id: resolvedWorkTypeId,
+      work_date: formData.work_date,
+      description: formData.description,
+      quantity_done: formData.quantity_done,
+      quantity_approved: formData.quantity_approved,
+      best_work_url: formData.best_work_url || null,
+      notes: formData.notes || null,
+      status: formData.status || 'Submitted',
+    };
+  });
 
   const { data, error } = await (supabase.from('work_entries') as any)
     .insert(insertPayload)
@@ -372,8 +418,34 @@ export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFor
   }
 
   const supabase = createClient();
+  const payload: any = { ...formData };
+
+  if (payload.client_id && !isUUID(payload.client_id)) {
+    const dbClients = await (supabase.from('clients') as any).select('id, name').then((r: any) => r.data || []);
+    const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === payload.client_id);
+    const nameToMatch = mockClient?.name || payload.client_id || '';
+    const dbMatch = dbClients.find((c: any) => c.name?.toLowerCase() === nameToMatch.toLowerCase());
+    payload.client_id = dbMatch ? dbMatch.id : null;
+  }
+
+  if (payload.user_id && !isUUID(payload.user_id)) {
+    const dbProfiles = await (supabase.from('profiles') as any).select('id, name').then((r: any) => r.data || []);
+    const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === payload.user_id);
+    const nameToMatch = mockProf?.name || payload.user_id || '';
+    const dbMatch = dbProfiles.find((p: any) => p.name?.toLowerCase() === nameToMatch.toLowerCase());
+    if (dbMatch) payload.user_id = dbMatch.id;
+  }
+
+  if (payload.work_type_id && !isUUID(payload.work_type_id)) {
+    const dbWorkTypes = await (supabase.from('work_types') as any).select('id, name').then((r: any) => r.data || []);
+    const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === payload.work_type_id);
+    const nameToMatch = mockWorkType?.name || payload.work_type_id || '';
+    const dbMatch = dbWorkTypes.find((wt: any) => wt.name?.toLowerCase() === nameToMatch.toLowerCase());
+    if (dbMatch) payload.work_type_id = dbMatch.id;
+  }
+
   const { data, error } = await (supabase.from('work_entries') as any)
-    .update(formData)
+    .update(payload)
     .eq('id', id)
     .select()
     .single();

@@ -47,7 +47,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **UI Shell & Login Flow**:
   - Top Navigation bar ([`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx)) dynamically rendering active session user avatar & username.
   - Root Route (`/`): Default landing page renders **Login Page** directly. Signing in opens the **Dashboard** (`/dashboard`).
-  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and quick account selector without password auto-fill.
+  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and subtle floating popup ToastAlert messages.
 
 ---
 
@@ -55,7 +55,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Work Entry Service Layer & Batch Creation**:
   - Built [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) supporting single and batch `createWorkEntriesBatch` operations.
 - [x] **Client Directory Management Module (`/clients`) & Quick Add**:
-  - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates and A-Z alphabetical sorting.
+  - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates and subtle floating ToastAlert popups.
   - Added **`+ Add New Client`** inline toggle button directly inside `WorkEntryForm.tsx` to add clients on the fly while filling out daily work.
   - Added `createClientRecord` and `deleteClientRecord` service operations.
 - [x] **Multi-Line Client Work Entry Form (`/work/new`)**:
@@ -63,6 +63,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Multi-Item Repeater**: Add multiple work items for the same client in one batch (e.g. 2 Statics + 1 Video for Longovia).
   - **Ordered Item Fields**: Work Type → Description → Quantity Done → Approved Quantity → Submission Status (`Approved` vs `Not Approved`).
   - **Auto-bound Context**: Automatically defaults designer to active logged-in user profile (*e.g., Varun, Fazil, Moveena, Samantha, Gajesh, etc.*).
+  - **Subtle ToastAlert Popups**: Removed top static error containers. Errors and success notices pop up smoothly at top right without shifting form inputs.
   - **Actions**: `Save All Items` and `Save & Add For Another Client`.
 - [x] **Streamlined Daily Work Log View & Deletion (`/work`)**:
   - Created [`src/app/work/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/page.tsx) defaulting to **ONLY the logged-in user's entries** (`My Log`).
@@ -71,7 +72,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Edit Entry Workflow (`/work/[id]`)**:
   - Built [`src/app/work/[id]/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/%5Bid%5D/page.tsx) to modify existing daily entries.
 - [x] **Account & Change Password Settings (`/settings`)**:
-  - Created [`src/app/settings/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx) allowing users to update their password from current password (`strongpassword`) to a new password with validation and **Eye show/hide password toggle buttons**.
+  - Created [`src/app/settings/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx) allowing users to update their password with Eye show/hide password toggle buttons and subtle ToastAlert popups.
 
 ---
 
@@ -97,7 +98,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - CSV export.
 - [x] **Executive Team Profile Grid & Add Team Member Module (`/team`)**:
   - Updated [`src/app/team/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/team/page.tsx) with a **`+ Add Team Member`** button & form to add team members (Name, Designation, Email).
-  - Added `createProfileRecord` and `deleteProfileRecord` service functions.
+  - Added `createProfileRecord` and `deleteProfileRecord` service functions with subtle ToastAlert notifications.
 
 ---
 
