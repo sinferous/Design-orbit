@@ -165,59 +165,24 @@ export async function fetchWorkTypes(): Promise<WorkType[]> {
 }
 
 export async function fetchClients(): Promise<Client[]> {
-  const deletedFilter = getDeletedClientFilter();
-
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClient();
       const { data, error } = await supabase
         .from('clients')
         .select('*')
+        .eq('is_active', true)
         .order('name', { ascending: true });
 
-      if (!error && data) {
-        const allClients: Client[] = [...(data as Client[])];
-        const existingNames = new Set(allClients.map((c: any) => c.name.toLowerCase()));
-
-        // Auto-seed missing initial clients into Supabase DB
-        const missingSeedClients = INITIAL_MOCK_CLIENTS.filter(
-          mockClient => !existingNames.has(mockClient.name.toLowerCase()) &&
-                        !deletedFilter.includes(mockClient.id.toLowerCase()) &&
-                        !deletedFilter.includes(mockClient.name.toLowerCase())
-        );
-
-        if (missingSeedClients.length > 0) {
-          for (const c of missingSeedClients) {
-            try {
-              const { data: singleInsert } = await (supabase.from('clients') as any)
-                .upsert({ name: c.name, is_active: true }, { onConflict: 'name', ignoreDuplicates: true })
-                .select();
-
-              if (singleInsert && singleInsert.length > 0) {
-                allClients.push(singleInsert[0] as Client);
-              }
-            } catch (err) {
-              console.warn(`Failed to seed client ${c.name}:`, err);
-            }
-          }
-        }
-
-        const activeClients = allClients.filter(
-          c => c.is_active !== false &&
-               !deletedFilter.includes(c.id.toLowerCase()) &&
-               !deletedFilter.includes(c.name.toLowerCase())
-        );
-
-        return activeClients.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+      if (!error && data && data.length > 0) {
+        return (data as Client[]).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
       }
     } catch (err) {
       console.warn('Supabase fetchClients notice:', err);
     }
   }
 
-  return [...INITIAL_MOCK_CLIENTS]
-    .filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()))
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+  return [...INITIAL_MOCK_CLIENTS].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 }
 
 export async function fetchProfiles(): Promise<Profile[]> {
@@ -693,6 +658,7 @@ export function clearLocalSessionData() {
   if (typeof window !== 'undefined') {
     try {
       localStorage.removeItem('design_orbit_local_work_entries');
+      localStorage.removeItem('design_orbit_deleted_clients');
     } catch {}
   }
   mockWorkEntriesStore = [];
