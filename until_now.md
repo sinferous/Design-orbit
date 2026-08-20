@@ -22,9 +22,9 @@ This document provides a comprehensive summary of all progress, architecture, an
 ### Phase 1 — Foundation (Completed)
 - [x] **Project Initialization**: Next.js 16 + TypeScript project initialized in workspace root.
 - [x] **Branding & Logo**: Integrated official Webtree vector SVG logo ([`logo/webtree-logo.svg`](file:///j:/Work/Webtree%20Online/Design%20orbit/public/logo/webtree-logo.svg)) separated by a clean vertical divider `|` before **Design Orbit** for a balanced corporate brand header.
-- [x] **Design Tokens & High-Visibility Floating Creative Background**:
+- [x] **Design Tokens & Subtle B&W Vector Background**:
   - Configured [`src/app/globals.css`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/globals.css) with clean white background, dark charcoal typography, and subtle Webtree blue (`#0284c7`) to green (`#0d9488`) gradient accents.
-  - **Floating Creative Background (`CreativeBackground.tsx`)**: High-contrast vector design elements (glowing Bezier curves with anchor nodes, Figma canvas bounding boxes with transform handles, rotating Orbit rings, color swatches, typography outlines, and vector cursors) floating in background margins.
+  - **Subtle B&W Vector Line-Art Background (`CreativeBackground.tsx`)**: Replaced heavy colorful badges with minimal, elegant, non-distracting black-and-white (B&W) vector line art (fine dashed Bezier paths, hairline canvas bounding boxes, subtle slate dot grid, B&W typography outlines, and faint B&W cursor vectors at low opacity ~20-25%).
 - [x] **Database Schema & Migrations**:
   - Created [`supabase/migrations/001_initial_schema.sql`](file:///j:/Work/Webtree%20Online/Design%20orbit/supabase/migrations/001_initial_schema.sql) with tables for `profiles`, `clients`, `work_types`, and `work_entries`.
   - Added indexes (`work_date`, `user_id`, `work_type_id`, `client_id`) and constraints (`quantity_done >= 0`, `quantity_approved >= 0`).
@@ -52,7 +52,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Root Route (`/`): Default landing page renders **Login Page** directly. Signing in opens the **Dashboard** (`/dashboard`).
   - **Time-Based Greeting**: Replaced static *"Welcome back"* on the Dashboard with dynamic local-time greetings (*"Good morning, Varun 👋"*, *"Good afternoon, Varun 👋"*, *"Good evening, Varun 👋"*, *"Good night, Varun 👋"*).
   - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and subtle floating popup ToastAlert messages.
-  - **Removed Preview Mode Button**: Removed the *"Explore Application in Preview Mode"* button from the login form footer as requested.
+  - **Removed Preview Mode Button**: Removed the *"Explore Application in Preview Mode"* button from the login form footer.
 
 ---
 

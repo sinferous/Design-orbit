@@ -48,23 +48,23 @@ export default function OverallReportPage() {
 
       {/* Sub-Navigation for Reports */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex space-x-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 overflow-x-auto">
+          <div className="flex space-x-4 sm:space-x-6 min-w-max">
             <Link
               href="/reports/weekly"
-              className="py-3 text-sm font-medium text-slate-600 hover:text-slate-900"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
             >
               Weekly Meeting Report
             </Link>
             <Link
               href="/reports/monthly"
-              className="py-3 text-sm font-medium text-slate-600 hover:text-slate-900"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
             >
               Monthly Summary
             </Link>
             <Link
               href="/reports/overall"
-              className="py-3 text-sm font-bold text-sky-600 border-b-2 border-sky-600"
+              className="py-3 text-xs sm:text-sm font-bold text-sky-600 border-b-2 border-sky-600 whitespace-nowrap"
             >
               Overall / All-Time
             </Link>
@@ -72,10 +72,11 @@ export default function OverallReportPage() {
 
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap"
           >
             <Download className="w-4 h-4 text-slate-500" />
-            <span>Export CSV</span>
+            <span className="hidden sm:inline">Export CSV</span>
+            <span className="sm:hidden">CSV</span>
           </button>
         </div>
       </div>
