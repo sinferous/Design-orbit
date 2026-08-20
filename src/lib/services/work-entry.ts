@@ -171,30 +171,29 @@ export async function fetchWorkTypes(): Promise<WorkType[]> {
 
 export async function fetchClients(): Promise<Client[]> {
   const deletedFilter = getDeletedClientFilter();
-  if (!isSupabaseConfigured()) {
-    return [...INITIAL_MOCK_CLIENTS]
-      .filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()))
-      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-  }
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('is_active', true)
-      .order('name', { ascending: true });
 
-    let combined: Client[] = data && data.length > 0 ? [...data] : [...INITIAL_MOCK_CLIENTS];
-    
-    // Filter out deleted items
-    combined = combined.filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()));
-    
-    return combined.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-  } catch {
-    return [...INITIAL_MOCK_CLIENTS]
-      .filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()))
-      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
+
+      if (!error && data) {
+        return (data as Client[])
+          .filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()))
+          .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+      }
+    } catch (err) {
+      console.warn('Supabase fetchClients notice:', err);
+    }
   }
+
+  return [...INITIAL_MOCK_CLIENTS]
+    .filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 }
 
 export async function fetchProfiles(): Promise<Profile[]> {
@@ -579,9 +578,11 @@ export async function deleteClientRecord(id: string): Promise<void> {
     try {
       const supabase = createClient();
       if (isUUID(id)) {
+        await (supabase.from('clients') as any).update({ is_active: false }).eq('id', id);
         await (supabase.from('clients') as any).delete().eq('id', id);
       }
       if (clientName) {
+        await (supabase.from('clients') as any).update({ is_active: false }).ilike('name', clientName);
         await (supabase.from('clients') as any).delete().ilike('name', clientName);
       }
     } catch (err) {
@@ -644,7 +645,6 @@ export function clearLocalSessionData() {
   if (typeof window !== 'undefined') {
     try {
       localStorage.removeItem('design_orbit_local_work_entries');
-      localStorage.removeItem('design_orbit_deleted_clients');
     } catch {}
   }
   mockWorkEntriesStore = [];
