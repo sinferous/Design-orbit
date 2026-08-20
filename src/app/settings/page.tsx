@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
-import { getLoggedInUser } from '@/lib/services/work-entry';
-import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff } from 'lucide-react';
+import { getLoggedInUser, clearLocalSessionData } from '@/lib/services/work-entry';
+import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function SettingsPage() {
@@ -227,6 +227,34 @@ export default function SettingsPage() {
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Clear Local Cache & Session Card */}
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+                <Trash2 className="w-5 h-5 text-red-600" />
+                <span>Clear Local Session Cache</span>
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Purge cached mock data stored in this browser to ensure live Supabase database sync.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                clearLocalSessionData();
+                showToast('Cleared all local session cache successfully!', 'success');
+                setTimeout(() => window.location.reload(), 500);
+              }}
+              className="inline-flex justify-center items-center space-x-2 px-5 py-2.5 text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+            >
+              <Trash2 className="w-4 h-4 text-red-600" />
+              <span>Clear Local Session Data</span>
+            </button>
+          </div>
         </div>
       </main>
     </div>

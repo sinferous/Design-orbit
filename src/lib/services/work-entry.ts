@@ -223,55 +223,34 @@ export async function fetchProfiles(): Promise<Profile[]> {
 }
 
 export async function fetchWorkEntriesByDate(dateStr: string, userId?: string): Promise<WorkEntryWithDetails[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      let query = supabase
+        .from('work_entries')
+        .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
+        .eq('work_date', dateStr)
+        .order('created_at', { ascending: false });
+
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
+      if (!error && data) {
+        return data as WorkEntryWithDetails[];
+      }
+    } catch (err) {
+      console.warn('Supabase fetch error:', err);
+    }
+  }
+
   const localEntries = getStoredMockEntries();
-  if (!isSupabaseConfigured()) {
-    return localEntries.filter(e => {
-      const matchDate = e.work_date === dateStr;
-      const matchUser = userId ? e.user_id === userId : true;
-      return matchDate && matchUser;
-    });
-  }
-  try {
-    const supabase = createClient();
-    let query = supabase
-      .from('work_entries')
-      .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
-      .eq('work_date', dateStr)
-      .order('created_at', { ascending: false });
-
-    if (userId) {
-      query = query.eq('user_id', userId);
-    }
-
-    const { data, error } = await query;
-    if (!error && data) {
-      const dbEntries = data as WorkEntryWithDetails[];
-      // Merge with local entries
-      const combined: WorkEntryWithDetails[] = [...dbEntries];
-      localEntries.forEach(localEntry => {
-        if (!combined.some(e => e.id === localEntry.id)) {
-          const matchDate = localEntry.work_date === dateStr;
-          const matchUser = userId ? localEntry.user_id === userId : true;
-          if (matchDate && matchUser) {
-            combined.push(localEntry);
-          }
-        }
-      });
-      return combined;
-    }
-
-    return localEntries.filter(e => {
-      const matchDate = e.work_date === dateStr;
-      const matchUser = userId ? e.user_id === userId : true;
-      return matchDate && matchUser;
-    });
-  } catch {
-    return localEntries.filter(e => {
-      const matchDate = e.work_date === dateStr;
-      const matchUser = userId ? e.user_id === userId : true;
-      return matchDate && matchUser;
-    });
-  }
+  return localEntries.filter(e => {
+    const matchDate = e.work_date === dateStr;
+    const matchUser = userId ? e.user_id === userId : true;
+    return matchDate && matchUser;
+  });
 }
 
 export async function fetchWorkEntryById(id: string): Promise<WorkEntryWithDetails | null> {
@@ -659,4 +638,14 @@ export async function deleteProfileRecord(id: string): Promise<void> {
       console.warn('Supabase profile delete notice:', err);
     }
   }
+}
+
+export function clearLocalSessionData() {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem('design_orbit_local_work_entries');
+      localStorage.removeItem('design_orbit_deleted_clients');
+    } catch {}
+  }
+  mockWorkEntriesStore = [];
 }
