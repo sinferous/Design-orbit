@@ -13,10 +13,10 @@ export default function WeeklyReportPage() {
   const [loading, setLoading] = useState(true);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
 
-  // Store weekly best work links per profile
-  const [bestWorkLinks, setBestWorkLinks] = useState<Record<string, string>>({
-    p1: 'https://figma.com/file/homepage-redesign-v2',
-  });
+  // Store weekly best work links per profile (empty by default)
+  const [bestWorkLinks, setBestWorkLinks] = useState<Record<string, string>>({});
+  const [tempLinks, setTempLinks] = useState<Record<string, string>>({});
+  const [savedStatus, setSavedStatus] = useState<Record<string, boolean>>({});
 
   const loadReport = useCallback(async () => {
     setLoading(true);
@@ -64,7 +64,7 @@ export default function WeeklyReportPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar userName="Gajesh" />
+      <Navbar />
 
       {/* Sub-Navigation for Reports */}
       <div className="bg-white border-b border-slate-200">
@@ -262,21 +262,28 @@ export default function WeeklyReportPage() {
                         <input
                           type="url"
                           placeholder="Paste URL for top deliverable this week..."
-                          value={userBestWork}
-                          onChange={e => setBestWorkLinks({ ...bestWorkLinks, [s.profile.id]: e.target.value })}
+                          value={tempLinks[s.profile.id] ?? bestWorkLinks[s.profile.id] ?? ''}
+                          onChange={e => {
+                            setTempLinks({ ...tempLinks, [s.profile.id]: e.target.value });
+                            setSavedStatus({ ...savedStatus, [s.profile.id]: false });
+                          }}
                           className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs w-full sm:w-80 focus:outline-none focus:ring-2 focus:ring-sky-500"
                         />
-                        {userBestWork && (
-                          <a
-                            href={userBestWork}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 bg-sky-50 text-sky-700 hover:bg-sky-100 rounded-lg border border-sky-200"
-                            title="Open Link"
-                          >
-                            <LinkIcon className="w-4 h-4" />
-                          </a>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const val = tempLinks[s.profile.id] ?? bestWorkLinks[s.profile.id] ?? '';
+                            setBestWorkLinks({ ...bestWorkLinks, [s.profile.id]: val });
+                            setSavedStatus({ ...savedStatus, [s.profile.id]: true });
+                            setTimeout(() => {
+                              setSavedStatus(prev => ({ ...prev, [s.profile.id]: false }));
+                            }, 2000);
+                          }}
+                          className="px-3 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-lg shadow-2xs transition-transform active:scale-95 flex items-center space-x-1 shrink-0"
+                        >
+                          <LinkIcon className="w-3.5 h-3.5" />
+                          <span>{savedStatus[s.profile.id] ? 'Link Saved!' : '+ Add Link'}</span>
+                        </button>
                       </div>
                     </div>
                   </div>
