@@ -30,8 +30,6 @@ export default function LoginPage() {
   const handleSelectAccount = (selectedEmail: string) => {
     if (!selectedEmail) return;
     setEmail(selectedEmail);
-    setPassword('strongpassword');
-    showToast(`Loaded credentials for ${selectedEmail.split('@')[0]}`, 'success');
   };
 
   const handleLogin = async (e: React.FormEvent) => {
