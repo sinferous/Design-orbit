@@ -24,8 +24,6 @@ function getStoredPassword(email: string): string {
   if (typeof window !== 'undefined') {
     const customPass = localStorage.getItem(`design_orbit_pass_${email.toLowerCase()}`);
     if (customPass) return customPass;
-    const globalPass = localStorage.getItem('design_orbit_master_password');
-    if (globalPass) return globalPass;
   }
   return 'strongpassword';
 }

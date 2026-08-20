@@ -66,7 +66,7 @@ export default function SettingsPage() {
         if (currentUser.email) {
           localStorage.setItem(`design_orbit_pass_${currentUser.email.toLowerCase()}`, newPassword);
         }
-        localStorage.setItem('design_orbit_master_password', newPassword);
+        localStorage.removeItem('design_orbit_master_password');
       }
 
       showToast('Your password has been updated successfully!', 'success');
