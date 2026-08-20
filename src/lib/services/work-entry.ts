@@ -669,3 +669,30 @@ export function clearLocalSessionData() {
   }
   mockWorkEntriesStore = [];
 }
+
+export async function updateProfilePasswordInDB(email: string, newPassword: string): Promise<void> {
+  const trimmedEmail = email.trim().toLowerCase();
+  if (!trimmedEmail) throw new Error('Email is required');
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      const { error } = await (supabase.from('profiles') as any)
+        .update({ password: newPassword, updated_at: new Date().toISOString() })
+        .ilike('email', trimmedEmail);
+
+      if (error) {
+        console.error('Supabase password update error:', error.message);
+        throw new Error(`Database Error: ${error.message}`);
+      }
+    } catch (err: any) {
+      console.error('Failed to update password in DB:', err);
+      throw err;
+    }
+  }
+
+  const match = INITIAL_MOCK_PROFILES.find(p => p.email && p.email.toLowerCase() === trimmedEmail);
+  if (match) {
+    (match as any).password = newPassword;
+  }
+}

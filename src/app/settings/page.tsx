@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
-import { getLoggedInUser, clearLocalSessionData } from '@/lib/services/work-entry';
+import { getLoggedInUser, clearLocalSessionData, updateProfilePasswordInDB } from '@/lib/services/work-entry';
 import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
@@ -46,35 +46,20 @@ export default function SettingsPage() {
     setUpdating(true);
 
     try {
-      const isConfigured = Boolean(
-        process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase-project')
-      );
-
-      if (isConfigured) {
-        const supabase = createClient();
-        const { error: authError } = await supabase.auth.updateUser({
-          password: newPassword,
-        });
-
-        if (authError && !authError.message.includes('Auth session missing')) {
-          console.warn('Supabase password update notice:', authError.message);
-        }
+      if (currentUser.email) {
+        await updateProfilePasswordInDB(currentUser.email, newPassword);
       }
 
-      if (typeof window !== 'undefined') {
-        if (currentUser.email) {
-          localStorage.setItem(`design_orbit_pass_${currentUser.email.toLowerCase()}`, newPassword);
-        }
-        localStorage.removeItem('design_orbit_master_password');
+      if (typeof window !== 'undefined' && currentUser.email) {
+        localStorage.setItem(`design_orbit_pass_${currentUser.email.toLowerCase()}`, newPassword);
       }
 
-      showToast('Your password has been updated successfully!', 'success');
+      showToast('Your password has been updated in the database successfully!', 'success');
       setNewPassword('');
       setConfirmPassword('');
       setCurrentPassword(newPassword);
     } catch (err: any) {
-      showToast(err.message || 'Failed to update password', 'error');
+      showToast(err.message || 'Failed to update password in database', 'error');
     } finally {
       setUpdating(false);
     }

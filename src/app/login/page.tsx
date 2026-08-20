@@ -20,8 +20,11 @@ const PRESET_ACCOUNTS = [
   { name: 'Shashiraj (Graphic Designer)', email: 'shashiraj@webtreeonline.com' },
 ];
 
-function getStoredPassword(email: string): string {
-  if (typeof window !== 'undefined') {
+function getStoredPassword(profile?: Profile, email?: string): string {
+  if (profile && profile.password) {
+    return profile.password;
+  }
+  if (typeof window !== 'undefined' && email) {
     const customPass = localStorage.getItem(`design_orbit_pass_${email.toLowerCase()}`);
     if (customPass) return customPass;
   }
@@ -103,7 +106,7 @@ export default function LoginPage() {
     }
 
     if (!authenticated) {
-      const validPassword = getStoredPassword(inputEmail);
+      const validPassword = getStoredPassword(profileMatch, inputEmail);
       if (inputPassword !== validPassword) {
         showToast('Incorrect password entered. Access denied.', 'error');
         setLoading(false);
