@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { setLoggedInUser, INITIAL_MOCK_PROFILES } from '@/lib/services/work-entry';
+import { setLoggedInUser, fetchProfiles } from '@/lib/services/work-entry';
+import { Profile } from '@/types';
 import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
@@ -46,7 +47,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    const inputEmail = email.trim();
+    const inputEmail = email.trim().toLowerCase();
     const inputPassword = password.trim();
 
     if (!inputEmail) {
@@ -61,45 +62,49 @@ export default function LoginPage() {
       return;
     }
 
-    const profileMatch = INITIAL_MOCK_PROFILES.find(
-      p => p.email && p.email.toLowerCase() === inputEmail.toLowerCase()
+    // 1. Fetch DB Profiles & verify email exists in Database directory
+    let profilesList: Profile[] = [];
+    try {
+      profilesList = await fetchProfiles();
+    } catch {
+      profilesList = [];
+    }
+
+    const profileMatch = profilesList.find(
+      p => p.email && p.email.toLowerCase() === inputEmail
     );
 
-    if (!profileMatch && !inputEmail.toLowerCase().endsWith('@webtreeonline.com')) {
-      showToast('Unauthorized email address. Only @webtreeonline.com accounts are permitted.', 'error');
+    if (!profileMatch) {
+      showToast(`No account found for "${inputEmail}". Please check your email or select a valid team profile.`, 'error');
       setLoading(false);
       return;
     }
 
-    // STRICT PASSWORD VERIFICATION
+    // 2. Strict Password Verification against DB / account password
     const isConfigured = Boolean(
       process.env.NEXT_PUBLIC_SUPABASE_URL &&
       !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase-project')
     );
 
-    let authPassed = false;
+    let authenticated = false;
 
     if (isConfigured) {
       try {
         const supabase = createClient();
-        const { error: authErr } = await supabase.auth.signInWithPassword({
+        const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
           email: inputEmail,
           password: inputPassword,
         });
 
-        if (!authErr) {
-          authPassed = true;
-        } else if (authErr.message.includes('Invalid login credentials')) {
-          showToast('Incorrect password entered. Access denied.', 'error');
-          setLoading(false);
-          return;
+        if (!authErr && authData?.user) {
+          authenticated = true;
         }
       } catch (err) {
-        console.warn('Supabase auth check notice:', err);
+        console.warn('Supabase auth attempt:', err);
       }
     }
 
-    if (!authPassed) {
+    if (!authenticated) {
       const validPassword = getStoredPassword(inputEmail);
       if (inputPassword !== validPassword) {
         showToast('Incorrect password entered. Access denied.', 'error');
@@ -108,10 +113,8 @@ export default function LoginPage() {
       }
     }
 
-    let userName = profileMatch ? profileMatch.name : inputEmail.split('@')[0];
-    userName = userName.charAt(0).toUpperCase() + userName.slice(1);
-
-    setLoggedInUser(userName, inputEmail);
+    const userName = profileMatch.name;
+    setLoggedInUser(userName, profileMatch.email || inputEmail);
     showToast(`Welcome back, ${userName}! Signed in successfully.`, 'success');
 
     setTimeout(() => {
