@@ -22,9 +22,9 @@ This document provides a comprehensive summary of all progress, architecture, an
 ### Phase 1 — Foundation (Completed)
 - [x] **Project Initialization**: Next.js 16 + TypeScript project initialized in workspace root.
 - [x] **Branding & Logo**: Integrated official Webtree vector SVG logo ([`logo/webtree-logo.svg`](file:///j:/Work/Webtree%20Online/Design%20orbit/public/logo/webtree-logo.svg)) separated by a clean vertical divider `|` before **Design Orbit** for a balanced corporate brand header.
-- [x] **Design Tokens & Floating Creative Background**:
+- [x] **Design Tokens & High-Visibility Floating Creative Background**:
   - Configured [`src/app/globals.css`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/globals.css) with clean white background, dark charcoal typography, and subtle Webtree blue (`#0284c7`) to green (`#0d9488`) gradient accents.
-  - **Floating Creative Design Elements (`CreativeBackground.tsx`)**: Added subtle, ambient floating design vector graphics (soft radial gradient glow orbs, Pen Tool bezier curves with control nodes, Figma-style selection bounding boxes, rotating Orbit rings, color swatches, and typography outlines) floating gently in the page background.
+  - **Floating Creative Background (`CreativeBackground.tsx`)**: Upgraded vector design graphics (glowing Bezier curves with anchor nodes, Figma canvas bounding boxes with transform handles, rotating Orbit rings, color swatches, typography outlines, and vector cursors) to high opacity (`45-80%`) and removed display hidden restrictions so they are 100% visible on all laptop and desktop monitors!
 - [x] **Database Schema & Migrations**:
   - Created [`supabase/migrations/001_initial_schema.sql`](file:///j:/Work/Webtree%20Online/Design%20orbit/supabase/migrations/001_initial_schema.sql) with tables for `profiles`, `clients`, `work_types`, and `work_entries`.
   - Added indexes (`work_date`, `user_id`, `work_type_id`, `client_id`) and constraints (`quantity_done >= 0`, `quantity_approved >= 0`).

@@ -75,7 +75,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <ToastAlert message={error} type="error" onClose={() => setError(null)} />
       <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
       <Navbar />

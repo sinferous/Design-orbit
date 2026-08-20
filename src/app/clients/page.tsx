@@ -74,7 +74,7 @@ export default function ClientsPage() {
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <ToastAlert message={errorMsg} type="error" onClose={() => setErrorMsg(null)} />
       <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
       <Navbar />

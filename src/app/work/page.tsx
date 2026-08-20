@@ -72,7 +72,7 @@ export default function MyWorkPage() {
   const totalApproved = entries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Navbar userName={activeProfile?.name || 'Gajesh'} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">

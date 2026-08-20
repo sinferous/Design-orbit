@@ -43,7 +43,7 @@ export default function OverallReportPage() {
   const maxDone = Math.max(...dataItems.map(i => i.totalDone), 1);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Navbar userName="Gajesh" />
 
       {/* Sub-Navigation for Reports */}
