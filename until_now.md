@@ -12,6 +12,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - **Tech Stack**:
   - **Frontend**: Next.js 16 (App Router) + TypeScript + Tailwind CSS
   - **Backend & DB**: Supabase (PostgreSQL, Auth, Row Level Security)
+  - **GitHub Repository**: [https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)
   - **Hosting**: GitHub + Vercel
 
 ---
@@ -100,14 +101,15 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 ## 3. Current System Status
 
+- **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
 - **Dev Server**: Running live at **`http://localhost:3000`**.
 - **Build Status**: `npm run build` compiled successfully with **0 errors across all 14 routes**.
 - **All Active Routes**:
   - `/` → Redirects to `/dashboard`
   - `/dashboard` → Production overview, live metrics, today's log & quick navigation
   - `/clients` → Client Directory Management module
-  - `/login` → Authentication with Eye password toggles & preset account choices
-  - `/settings` → Change Password & Account Settings with Eye password toggles
+  - `/login` → Authentication with Admin (`admin@webtreeonline.com` / `strongpassword`) & member presets
+  - `/settings` → Change Password & Account Settings module
   - `/work` → Streamlined Personal Daily Work Log with date selector & team designer filters
   - `/work/new` → Multi-item client work entry form with quick client addition
   - `/work/[id]` → Edit existing work entry
