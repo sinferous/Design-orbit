@@ -45,9 +45,10 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Built `@supabase/ssr` browser client ([`src/lib/supabase/client.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/client.ts)) and server client ([`src/lib/supabase/server.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/server.ts)).
   - Generated database TypeScript definitions ([`src/types/database.types.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/database.types.ts)) and domain models ([`src/types/index.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/index.ts)).
   - Added session cookie middleware ([`src/middleware.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/middleware.ts)).
-- [x] **UI Shell & Login Flow**:
+- [x] **UI Shell & Dynamic Time-Based Greeting**:
   - Top Navigation bar ([`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx)) dynamically rendering active session user avatar & username.
   - Root Route (`/`): Default landing page renders **Login Page** directly. Signing in opens the **Dashboard** (`/dashboard`).
+  - **Time-Based Greeting**: Replaced static *"Welcome back"* on the Dashboard with dynamic local-time greetings (*"Good morning, Varun 👋"*, *"Good afternoon, Varun 👋"*, *"Good evening, Varun 👋"*, *"Good night, Varun 👋"*).
   - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and subtle floating popup ToastAlert messages.
 
 ---
