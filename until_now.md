@@ -22,44 +22,29 @@ This document provides a comprehensive summary of all progress, architecture, an
 ### Phase 1 — Foundation (Completed)
 - [x] **Project Initialization**: Next.js 16 + TypeScript project initialized in workspace root.
 - [x] **Branding & Logo**: Integrated official Webtree vector SVG logo ([`logo/webtree-logo.svg`](file:///j:/Work/Webtree%20Online/Design%20orbit/public/logo/webtree-logo.svg)) separated by a clean vertical divider `|` before **Design Orbit** for a balanced corporate brand header.
+- [x] **App-Wide Internal Toast Notification System (`ToastContext.tsx`)**:
+  - Built a global `ToastProvider` ([`src/components/ui/ToastContext.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/ToastContext.tsx)) wrapped at `RootLayout`.
+  - Every action across the application (creating work entries, editing entries, deleting entries, adding/deleting clients, adding/deleting team members, changing passwords, exporting CSVs, saving links, logging in) now triggers smooth, non-disruptive floating Toast alerts.
 - [x] **100% Mobile Responsive Shell & Touch Controls**:
   - **Collapsible Mobile Navigation Menu Drawer**: Added a touch-friendly mobile hamburger menu button (`Menu` / `X` toggle) in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx) with instant page navigation, active user quick status, settings link, and logout button on phones & tablets.
   - **Touch-Scrollable Reports Sub-Navigation**: Made report tabs (`Weekly Meeting Report`, `Monthly Summary`, `Overall / All-Time`) horizontal swipe/scrollable with compact `CSV` action triggers on mobile viewports.
 - [x] **Design Tokens & Subtle B&W Vector Background**:
   - Configured [`src/app/globals.css`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/globals.css) with clean white background, dark charcoal typography, and subtle Webtree blue (`#0284c7`) to green (`#0d9488`) gradient accents.
   - **Subtle B&W Vector Line-Art Background (`CreativeBackground.tsx`)**: Minimal, elegant, non-distracting black-and-white (B&W) vector line art (fine dashed Bezier paths, hairline canvas bounding boxes, subtle slate dot grid, B&W typography outlines, and faint B&W cursor vectors at low opacity ~20-25%).
-- [x] **Database Schema & Migrations**:
-  - Created [`supabase/migrations/001_initial_schema.sql`](file:///j:/Work/Webtree%20Online/Design%20orbit/supabase/migrations/001_initial_schema.sql) with tables for `profiles`, `clients`, `work_types`, and `work_entries`.
-  - Added indexes (`work_date`, `user_id`, `work_type_id`, `client_id`) and constraints (`quantity_done >= 0`, `quantity_approved >= 0`).
-  - Implemented automatic `updated_at` triggers and `handle_new_user()` signup triggers.
-  - Enabled Row Level Security (RLS) policies for team reading, client deletion, work entry deletion, and user-restricted writes.
-- [x] **Seed Script & Team Profiles**:
-  - Created [`supabase/seed.sql`](file:///j:/Work/Webtree%20Online/Design%20orbit/supabase/seed.sql) with updated designations and `@webtreeonline.com` email addresses:
-    - **Admin**: Management viewing user (`admin@webtreeonline.com`, password: `strongpassword`)
-    - **Samantha**: Design Team Lead (`sams@webtreeonline.com`)
-    - **Moveena**: Senior Graphic Designer (`moveena@webtreeonline.com`)
-    - **Fazil**: Senior UI/UX Designer (`fazil@webtreeonline.com`)
-    - **Gajesh**: UI/UX Designer (`gajesh@webtreeonline.com`)
-    - **Prasanna Lakshmi**: Graphic Designer (`prasanna@webtreeonline.com`)
-    - **Varun**: Graphic Designer (`varun@webtreeonline.com`)
-    - **Shashiraj**: Graphic Designer (`shashiraj@webtreeonline.com`)
-  - Seeded work types: `Static`, `Video`, `Mobile App`, `Landing Page`, `Website`, `UI/UX`, `Logo`, `Edits`, `Working`, `Other`.
-  - **Full Client Roster (28 Total Sorted A-Z)**: `2am idea`, `Abdulhameed`, `All day market`, `Allday`, `Alrosta`, `Alsaraya`, `Amaron`, `Amwaj`, `Calibar sports`, `Cruise`, `Cruise sm`, `Design Orbit`, `Easy lease`, `Farhat`, `Farhat tours`, `Ghumpa`, `Internal Project`, `Larosa`, `Longveia`, `Priyadarshini`, `Shaheen`, `Shaheen group`, `Shamsha`, `Tectory`, `Vivant dental`, `Voro`, `Webtree`, `Ybyf`.
-- [x] **Supabase Integration & Connection**:
-  - Verified active Supabase production database credentials (`https://xttbbandssespupfhgus.supabase.co`).
-  - Built `@supabase/ssr` browser client ([`src/lib/supabase/client.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/client.ts)) and server client ([`src/lib/supabase/server.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/server.ts)).
-  - Generated database TypeScript definitions ([`src/types/database.types.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/database.types.ts)) and domain models ([`src/types/index.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/index.ts)).
-  - Added session cookie middleware ([`src/middleware.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/middleware.ts)).
-- [x] **UI Shell & Streamlined Login Page**:
-  - Top Navigation bar ([`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx)) dynamically rendering active session user avatar & username.
-  - Root Route (`/`): Default landing page renders **Login Page** directly. Signing in opens the **Dashboard** (`/dashboard`).
-  - **Time-Based Greeting**: Replaced static *"Welcome back"* on the Dashboard with dynamic local-time greetings (*"Good morning, Varun 👋"*, *"Good afternoon, Varun 👋"*, *"Good evening, Varun 👋"*, *"Good night, Varun 👋"*).
-  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and subtle floating popup ToastAlert messages.
-  - **Removed Preview Mode Button**: Removed the *"Explore Application in Preview Mode"* button from the login form footer.
+- [x] **Database Auto-Provisioning & Unified Multi-Device Sync**:
+  - **Supabase DB Auto-Provisioning**: Built `ensureProfileInDB`, `ensureClientInDB`, and `ensureWorkTypeInDB` helpers in [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts). Whenever a user saves a work entry, client, or profile, referenced foreign key records are verified and auto-created in Supabase PostgreSQL tables if missing.
+  - **Unified Multi-Device Database Sync**: All devices read from and write directly to the central Supabase PostgreSQL database (`https://xttbbandssespupfhgus.supabase.co`). Entries saved on laptop A appear live for all team members on laptop B, phone C, and tablet D.
+- [x] **Permanent Client Directory Deletion**:
+  - Updated `deleteClientRecord(id)` to delete by ID and Name from Supabase PostgreSQL database tables and memory filters, preventing deleted clients from ever returning on reload or refetch.
+- [x] **Strict Login Validation**:
+  - Updated [`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx) with strict email domain checks (`@webtreeonline.com`) and password validation with floating error toasts.
 
 ---
 
-### Phase 2 — Core Data Entry & Multi-Line Client Form (Completed)
+### Phase 2 — Core Data Entry & Independent Quantities (Completed)
+- [x] **Independent Quantity Done vs. Quantity Approved**:
+  - Decoupled `quantity_approved` from `quantity_done` in `WorkEntryForm.tsx` and service layers.
+  - Designers can now input different numbers for `Quantity Done` (*e.g., 5 Statics done*) and `Approved Quantity` (*e.g., 3 Statics approved*).
 - [x] **Work Entry Service Layer & Designer Attribution**:
   - Built [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) supporting single and batch `createWorkEntriesBatch` operations.
   - **Dashboard Designer Name Tag ('By [Name]')**: Updated Today's Work Log on the Dashboard (`src/app/dashboard/page.tsx`) to display a prominent teal pill tag indicating who logged the entry (*e.g., `By Varun`, `By Moveena`, `By Fazil`, `By Samantha`, `By Gajesh`*).
@@ -72,7 +57,6 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Multi-Item Repeater**: Add multiple work items for the same client in one batch (e.g. 2 Statics + 1 Video for Longovia).
   - **Ordered Item Fields**: Work Type → Description → Quantity Done → Approved Quantity → Submission Status (`Approved` vs `Not Approved`).
   - **Auto-bound Context**: Automatically defaults designer to active logged-in user profile (*e.g., Varun, Fazil, Moveena, Samantha, Gajesh, etc.*).
-  - **Subtle ToastAlert Popups**: Removed top static error containers. Errors and success notices pop up smoothly at top right without shifting form inputs.
   - **Actions**: `Save All Items` and `Save & Add For Another Client`.
 - [x] **Streamlined Daily Work Log View & Deletion (`/work`)**:
   - Created [`src/app/work/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/page.tsx) defaulting to **ONLY the logged-in user's entries** (`My Log`).
