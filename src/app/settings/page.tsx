@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
 import { getLoggedInUser } from '@/lib/services/work-entry';
 import { KeyRound, Lock, CheckCircle2, AlertCircle, ArrowLeft, ShieldCheck, User, Eye, EyeOff } from 'lucide-react';
+import { ToastAlert } from '@/components/ui/ToastAlert';
 
 export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState('strongpassword');
@@ -75,7 +76,9 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar userName="Gajesh" />
+      <ToastAlert message={error} type="error" onClose={() => setError(null)} />
+      <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
+      <Navbar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         {/* Header */}
@@ -188,20 +191,6 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
-
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700 flex items-center space-x-2">
-                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {successMsg && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{successMsg}</span>
-              </div>
-            )}
 
             <div className="pt-2">
               <button

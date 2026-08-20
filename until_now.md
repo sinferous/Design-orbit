@@ -84,7 +84,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Week selector (`← Previous Week | This Week | Next Week →`).
   - Grouped by Person & Work Type (`Static`, `Video`, `Website`, `UI/UX`, etc.).
   - Expandable drill-down into daily work entries.
-  - Featured **Weekly Best Work Link** highlight input for meeting presentations.
+  - **Featured Weekly Best Work Link with `+ Add Link` Button**: Removed default prefilled link; added an explicit **`+ Add Link`** button with visual "Link Saved!" confirmation.
   - One-click CSV export.
 - [x] **Monthly Report Page (`/reports/monthly`)**:
   - Month & Year selectors (e.g. August 2026).

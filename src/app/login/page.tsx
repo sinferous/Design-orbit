@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { setLoggedInUser, INITIAL_MOCK_PROFILES } from '@/lib/services/work-entry';
-import { ArrowRight, Lock, Mail, ShieldCheck, UserCheck, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck, ShieldCheck } from 'lucide-react';
+import { ToastAlert } from '@/components/ui/ToastAlert';
 
 const PRESET_ACCOUNTS = [
   { name: 'Select a Team Member (Optional)', email: '' },
@@ -80,6 +81,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <ToastAlert message={error} type="error" onClose={() => setError(null)} />
+      <ToastAlert message={message} type="success" onClose={() => setMessage(null)} />
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <img
@@ -167,18 +170,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-
-            {error && (
-              <div className="p-3 text-xs bg-red-50 border border-red-200 text-red-700 rounded-lg font-medium">
-                {error}
-              </div>
-            )}
-
-            {message && (
-              <div className="p-3 text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg font-medium">
-                {message}
-              </div>
-            )}
 
             <div>
               <button

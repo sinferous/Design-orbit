@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Profile, WorkType, Client, WorkEntryWithDetails } from '@/types';
 import { fetchProfiles, fetchWorkTypes, fetchClients, createWorkEntriesBatch, updateWorkEntry, createClientRecord, getLoggedInUser } from '@/lib/services/work-entry';
 import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2 } from 'lucide-react';
+import { ToastAlert } from '@/components/ui/ToastAlert';
 
 interface WorkItemRow {
   id: string;
@@ -242,20 +243,11 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
   const activeUserObj = profiles.find(p => p.id === selectedUserId);
 
   return (
-    <form className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
-      {error && (
-        <div className="p-4 rounded-lg bg-red-50 border border-red-200 flex items-start space-x-3 text-red-700">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div className="text-sm font-medium">{error}</div>
-        </div>
-      )}
+    <>
+      <ToastAlert message={error} type="error" onClose={() => setError(null)} />
+      <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
 
-      {successMsg && (
-        <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 flex items-start space-x-3 text-emerald-700">
-          <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div className="text-sm font-medium">{successMsg}</div>
-        </div>
-      )}
+      <form className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
 
       {/* Auto User & System Date Bar */}
       <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -519,5 +511,6 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
         </div>
       </div>
     </form>
-  );
+  </>
+);
 }

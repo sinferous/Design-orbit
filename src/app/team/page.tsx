@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { fetchProfiles, createProfileRecord, deleteProfileRecord } from '@/lib/services/work-entry';
 import { Profile } from '@/types';
 import { Users, Mail, Sparkles, Plus, Trash2, CheckCircle2, AlertCircle, UserPlus, X } from 'lucide-react';
+import { ToastAlert } from '@/components/ui/ToastAlert';
 
 export default function TeamPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -90,7 +91,9 @@ export default function TeamPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar userName="Gajesh" />
+      <ToastAlert message={errorMsg} type="error" onClose={() => setErrorMsg(null)} />
+      <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
+      <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         {/* Header */}
@@ -213,13 +216,6 @@ export default function TeamPage() {
                     onChange={e => setCustomDesignation(e.target.value)}
                     className="w-full md:w-1/3 px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
-                </div>
-              )}
-
-              {errorMsg && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-bold text-red-700 flex items-center space-x-2">
-                  <AlertCircle className="w-4 h-4 text-red-600" />
-                  <span>{errorMsg}</span>
                 </div>
               )}
 

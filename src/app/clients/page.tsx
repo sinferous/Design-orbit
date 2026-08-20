@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { fetchClients, createClientRecord, deleteClientRecord } from '@/lib/services/work-entry';
 import { Client } from '@/types';
-import { Building2, Plus, Trash2, Search, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Building2, Plus, Search, Trash2, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ToastAlert } from '@/components/ui/ToastAlert';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -74,6 +75,8 @@ export default function ClientsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      <ToastAlert message={errorMsg} type="error" onClose={() => setErrorMsg(null)} />
+      <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -127,19 +130,6 @@ export default function ClientsPage() {
               )}
             </button>
           </form>
-
-          {errorMsg && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-semibold text-red-700">
-              {errorMsg}
-            </div>
-          )}
-
-          {successMsg && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-semibold text-emerald-700 flex items-center space-x-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>{successMsg}</span>
-            </div>
-          )}
         </div>
 
         {/* Client List & Search */}
