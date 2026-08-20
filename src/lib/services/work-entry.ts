@@ -192,17 +192,18 @@ export async function fetchClients(): Promise<Client[]> {
         );
 
         if (missingSeedClients.length > 0) {
-          const insertPayload = missingSeedClients.map(c => ({
-            name: c.name,
-            is_active: true,
-          }));
+          for (const c of missingSeedClients) {
+            try {
+              const { data: singleInsert } = await (supabase.from('clients') as any)
+                .upsert({ name: c.name, is_active: true }, { onConflict: 'name', ignoreDuplicates: true })
+                .select();
 
-          const { data: insertedData } = await (supabase.from('clients') as any)
-            .insert(insertPayload)
-            .select();
-
-          if (insertedData && insertedData.length > 0) {
-            allClients.push(...(insertedData as Client[]));
+              if (singleInsert && singleInsert.length > 0) {
+                allClients.push(singleInsert[0] as Client);
+              }
+            } catch (err) {
+              console.warn(`Failed to seed client ${c.name}:`, err);
+            }
           }
         }
 
