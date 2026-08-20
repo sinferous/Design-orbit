@@ -6,6 +6,18 @@ const isUUID = (str: string | null | undefined): boolean => {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 };
 
+const LEGACY_ID_TO_NAME_MAP: Record<string, string> = {
+  c1: 'Alsaraya', c2: 'Webtree', c3: 'Longveia', c4: '2am idea', c5: 'Shaheen group',
+  c6: 'Ghumpa', c7: 'Voro', c8: 'Tectory', c9: 'Shamsha', c10: 'Larosa',
+  c11: 'Alrosta', c12: 'Abdulhameed', c13: 'Allday', c14: 'Shaheen', c15: 'Calibar sports',
+  c16: 'Farhat', c17: 'Priyadarshini', c18: 'Easy lease', c19: 'Ybyf', c20: 'Vivant dental',
+  c21: 'All day market', c22: 'Amwaj', c23: 'Farhat tours', c24: 'Cruise', c25: 'Cruise sm',
+  c26: 'Amaron', c27: 'Internal Project', c28: 'Design Orbit',
+  p0: 'Admin', p1: 'Gajesh', p2: 'Fazil', p3: 'Varun', p4: 'Moveena', p5: 'Shashiraj', p6: 'Prasanna Lakshmi', p7: 'Samantha',
+  wt1: 'Static', wt2: 'Video', wt3: 'Mobile App', wt4: 'Landing Page', wt5: 'Website',
+  wt6: 'UI/UX', wt7: 'Logo', wt8: 'Edits', wt9: 'Working', wt10: 'Other',
+};
+
 // MOCK SEED DATA FOR OFFLINE / PREVIEW MODE
 export const INITIAL_MOCK_PROFILES: Profile[] = [
   { id: '00000000-0000-4000-a000-000000000000', auth_user_id: null, name: 'Admin', designation: 'System Administrator', email: 'admin@webtreeonline.com', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
@@ -347,38 +359,42 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
     // Resolve user_id
     let resolvedUserId = formData.user_id;
     if (!isUUID(resolvedUserId)) {
-      const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id);
-      const nameToMatch = mockProf?.name || formData.user_id || '';
+      const legacyName = LEGACY_ID_TO_NAME_MAP[formData.user_id];
+      const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id || p.name.toLowerCase() === (legacyName || '').toLowerCase());
+      const nameToMatch = legacyName || mockProf?.name || formData.user_id || '';
       const dbMatch = dbProfiles.find((p: any) => p.name?.toLowerCase() === nameToMatch.toLowerCase());
-      if (dbMatch) resolvedUserId = dbMatch.id;
+      resolvedUserId = dbMatch ? dbMatch.id : (dbProfiles[0]?.id || '00000000-0000-4000-a000-000000000001');
     }
 
     // Resolve client_id
     let resolvedClientId: string | null = formData.client_id || null;
     if (resolvedClientId && !isUUID(resolvedClientId)) {
-      const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id);
-      const nameToMatch = mockClient?.name || formData.client_id || '';
+      const legacyName = LEGACY_ID_TO_NAME_MAP[formData.client_id!];
+      const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id || c.name.toLowerCase() === (legacyName || '').toLowerCase());
+      const nameToMatch = legacyName || mockClient?.name || formData.client_id || '';
       const dbMatch = dbClients.find((c: any) => c.name?.toLowerCase() === nameToMatch.toLowerCase());
       if (dbMatch) {
         resolvedClientId = dbMatch.id;
       } else {
-        resolvedClientId = null;
+        const fallbackClient = INITIAL_MOCK_CLIENTS.find(c => c.name.toLowerCase() === nameToMatch.toLowerCase());
+        resolvedClientId = fallbackClient && isUUID(fallbackClient.id) ? fallbackClient.id : null;
       }
     }
 
     // Resolve work_type_id
     let resolvedWorkTypeId = formData.work_type_id;
     if (!isUUID(resolvedWorkTypeId)) {
-      const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id);
-      const nameToMatch = mockWorkType?.name || formData.work_type_id || '';
+      const legacyName = LEGACY_ID_TO_NAME_MAP[formData.work_type_id];
+      const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id || w.name.toLowerCase() === (legacyName || '').toLowerCase());
+      const nameToMatch = legacyName || mockWorkType?.name || formData.work_type_id || '';
       const dbMatch = dbWorkTypes.find((wt: any) => wt.name?.toLowerCase() === nameToMatch.toLowerCase());
-      if (dbMatch) resolvedWorkTypeId = dbMatch.id;
+      resolvedWorkTypeId = dbMatch ? dbMatch.id : (dbWorkTypes[0]?.id || '10000000-0000-4000-a000-000000000001');
     }
 
     return {
-      user_id: resolvedUserId,
-      client_id: resolvedClientId,
-      work_type_id: resolvedWorkTypeId,
+      user_id: isUUID(resolvedUserId) ? resolvedUserId : (dbProfiles[0]?.id || '00000000-0000-4000-a000-000000000001'),
+      client_id: isUUID(resolvedClientId) ? resolvedClientId : null,
+      work_type_id: isUUID(resolvedWorkTypeId) ? resolvedWorkTypeId : (dbWorkTypes[0]?.id || '10000000-0000-4000-a000-000000000001'),
       work_date: formData.work_date,
       description: formData.description,
       quantity_done: formData.quantity_done,
@@ -421,27 +437,30 @@ export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFor
   const payload: any = { ...formData };
 
   if (payload.client_id && !isUUID(payload.client_id)) {
+    const legacyName = LEGACY_ID_TO_NAME_MAP[payload.client_id];
     const dbClients = await (supabase.from('clients') as any).select('id, name').then((r: any) => r.data || []);
-    const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === payload.client_id);
-    const nameToMatch = mockClient?.name || payload.client_id || '';
+    const mockClient = INITIAL_MOCK_CLIENTS.find(c => c.id === payload.client_id || c.name.toLowerCase() === (legacyName || '').toLowerCase());
+    const nameToMatch = legacyName || mockClient?.name || payload.client_id || '';
     const dbMatch = dbClients.find((c: any) => c.name?.toLowerCase() === nameToMatch.toLowerCase());
-    payload.client_id = dbMatch ? dbMatch.id : null;
+    payload.client_id = dbMatch && isUUID(dbMatch.id) ? dbMatch.id : null;
   }
 
   if (payload.user_id && !isUUID(payload.user_id)) {
+    const legacyName = LEGACY_ID_TO_NAME_MAP[payload.user_id];
     const dbProfiles = await (supabase.from('profiles') as any).select('id, name').then((r: any) => r.data || []);
-    const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === payload.user_id);
-    const nameToMatch = mockProf?.name || payload.user_id || '';
+    const mockProf = INITIAL_MOCK_PROFILES.find(p => p.id === payload.user_id || p.name.toLowerCase() === (legacyName || '').toLowerCase());
+    const nameToMatch = legacyName || mockProf?.name || payload.user_id || '';
     const dbMatch = dbProfiles.find((p: any) => p.name?.toLowerCase() === nameToMatch.toLowerCase());
-    if (dbMatch) payload.user_id = dbMatch.id;
+    if (dbMatch && isUUID(dbMatch.id)) payload.user_id = dbMatch.id;
   }
 
   if (payload.work_type_id && !isUUID(payload.work_type_id)) {
+    const legacyName = LEGACY_ID_TO_NAME_MAP[payload.work_type_id];
     const dbWorkTypes = await (supabase.from('work_types') as any).select('id, name').then((r: any) => r.data || []);
-    const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === payload.work_type_id);
-    const nameToMatch = mockWorkType?.name || payload.work_type_id || '';
+    const mockWorkType = INITIAL_MOCK_WORK_TYPES.find(w => w.id === payload.work_type_id || w.name.toLowerCase() === (legacyName || '').toLowerCase());
+    const nameToMatch = legacyName || mockWorkType?.name || payload.work_type_id || '';
     const dbMatch = dbWorkTypes.find((wt: any) => wt.name?.toLowerCase() === nameToMatch.toLowerCase());
-    if (dbMatch) payload.work_type_id = dbMatch.id;
+    if (dbMatch && isUUID(dbMatch.id)) payload.work_type_id = dbMatch.id;
   }
 
   const { data, error } = await (supabase.from('work_entries') as any)

@@ -54,6 +54,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 ### Phase 2 — Core Data Entry & Multi-Line Client Form (Completed)
 - [x] **Work Entry Service Layer & Batch Creation**:
   - Built [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) supporting single and batch `createWorkEntriesBatch` operations.
+  - **Automatic PostgreSQL UUID Resolution**: Resolved `invalid input syntax for type uuid` by validating all IDs with `isUUID()` RFC-4122 regex and mapping non-UUID string IDs to database UUIDs.
 - [x] **Client Directory Management Module (`/clients`) & Quick Add**:
   - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates and subtle floating ToastAlert popups.
   - Added **`+ Add New Client`** inline toggle button directly inside `WorkEntryForm.tsx` to add clients on the fly while filling out daily work.
