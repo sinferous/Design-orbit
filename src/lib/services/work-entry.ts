@@ -663,6 +663,9 @@ export async function updateProfilePasswordInDB(email: string, newPassword: stri
         .ilike('email', trimmedEmail);
 
       if (error) {
+        if (error.message.includes("Could not find the 'password' column") || error.message.includes('password')) {
+          throw new Error(`Database column missing: Please run "ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS password TEXT DEFAULT 'strongpassword';" in Supabase SQL Editor.`);
+        }
         console.error('Supabase password update error:', error.message);
         throw new Error(`Database Error: ${error.message}`);
       }
