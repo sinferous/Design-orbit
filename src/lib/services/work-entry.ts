@@ -178,13 +178,41 @@ export async function fetchClients(): Promise<Client[]> {
       const { data, error } = await supabase
         .from('clients')
         .select('*')
-        .eq('is_active', true)
         .order('name', { ascending: true });
 
       if (!error && data) {
-        return (data as Client[])
-          .filter(c => !deletedFilter.includes(c.id.toLowerCase()) && !deletedFilter.includes(c.name.toLowerCase()))
-          .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+        const allClients: Client[] = [...(data as Client[])];
+        const existingNames = new Set(allClients.map((c: any) => c.name.toLowerCase()));
+
+        // Auto-seed missing initial clients into Supabase DB
+        const missingSeedClients = INITIAL_MOCK_CLIENTS.filter(
+          mockClient => !existingNames.has(mockClient.name.toLowerCase()) &&
+                        !deletedFilter.includes(mockClient.id.toLowerCase()) &&
+                        !deletedFilter.includes(mockClient.name.toLowerCase())
+        );
+
+        if (missingSeedClients.length > 0) {
+          const insertPayload = missingSeedClients.map(c => ({
+            name: c.name,
+            is_active: true,
+          }));
+
+          const { data: insertedData } = await (supabase.from('clients') as any)
+            .insert(insertPayload)
+            .select();
+
+          if (insertedData && insertedData.length > 0) {
+            allClients.push(...(insertedData as Client[]));
+          }
+        }
+
+        const activeClients = allClients.filter(
+          c => c.is_active !== false &&
+               !deletedFilter.includes(c.id.toLowerCase()) &&
+               !deletedFilter.includes(c.name.toLowerCase())
+        );
+
+        return activeClients.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
       }
     } catch (err) {
       console.warn('Supabase fetchClients notice:', err);
@@ -554,6 +582,30 @@ export async function createClientRecord(name: string): Promise<Client> {
 
   try {
     const supabase = createClient();
+
+    // Check if client already exists in DB
+    const { data: existingData } = await (supabase.from('clients') as any)
+      .select('*')
+      .ilike('name', trimmed)
+      .limit(1);
+
+    if (existingData && existingData.length > 0) {
+      const match = existingData[0] as Client;
+      if (match.is_active === false) {
+        await (supabase.from('clients') as any).update({ is_active: true }).eq('id', match.id);
+      }
+      return { ...match, is_active: true };
+    }
+
+    const { data, error } = await (supabase.from('clients') as any)
+      .insert({ name: trimmed, is_active: true })
+      .select()
+      .single();
+
+    if (!error && data) {
+      return data as Client;
+    }
+
     const dbClientId = await ensureClientInDB(supabase, trimmed);
     if (dbClientId) {
       return { ...newMockClient, id: dbClientId };
