@@ -530,6 +530,39 @@ export async function createClientRecord(name: string): Promise<Client> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error('Client name cannot be empty');
 
+  if (isSupabaseConfigured()) {
+    const supabase = createClient();
+
+    // 1. Check if client already exists in DB
+    const { data: existingData, error: selectError } = await (supabase.from('clients') as any)
+      .select('*')
+      .ilike('name', trimmed)
+      .limit(1);
+
+    if (!selectError && existingData && existingData.length > 0) {
+      const match = existingData[0] as Client;
+      if (match.is_active === false) {
+        await (supabase.from('clients') as any).update({ is_active: true }).eq('id', match.id);
+      }
+      return { ...match, is_active: true };
+    }
+
+    // 2. Insert new client row into Supabase DB
+    const { data, error } = await (supabase.from('clients') as any)
+      .insert({ name: trimmed, is_active: true })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase client insert failed:', error.message);
+      throw new Error(`Database Error: ${error.message}`);
+    }
+
+    if (data) {
+      return data as Client;
+    }
+  }
+
   const newMockClient: Client = {
     id: `c_${Date.now()}`,
     name: trimmed,
@@ -538,51 +571,12 @@ export async function createClientRecord(name: string): Promise<Client> {
     updated_at: new Date().toISOString(),
   };
   INITIAL_MOCK_CLIENTS.unshift(newMockClient);
-
-  if (!isSupabaseConfigured()) return newMockClient;
-
-  try {
-    const supabase = createClient();
-
-    // Check if client already exists in DB
-    const { data: existingData } = await (supabase.from('clients') as any)
-      .select('*')
-      .ilike('name', trimmed)
-      .limit(1);
-
-    if (existingData && existingData.length > 0) {
-      const match = existingData[0] as Client;
-      if (match.is_active === false) {
-        await (supabase.from('clients') as any).update({ is_active: true }).eq('id', match.id);
-      }
-      return { ...match, is_active: true };
-    }
-
-    const { data, error } = await (supabase.from('clients') as any)
-      .insert({ name: trimmed, is_active: true })
-      .select()
-      .single();
-
-    if (!error && data) {
-      return data as Client;
-    }
-
-    const dbClientId = await ensureClientInDB(supabase, trimmed);
-    if (dbClientId) {
-      return { ...newMockClient, id: dbClientId };
-    }
-    return newMockClient;
-  } catch {
-    return newMockClient;
-  }
+  return newMockClient;
 }
 
 export async function deleteClientRecord(id: string): Promise<void> {
   const clientObj = INITIAL_MOCK_CLIENTS.find(c => c.id === id || c.name.toLowerCase() === id.toLowerCase());
   const clientName = clientObj ? clientObj.name : id;
-
-  addDeletedClientFilter(id);
-  if (clientName) addDeletedClientFilter(clientName);
 
   const idx = INITIAL_MOCK_CLIENTS.findIndex(c => c.id === id || c.name.toLowerCase() === id.toLowerCase());
   if (idx !== -1) INITIAL_MOCK_CLIENTS.splice(idx, 1);
@@ -598,8 +592,9 @@ export async function deleteClientRecord(id: string): Promise<void> {
         await (supabase.from('clients') as any).update({ is_active: false }).ilike('name', clientName);
         await (supabase.from('clients') as any).delete().ilike('name', clientName);
       }
-    } catch (err) {
-      console.warn('Supabase client delete notice:', err);
+    } catch (err: any) {
+      console.error('Supabase delete client notice:', err);
+      throw new Error(`Database Delete Error: ${err.message}`);
     }
   }
 }
@@ -612,6 +607,28 @@ export async function createProfileRecord(data: { name: string; designation: str
   if (!name) throw new Error('Member name is required');
   if (!email) throw new Error('Email is required');
 
+  if (isSupabaseConfigured()) {
+    const supabase = createClient();
+    const { data: newProf, error: insertErr } = await (supabase.from('profiles') as any)
+      .insert({
+        name,
+        designation: designation || 'Team Member',
+        email,
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (insertErr) {
+      console.error('Supabase profile insert failed:', insertErr.message);
+      throw new Error(`Database Error: ${insertErr.message}`);
+    }
+
+    if (newProf) {
+      return newProf as Profile;
+    }
+  }
+
   const newProfile: Profile = {
     id: `p_${Date.now()}`,
     auth_user_id: null,
@@ -623,19 +640,7 @@ export async function createProfileRecord(data: { name: string; designation: str
     updated_at: new Date().toISOString(),
   };
   INITIAL_MOCK_PROFILES.unshift(newProfile);
-
-  if (!isSupabaseConfigured()) return newProfile;
-
-  try {
-    const supabase = createClient();
-    const dbProfId = await ensureProfileInDB(supabase, name);
-    if (dbProfId) {
-      return { ...newProfile, id: dbProfId };
-    }
-    return newProfile;
-  } catch (err: any) {
-    return newProfile;
-  }
+  return newProfile;
 }
 
 export async function deleteProfileRecord(id: string): Promise<void> {
@@ -648,8 +653,9 @@ export async function deleteProfileRecord(id: string): Promise<void> {
       if (isUUID(id)) {
         await (supabase.from('profiles') as any).delete().eq('id', id);
       }
-    } catch (err) {
-      console.warn('Supabase profile delete notice:', err);
+    } catch (err: any) {
+      console.error('Supabase profile delete notice:', err);
+      throw new Error(`Database Error: ${err.message}`);
     }
   }
 }
