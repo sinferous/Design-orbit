@@ -15,11 +15,19 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
 
+  const [greeting, setGreeting] = useState('Good day');
+
   useEffect(() => {
     const user = getLoggedInUser();
     if (user?.name) {
       setCurrentUser(user);
     }
+
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) setGreeting('Good morning');
+    else if (hour >= 12 && hour < 17) setGreeting('Good afternoon');
+    else if (hour >= 17 && hour < 22) setGreeting('Good evening');
+    else setGreeting('Good night');
 
     async function loadDashboardData() {
       try {
@@ -71,7 +79,7 @@ export default function DashboardPage() {
               <span className="text-xs font-semibold text-slate-500">Creative Team Member</span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 mt-1.5">
-              Welcome back, {currentUser.name} 👋
+              {greeting}, {currentUser.name} 👋
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
               Here is your live daily activity and weekly work summary.
