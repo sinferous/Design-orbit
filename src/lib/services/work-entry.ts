@@ -76,62 +76,7 @@ export const INITIAL_MOCK_CLIENTS: Client[] = [
 
 const todayStr = new Date().toISOString().split('T')[0];
 
-let mockWorkEntriesStore: WorkEntryWithDetails[] = [
-  {
-    id: 'we1',
-    user_id: 'p1',
-    client_id: 'c1',
-    work_type_id: 'wt5',
-    work_date: todayStr,
-    description: 'Homepage redesign & layout updates',
-    quantity_done: 3,
-    quantity_approved: 3,
-    best_work_url: 'https://webtreeonline.com',
-    notes: 'Approved by lead',
-    status: 'Reviewed',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    profile: INITIAL_MOCK_PROFILES[1],
-    client: INITIAL_MOCK_CLIENTS[0],
-    work_type: INITIAL_MOCK_WORK_TYPES[4],
-  },
-  {
-    id: 'we2',
-    user_id: 'p2',
-    client_id: 'c2',
-    work_type_id: 'wt2',
-    work_date: todayStr,
-    description: 'Product walkthrough video edit',
-    quantity_done: 2,
-    quantity_approved: 1,
-    best_work_url: null,
-    notes: 'Approved during internal UI review.',
-    status: 'Reviewed',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    profile: INITIAL_MOCK_PROFILES[0],
-    client: INITIAL_MOCK_CLIENTS[1],
-    work_type: INITIAL_MOCK_WORK_TYPES[5],
-  },
-  {
-    id: 'we3',
-    user_id: 'p2',
-    client_id: 'c1',
-    work_type_id: 'wt2',
-    work_date: todayStr,
-    description: 'Product walkthrough video edit',
-    quantity_done: 2,
-    quantity_approved: 1,
-    best_work_url: null,
-    notes: 'First cut delivered for client approval.',
-    status: 'Submitted',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    profile: INITIAL_MOCK_PROFILES[1],
-    client: INITIAL_MOCK_CLIENTS[0],
-    work_type: INITIAL_MOCK_WORK_TYPES[1],
-  },
-];
+let mockWorkEntriesStore: WorkEntryWithDetails[] = [];
 
 function getStoredMockEntries(): WorkEntryWithDetails[] {
   if (typeof window !== 'undefined') {
@@ -139,12 +84,8 @@ function getStoredMockEntries(): WorkEntryWithDetails[] {
       const stored = localStorage.getItem('design_orbit_local_work_entries');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const combined = [...parsed];
-          mockWorkEntriesStore.forEach(m => {
-            if (!combined.some(e => e.id === m.id)) combined.push(m);
-          });
-          return combined;
+        if (Array.isArray(parsed)) {
+          return parsed;
         }
       }
     } catch (e) {

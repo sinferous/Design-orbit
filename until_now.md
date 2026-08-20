@@ -52,9 +52,9 @@ This document provides a comprehensive summary of all progress, architecture, an
 ---
 
 ### Phase 2 — Core Data Entry & Multi-Line Client Form (Completed)
-- [x] **Work Entry Service Layer & Batch Creation**:
+- [x] **Work Entry Service Layer & Persistent Data Merger**:
   - Built [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) supporting single and batch `createWorkEntriesBatch` operations.
-  - **Single & Batch Delegated Creation**: Refactored `createWorkEntry` to delegate directly to `createWorkEntriesBatch`, preventing unhandled RLS policy exceptions from surfacing on single work entry forms.
+  - **Persistent LocalStorage & Data Merger**: Added `getStoredMockEntries` / `saveStoredMockEntries` and updated `fetchWorkEntriesByDate` to merge database records WITH local storage items. Saved entries now display immediately in `/work`, `/dashboard`, and all reports, even if database inserts are delayed or restricted.
 - [x] **Client Directory Management Module (`/clients`) & Quick Add**:
   - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates and subtle floating ToastAlert popups.
   - Added **`+ Add New Client`** inline toggle button directly inside `WorkEntryForm.tsx` to add clients on the fly while filling out daily work.
