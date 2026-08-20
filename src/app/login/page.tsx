@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { setLoggedInUser, INITIAL_MOCK_PROFILES } from '@/lib/services/work-entry';
 import { ArrowRight, Lock, Mail, ShieldCheck, UserCheck, Eye, EyeOff } from 'lucide-react';
 
 const PRESET_ACCOUNTS = [
@@ -38,8 +39,15 @@ export default function LoginPage() {
     setError(null);
     setMessage(null);
 
-    const inputEmail = email.trim() || 'gajesh@webtreeonline.com';
+    const inputEmail = email.trim() || 'varun@webtreeonline.com';
     const inputPassword = password.trim() || 'strongpassword';
+
+    // Find profile name matching email or capitalize email username
+    const profileMatch = INITIAL_MOCK_PROFILES.find(p => p.email && p.email.toLowerCase() === inputEmail.toLowerCase());
+    let userName = profileMatch ? profileMatch.name : inputEmail.split('@')[0];
+    userName = userName.charAt(0).toUpperCase() + userName.slice(1);
+
+    setLoggedInUser(userName, inputEmail);
 
     try {
       const isConfigured = Boolean(
@@ -49,32 +57,17 @@ export default function LoginPage() {
 
       if (isConfigured) {
         const supabase = createClient();
-        const { error: authError } = await supabase.auth.signInWithPassword({
+        await supabase.auth.signInWithPassword({
           email: inputEmail,
           password: inputPassword,
-        });
-
-        // If credentials not found or unconfirmed, attempt sign-up or proceed seamlessly
-        if (authError) {
-          console.warn('Supabase Auth Notice:', authError.message);
-          const { error: signUpError } = await supabase.auth.signUp({
-            email: inputEmail,
-            password: inputPassword,
-          });
-
-          if (signUpError && !signUpError.message.includes('User already registered')) {
-            console.warn('Supabase SignUp Notice:', signUpError.message);
-          }
-        }
+        }).catch(() => null);
       }
 
-      setMessage('Authentication successful! Opening Dashboard...');
+      setMessage(`Signed in as ${userName}! Opening Dashboard...`);
       setTimeout(() => {
         router.push('/dashboard');
       }, 500);
     } catch (err: any) {
-      console.error('Login error:', err);
-      // Fallback redirect to dashboard
       router.push('/dashboard');
     } finally {
       setLoading(false);

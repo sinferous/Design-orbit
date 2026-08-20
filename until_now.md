@@ -13,7 +13,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Frontend**: Next.js 16 (App Router) + TypeScript + Tailwind CSS
   - **Backend & DB**: Supabase (PostgreSQL, Auth, Row Level Security)
   - **GitHub Repository**: [https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)
-  - **Hosting**: GitHub + Vercel
+  - **Live URL**: [https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)
 
 ---
 
@@ -43,10 +43,10 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Built `@supabase/ssr` browser client ([`src/lib/supabase/client.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/client.ts)) and server client ([`src/lib/supabase/server.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/supabase/server.ts)).
   - Generated database TypeScript definitions ([`src/types/database.types.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/database.types.ts)) and domain models ([`src/types/index.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/types/index.ts)).
   - Added session cookie middleware ([`src/middleware.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/middleware.ts)).
-- [x] **UI Shell & Dashboard**:
+- [x] **UI Shell & Login Flow**:
   - Top Navigation bar ([`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx)).
-  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with Admin (`admin@webtreeonline.com` / `strongpassword`) & member presets, featuring **Eye show/hide password toggle button**.
-  - Live Dashboard Page ([`src/app/dashboard/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)) displaying live metrics, today's work activity list, and application navigation panels.
+  - Root Route (`/`): Default landing page renders **Login Page** directly. Signing in opens the **Dashboard** (`/dashboard`).
+  - Login Page ([`src/app/login/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)) with clean input placeholders, Eye show/hide password toggle, and seamless authentication redirection.
 
 ---
 
@@ -102,14 +102,14 @@ This document provides a comprehensive summary of all progress, architecture, an
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Dev Server**: Running live at **`http://localhost:3000`**.
+- **Live URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Build Status**: `npm run build` compiled successfully with **0 errors across all 14 routes**.
 - **All Active Routes**:
-  - `/` → Redirects to `/dashboard`
+  - `/` → Opens **Login Page** (`LoginPage`)
   - `/dashboard` → Production overview, live metrics, today's log & quick navigation
   - `/clients` → Client Directory Management module
-  - `/login` → Authentication with Admin (`admin@webtreeonline.com` / `strongpassword`) & member presets
-  - `/settings` → Change Password & Account Settings module
+  - `/login` → Authentication with Eye password toggles & preset account choices
+  - `/settings` → Change Password & Account Settings with Eye password toggles
   - `/work` → Streamlined Personal Daily Work Log with date selector & team designer filters
   - `/work/new` → Multi-item client work entry form with quick client addition
   - `/work/[id]` → Edit existing work entry

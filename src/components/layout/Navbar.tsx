@@ -1,16 +1,26 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Calendar, BarChart3, Users, PlusCircle, LogOut, Building2, KeyRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getLoggedInUser } from '@/lib/services/work-entry';
 
 interface NavbarProps {
   userName?: string;
 }
 
-export function Navbar({ userName = 'Team Member' }: NavbarProps) {
+export function Navbar({ userName }: NavbarProps) {
   const pathname = usePathname();
+  const [currentUser, setCurrentUser] = useState<string>(userName || 'Team Member');
+
+  useEffect(() => {
+    const user = getLoggedInUser();
+    if (user?.name) {
+      setCurrentUser(user.name);
+    }
+  }, [userName]);
 
   const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -81,10 +91,10 @@ export function Navbar({ userName = 'Team Member' }: NavbarProps) {
                 className="flex items-center space-x-2 group/user"
               >
                 <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-700 group-hover/user:border-sky-300">
-                  {userName.charAt(0).toUpperCase()}
+                  {currentUser.charAt(0).toUpperCase()}
                 </div>
                 <span className="hidden sm:inline text-sm font-bold text-slate-700 group-hover/user:text-sky-600">
-                  {userName}
+                  {currentUser}
                 </span>
               </Link>
 

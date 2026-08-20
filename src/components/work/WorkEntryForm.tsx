@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Profile, WorkType, Client, WorkEntryWithDetails } from '@/types';
-import { fetchProfiles, fetchWorkTypes, fetchClients, createWorkEntriesBatch, updateWorkEntry, createClientRecord } from '@/lib/services/work-entry';
+import { fetchProfiles, fetchWorkTypes, fetchClients, createWorkEntriesBatch, updateWorkEntry, createClientRecord, getLoggedInUser } from '@/lib/services/work-entry';
 import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2 } from 'lucide-react';
 
 interface WorkItemRow {
@@ -84,7 +84,9 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
         setClients(cData);
 
         if (!initialData) {
-          setSelectedUserId(pData[0]?.id || '');
+          const user = getLoggedInUser();
+          const matchedProfile = pData.find(p => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0];
+          setSelectedUserId(matchedProfile?.id || pData[0]?.id || '');
           setSelectedClientId(cData[0]?.id || '');
           setItems([
             {

@@ -443,4 +443,23 @@ export async function deleteProfileRecord(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+export function setLoggedInUser(name: string, email: string) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('design_orbit_user_name', name);
+    localStorage.setItem('design_orbit_user_email', email);
+  }
+}
+
+export function getLoggedInUser(): { name: string; email: string } {
+  if (typeof window !== 'undefined') {
+    const storedName = localStorage.getItem('design_orbit_user_name');
+    const storedEmail = localStorage.getItem('design_orbit_user_email');
+    if (storedName && storedEmail) {
+      return { name: storedName, email: storedEmail };
+    }
+  }
+  return { name: 'Varun', email: 'varun@webtreeonline.com' };
+}
+
+
 

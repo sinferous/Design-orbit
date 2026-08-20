@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
+import { getLoggedInUser } from '@/lib/services/work-entry';
 import { KeyRound, Lock, CheckCircle2, AlertCircle, ArrowLeft, ShieldCheck, User, Eye, EyeOff } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -18,6 +19,12 @@ export default function SettingsPage() {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
+
+  useEffect(() => {
+    const user = getLoggedInUser();
+    if (user?.name) setCurrentUser(user);
+  }, []);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +95,7 @@ export default function SettingsPage() {
 
           <div className="px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center space-x-2 w-fit">
             <User className="w-4 h-4 text-sky-600" />
-            <span>Gajesh (gajesh@webtreeonline.com)</span>
+            <span>{currentUser.name} ({currentUser.email || 'webtreeonline.com'})</span>
           </div>
         </div>
 

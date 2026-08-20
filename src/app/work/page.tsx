@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { fetchWorkEntriesByDate, deleteWorkEntry, fetchProfiles } from '@/lib/services/work-entry';
+import { fetchWorkEntriesByDate, deleteWorkEntry, fetchProfiles, getLoggedInUser } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle } from 'lucide-react';
@@ -14,7 +14,7 @@ export default function MyWorkPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
 
-  // Default view: ONLY the logged-in user's entries (Gajesh)
+  // Default view: ONLY the logged-in user's entries
   const [selectedUserFilter, setSelectedUserFilter] = useState<string>('my_work');
   const [entries, setEntries] = useState<WorkEntryWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +24,8 @@ export default function MyWorkPage() {
     async function loadProfiles() {
       const pData = await fetchProfiles();
       setProfiles(pData);
-      // Default active profile (Gajesh)
-      const current = pData.find(p => p.name === 'Gajesh') || pData[0];
+      const user = getLoggedInUser();
+      const current = pData.find(p => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0];
       if (current) setActiveProfile(current);
     }
     loadProfiles();

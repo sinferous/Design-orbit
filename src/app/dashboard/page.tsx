@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { fetchWorkEntriesByDate } from '@/lib/services/work-entry';
+import { fetchWorkEntriesByDate, getLoggedInUser } from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
 import { WorkEntryWithDetails } from '@/types';
 import { Plus, CheckCircle2, Clock, CalendarDays, ArrowUpRight, BarChart2, Layers, Users, PieChart, Sparkles } from 'lucide-react';
@@ -13,8 +13,14 @@ export default function DashboardPage() {
   const [todayEntries, setTodayEntries] = useState<WorkEntryWithDetails[]>([]);
   const [weekSummary, setWeekSummary] = useState({ totalCreated: 0, totalApproved: 0, activeMembers: 0 });
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
 
   useEffect(() => {
+    const user = getLoggedInUser();
+    if (user?.name) {
+      setCurrentUser(user);
+    }
+
     async function loadDashboardData() {
       try {
         const week = getWeekRange(new Date());
@@ -35,14 +41,14 @@ export default function DashboardPage() {
           activeMembers: wActive,
         });
       } catch (err) {
-        console.error('Failed to load dashboard metrics:', err);
+        console.error('Failed to load dashboard statistics:', err);
       } finally {
         setLoading(false);
       }
     }
 
     loadDashboardData();
-  }, [todayStr]);
+  }, []);
 
   const todayDone = todayEntries.reduce((acc, curr) => acc + curr.quantity_done, 0);
   const todayApproved = todayEntries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
@@ -50,7 +56,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar userName="Gajesh" />
+      <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Welcome Header */}
@@ -62,10 +68,10 @@ export default function DashboardPage() {
                 <span>Webtree Creative Team</span>
               </span>
               <span className="text-xs text-slate-400">•</span>
-              <span className="text-xs font-semibold text-slate-500">UI/UX Team Member</span>
+              <span className="text-xs font-semibold text-slate-500">Creative Team Member</span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 mt-1.5">
-              Welcome back, Gajesh 👋
+              Welcome back, {currentUser.name} 👋
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
               Here is your live daily activity and weekly work summary.
