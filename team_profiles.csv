@@ -1,0 +1,9 @@
+name,designation,email,is_active
+"Admin","System Administrator","admin@webtreeonline.com",true
+"Varun","Graphic Designer","varun@webtreeonline.com",true
+"Moveena","Senior Graphic Designer","moveena@webtreeonline.com",true
+"Shashiraj","Graphic Designer","shashiraj@webtreeonline.com",true
+"Prasanna Lakshmi","Graphic Designer","prasanna@webtreeonline.com",true
+"Samantha","Design Team Lead","sams@webtreeonline.com",true
+"Fazil","Senior UI/UX Designer","fazil@webtreeonline.com",true
+"Gajesh","UI/UX Designer","gajesh@webtreeonline.com",true
