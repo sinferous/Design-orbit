@@ -8,8 +8,8 @@ import { ChevronLeft, ChevronRight, Calendar, Download, ChevronDown, ChevronUp, 
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function WeeklyReportPage() {
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [weekRange, setWeekRange] = useState(getWeekRange(new Date()));
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [summaries, setSummaries] = useState<WeeklyUserSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
@@ -21,12 +21,17 @@ export default function WeeklyReportPage() {
 
   const { showToast } = useToast();
 
+  useEffect(() => {
+    const range = getWeekRange(new Date());
+    setStartDate(range.startDate);
+    setEndDate(range.endDate);
+  }, []);
+
   const loadReport = useCallback(async () => {
+    if (!startDate || !endDate) return;
     setLoading(true);
-    const range = getWeekRange(currentDate);
-    setWeekRange(range);
     try {
-      const data = await getWeeklyReportData(range.startDate, range.endDate);
+      const data = await getWeeklyReportData(startDate, endDate);
       setSummaries(data);
     } catch (err) {
       console.error('Failed to load weekly report:', err);
@@ -34,16 +39,21 @@ export default function WeeklyReportPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentDate, showToast]);
+  }, [startDate, endDate, showToast]);
 
   useEffect(() => {
     loadReport();
   }, [loadReport]);
 
   const handleWeekDelta = (weeks: number) => {
-    const next = new Date(currentDate);
-    next.setDate(next.getDate() + weeks * 7);
-    setCurrentDate(next);
+    if (!startDate || !endDate) return;
+    const nextStart = new Date(startDate);
+    nextStart.setDate(nextStart.getDate() + weeks * 7);
+    const nextEnd = new Date(endDate);
+    nextEnd.setDate(nextEnd.getDate() + weeks * 7);
+
+    setStartDate(nextStart.toISOString().split('T')[0]);
+    setEndDate(nextEnd.toISOString().split('T')[0]);
   };
 
   const toggleExpand = (userId: string) => {
@@ -59,7 +69,7 @@ export default function WeeklyReportPage() {
       'Approval Rate (%)': `${s.approvalRate}%`,
       'Weekly Best Work Link': bestWorkLinks[s.profile.id] || '',
     }));
-    exportToCSV(`Weekly_Report_${weekRange.startDate}_to_${weekRange.endDate}`, csvRows);
+    exportToCSV(`Weekly_Report_${startDate}_to_${endDate}`, csvRows);
     showToast('Exported Weekly Meeting Report CSV successfully!', 'success');
   };
 
@@ -126,23 +136,40 @@ export default function WeeklyReportPage() {
           </div>
 
           {/* Week Navigation */}
-          <div className="flex items-center space-x-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+          <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
             <button
               onClick={() => handleWeekDelta(-1)}
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
               title="Previous Week"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="px-3 py-1 text-center">
-              <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Week Range</div>
-              <div className="text-sm font-bold text-slate-900">{weekRange.label}</div>
+            <div className="flex items-center space-x-2">
+              <div className="flex flex-col">
+                <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">First Date</span>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
+                  className="font-bold text-slate-950 focus:outline-none bg-white px-2 py-0.5 rounded border border-slate-200 text-xs w-[115px]"
+                />
+              </div>
+              <span className="text-slate-400 text-xs font-semibold self-end mb-1">to</span>
+              <div className="flex flex-col">
+                <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Last Date</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={e => setEndDate(e.target.value)}
+                  className="font-bold text-slate-950 focus:outline-none bg-white px-2 py-0.5 rounded border border-slate-200 text-xs w-[115px]"
+                />
+              </div>
             </div>
 
             <button
               onClick={() => handleWeekDelta(1)}
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
               title="Next Week"
             >
               <ChevronRight className="w-4 h-4" />
