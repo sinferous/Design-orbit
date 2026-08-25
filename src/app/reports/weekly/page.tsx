@@ -39,9 +39,12 @@ export default function WeeklyReportPage() {
   };
 
   const handleSelectWeekFromDate = (date: Date) => {
-    const range = getWeekRange(date);
-    setStartDate(range.startDate);
-    setEndDate(range.endDate);
+    const startStr = date.toISOString().split('T')[0];
+    const endDateObj = new Date(date);
+    endDateObj.setDate(endDateObj.getDate() + 7);
+    const endStr = endDateObj.toISOString().split('T')[0];
+    setStartDate(startStr);
+    setEndDate(endStr);
   };
 
   const getWeekRangeLabel = () => {
@@ -68,14 +71,13 @@ export default function WeeklyReportPage() {
 
   const getHoverWeekRange = (dateStr: string) => {
     const d = new Date(dateStr);
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    const monday = new Date(d.setDate(diff));
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
+    const startStr = d.toISOString().split('T')[0];
+    const endDateObj = new Date(d);
+    endDateObj.setDate(endDateObj.getDate() + 7);
+    const endStr = endDateObj.toISOString().split('T')[0];
     return {
-      start: monday.toISOString().split('T')[0],
-      end: sunday.toISOString().split('T')[0],
+      start: startStr,
+      end: endStr,
     };
   };
 
