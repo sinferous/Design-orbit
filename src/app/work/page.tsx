@@ -124,7 +124,7 @@ export default function MyWorkPage() {
           </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-          {entries.length > 0 && (
+          {selectedUserFilter === 'my_work' && entries.length > 0 && (
             <button
               onClick={handleCopySummary}
               className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg shadow-2xs transition-colors cursor-pointer"
