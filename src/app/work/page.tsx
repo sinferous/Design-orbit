@@ -6,7 +6,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { fetchWorkEntriesByDate, deleteWorkEntry, fetchProfiles, getLoggedInUser } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
 import { formatDate } from '@/lib/utils';
-import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle, Copy } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function MyWorkPage() {
@@ -26,7 +26,9 @@ export default function MyWorkPage() {
       const pData = await fetchProfiles();
       setProfiles(pData);
       const user = getLoggedInUser();
-      const current = pData.find(p => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0];
+      const current = user 
+        ? (pData.find(p => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0])
+        : pData[0];
       if (current) setActiveProfile(current);
     }
     loadProfiles();
@@ -73,6 +75,33 @@ export default function MyWorkPage() {
     }
   };
 
+  const handleCopySummary = () => {
+    if (entries.length === 0) {
+      showToast('No entries to copy.', 'error');
+      return;
+    }
+
+    const formattedDate = formatDate(selectedDate);
+    const title = selectedUserFilter === 'my_work'
+      ? `My Work Log - ${formattedDate}\n`
+      : `Team Work Log - ${formattedDate}\n`;
+
+    const text = entries
+      .map((entry, idx) => {
+        const client = entry.client?.name || 'Unknown Client';
+        const type = entry.work_type?.name || 'Work';
+        const desc = entry.description || '';
+        const qty = entry.quantity_done;
+        return `${idx + 1}. Client: ${client} | Type: ${type} | Description: ${desc} | Qty: ${qty}`;
+      })
+      .join('\n');
+
+    navigator.clipboard.writeText(title + text);
+    showToast('Copied daily summary to clipboard!', 'success');
+  };
+
+
+
   const totalDone = entries.reduce((acc, curr) => acc + curr.quantity_done, 0);
   const totalApproved = entries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
 
@@ -94,6 +123,18 @@ export default function MyWorkPage() {
             </p>
           </div>
 
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+          {entries.length > 0 && (
+            <button
+              onClick={handleCopySummary}
+              className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg shadow-2xs transition-colors cursor-pointer"
+              title="Copy all entries for this day to clipboard"
+            >
+              <Copy className="w-4 h-4" />
+              <span>Copy Day Log</span>
+            </button>
+          )}
+
           <Link
             href="/work/new"
             className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
@@ -102,6 +143,7 @@ export default function MyWorkPage() {
             <span>Add Work Entry</span>
           </Link>
         </div>
+      </div>
 
         {/* View Toggle Bar & Date Selector */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">

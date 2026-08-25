@@ -88,7 +88,9 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
 
         if (!initialData) {
           const user = getLoggedInUser();
-          const matchedProfile = pData.find(p => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0];
+          const matchedProfile = user 
+            ? (pData.find(p => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0])
+            : pData[0];
           setSelectedUserId(matchedProfile?.id || pData[0]?.id || '');
           setSelectedClientId(cData[0]?.id || '');
           setItems([

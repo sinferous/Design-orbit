@@ -130,21 +130,36 @@ function isSupabaseConfigured(): boolean {
   return Boolean(url && !url.includes('your-supabase-project'));
 }
 
-export function getLoggedInUser(): { name: string; email: string } {
+export function getLoggedInUser(): { name: string; email: string } | null {
   if (typeof window !== 'undefined') {
     const storedName = localStorage.getItem('design_orbit_logged_in_name');
     const storedEmail = localStorage.getItem('design_orbit_logged_in_email');
     if (storedName) {
-      return { name: storedName, email: storedEmail || 'varun@webtreeonline.com' };
+      return { name: storedName, email: storedEmail || '' };
     }
   }
-  return { name: 'Varun', email: 'varun@webtreeonline.com' };
+  return null;
 }
 
 export function setLoggedInUser(name: string, email: string) {
   if (typeof window !== 'undefined') {
     localStorage.setItem('design_orbit_logged_in_name', name);
     localStorage.setItem('design_orbit_logged_in_email', email);
+  }
+}
+
+export function logoutUser() {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem('design_orbit_logged_in_name');
+      localStorage.removeItem('design_orbit_logged_in_email');
+      if (isSupabaseConfigured()) {
+        const supabase = createClient();
+        supabase.auth.signOut();
+      }
+    } catch (e) {
+      console.warn('Failed to sign out:', e);
+    }
   }
 }
 

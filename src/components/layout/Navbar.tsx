@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Calendar, BarChart3, Users, PlusCircle, LogOut, Building2, KeyRound, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getLoggedInUser } from '@/lib/services/work-entry';
+import { getLoggedInUser, logoutUser } from '@/lib/services/work-entry';
 
 interface NavbarProps {
   userName?: string;
@@ -13,15 +13,24 @@ interface NavbarProps {
 
 export function Navbar({ userName }: NavbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [currentUser, setCurrentUser] = useState<string>(userName || 'Team Member');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const user = getLoggedInUser();
-    if (user?.name) {
+    if (user) {
       setCurrentUser(user.name);
+    } else {
+      router.push('/login');
     }
-  }, [userName]);
+  }, [userName, router]);
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    logoutUser();
+    router.push('/login');
+  };
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -113,13 +122,14 @@ export function Navbar({ userName }: NavbarProps) {
                 <KeyRound className="w-4 h-4" />
               </Link>
 
-              <Link
-                href="/login"
+              <button
+                type="button"
+                onClick={handleLogout}
                 title="Sign out"
-                className="text-slate-400 hover:text-red-600 p-1 rounded-md transition-colors"
+                className="text-slate-400 hover:text-red-600 p-1 rounded-md transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
-              </Link>
+              </button>
             </div>
 
             {/* Mobile Hamburger Menu Button */}
@@ -151,12 +161,13 @@ export function Navbar({ userName }: NavbarProps) {
                 >
                   Settings
                 </Link>
-                <Link
-                  href="/login"
-                  className="text-xs font-semibold text-red-600 hover:underline px-2 py-1 bg-white rounded border border-slate-200"
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-xs font-semibold text-red-600 hover:underline px-2 py-1 bg-white rounded border border-slate-200 cursor-pointer"
                 >
                   Logout
-                </Link>
+                </button>
               </div>
             </div>
 
