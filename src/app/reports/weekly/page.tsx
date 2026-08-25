@@ -19,6 +19,11 @@ export default function WeeklyReportPage() {
   const [tempLinks, setTempLinks] = useState<Record<string, string>>({});
   const [savedStatus, setSavedStatus] = useState<Record<string, boolean>>({});
 
+  // Premium Calendar Selector states
+  const [viewDate, setViewDate] = useState<Date>(new Date());
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -26,6 +31,99 @@ export default function WeeklyReportPage() {
     setStartDate(range.startDate);
     setEndDate(range.endDate);
   }, []);
+
+  const handleMonthDelta = (months: number) => {
+    const next = new Date(viewDate);
+    next.setMonth(next.getMonth() + months);
+    setViewDate(next);
+  };
+
+  const handleSelectWeekFromDate = (date: Date) => {
+    const range = getWeekRange(date);
+    setStartDate(range.startDate);
+    setEndDate(range.endDate);
+  };
+
+  const getWeekRangeLabel = () => {
+    if (!startDate || !endDate) return 'Select Week Range';
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  };
+
+  const isSelected = (d: Date) => {
+    const dStr = d.toISOString().split('T')[0];
+    return dStr >= startDate && dStr <= endDate;
+  };
+
+  const isStart = (d: Date) => {
+    const dStr = d.toISOString().split('T')[0];
+    return dStr === startDate;
+  };
+
+  const isEnd = (d: Date) => {
+    const dStr = d.toISOString().split('T')[0];
+    return dStr === endDate;
+  };
+
+  const getHoverWeekRange = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    return {
+      start: monday.toISOString().split('T')[0],
+      end: sunday.toISOString().split('T')[0],
+    };
+  };
+
+  const isInHoverRange = (d: Date) => {
+    if (!hoveredDate) return false;
+    const { start, end } = getHoverWeekRange(hoveredDate);
+    const dStr = d.toISOString().split('T')[0];
+    return dStr >= start && dStr <= end;
+  };
+
+  const generateCalendarDays = (vDate: Date) => {
+    const year = vDate.getFullYear();
+    const month = vDate.getMonth();
+    const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    const prevMonthTotalDays = new Date(year, month, 0).getDate();
+    const daysArr: { date: Date; isCurrentMonth: boolean; key: string }[] = [];
+
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const d = new Date(year, month - 1, prevMonthTotalDays - i);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: false,
+        key: `prev-${prevMonthTotalDays - i}`
+      });
+    }
+
+    for (let i = 1; i <= totalDays; i++) {
+      const d = new Date(year, month, i);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: true,
+        key: `curr-${i}`
+      });
+    }
+
+    const remaining = 42 - daysArr.length;
+    for (let i = 1; i <= remaining; i++) {
+      const d = new Date(year, month + 1, i);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: false,
+        key: `next-${i}`
+      });
+    }
+
+    return daysArr;
+  };
 
   const loadReport = useCallback(async () => {
     if (!startDate || !endDate) return;
@@ -136,40 +234,173 @@ export default function WeeklyReportPage() {
           </div>
 
           {/* Week Navigation */}
-          <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+          <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 relative">
             <button
               onClick={() => handleWeekDelta(-1)}
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
+              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
               title="Previous Week"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center space-x-2">
-              <div className="flex flex-col">
-                <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">First Date</span>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={e => setStartDate(e.target.value)}
-                  className="font-bold text-slate-950 focus:outline-none bg-white px-2 py-0.5 rounded border border-slate-200 text-xs w-[115px]"
-                />
-              </div>
-              <span className="text-slate-400 text-xs font-semibold self-end mb-1">to</span>
-              <div className="flex flex-col">
-                <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Last Date</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={e => setEndDate(e.target.value)}
-                  className="font-bold text-slate-950 focus:outline-none bg-white px-2 py-0.5 rounded border border-slate-200 text-xs w-[115px]"
-                />
-              </div>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                className="flex items-center space-x-2.5 px-4 py-2 bg-white rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/20 shadow-2xs transition-all text-xs font-bold text-slate-800 cursor-pointer"
+              >
+                <Calendar className="w-4 h-4 text-sky-600 shrink-0" />
+                <span>{getWeekRangeLabel()}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-450 shrink-0" />
+              </button>
+
+              {isCalendarOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-30"
+                    onClick={() => setIsCalendarOpen(false)}
+                  />
+                  <div className="absolute right-0 sm:left-0 mt-2 z-40 bg-white border border-slate-200 rounded-xl shadow-xl p-4 w-[320px] sm:w-[340px] space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+                    {/* Calendar Month Header */}
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => handleMonthDelta(-1)}
+                        className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-855 transition-colors cursor-pointer"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider">
+                        {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleMonthDelta(1)}
+                        className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-855 transition-colors cursor-pointer"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Calendar Grid */}
+                    <div className="space-y-1">
+                      {/* Weekday labels */}
+                      <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pb-1">
+                        <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                      </div>
+
+                      {/* Days grid */}
+                      <div className="grid grid-cols-7 gap-0.5">
+                        {generateCalendarDays(viewDate).map((dayObj) => {
+                          const dStr = dayObj.date.toISOString().split('T')[0];
+                          const active = isSelected(dayObj.date);
+                          const hoverActive = isInHoverRange(dayObj.date);
+                          const start = isStart(dayObj.date);
+                          const end = isEnd(dayObj.date);
+                          const isToday = dStr === new Date().toISOString().split('T')[0];
+
+                          return (
+                            <button
+                              key={dayObj.key}
+                              type="button"
+                              onMouseEnter={() => setHoveredDate(dStr)}
+                              onMouseLeave={() => setHoveredDate(null)}
+                              onClick={() => {
+                                handleSelectWeekFromDate(dayObj.date);
+                                // Optional: close on click or leave open for custom micro-adjustments
+                              }}
+                              className={`h-8 w-8 sm:h-9 sm:w-9 text-xs font-semibold rounded-md flex items-center justify-center transition-all cursor-pointer relative ${
+                                !dayObj.isCurrentMonth ? 'text-slate-300' : 'text-slate-700 hover:bg-slate-100'
+                              } ${
+                                active
+                                  ? 'bg-sky-50 text-sky-800 font-bold border border-sky-200'
+                                  : hoverActive
+                                  ? 'bg-slate-50 border border-dashed border-slate-300'
+                                  : ''
+                              } ${
+                                start ? '!bg-sky-600 !text-white !border-sky-700 shadow-xs' : ''
+                              } ${
+                                end ? '!bg-sky-600 !text-white !border-sky-700 shadow-xs' : ''
+                              }`}
+                            >
+                              {dayObj.date.getDate()}
+                              {isToday && !active && (
+                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-sky-600 rounded-full" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-100 pt-3 space-y-3">
+                      {/* Manual Override inputs */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Start Date</span>
+                          <input
+                            type="date"
+                            value={startDate}
+                            onChange={e => setStartDate(e.target.value)}
+                            className="font-bold text-slate-950 focus:outline-none bg-slate-50 px-2 py-1 rounded border border-slate-200 text-xs w-full"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">End Date</span>
+                          <input
+                            type="date"
+                            value={endDate}
+                            onChange={e => setEndDate(e.target.value)}
+                            className="font-bold text-slate-950 focus:outline-none bg-slate-50 px-2 py-1 rounded border border-slate-200 text-xs w-full"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Presets & Actions */}
+                      <div className="flex items-center justify-between text-[11px] font-bold border-t border-slate-50 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const range = getWeekRange(new Date());
+                            setStartDate(range.startDate);
+                            setEndDate(range.endDate);
+                            setViewDate(new Date());
+                          }}
+                          className="text-sky-600 hover:text-sky-800 cursor-pointer"
+                        >
+                          This Week
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const lastWeek = new Date();
+                            lastWeek.setDate(lastWeek.getDate() - 7);
+                            const range = getWeekRange(lastWeek);
+                            setStartDate(range.startDate);
+                            setEndDate(range.endDate);
+                            setViewDate(lastWeek);
+                          }}
+                          className="text-slate-500 hover:text-slate-800 cursor-pointer"
+                        >
+                          Last Week
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsCalendarOpen(false)}
+                          className="px-3 py-1 bg-sky-600 hover:bg-sky-700 text-white rounded-md cursor-pointer transition-colors shadow-2xs"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <button
               onClick={() => handleWeekDelta(1)}
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
+              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
               title="Next Week"
             >
               <ChevronRight className="w-4 h-4" />
