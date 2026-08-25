@@ -78,8 +78,8 @@ export default function DashboardPage() {
               <span className="text-xs text-slate-400">•</span>
               <span className="text-xs font-semibold text-slate-500">Creative Team Member</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mt-1.5">
-              {greeting}, {currentUser.name} 👋
+            <h1 className="text-2xl font-bold text-slate-900 mt-1.5 flex items-baseline flex-wrap">
+              {greeting}, <span className="font-handwritten text-3xl ml-2 inline-block transform -rotate-1">{currentUser.name}</span>
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
               Here is your live daily activity and weekly work summary.
