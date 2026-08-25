@@ -211,7 +211,6 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-              <p className="mt-1 text-[11px] text-slate-500">Default team password: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-bold">strongpassword</code></p>
             </div>
 
             <div>
