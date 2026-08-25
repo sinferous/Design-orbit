@@ -58,8 +58,8 @@ export function Navbar({ userName }: NavbarProps) {
                 className="h-6 sm:h-7 w-auto object-contain group-hover:opacity-90 transition-opacity"
               />
               <div className="h-4 sm:h-5 w-px bg-slate-300" />
-              <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight">
-                Design Orbit
+              <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight flex items-center">
+                Design <span className="font-handwritten text-lg sm:text-xl ml-1.5 transform -rotate-1 inline-block">Orbit</span>
               </span>
             </Link>
 

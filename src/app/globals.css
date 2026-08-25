@@ -86,3 +86,10 @@ body {
 .animate-spin-slow {
   animation: spinSlow 60s linear infinite;
 }
+
+.font-handwritten {
+  font-family: 'Ink Free', 'Segoe Print', 'Caveat', 'Comic Sans MS', cursive;
+  color: #0052cc;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
