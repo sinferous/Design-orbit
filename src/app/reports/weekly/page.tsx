@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { getWeeklyReportData, getWeekRange, WeeklyUserSummary, exportToCSV } from '@/lib/services/reports';
+import { fetchWeeklyBestWorkRecords, saveWeeklyBestWorkLinkRecord } from '@/lib/services/work-entry';
 import { ChevronLeft, ChevronRight, Calendar, Download, ChevronDown, ChevronUp, Link as LinkIcon, Award, Sparkles, ExternalLink, Building2 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
@@ -146,8 +147,13 @@ export default function WeeklyReportPage() {
     if (!startDate || !endDate) return;
     setLoading(true);
     try {
-      const data = await getWeeklyReportData(startDate, endDate);
+      const [data, dbLinksMap] = await Promise.all([
+        getWeeklyReportData(startDate, endDate),
+        fetchWeeklyBestWorkRecords(startDate)
+      ]);
       setSummaries(data);
+      setBestWorkLinks(dbLinksMap);
+      setTempLinks({});
     } catch (err) {
       console.error('Failed to load weekly report:', err);
       showToast('Failed to load weekly report.', 'error');
@@ -552,9 +558,9 @@ export default function WeeklyReportPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={async () => {
                             const val = (tempLinks[s.profile.id] ?? bestWorkLinks[s.profile.id] ?? '').trim();
-                            saveWeeklyLink(s.profile.id, startDate, val);
+                            await saveWeeklyBestWorkLinkRecord(s.profile.id, startDate, val);
                             setBestWorkLinks(prev => ({ ...prev, [s.profile.id]: val }));
                             setSavedStatus({ ...savedStatus, [s.profile.id]: true });
                             showToast(`Best work link saved for ${s.profile.name}!`, 'success');

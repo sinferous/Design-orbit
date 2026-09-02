@@ -742,3 +742,77 @@ export function getUserPasswordFromDB(profile?: Profile | null, email?: string):
   }
   return 'strongpassword';
 }
+
+export async function fetchWeeklyBestWorkRecords(weekStartDate: string): Promise<Record<string, string>> {
+  const result: Record<string, string> = {};
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      const { data, error } = await (supabase.from('weekly_best_work') as any)
+        .select('*')
+        .eq('week_start_date', weekStartDate);
+
+      if (!error && data) {
+        data.forEach((row: any) => {
+          if (row.profile_id && row.url) {
+            result[row.profile_id] = row.url;
+          }
+        });
+        return result;
+      }
+    } catch (err) {
+      console.warn('Supabase fetchWeeklyBestWorkRecords notice:', err);
+    }
+  }
+
+  // Local fallback
+  if (typeof window !== 'undefined') {
+    const keyPrefix = `design_orbit_weekly_link_`;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(keyPrefix) && key.endsWith(`_${weekStartDate}`)) {
+        const parts = key.replace(keyPrefix, '').split('_');
+        const profId = parts[0];
+        const val = localStorage.getItem(key);
+        if (profId && val) result[profId] = val;
+      }
+    }
+  }
+
+  return result;
+}
+
+export async function saveWeeklyBestWorkLinkRecord(profileId: string, weekStartDate: string, url: string): Promise<void> {
+  const cleanUrl = url.trim();
+  
+  if (typeof window !== 'undefined') {
+    if (cleanUrl) {
+      localStorage.setItem(`design_orbit_weekly_link_${profileId}_${weekStartDate}`, cleanUrl);
+    } else {
+      localStorage.removeItem(`design_orbit_weekly_link_${profileId}_${weekStartDate}`);
+    }
+  }
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      if (!cleanUrl) {
+        await (supabase.from('weekly_best_work') as any)
+          .delete()
+          .eq('profile_id', profileId)
+          .eq('week_start_date', weekStartDate);
+      } else {
+        await (supabase.from('weekly_best_work') as any)
+          .upsert({
+            profile_id: profileId,
+            week_start_date: weekStartDate,
+            url: cleanUrl,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'profile_id,week_start_date' });
+      }
+    } catch (err) {
+      console.warn('Supabase saveWeeklyBestWorkLinkRecord notice:', err);
+    }
+  }
+}

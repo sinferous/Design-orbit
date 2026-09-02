@@ -140,6 +140,32 @@ export interface Database {
           updated_at?: string
         }
       }
+      weekly_best_work: {
+        Row: {
+          id: string
+          profile_id: string
+          week_start_date: string
+          url: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          week_start_date: string
+          url: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          week_start_date?: string
+          url?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }

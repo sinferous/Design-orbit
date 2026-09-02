@@ -170,3 +170,20 @@ CREATE POLICY "Anyone can update work entries"
 CREATE POLICY "Anyone can delete work entries"
     ON public.work_entries FOR DELETE
     USING (true);
+
+-- 5. WEEKLY BEST WORK TABLE
+CREATE TABLE IF NOT EXISTS public.weekly_best_work (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    week_start_date DATE NOT NULL,
+    url TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_profile_week UNIQUE (profile_id, week_start_date)
+);
+
+ALTER TABLE public.weekly_best_work ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view weekly_best_work" ON public.weekly_best_work FOR SELECT USING (true);
+CREATE POLICY "Anyone can insert weekly_best_work" ON public.weekly_best_work FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can update weekly_best_work" ON public.weekly_best_work FOR UPDATE USING (true);
+CREATE POLICY "Anyone can delete weekly_best_work" ON public.weekly_best_work FOR DELETE USING (true);
