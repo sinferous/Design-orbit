@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS public.weekly_best_work (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     week_start_date DATE NOT NULL,
-    url TEXT NOT NULL,
+    best_work_url TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT unique_profile_week UNIQUE (profile_id, week_start_date)

@@ -145,7 +145,7 @@ export interface Database {
           id: string
           profile_id: string
           week_start_date: string
-          url: string
+          best_work_url: string
           created_at: string
           updated_at: string
         }
@@ -153,7 +153,7 @@ export interface Database {
           id?: string
           profile_id: string
           week_start_date: string
-          url: string
+          best_work_url: string
           created_at?: string
           updated_at?: string
         }
@@ -161,7 +161,7 @@ export interface Database {
           id?: string
           profile_id?: string
           week_start_date?: string
-          url?: string
+          best_work_url?: string
           created_at?: string
           updated_at?: string
         }

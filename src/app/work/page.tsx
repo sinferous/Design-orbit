@@ -99,7 +99,7 @@ export default function MyWorkPage() {
         const type = entry.work_type?.name || 'Work';
         const desc = entry.description || '';
         const qty = entry.quantity_done;
-        const url = entry.project_url || entry.best_work_url;
+        const url = entry.project_url;
         const urlStr = url ? ` | Project URL: ${url}` : '';
         return `${idx + 1}. Client: ${client} | Type: ${type} | Description: ${desc} | Qty: ${qty}${urlStr}`;
       })
@@ -371,17 +371,17 @@ export default function MyWorkPage() {
                                 {entry.description}
                               </p>
 
-                              {(entry.project_url || entry.best_work_url) && (
+                              {entry.project_url && (
                                 <div className="pt-1">
                                   <a
-                                    href={entry.project_url || entry.best_work_url!}
+                                    href={entry.project_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 transition-colors"
                                     title="Open Project URL"
                                   >
                                     <ExternalLink className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                                    <span className="truncate max-w-xs">{entry.project_url || entry.best_work_url}</span>
+                                    <span className="truncate max-w-xs">{entry.project_url}</span>
                                   </a>
                                 </div>
                               )}

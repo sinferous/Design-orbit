@@ -755,8 +755,9 @@ export async function fetchWeeklyBestWorkRecords(weekStartDate: string): Promise
 
       if (!error && data) {
         data.forEach((row: any) => {
-          if (row.profile_id && row.url) {
-            result[row.profile_id] = row.url;
+          const val = row.best_work_url || row.url;
+          if (row.profile_id && val) {
+            result[row.profile_id] = val;
           }
         });
         return result;
@@ -807,7 +808,7 @@ export async function saveWeeklyBestWorkLinkRecord(profileId: string, weekStartD
           .upsert({
             profile_id: profileId,
             week_start_date: weekStartDate,
-            url: cleanUrl,
+            best_work_url: cleanUrl,
             updated_at: new Date().toISOString(),
           }, { onConflict: 'profile_id,week_start_date' });
       }
