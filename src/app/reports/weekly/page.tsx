@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { getWeeklyReportData, getWeekRange, WeeklyUserSummary, exportToCSV } from '@/lib/services/reports';
 import { fetchWeeklyBestWorkRecords, saveWeeklyBestWorkLinkRecord } from '@/lib/services/work-entry';
-import { ChevronLeft, ChevronRight, Calendar, Download, ChevronDown, ChevronUp, Link as LinkIcon, Award, Sparkles, ExternalLink, Building2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Download, ChevronDown, ChevronUp, Link as LinkIcon, Award, Sparkles, ExternalLink, Building2, Plus, Edit2 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { WeeklyBestWorkModal } from '@/components/reports/WeeklyBestWorkModal';
 
 export default function WeeklyReportPage() {
   const [startDate, setStartDate] = useState<string>('');
@@ -17,8 +18,30 @@ export default function WeeklyReportPage() {
 
   // Store weekly best work links per profile (persisted per week)
   const [bestWorkLinks, setBestWorkLinks] = useState<Record<string, string>>({});
-  const [tempLinks, setTempLinks] = useState<Record<string, string>>({});
-  const [savedStatus, setSavedStatus] = useState<Record<string, boolean>>({});
+
+  // Modal state for managing Weekly Best Work
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    profileId: string;
+    designerName: string;
+    currentUrl: string;
+  } | null>(null);
+
+  const handleSaveModalLink = async (profileId: string, url: string) => {
+    await saveWeeklyBestWorkLinkRecord(profileId, startDate, url);
+    setBestWorkLinks(prev => ({ ...prev, [profileId]: url }));
+    showToast('Weekly Best Work link saved successfully!', 'success');
+  };
+
+  const handleDeleteModalLink = async (profileId: string) => {
+    await saveWeeklyBestWorkLinkRecord(profileId, startDate, '');
+    setBestWorkLinks(prev => {
+      const copy = { ...prev };
+      delete copy[profileId];
+      return copy;
+    });
+    showToast('Weekly Best Work link removed.', 'success');
+  };
 
   // Persistent helper for Weekly Best Work Links per week & profile
   const getSavedWeeklyLink = useCallback((profileId: string, weekStart: string) => {
@@ -153,7 +176,6 @@ export default function WeeklyReportPage() {
       ]);
       setSummaries(data);
       setBestWorkLinks(dbLinksMap);
-      setTempLinks({});
     } catch (err) {
       console.error('Failed to load weekly report:', err);
       showToast('Failed to load weekly report.', 'error');
@@ -538,41 +560,61 @@ export default function WeeklyReportPage() {
                       ))}
                     </div>
 
-                    {/* Weekly Best Work Link Highlight Feature */}
+                    {/* Featured Weekly Best Work Feature */}
                     <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-200">
-                      <div className="flex items-center space-x-2 text-xs font-bold text-amber-700">
+                      <div className="flex items-center space-x-2 text-xs font-bold text-slate-700">
                         <Award className="w-4 h-4 text-amber-500" />
-                        <span>Weekly Best Work Link (Featured for Meeting):</span>
+                        <span>Featured Weekly Best Work:</span>
                       </div>
 
                       <div className="flex items-center space-x-2 w-full sm:w-auto">
-                        <input
-                          type="url"
-                          placeholder="Paste URL for top deliverable this week..."
-                          value={tempLinks[s.profile.id] ?? bestWorkLinks[s.profile.id] ?? ''}
-                          onChange={e => {
-                            setTempLinks({ ...tempLinks, [s.profile.id]: e.target.value });
-                            setSavedStatus({ ...savedStatus, [s.profile.id]: false });
-                          }}
-                          className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs w-full sm:w-80 focus:outline-none focus:ring-2 focus:ring-sky-500"
-                        />
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const val = (tempLinks[s.profile.id] ?? bestWorkLinks[s.profile.id] ?? '').trim();
-                            await saveWeeklyBestWorkLinkRecord(s.profile.id, startDate, val);
-                            setBestWorkLinks(prev => ({ ...prev, [s.profile.id]: val }));
-                            setSavedStatus({ ...savedStatus, [s.profile.id]: true });
-                            showToast(`Best work link saved for ${s.profile.name}!`, 'success');
-                            setTimeout(() => {
-                              setSavedStatus(prev => ({ ...prev, [s.profile.id]: false }));
-                            }, 2000);
-                          }}
-                          className="px-3 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-lg shadow-2xs transition-transform active:scale-95 flex items-center space-x-1 shrink-0"
-                        >
-                          <LinkIcon className="w-3.5 h-3.5" />
-                          <span>{savedStatus[s.profile.id] ? 'Link Saved!' : '+ Add Link'}</span>
-                        </button>
+                        {bestWorkLinks[s.profile.id] ? (
+                          <>
+                            <a
+                              href={bestWorkLinks[s.profile.id]}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3.5 py-1.5 text-xs font-bold text-amber-900 bg-amber-50 border border-amber-300 hover:bg-amber-100 rounded-xl transition-colors flex items-center space-x-1.5 cursor-pointer shadow-2xs"
+                              title="Open Featured Best Work Link"
+                            >
+                              <Award className="w-3.5 h-3.5 text-amber-600" />
+                              <span className="truncate max-w-[200px]">View Best Work ↗</span>
+                            </a>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setModalConfig({
+                                  isOpen: true,
+                                  profileId: s.profile.id,
+                                  designerName: s.profile.name,
+                                  currentUrl: bestWorkLinks[s.profile.id],
+                                });
+                              }}
+                              className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors flex items-center space-x-1 cursor-pointer"
+                              title="Edit or Remove Best Work Link"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 text-slate-500" />
+                              <span>Edit / Remove</span>
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setModalConfig({
+                                isOpen: true,
+                                profileId: s.profile.id,
+                                designerName: s.profile.name,
+                                currentUrl: '',
+                              });
+                            }}
+                            className="px-3.5 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-xl shadow-2xs transition-transform active:scale-95 flex items-center space-x-1.5 shrink-0 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Add Best Work</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -689,6 +731,20 @@ export default function WeeklyReportPage() {
           </div>
         )}
       </main>
+
+      {/* Weekly Best Work Modal */}
+      {modalConfig && (
+        <WeeklyBestWorkModal
+          isOpen={modalConfig.isOpen}
+          designerName={modalConfig.designerName}
+          profileId={modalConfig.profileId}
+          weekStartDate={startDate}
+          currentUrl={modalConfig.currentUrl}
+          onSave={handleSaveModalLink}
+          onDelete={handleDeleteModalLink}
+          onClose={() => setModalConfig(null)}
+        />
+      )}
     </div>
   );
 }
