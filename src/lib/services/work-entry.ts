@@ -406,7 +406,6 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
         quantity_done: formData.quantity_done,
         quantity_approved: formData.quantity_approved,
         best_work_url: urlValue,
-        project_url: urlValue,
         notes: formData.notes || null,
         status: formData.status || 'Submitted',
       });
@@ -466,9 +465,12 @@ export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFor
   if (isSupabaseConfigured()) {
     const supabase = createClient();
     const urlVal = formData.project_url !== undefined ? formData.project_url : formData.best_work_url;
+    const cleanFormData = { ...formData };
+    delete (cleanFormData as any).project_url;
+
     const payload: any = { 
-      ...formData, 
-      ...(urlVal !== undefined ? { project_url: urlVal || null, best_work_url: urlVal || null } : {}),
+      ...cleanFormData, 
+      ...(urlVal !== undefined ? { best_work_url: urlVal || null } : {}),
       updated_at: new Date().toISOString() 
     };
 
