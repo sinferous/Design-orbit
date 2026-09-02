@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { setLoggedInUser, fetchProfiles } from '@/lib/services/work-entry';
+import { setLoggedInUser, fetchProfiles, getUserPasswordFromDB } from '@/lib/services/work-entry';
 import { Profile } from '@/types';
 import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
@@ -19,17 +19,6 @@ const PRESET_ACCOUNTS = [
   { name: 'Varun (Graphic Designer)', email: 'varun@webtreeonline.com' },
   { name: 'Shashiraj (Graphic Designer)', email: 'shashiraj@webtreeonline.com' },
 ];
-
-function getStoredPassword(profile?: Profile, email?: string): string {
-  if (profile && profile.password) {
-    return profile.password;
-  }
-  if (typeof window !== 'undefined' && email) {
-    const customPass = localStorage.getItem(`design_orbit_pass_${email.toLowerCase()}`);
-    if (customPass) return customPass;
-  }
-  return 'strongpassword';
-}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -106,7 +95,7 @@ export default function LoginPage() {
     }
 
     if (!authenticated) {
-      const validPassword = getStoredPassword(profileMatch, inputEmail);
+      const validPassword = getUserPasswordFromDB(profileMatch, inputEmail);
       if (inputPassword !== validPassword) {
         showToast('Incorrect password entered. Access denied.', 'error');
         setLoading(false);

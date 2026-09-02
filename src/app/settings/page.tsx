@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
-import { getLoggedInUser, clearLocalSessionData, updateProfilePasswordInDB } from '@/lib/services/work-entry';
+import { getLoggedInUser, clearLocalSessionData, updateProfilePasswordInDB, fetchProfileByEmail, getUserPasswordFromDB } from '@/lib/services/work-entry';
 import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function SettingsPage() {
-  const [currentPassword, setCurrentPassword] = useState('strongpassword');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [dbPassword, setDbPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -17,19 +18,40 @@ export default function SettingsPage() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const [loadingPassword, setLoadingPassword] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
 
   const { showToast } = useToast();
 
   useEffect(() => {
-    const user = getLoggedInUser();
-    if (user?.name) setCurrentUser(user);
+    async function loadUserPasswordFromDB() {
+      const user = getLoggedInUser();
+      if (user?.name) {
+        setCurrentUser(user);
+        if (user.email) {
+          try {
+            const dbProf = await fetchProfileByEmail(user.email);
+            const pass = getUserPasswordFromDB(dbProf, user.email);
+            setDbPassword(pass);
+            setCurrentPassword(pass);
+          } catch (err) {
+            console.error('Failed to load password from DB:', err);
+          }
+        }
+      }
+      setLoadingPassword(false);
+    }
+    loadUserPasswordFromDB();
   }, []);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (currentPassword !== dbPassword) {
+      showToast('Current password does not match database record.', 'error');
+      return;
+    }
     if (!newPassword) {
       showToast('Please enter a new password', 'error');
       return;
@@ -54,10 +76,11 @@ export default function SettingsPage() {
         localStorage.setItem(`design_orbit_pass_${currentUser.email.toLowerCase()}`, newPassword);
       }
 
-      showToast('Your password has been updated in the database successfully!', 'success');
+      setDbPassword(newPassword);
+      setCurrentPassword(newPassword);
       setNewPassword('');
       setConfirmPassword('');
-      setCurrentPassword(newPassword);
+      showToast('Your password has been updated in the database successfully!', 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to update password in database', 'error');
     } finally {

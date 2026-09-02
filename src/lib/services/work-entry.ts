@@ -395,6 +395,8 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
       const dbClientId = await ensureClientInDB(supabase, formData.client_id || null);
       const dbWorkTypeId = await ensureWorkTypeInDB(supabase, formData.work_type_id);
 
+      const urlValue = formData.project_url || formData.best_work_url || null;
+
       insertPayload.push({
         user_id: dbUserId,
         client_id: dbClientId,
@@ -403,7 +405,8 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
         description: formData.description,
         quantity_done: formData.quantity_done,
         quantity_approved: formData.quantity_approved,
-        best_work_url: formData.best_work_url || null,
+        best_work_url: urlValue,
+        project_url: urlValue,
         notes: formData.notes || null,
         status: formData.status || 'Submitted',
       });
@@ -430,6 +433,7 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
     const profile = INITIAL_MOCK_PROFILES.find(p => p.id === formData.user_id) || INITIAL_MOCK_PROFILES[1];
     const client = INITIAL_MOCK_CLIENTS.find(c => c.id === formData.client_id) || null;
     const work_type = INITIAL_MOCK_WORK_TYPES.find(w => w.id === formData.work_type_id) || INITIAL_MOCK_WORK_TYPES[0];
+    const urlVal = formData.project_url || formData.best_work_url || null;
 
     const newEntry: WorkEntryWithDetails = {
       id: `we_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
@@ -440,7 +444,8 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
       description: formData.description,
       quantity_done: formData.quantity_done,
       quantity_approved: formData.quantity_approved,
-      best_work_url: formData.best_work_url || null,
+      best_work_url: urlVal,
+      project_url: urlVal,
       notes: formData.notes || null,
       status: formData.status || 'Submitted',
       created_at: new Date().toISOString(),
@@ -460,7 +465,12 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
 export async function updateWorkEntry(id: string, formData: Partial<WorkEntryFormData>): Promise<WorkEntry> {
   if (isSupabaseConfigured()) {
     const supabase = createClient();
-    const payload: any = { ...formData, updated_at: new Date().toISOString() };
+    const urlVal = formData.project_url !== undefined ? formData.project_url : formData.best_work_url;
+    const payload: any = { 
+      ...formData, 
+      ...(urlVal !== undefined ? { project_url: urlVal || null, best_work_url: urlVal || null } : {}),
+      updated_at: new Date().toISOString() 
+    };
 
     if (payload.client_id) {
       payload.client_id = await ensureClientInDB(supabase, payload.client_id);
@@ -694,4 +704,39 @@ export async function updateProfilePasswordInDB(email: string, newPassword: stri
   if (match) {
     (match as any).password = newPassword;
   }
+}
+
+export async function fetchProfileByEmail(email: string): Promise<Profile | null> {
+  const trimmedEmail = email.trim().toLowerCase();
+  if (!trimmedEmail) return null;
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      const { data, error } = await (supabase.from('profiles') as any)
+        .select('*')
+        .ilike('email', trimmedEmail)
+        .limit(1);
+
+      if (!error && data && data.length > 0) {
+        return data[0] as Profile;
+      }
+    } catch (err) {
+      console.warn('Supabase fetchProfileByEmail notice:', err);
+    }
+  }
+
+  const profiles = await fetchProfiles();
+  return profiles.find(p => p.email && p.email.toLowerCase() === trimmedEmail) || null;
+}
+
+export function getUserPasswordFromDB(profile?: Profile | null, email?: string): string {
+  if (profile && (profile as any).password) {
+    return (profile as any).password;
+  }
+  if (typeof window !== 'undefined' && email) {
+    const customPass = localStorage.getItem(`design_orbit_pass_${email.toLowerCase()}`);
+    if (customPass) return customPass;
+  }
+  return 'strongpassword';
 }

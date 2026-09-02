@@ -9,6 +9,7 @@ export interface WorkEntryWithDetails extends WorkEntry {
   profile?: Profile;
   client?: Client | null;
   work_type?: WorkType;
+  project_url?: string | null;
 }
 
 export type WorkStatus = 'Draft' | 'Submitted' | 'Reviewed' | 'Needs Changes';
@@ -22,6 +23,7 @@ export interface WorkEntryFormData {
   quantity_done: number;
   quantity_approved: number;
   best_work_url?: string;
+  project_url?: string;
   notes?: string;
   status?: WorkStatus;
 }

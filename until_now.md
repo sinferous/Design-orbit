@@ -65,7 +65,15 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Edit Entry Workflow (`/work/[id]`)**:
   - Built [`src/app/work/[id]/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/%5Bid%5D/page.tsx) to modify existing daily entries.
 - [x] **Account & Change Password Settings (`/settings`)**:
-  - Created [`src/app/settings/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx) allowing users to update their password with Eye show/hide password toggle buttons and subtle ToastAlert popups.
+  - Built [`src/app/settings/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx) to fetch and verify the user's **actual current password directly from Supabase database** (`profiles.password`) instead of hardcoding static fallbacks.
+  - Validates that the entered Current Password matches the actual database password before executing any password change.
+  - Password inputs feature Eye show/hide toggles and toast notifications.
+
+- [x] **Optional Project URL Field & Day Log Copy Integration**:
+  - Added an optional **`Project URL`** field (e.g., Figma link, Behance, Google Drive, or web site link) to the daily work entry form ([`WorkEntryForm.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx)) available for all team members and work types.
+  - Created Supabase SQL Migration [`005_add_project_url_to_work_entries.sql`](file:///j:/Work/Webtree%20Online/Design%20orbit/supabase/migrations/005_add_project_url_to_work_entries.sql) to add `project_url TEXT` column to PostgreSQL `work_entries` table.
+  - **Copy Day Log Integration**: Clicking **`Copy Day Log`** on [`/work`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/page.tsx) automatically appends ` | Project URL: <url>` to each entry in the copied clipboard summary if the link is present.
+  - Displays clickable project links with `ExternalLink` icons on daily entry cards and weekly report drill-down views.
 
 ---
 
@@ -77,7 +85,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Presentation-friendly screen view designed for weekly team review meetings.
   - Week selector (`← Previous Week | This Week | Next Week →`).
   - Grouped by Person & Work Type (`Static`, `Video`, `Website`, `UI/UX`, etc.).
-  - Expandable drill-down into daily work entries.
+  - **Client-Wise Entry Grouping & Sorting**: Expanded designer daily work entries are grouped and sorted by **Client Name (A-Z)** with dedicated client section cards (*e.g., 🏢 Client: Amaron, 🏢 Client: Longovia*), combining entries from different dates under their respective client for the selected week.
   - **Featured Weekly Best Work Link with `+ Add Link` Button**: Removed default prefilled link; added an explicit **`+ Add Link`** button with visual "Link Saved!" confirmation.
   - One-click CSV export.
 - [x] **Monthly Report Page (`/reports/monthly`)**:

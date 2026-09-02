@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Profile, WorkType, Client, WorkEntryWithDetails } from '@/types';
 import { fetchProfiles, fetchWorkTypes, fetchClients, createWorkEntriesBatch, updateWorkEntry, createClientRecord, getLoggedInUser } from '@/lib/services/work-entry';
-import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2 } from 'lucide-react';
+import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2, Link2 } from 'lucide-react';
 import { ToastAlert } from '@/components/ui/ToastAlert';
 import { useToast } from '@/components/ui/ToastContext';
 
@@ -15,6 +15,7 @@ interface WorkItemRow {
   quantity_done: number;
   quantity_approved: number;
   is_approved: boolean; // Approved vs Not Approved
+  project_url?: string;
 }
 
 interface WorkEntryFormProps {
@@ -51,6 +52,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       quantity_done: initialData?.quantity_done ?? 1,
       quantity_approved: initialData?.quantity_approved ?? 0,
       is_approved: (initialData?.status === 'Reviewed' || (initialData?.quantity_approved ?? 0) > 0),
+      project_url: initialData?.project_url || initialData?.best_work_url || '',
     },
   ]);
 
@@ -101,6 +103,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
               quantity_done: 1,
               quantity_approved: 1,
               is_approved: true,
+              project_url: '',
             },
           ]);
         }
@@ -124,6 +127,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
         quantity_done: 1,
         quantity_approved: 1,
         is_approved: true,
+        project_url: '',
       },
     ]);
   };
@@ -185,6 +189,8 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           description: item.description,
           quantity_done: item.quantity_done,
           quantity_approved: item.quantity_approved,
+          project_url: item.project_url || undefined,
+          best_work_url: item.project_url || undefined,
           status: item.is_approved ? 'Reviewed' : 'Submitted',
         });
         showToast('Work entry updated successfully!', 'success');
@@ -198,6 +204,8 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           description: item.description,
           quantity_done: item.quantity_done,
           quantity_approved: item.quantity_approved,
+          project_url: item.project_url || undefined,
+          best_work_url: item.project_url || undefined,
           status: (item.is_approved ? 'Reviewed' : 'Submitted') as any,
         }));
 
@@ -217,6 +225,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
               quantity_done: 1,
               quantity_approved: 1,
               is_approved: true,
+              project_url: '',
             },
           ]);
         } else {
@@ -469,6 +478,28 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                       <span>Not Approved</span>
                     </button>
                   </div>
+                </div>
+              </div>
+
+              {/* Project URL (Optional) */}
+              <div className="pt-3 border-t border-slate-100">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center space-x-1.5">
+                    <Link2 className="w-3.5 h-3.5 text-sky-600" />
+                    <span>Project URL</span>
+                    <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-normal">Figma, Behance, Drive, or site link</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="url"
+                    placeholder="https://figma.com/file/... or https://..."
+                    value={item.project_url || ''}
+                    onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50/60 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder:text-slate-400"
+                  />
+                  <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 </div>
               </div>
             </div>

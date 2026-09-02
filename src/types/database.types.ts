@@ -101,6 +101,7 @@ export interface Database {
           quantity_done: number
           quantity_approved: number
           best_work_url: string | null
+          project_url?: string | null
           notes: string | null
           status: 'Draft' | 'Submitted' | 'Reviewed' | 'Needs Changes'
           created_at: string
@@ -116,6 +117,7 @@ export interface Database {
           quantity_done?: number
           quantity_approved?: number
           best_work_url?: string | null
+          project_url?: string | null
           notes?: string | null
           status?: 'Draft' | 'Submitted' | 'Reviewed' | 'Needs Changes'
           created_at?: string
@@ -131,6 +133,7 @@ export interface Database {
           quantity_done?: number
           quantity_approved?: number
           best_work_url?: string | null
+          project_url?: string | null
           notes?: string | null
           status?: 'Draft' | 'Submitted' | 'Reviewed' | 'Needs Changes'
           created_at?: string

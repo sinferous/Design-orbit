@@ -104,13 +104,22 @@ export async function getWeeklyReportData(startDateStr: string, endDateStr: stri
       breakdown[wtName].approved += entry.quantity_approved;
     });
 
+    const sortedUserEntries = [...userEntries].sort((a, b) => {
+      const clientA = a.client?.name?.trim().toLowerCase() || 'zz_no_client';
+      const clientB = b.client?.name?.trim().toLowerCase() || 'zz_no_client';
+      if (clientA !== clientB) {
+        return clientA.localeCompare(clientB);
+      }
+      return a.work_date.localeCompare(b.work_date);
+    });
+
     return {
       profile,
       totalCreated,
       totalApproved,
       approvalRate,
       workTypeBreakdown: breakdown,
-      entries: userEntries,
+      entries: sortedUserEntries,
       weeklyBestWorkUrl: '',
     };
   });

@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS public.work_entries (
     quantity_done INTEGER NOT NULL DEFAULT 1 CONSTRAINT check_quantity_done_positive CHECK (quantity_done >= 0),
     quantity_approved INTEGER NOT NULL DEFAULT 0 CONSTRAINT check_quantity_approved_positive CHECK (quantity_approved >= 0),
     best_work_url TEXT,
+    project_url TEXT,
     notes TEXT,
     status TEXT NOT NULL DEFAULT 'Submitted' CONSTRAINT check_status_valid CHECK (status IN ('Draft', 'Submitted', 'Reviewed', 'Needs Changes')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
