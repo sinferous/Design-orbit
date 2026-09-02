@@ -750,14 +750,15 @@ export async function fetchWeeklyBestWorkRecords(weekStartDate: string): Promise
     try {
       const supabase = createClient();
       const { data, error } = await (supabase.from('weekly_best_work') as any)
-        .select('*')
+        .select('*, profile:profiles(*)')
         .eq('week_start_date', weekStartDate);
 
       if (!error && data) {
         data.forEach((row: any) => {
           const val = row.best_work_url || row.url;
-          if (row.profile_id && val) {
-            result[row.profile_id] = val;
+          if (val) {
+            if (row.profile_id) result[row.profile_id] = val;
+            if (row.profile?.id) result[row.profile.id] = val;
           }
         });
         return result;
@@ -798,19 +799,25 @@ export async function saveWeeklyBestWorkLinkRecord(profileId: string, weekStartD
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClient();
+      const dbProfileId = await ensureProfileInDB(supabase, profileId);
+
       if (!cleanUrl) {
         await (supabase.from('weekly_best_work') as any)
           .delete()
-          .eq('profile_id', profileId)
+          .eq('profile_id', dbProfileId)
           .eq('week_start_date', weekStartDate);
       } else {
-        await (supabase.from('weekly_best_work') as any)
+        const { error } = await (supabase.from('weekly_best_work') as any)
           .upsert({
-            profile_id: profileId,
+            profile_id: dbProfileId,
             week_start_date: weekStartDate,
             best_work_url: cleanUrl,
             updated_at: new Date().toISOString(),
           }, { onConflict: 'profile_id,week_start_date' });
+
+        if (error) {
+          console.error('Supabase weekly_best_work upsert error:', error.message);
+        }
       }
     } catch (err) {
       console.warn('Supabase saveWeeklyBestWorkLinkRecord notice:', err);
