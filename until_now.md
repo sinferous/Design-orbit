@@ -62,6 +62,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Weekly Report & Meeting Feature (`/reports/weekly`)**:
   - Created [`src/app/reports/weekly/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/weekly/page.tsx) with **Weekly Best Work Link (Featured for Meeting)**.
   - **Database Persistence Table (`public.weekly_best_work`)**: Created SQL Migration `006_create_weekly_best_work.sql` to store weekly best work links per profile and week start date in Supabase PostgreSQL (`public.weekly_best_work`).
+  - **RLS & Security Standardization (`007_enable_rls_all_tables.sql`)**: Enabled Row Level Security (RLS) on all database tables (`profiles`, `clients`, `work_types`, `work_entries`, `weekly_best_work`) with full seamless read, write, create, and update policies.
   - Added interactive calendar range selector, client-wise entry drill-downs, and CSV export integration.
 - [x] **Streamlined Daily Work Log View & Client-Wise Clubbing (`/work`)**:
   - Created [`src/app/work/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/page.tsx) defaulting to **ONLY the logged-in user's entries** (`My Log`).
