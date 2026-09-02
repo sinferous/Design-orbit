@@ -22,9 +22,10 @@ This document provides a comprehensive summary of all progress, architecture, an
 ### Phase 1 — Foundation (Completed)
 - [x] **Project Initialization**: Next.js 16 + TypeScript project initialized in workspace root.
 - [x] **Branding & Logo**: Integrated official Webtree vector SVG logo ([`logo/webtree-logo.svg`](file:///j:/Work/Webtree%20Online/Design%20orbit/public/logo/webtree-logo.svg)) separated by a clean vertical divider `|` before **Design Orbit** for a balanced corporate brand header.
-- [x] **App-Wide Internal Toast Notification System (`ToastContext.tsx`)**:
-  - Built a global `ToastProvider` ([`src/components/ui/ToastContext.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/ToastContext.tsx)) wrapped at `RootLayout`.
-  - Every action across the application (creating work entries, editing entries, deleting entries, adding/deleting clients, adding/deleting team members, changing passwords, exporting CSVs, saving links, logging in) now triggers smooth, non-disruptive floating Toast alerts.
+- [x] **App-Wide Internal Toast Notification & Custom Confirmation Modal System (`ToastContext.tsx` & `ConfirmModal.tsx`)**:
+  - Built a global `ToastProvider` ([`src/components/ui/ToastContext.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/ToastContext.tsx)) and `ConfirmModal` ([`src/components/ui/ConfirmModal.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/ConfirmModal.tsx)) wrapped at `RootLayout`.
+  - **Replaced 100% of Native Browser `confirm()` Dialogs**: Replaced system browser popups with custom animated modal dialogs featuring dark glassmorphic backdrops, warning icons, custom titles, warning copy, and styled action buttons.
+  - Every action across the application (creating work entries, editing entries, deleting entries, adding/deleting clients, adding/deleting team members, changing passwords, exporting CSVs, saving links, logging in) triggers smooth, custom Toast alerts and custom Confirm Modals.
 - [x] **100% Mobile Responsive Shell & Touch Controls**:
   - **Collapsible Mobile Navigation Menu Drawer**: Added a touch-friendly mobile hamburger menu button (`Menu` / `X` toggle) in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx) with instant page navigation, active user quick status, settings link, and logout button on phones & tablets.
   - **Touch-Scrollable Reports Sub-Navigation**: Made report tabs (`Weekly Meeting Report`, `Monthly Summary`, `Overall / All-Time`) horizontal swipe/scrollable with compact `CSV` action triggers on mobile viewports.
