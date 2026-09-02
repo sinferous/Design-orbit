@@ -59,6 +59,10 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Ordered Item Fields**: Work Type → Description → Quantity Done → Approved Quantity → Submission Status (`Approved` vs `Not Approved`).
   - **Auto-bound Context**: Automatically defaults designer to active logged-in user profile (*e.g., Varun, Fazil, Moveena, Samantha, Gajesh, etc.*).
   - **Actions**: `Save All Items` and `Save & Add For Another Client`.
+- [x] **Weekly Report & Meeting Feature (`/reports/weekly`)**:
+  - Created [`src/app/reports/weekly/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/weekly/page.tsx) with **Weekly Best Work Link (Featured for Meeting)**.
+  - **Database Persistence Table (`public.weekly_best_work`)**: Created SQL Migration `006_create_weekly_best_work.sql` to store weekly best work links per profile and week start date in Supabase PostgreSQL (`public.weekly_best_work`).
+  - Added interactive calendar range selector, client-wise entry drill-downs, and CSV export integration.
 - [x] **Streamlined Daily Work Log View & Client-Wise Clubbing (`/work`)**:
   - Created [`src/app/work/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/page.tsx) defaulting to **ONLY the logged-in user's entries** (`My Log`).
   - **Client-Wise Entry Clubbing**: All daily work entries for the selected day are automatically clubbed together into dedicated **Client Section Cards** (*e.g., 🏢 Client: Amaron (3 items), 🏢 Client: 2am idea (2 items)*), sorted alphabetically A-Z with client item counts and client quantity totals.
