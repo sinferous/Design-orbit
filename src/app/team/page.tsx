@@ -20,7 +20,7 @@ export default function TeamPage() {
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const { showToast } = useToast();
+  const { showToast, confirmDialog } = useToast();
 
   async function loadTeam() {
     setLoading(true);
@@ -29,7 +29,7 @@ export default function TeamPage() {
       const creativeMembers = data.filter(p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator'));
       setProfiles(creativeMembers);
     } catch (err) {
-      showToast('Failed to load team profiles.', 'error');
+      console.error('Failed to load team profiles:', err);
     } finally {
       setLoading(false);
     }
@@ -42,26 +42,26 @@ export default function TeamPage() {
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      showToast('Please enter a member name', 'error');
+      showToast('Please enter full name', 'error');
       return;
     }
-    if (!email.trim()) {
-      showToast('Please enter an email address', 'error');
+    const finalDesignation = designation === 'Other' ? customDesignation.trim() : designation;
+    if (!finalDesignation) {
+      showToast('Please enter designation', 'error');
       return;
     }
 
     setAdding(true);
-    const finalDesignation = designation === 'Other' ? customDesignation.trim() : designation;
-
     try {
       await createProfileRecord({
         name: name.trim(),
-        designation: finalDesignation || 'Team Member',
-        email: email.trim(),
+        designation: finalDesignation,
+        email: email.trim() || undefined,
       });
 
       setName('');
       setEmail('');
+      setDesignation('Graphic Designer');
       setCustomDesignation('');
       showToast(`Team member "${name.trim()}" added successfully!`, 'success');
       setShowAddForm(false);
@@ -73,18 +73,25 @@ export default function TeamPage() {
     }
   };
 
-  const handleDeleteMember = async (id: string, memberName: string) => {
-    if (!confirm(`Are you sure you want to remove "${memberName}" from the team?`)) return;
-    setDeletingId(id);
-    try {
-      await deleteProfileRecord(id);
-      showToast(`Team member "${memberName}" removed.`, 'success');
-      await loadTeam();
-    } catch {
-      showToast('Failed to remove team member', 'error');
-    } finally {
-      setDeletingId(null);
-    }
+  const handleDeleteMember = (id: string, memberName: string) => {
+    confirmDialog({
+      title: 'Remove Team Member',
+      message: `Are you sure you want to remove "${memberName}" from the team? This action cannot be undone.`,
+      confirmText: 'Remove Member',
+      variant: 'danger',
+      onConfirm: async () => {
+        setDeletingId(id);
+        try {
+          await deleteProfileRecord(id);
+          showToast(`Team member "${memberName}" removed.`, 'success');
+          await loadTeam();
+        } catch {
+          showToast('Failed to remove team member', 'error');
+        } finally {
+          setDeletingId(null);
+        }
+      },
+    });
   };
 
   return (

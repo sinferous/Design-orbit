@@ -607,10 +607,10 @@ export async function deleteClientRecord(id: string): Promise<void> {
   }
 }
 
-export async function createProfileRecord(data: { name: string; designation: string; email: string }): Promise<Profile> {
+export async function createProfileRecord(data: { name: string; designation: string; email?: string }): Promise<Profile> {
   const name = data.name.trim();
   const designation = data.designation.trim();
-  const email = data.email.trim();
+  const email = (data.email || `${name.toLowerCase().replace(/\s+/g, '')}@webtreeonline.com`).trim();
 
   if (!name) throw new Error('Member name is required');
   if (!email) throw new Error('Email is required');

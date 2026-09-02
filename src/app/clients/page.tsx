@@ -16,14 +16,14 @@ export default function ClientsPage() {
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const { showToast } = useToast();
+  const { showToast, confirmDialog } = useToast();
 
   const loadClientsData = async () => {
     try {
       const data = await fetchClients();
       setClients(data);
     } catch {
-      showToast('Failed to load client directory.', 'error');
+      setClients([]);
     } finally {
       setLoading(false);
     }
@@ -36,10 +36,12 @@ export default function ClientsPage() {
   const handleAddClient = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = newClientName.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      showToast('Please enter a client name', 'error');
+      return;
+    }
 
     setAdding(true);
-
     try {
       await createClientRecord(trimmed);
       setNewClientName('');
@@ -52,20 +54,27 @@ export default function ClientsPage() {
     }
   };
 
-  const handleDeleteClient = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete client "${name}"?`)) return;
-    setDeletingId(id);
-    try {
-      await deleteClientRecord(id);
-      setClients(prev => prev.filter(c => c.id !== id && c.name.toLowerCase() !== name.toLowerCase()));
-      showToast(`Client "${name}" removed permanently.`, 'success');
-      await loadClientsData();
-    } catch (err) {
-      setClients(prev => prev.filter(c => c.id !== id && c.name.toLowerCase() !== name.toLowerCase()));
-      showToast(`Client "${name}" removed.`, 'success');
-    } finally {
-      setDeletingId(null);
-    }
+  const handleDeleteClient = (id: string, name: string) => {
+    confirmDialog({
+      title: 'Delete Client',
+      message: `Are you sure you want to delete client "${name}"? This action cannot be undone.`,
+      confirmText: 'Delete Client',
+      variant: 'danger',
+      onConfirm: async () => {
+        setDeletingId(id);
+        try {
+          await deleteClientRecord(id);
+          setClients(prev => prev.filter(c => c.id !== id && c.name.toLowerCase() !== name.toLowerCase()));
+          showToast(`Client "${name}" removed permanently.`, 'success');
+          await loadClientsData();
+        } catch (err) {
+          setClients(prev => prev.filter(c => c.id !== id && c.name.toLowerCase() !== name.toLowerCase()));
+          showToast(`Client "${name}" removed.`, 'success');
+        } finally {
+          setDeletingId(null);
+        }
+      },
+    });
   };
 
   const filteredClients = clients

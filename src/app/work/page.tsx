@@ -57,22 +57,29 @@ export default function MyWorkPage() {
     setSelectedDate(current.toISOString().split('T')[0]);
   };
 
-  const { showToast } = useToast();
+  const { showToast, confirmDialog } = useToast();
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this work entry?')) return;
-    setDeletingId(id);
-    try {
-      setEntries(prev => prev.filter(e => e.id !== id));
-      await deleteWorkEntry(id);
-      showToast('Work entry deleted successfully.', 'success');
-      await loadEntries();
-    } catch (err) {
-      setEntries(prev => prev.filter(e => e.id !== id));
-      showToast('Work entry removed.', 'success');
-    } finally {
-      setDeletingId(null);
-    }
+  const handleDelete = (id: string) => {
+    confirmDialog({
+      title: 'Delete Work Entry',
+      message: 'Are you sure you want to delete this work entry? This action cannot be undone.',
+      confirmText: 'Delete Entry',
+      variant: 'danger',
+      onConfirm: async () => {
+        setDeletingId(id);
+        try {
+          setEntries(prev => prev.filter(e => e.id !== id));
+          await deleteWorkEntry(id);
+          showToast('Work entry deleted successfully.', 'success');
+          await loadEntries();
+        } catch (err) {
+          setEntries(prev => prev.filter(e => e.id !== id));
+          showToast('Work entry removed.', 'success');
+        } finally {
+          setDeletingId(null);
+        }
+      },
+    });
   };
 
   const handleCopySummary = () => {
