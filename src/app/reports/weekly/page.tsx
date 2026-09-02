@@ -14,10 +14,25 @@ export default function WeeklyReportPage() {
   const [loading, setLoading] = useState(true);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
 
-  // Store weekly best work links per profile (empty by default)
+  // Store weekly best work links per profile (persisted per week)
   const [bestWorkLinks, setBestWorkLinks] = useState<Record<string, string>>({});
   const [tempLinks, setTempLinks] = useState<Record<string, string>>({});
   const [savedStatus, setSavedStatus] = useState<Record<string, boolean>>({});
+
+  // Persistent helper for Weekly Best Work Links per week & profile
+  const getSavedWeeklyLink = useCallback((profileId: string, weekStart: string) => {
+    if (typeof window === 'undefined' || !weekStart) return '';
+    return localStorage.getItem(`design_orbit_weekly_link_${profileId}_${weekStart}`) || '';
+  }, []);
+
+  const saveWeeklyLink = useCallback((profileId: string, weekStart: string, url: string) => {
+    if (typeof window === 'undefined' || !weekStart) return;
+    if (url.trim()) {
+      localStorage.setItem(`design_orbit_weekly_link_${profileId}_${weekStart}`, url.trim());
+    } else {
+      localStorage.removeItem(`design_orbit_weekly_link_${profileId}_${weekStart}`);
+    }
+  }, []);
 
   // Premium Calendar Selector states
   const [viewDate, setViewDate] = useState<Date>(new Date());
@@ -538,8 +553,9 @@ export default function WeeklyReportPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            const val = tempLinks[s.profile.id] ?? bestWorkLinks[s.profile.id] ?? '';
-                            setBestWorkLinks({ ...bestWorkLinks, [s.profile.id]: val });
+                            const val = (tempLinks[s.profile.id] ?? bestWorkLinks[s.profile.id] ?? '').trim();
+                            saveWeeklyLink(s.profile.id, startDate, val);
+                            setBestWorkLinks(prev => ({ ...prev, [s.profile.id]: val }));
                             setSavedStatus({ ...savedStatus, [s.profile.id]: true });
                             showToast(`Best work link saved for ${s.profile.name}!`, 'success');
                             setTimeout(() => {
