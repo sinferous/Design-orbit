@@ -130,21 +130,25 @@ function isSupabaseConfigured(): boolean {
   return Boolean(url && !url.includes('your-supabase-project'));
 }
 
-export function getLoggedInUser(): { name: string; email: string } | null {
+export function getLoggedInUser(): { name: string; email: string; profileId?: string } | null {
   if (typeof window !== 'undefined') {
     const storedName = localStorage.getItem('design_orbit_logged_in_name');
     const storedEmail = localStorage.getItem('design_orbit_logged_in_email');
+    const storedProfileId = localStorage.getItem('design_orbit_logged_in_profile_id') || undefined;
     if (storedName) {
-      return { name: storedName, email: storedEmail || '' };
+      return { name: storedName, email: storedEmail || '', profileId: storedProfileId };
     }
   }
   return null;
 }
 
-export function setLoggedInUser(name: string, email: string) {
+export function setLoggedInUser(name: string, email: string, profileId?: string) {
   if (typeof window !== 'undefined') {
     localStorage.setItem('design_orbit_logged_in_name', name);
     localStorage.setItem('design_orbit_logged_in_email', email);
+    if (profileId) {
+      localStorage.setItem('design_orbit_logged_in_profile_id', profileId);
+    }
   }
 }
 
@@ -153,6 +157,7 @@ export function logoutUser() {
     try {
       localStorage.removeItem('design_orbit_logged_in_name');
       localStorage.removeItem('design_orbit_logged_in_email');
+      localStorage.removeItem('design_orbit_logged_in_profile_id');
       if (isSupabaseConfigured()) {
         const supabase = createClient();
         supabase.auth.signOut();

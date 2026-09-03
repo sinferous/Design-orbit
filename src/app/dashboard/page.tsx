@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { fetchWorkEntriesByDate, fetchProfiles, getLoggedInUser } from '@/lib/services/work-entry';
+import { fetchWorkEntriesByDate, fetchProfiles, getLoggedInUser, setLoggedInUser } from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
 import { WorkEntryWithDetails } from '@/types';
 import { Plus, CheckCircle2, Clock, CalendarDays, ArrowUpRight, BarChart2, Layers, Users, PieChart, Sparkles, User, CheckSquare } from 'lucide-react';
@@ -24,6 +24,9 @@ export default function DashboardPage() {
     const user = getLoggedInUser();
     if (user?.name) {
       setCurrentUser(user);
+    }
+    if (user?.profileId) {
+      setCurrentProfileId(user.profileId);
     }
 
     const hour = new Date().getHours();
@@ -52,13 +55,22 @@ export default function DashboardPage() {
 
         setTodayEntries(tEntries);
 
-        if (user?.name && profiles.length > 0) {
-          const matched = profiles.find(
-            p =>
-              p.name.toLowerCase() === user.name.toLowerCase() ||
-              (p.email && user.email && p.email.toLowerCase() === user.email.toLowerCase())
-          );
-          if (matched) setCurrentProfileId(matched.id);
+        if (profiles.length > 0) {
+          let resolvedId = user?.profileId;
+          if (!resolvedId && user?.name) {
+            const matched = profiles.find(
+              p =>
+                p.name.toLowerCase() === user.name.toLowerCase() ||
+                (p.email && user.email && p.email.toLowerCase() === user.email.toLowerCase())
+            );
+            if (matched) {
+              resolvedId = matched.id;
+              setLoggedInUser(user.name, user.email, matched.id);
+            }
+          }
+          if (resolvedId) {
+            setCurrentProfileId(resolvedId);
+          }
         }
 
         const wCreated = wData.reduce((acc, curr) => acc + curr.totalCreated, 0);

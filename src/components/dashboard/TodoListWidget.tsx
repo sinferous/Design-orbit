@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { TodoItem } from '@/types';
-import { fetchTodos, createTodo, toggleTodo, deleteTodo, reorderTodos } from '@/lib/services/todo';
-import { CheckSquare, Plus, Trash2, Check, Sparkles, GripVertical } from 'lucide-react';
+import { fetchTodos, createTodo, toggleTodo, deleteTodo, reorderTodos, sortTodosWithCompletedAtBottom } from '@/lib/services/todo';
+import { CheckSquare, Plus, Trash2, Check, Sparkles, GripVertical, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 interface TodoListWidgetProps {
@@ -27,6 +27,12 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
   const { showToast } = useToast();
 
   const loadTodos = async () => {
+    if (!userId) {
+      setTodos([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await fetchTodos(userId);
       setTodos(data);
@@ -53,13 +59,17 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
       showToast('Please enter a task description', 'error');
       return;
     }
+    if (!userId) {
+      showToast('Please wait while your user session connects...', 'error');
+      return;
+    }
 
     setAdding(true);
     try {
       const created = await createTodo(trimmed, userId);
-      setTodos(prev => [created, ...prev]);
+      setTodos(prev => sortTodosWithCompletedAtBottom([created, ...prev]));
       setNewTaskText('');
-      showToast('Task added to database!', 'success');
+      showToast('Task added to your private list!', 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to add task', 'error');
     } finally {
@@ -69,16 +79,17 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
 
   const handleToggleTodo = async (id: string, currentCompleted: boolean) => {
     const nextState = !currentCompleted;
-    setTodos(prev =>
-      prev.map(t => (t.id === id ? { ...t, is_completed: nextState } : t))
-    );
+
+    // Optimistically update and automatically move completed tasks to bottom
+    setTodos(prev => {
+      const updated = prev.map(t => (t.id === id ? { ...t, is_completed: nextState } : t));
+      return sortTodosWithCompletedAtBottom(updated);
+    });
 
     try {
-      await toggleTodo(id, nextState);
+      await toggleTodo(id, nextState, userId);
     } catch {
-      setTodos(prev =>
-        prev.map(t => (t.id === id ? { ...t, is_completed: currentCompleted } : t))
-      );
+      loadTodos();
       showToast('Failed to update task status', 'error');
     }
   };
@@ -86,7 +97,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
   const handleDeleteTodo = async (id: string) => {
     setDeletingId(id);
     try {
-      await deleteTodo(id);
+      await deleteTodo(id, userId);
       setTodos(prev => prev.filter(t => t.id !== id));
       showToast('Task deleted', 'success');
     } catch {
@@ -126,14 +137,16 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
     const [movedItem] = reordered.splice(fromIndex, 1);
     reordered.splice(toIndex, 0, movedItem);
 
-    setTodos(reordered);
+    // Update state and assign sequential positions
+    const withUpdatedPositions = reordered.map((item, idx) => ({ ...item, position: idx }));
+    setTodos(withUpdatedPositions);
     setDraggedId(null);
     setDragOverId(null);
 
     try {
-      await reorderTodos(reordered.map(t => t.id));
+      await reorderTodos(withUpdatedPositions.map(t => t.id), userId);
     } catch {
-      // Reorder saved silently in state
+      // Handled silently
     }
   };
 
@@ -149,7 +162,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
 
   return (
     <div className="bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col h-full">
-      {/* Header Row: Title & Badge */}
+      {/* Header Row: Title, Privacy Indicator & Badge */}
       <div className="space-y-3 pb-3 border-b border-slate-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5 min-w-0">
@@ -157,8 +170,13 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
               <CheckSquare className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm font-bold text-slate-900 leading-tight truncate">Daily Tasks & To-Do</h2>
-              <p className="text-[11px] text-slate-500 truncate">Drag to reorder • Live database sync</p>
+              <div className="flex items-center space-x-1.5">
+                <h2 className="text-sm font-bold text-slate-900 leading-tight truncate">My To-Do List</h2>
+                <span title="Private to your account" className="inline-flex items-center text-slate-400 hover:text-sky-600">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 truncate">Private tasks • Completed go to bottom</p>
             </div>
           </div>
 
@@ -234,7 +252,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
           type="text"
           value={newTaskText}
           onChange={e => setNewTaskText(e.target.value)}
-          placeholder="Add a new task... (Press Enter)"
+          placeholder="Add a private task... (Press Enter)"
           className="w-full pl-3.5 pr-20 py-2 bg-slate-50/80 border border-slate-300 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white focus:border-transparent transition-all font-medium shadow-2xs"
         />
         <button
@@ -252,7 +270,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin w-5 h-5 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-2 text-xs text-slate-400 font-medium">Loading tasks from database...</p>
+            <p className="mt-2 text-xs text-slate-400 font-medium">Loading your private tasks...</p>
           </div>
         ) : filteredTodos.length === 0 ? (
           <div className="p-6 text-center bg-slate-50/70 rounded-xl border border-slate-200/70 text-slate-500 text-xs space-y-1">
@@ -261,7 +279,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
             ) : activeTab === 'pending' ? (
               <p className="font-medium text-emerald-700">🎉 All caught up! 0 pending tasks.</p>
             ) : (
-              <p className="font-medium text-slate-600">No tasks in database. Type above to add your first task.</p>
+              <p className="font-medium text-slate-600">No personal tasks yet. Type above to add your first task.</p>
             )}
           </div>
         ) : (

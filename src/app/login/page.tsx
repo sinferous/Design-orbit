@@ -104,7 +104,7 @@ export default function LoginPage() {
     }
 
     const userName = profileMatch.name;
-    setLoggedInUser(userName, profileMatch.email || inputEmail);
+    setLoggedInUser(userName, profileMatch.email || inputEmail, profileMatch.id);
     showToast(`Welcome back, ${userName}! Signed in successfully.`, 'success');
 
     setTimeout(() => {
