@@ -158,6 +158,73 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Application Navigation Quick Launchpad */}
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3.5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">Application Quick Navigation</h2>
+              <p className="text-xs text-slate-500">Fast access to key work tracking & reporting modules</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <Link
+              href="/work/new"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-2.5">
+                <Plus className="w-4 h-4 text-sky-600" />
+                <span className="text-xs font-bold text-slate-800">Add Daily Work</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+            </Link>
+
+            <Link
+              href="/work"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-2.5">
+                <CalendarDays className="w-4 h-4 text-sky-600" />
+                <span className="text-xs font-bold text-slate-800">My Daily Log</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+            </Link>
+
+            <Link
+              href="/reports/weekly"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-2.5">
+                <BarChart2 className="w-4 h-4 text-teal-600" />
+                <span className="text-xs font-bold text-slate-800">Weekly Report</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
+            </Link>
+
+            <Link
+              href="/reports/monthly"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-2.5">
+                <PieChart className="w-4 h-4 text-teal-600" />
+                <span className="text-xs font-bold text-slate-800">Monthly Stats</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
+            </Link>
+
+            <Link
+              href="/team"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group col-span-2 sm:col-span-1"
+            >
+              <div className="flex items-center space-x-2.5">
+                <Users className="w-4 h-4 text-sky-600" />
+                <span className="text-xs font-bold text-slate-800">Team Roster</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+            </Link>
+          </div>
+        </div>
+
         {/* Live Entries & To-Do List Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Today's Work Activity (1 col) */}
@@ -236,73 +303,6 @@ export default function DashboardPage() {
           {/* Daily Tasks & To-Do List Widget (1 col) */}
           <div className="flex flex-col h-full">
             <TodoListWidget userId={currentProfileId} />
-          </div>
-        </div>
-
-        {/* Application Navigation Quick Launchpad */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">Application Quick Navigation</h2>
-              <p className="text-xs text-slate-500">Fast access to key work tracking & reporting modules</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            <Link
-              href="/work/new"
-              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
-            >
-              <div className="flex items-center space-x-3">
-                <Plus className="w-4 h-4 text-sky-600" />
-                <span className="text-xs font-bold text-slate-800">Add Daily Work</span>
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
-            </Link>
-
-            <Link
-              href="/work"
-              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
-            >
-              <div className="flex items-center space-x-3">
-                <CalendarDays className="w-4 h-4 text-sky-600" />
-                <span className="text-xs font-bold text-slate-800">My Daily Log</span>
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
-            </Link>
-
-            <Link
-              href="/reports/weekly"
-              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
-            >
-              <div className="flex items-center space-x-3">
-                <BarChart2 className="w-4 h-4 text-teal-600" />
-                <span className="text-xs font-bold text-slate-800">Weekly Report</span>
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
-            </Link>
-
-            <Link
-              href="/reports/monthly"
-              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
-            >
-              <div className="flex items-center space-x-3">
-                <PieChart className="w-4 h-4 text-teal-600" />
-                <span className="text-xs font-bold text-slate-800">Monthly Stats</span>
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
-            </Link>
-
-            <Link
-              href="/team"
-              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
-            >
-              <div className="flex items-center space-x-3">
-                <Users className="w-4 h-4 text-sky-600" />
-                <span className="text-xs font-bold text-slate-800">Team Roster</span>
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
-            </Link>
           </div>
         </div>
       </main>
