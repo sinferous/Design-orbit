@@ -225,10 +225,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Live Entries & To-Do List Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Today's Work Activity (1 col) */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col h-full">
+        {/* Live Entries & To-Do List (65% / 35% Split) */}
+        <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+          {/* Today's Work Activity (65%) */}
+          <div className="w-full lg:w-[65%] bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h2 className="text-base font-bold text-slate-900">Today's Work Log</h2>
@@ -300,8 +300,8 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Daily Tasks & To-Do List Widget (1 col) */}
-          <div className="flex flex-col h-full">
+          {/* Daily Tasks & To-Do List Widget (35%) */}
+          <div className="w-full lg:w-[35%] flex flex-col">
             <TodoListWidget userId={currentProfileId} />
           </div>
         </div>
