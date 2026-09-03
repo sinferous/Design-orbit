@@ -6,8 +6,10 @@ import { Navbar } from '@/components/layout/Navbar';
 import { fetchWorkEntriesByDate, deleteWorkEntry, fetchProfiles, getLoggedInUser } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
 import { formatDate } from '@/lib/utils';
-import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle, Copy, ExternalLink, Building2 } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle, Copy, ExternalLink, Building2, Mail } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { EmailDayLogModal } from '@/components/work/EmailDayLogModal';
+import { generateEmailTableHtml, generateCleanPlainText, copyToClipboardWithHtml } from '@/lib/services/email-formatter';
 
 export default function MyWorkPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -20,6 +22,7 @@ export default function MyWorkPage() {
   const [entries, setEntries] = useState<WorkEntryWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
     async function loadProfiles() {
@@ -82,34 +85,23 @@ export default function MyWorkPage() {
     });
   };
 
-  const handleCopySummary = () => {
+  const handleQuickCopy = async () => {
     if (entries.length === 0) {
       showToast('No entries to copy.', 'error');
       return;
     }
 
-    const formattedDate = formatDate(selectedDate);
-    const title = selectedUserFilter === 'my_work'
-      ? `My Work Log - ${formattedDate}\n`
-      : `Team Work Log - ${formattedDate}\n`;
+    const designerName = activeProfile?.name || 'Gajesh';
+    const tableHtml = generateEmailTableHtml(entries, designerName, selectedDate);
+    const plainText = generateCleanPlainText(entries, designerName, selectedDate);
 
-    const text = entries
-      .map((entry, idx) => {
-        const client = entry.client?.name || 'Unknown Client';
-        const type = entry.work_type?.name || 'Work';
-        const desc = entry.description || '';
-        const qty = entry.quantity_done;
-        const url = entry.project_url || entry.best_work_url;
-        const urlStr = url ? ` | Project URL: ${url}` : '';
-        return `${idx + 1}. Client: ${client} | Type: ${type} | Description: ${desc} | Qty: ${qty}${urlStr}`;
-      })
-      .join('\n');
-
-    navigator.clipboard.writeText(title + text);
-    showToast('Copied daily summary to clipboard!', 'success');
+    const success = await copyToClipboardWithHtml(tableHtml, plainText);
+    if (success) {
+      showToast('Copied formatted email summary! Paste directly into Gmail or Outlook.', 'success');
+    } else {
+      showToast('Failed to copy to clipboard', 'error');
+    }
   };
-
-
 
   const totalDone = entries.reduce((acc, curr) => acc + curr.quantity_done, 0);
   const totalApproved = entries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
@@ -132,27 +124,38 @@ export default function MyWorkPage() {
             </p>
           </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-          {selectedUserFilter === 'my_work' && entries.length > 0 && (
-            <button
-              onClick={handleCopySummary}
-              className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg shadow-2xs transition-colors cursor-pointer"
-              title="Copy all entries for this day to clipboard"
-            >
-              <Copy className="w-4 h-4" />
-              <span>Copy Day Log</span>
-            </button>
-          )}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+            {selectedUserFilter === 'my_work' && entries.length > 0 && (
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setShowEmailModal(true)}
+                  className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  title="Preview and format daily work log for email"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Email Day Log</span>
+                </button>
 
-          <Link
-            href="/work/new"
-            className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
-          >
-            <Plus className="w-4.5 h-4.5" />
-            <span>Add Work Entry</span>
-          </Link>
+                <button
+                  onClick={handleQuickCopy}
+                  className="inline-flex items-center justify-center space-x-1.5 px-3 py-2.5 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  title="Quick copy formatted email log to clipboard"
+                >
+                  <Copy className="w-4 h-4 text-slate-400" />
+                  <span className="hidden sm:inline">Quick Copy</span>
+                </button>
+              </div>
+            )}
+
+            <Link
+              href="/work/new"
+              className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
+            >
+              <Plus className="w-4.5 h-4.5" />
+              <span>Add Work Entry</span>
+            </Link>
+          </div>
         </div>
-      </div>
 
         {/* View Toggle Bar & Date Selector */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
@@ -460,6 +463,14 @@ export default function MyWorkPage() {
             );
           })()
         )}
+        {/* Email Day Log Modal */}
+        <EmailDayLogModal
+          isOpen={showEmailModal}
+          onClose={() => setShowEmailModal(false)}
+          entries={entries}
+          designerName={activeProfile?.name || 'Gajesh'}
+          selectedDate={selectedDate}
+        />
       </main>
     </div>
   );
