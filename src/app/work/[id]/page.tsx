@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { WorkEntryForm } from '@/components/work/WorkEntryForm';
-import { fetchWorkEntryById } from '@/lib/services/work-entry';
+import { fetchWorkEntryById, getLoggedInUser } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails } from '@/types';
 
 interface EditWorkEntryPageProps {
@@ -15,14 +15,30 @@ export default function EditWorkEntryPage({ params }: EditWorkEntryPageProps) {
   const [entry, setEntry] = useState<WorkEntryWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userName, setUserName] = useState('Team Member');
 
   useEffect(() => {
+    const user = getLoggedInUser();
+    if (user?.name) setUserName(user.name);
+
     async function loadEntry() {
       try {
         const data = await fetchWorkEntryById(id);
         if (!data) {
           setError('Work entry not found.');
         } else {
+          if (user) {
+            const isOwner =
+              (user.profileId && data.user_id === user.profileId) ||
+              (data.profile && data.profile.name.toLowerCase() === user.name.toLowerCase()) ||
+              (data.profile && user.email && data.profile.email && data.profile.email.toLowerCase() === user.email.toLowerCase());
+
+            if (!isOwner) {
+              setError('Access Denied: You do not have permission to edit another team member’s work entry.');
+              setLoading(false);
+              return;
+            }
+          }
           setEntry(data);
         }
       } catch (err) {
@@ -36,7 +52,7 @@ export default function EditWorkEntryPage({ params }: EditWorkEntryPageProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar userName="Gajesh" />
+      <Navbar userName={userName} />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div>

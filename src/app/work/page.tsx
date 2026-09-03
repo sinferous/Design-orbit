@@ -351,110 +351,122 @@ export default function MyWorkPage() {
 
                       {/* Items for this Client */}
                       <div className="divide-y divide-slate-100">
-                        {clientEntries.map(entry => (
-                          <div
-                            key={entry.id}
-                            className="p-5 hover:bg-slate-50/60 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
-                          >
-                            {/* Left Section: Work Type & Description */}
-                            <div className="space-y-2 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                                  {entry.work_type?.name || 'Work'}
+                        {clientEntries.map(entry => {
+                          const isMyEntry = Boolean(
+                            activeProfile && (
+                              entry.user_id === activeProfile.id ||
+                              (entry.profile && entry.profile.name.toLowerCase() === activeProfile.name.toLowerCase()) ||
+                              (entry.profile && activeProfile.email && entry.profile.email && entry.profile.email.toLowerCase() === activeProfile.email.toLowerCase())
+                            )
+                          );
+
+                          return (
+                            <div
+                              key={entry.id}
+                              className="p-5 hover:bg-slate-50/60 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+                            >
+                              {/* Left Section: Work Type & Description */}
+                              <div className="space-y-2 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                    {entry.work_type?.name || 'Work'}
+                                  </span>
+
+                                  {selectedUserFilter !== 'my_work' && entry.profile && (
+                                    <span className="text-xs text-slate-500 font-medium">
+                                      By <strong className="text-slate-800">{entry.profile.name}</strong>
+                                    </span>
+                                  )}
+                                </div>
+
+                                <p className="text-sm font-semibold text-slate-900 leading-snug">
+                                  {entry.description}
+                                </p>
+
+                                {(entry.project_url || entry.best_work_url) && (
+                                  <div className="pt-1.5 flex items-center space-x-2">
+                                    <a
+                                      href={entry.project_url || entry.best_work_url!}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-300 transition-colors shadow-2xs cursor-pointer group"
+                                      title="Open Deliverable URL in new tab"
+                                    >
+                                      <ExternalLink className="w-3.5 h-3.5 text-sky-600 group-hover:scale-110 transition-transform shrink-0" />
+                                      <span>View Project Link ↗</span>
+                                      <span className="text-[11px] text-sky-700/80 font-normal truncate max-w-xs ml-1 border-l border-sky-200 pl-1.5">
+                                        {entry.project_url || entry.best_work_url}
+                                      </span>
+                                    </a>
+                                  </div>
+                                )}
+
+                                {entry.notes && (
+                                  <p className="text-xs text-slate-500 italic">
+                                    Note: {entry.notes}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Right Section: Quantities, Status & Action Icons */}
+                              <div className="flex items-center space-x-6 justify-between md:justify-end">
+                                <div className="flex items-center space-x-4 text-xs">
+                                  <div className="text-center">
+                                    <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Done</div>
+                                    <div className="text-base font-extrabold text-slate-900">{entry.quantity_done}</div>
+                                  </div>
+
+                                  <div className="text-center">
+                                    <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Approved</div>
+                                    <div className="text-base font-extrabold text-teal-700">{entry.quantity_approved}</div>
+                                  </div>
+                                </div>
+
+                                {/* Status Badge */}
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 ${
+                                    entry.quantity_approved > 0 || entry.status === 'Reviewed'
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                      : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  }`}
+                                >
+                                  {entry.quantity_approved > 0 || entry.status === 'Reviewed' ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                      <span>Approved</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                                      <span>Not Approved</span>
+                                    </>
+                                  )}
                                 </span>
 
-                                {selectedUserFilter !== 'my_work' && entry.profile && (
-                                  <span className="text-xs text-slate-500 font-medium">
-                                    By <strong className="text-slate-800">{entry.profile.name}</strong>
-                                  </span>
+                                {/* Actions: Only visible and editable on the user's OWN work! */}
+                                {isMyEntry && (
+                                  <div className="flex items-center space-x-1 border-l border-slate-200 pl-3">
+                                    <Link
+                                      href={`/work/${entry.id}`}
+                                      className="p-1.5 text-slate-400 hover:text-sky-600 rounded-lg hover:bg-slate-100 transition-colors"
+                                      title="Edit my entry"
+                                    >
+                                      <Edit2 className="w-4 h-4" />
+                                    </Link>
+                                    <button
+                                      onClick={() => handleDelete(entry.id)}
+                                      disabled={deletingId === entry.id}
+                                      className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50"
+                                      title="Delete my entry"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
                                 )}
                               </div>
-
-                              <p className="text-sm font-semibold text-slate-900 leading-snug">
-                                {entry.description}
-                              </p>
-
-                              {(entry.project_url || entry.best_work_url) && (
-                                <div className="pt-1.5 flex items-center space-x-2">
-                                  <a
-                                    href={entry.project_url || entry.best_work_url!}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-300 transition-colors shadow-2xs cursor-pointer group"
-                                    title="Open Deliverable URL in new tab"
-                                  >
-                                    <ExternalLink className="w-3.5 h-3.5 text-sky-600 group-hover:scale-110 transition-transform shrink-0" />
-                                    <span>View Project Link ↗</span>
-                                    <span className="text-[11px] text-sky-700/80 font-normal truncate max-w-xs ml-1 border-l border-sky-200 pl-1.5">
-                                      {entry.project_url || entry.best_work_url}
-                                    </span>
-                                  </a>
-                                </div>
-                              )}
-
-                              {entry.notes && (
-                                <p className="text-xs text-slate-500 italic">
-                                  Note: {entry.notes}
-                                </p>
-                              )}
                             </div>
-
-                            {/* Right Section: Quantities, Status & Action Icons */}
-                            <div className="flex items-center space-x-6 justify-between md:justify-end">
-                              <div className="flex items-center space-x-4 text-xs">
-                                <div className="text-center">
-                                  <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Done</div>
-                                  <div className="text-base font-extrabold text-slate-900">{entry.quantity_done}</div>
-                                </div>
-
-                                <div className="text-center">
-                                  <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Approved</div>
-                                  <div className="text-base font-extrabold text-teal-700">{entry.quantity_approved}</div>
-                                </div>
-                              </div>
-
-                              {/* Status Badge */}
-                              <span
-                                className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 ${
-                                  entry.quantity_approved > 0 || entry.status === 'Reviewed'
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : 'bg-amber-50 text-amber-700 border border-amber-200'
-                                }`}
-                              >
-                                {entry.quantity_approved > 0 || entry.status === 'Reviewed' ? (
-                                  <>
-                                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                    <span>Approved</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                                    <span>Not Approved</span>
-                                  </>
-                                )}
-                              </span>
-
-                              {/* Actions */}
-                              <div className="flex items-center space-x-1 border-l border-slate-200 pl-3">
-                                <Link
-                                  href={`/work/${entry.id}`}
-                                  className="p-1.5 text-slate-400 hover:text-sky-600 rounded-lg hover:bg-slate-100 transition-colors"
-                                  title="Edit entry"
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </Link>
-                                <button
-                                  onClick={() => handleDelete(entry.id)}
-                                  disabled={deletingId === entry.id}
-                                  className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50"
-                                  title="Delete entry"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   );
