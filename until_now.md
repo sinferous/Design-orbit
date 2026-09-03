@@ -114,14 +114,20 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Updated [`src/app/team/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/team/page.tsx) with a **`+ Add Team Member`** button & form to add team members (Name, Designation, Email).
   - Added `createProfileRecord` and `deleteProfileRecord` service functions with subtle ToastAlert notifications.
 - [x] **Dashboard Daily Tasks & To-Do List Widget (`TodoListWidget.tsx` & `todo.ts`)**:
-  - **Database Persistence Table (`public.todos`)**: Created SQL Migration `008_create_todos_table.sql` with `id`, `user_id`, `task`, `is_completed`, `created_at`, `updated_at`, performance indexes, and full RLS policies.
-  - **Service Layer (`src/lib/services/todo.ts`)**: Implemented `fetchTodos`, `createTodo`, `toggleTodo`, and `deleteTodo` with dual Supabase PostgreSQL synchronization and local storage fallback.
-  - **Dashboard Widget (`src/components/dashboard/TodoListWidget.tsx`)**: Prominently placed on `/dashboard` with:
-    - Quick add input field with <kbd>Enter</kbd> key submission.
-    - Custom animated checkbox toggling with completion strike-through.
-    - Task filters: **All**, **Pending**, and **Done** with dynamic counters.
-    - Per-task deletion with toast alerts.
-    - Reorganized dashboard layout: Today's Work Log (`2 cols`) + To-Do List (`1 col`) + Quick Navigation 5-card launchpad below.
+  - **Database Persistence Table (`public.todos`)**: Created SQL Migrations `008_create_todos_table.sql` and `009_add_position_to_todos.sql` with `id`, `user_id`, `task`, `is_completed`, `position`, `created_at`, `updated_at`, performance indexes, and full RLS policies.
+  - **100% Pure Database Backed (No Dummy / Local Session Data)**: Purged all legacy mock data and browser session caching; all operations query and persist directly to Supabase PostgreSQL.
+  - **Strict User-Specific Privacy**: Private to-dos are scoped strictly to `user_id = profile.id`. Person 1's tasks are never visible to Person 2.
+  - **Completed Tasks Move Down**: Completed tasks (`is_completed: true`) automatically shift to the bottom of the list; unchecking restores them to the active pending group.
+  - **Native Drag & Drop Reordering**: Added drag grip handles (`⋮⋮`) with native HTML5 drag-and-drop support to freely reorder tasks up and down with instant database synchronization.
+  - **Optimal 65% / 35% Dashboard Layout**: Proportioned the main operational grid to **65% Today's Work Log** and **35% Daily Tasks & To-Do List**.
+  - **Elevated Quick Navigation Launchpad**: Positioned the 5-card Application Quick Navigation launchpad directly below the 4 stat cards.
+- [x] **Team Work Log Ownership & Permission Security (`/work` & `/work/[id]`)**:
+  - **Removed Edit & Delete Buttons on Others' Work**: In Team Work Log, action buttons are only visible on work items created by the logged-in user.
+  - **Direct Edit Route Protection (`/work/[id]`)**: Guarded with ownership checks displaying an Access Denied notice if a user attempts to edit another designer's entry.
+- [x] **Weekly Team Review Calendar & Date Cycle Optimization (`/reports/weekly` & `reports.ts`)**:
+  - **Timezone Drift Resolution**: Fixed the UTC `toISOString()` bug in the calendar picker that caused dates to shift backward by 1 day in local timezones (e.g. clicking on 2nd showing 1st).
+  - **Exact 7-Day Tuesday-to-Monday Cycle**: Enforced exact 7-day inclusive ranges across page loads, presets, and calendar selection (e.g. Tuesday Sep 1 to Monday Sep 7 = exactly 7 days).
+  - **Timezone-Safe Parsers**: Implemented `formatLocalDate` and `parseLocalDate` across weekly report data loops and calendar date generation.
 
 ---
 
@@ -133,14 +139,14 @@ This document provides a comprehensive summary of all progress, architecture, an
 - **Build Status**: `npm run build` compiled successfully with **0 errors across all 14 routes**.
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`)
-  - `/dashboard` → Production overview, live metrics, today's log & quick navigation
-  - `/clients` → Client Directory Management module
-  - `/login` → Authentication with Eye password toggles & preset account choices
+  - `/dashboard` → Production overview, live metrics, today's log (65%), private to-do list (35%), & quick navigation launchpad
+  - `/clients` → Client Directory Management module with inline edit & update
+  - `/login` → Authentication with Eye password toggles, preset account choices, & profile ID binding
   - `/settings` → Change Password & Account Settings with Eye password toggles
-  - `/work` → Streamlined Personal Daily Work Log with date selector & team designer filters
+  - `/work` → Streamlined Personal & Team Daily Work Log with rich email table formatting, client grouping, & ownership security
   - `/work/new` → Multi-item client work entry form with quick client addition
-  - `/work/[id]` → Edit existing work entry
-  - `/reports/weekly` → Presentation-friendly Weekly Meeting Report view
+  - `/work/[id]` → Edit existing work entry with strict ownership authorization guard
+  - `/reports/weekly` → Weekly Meeting Report with timezone-safe 7-day Tuesday-to-Monday cycle & weekly best work links
   - `/reports/monthly` → Monthly Summary report & breakdown tables
   - `/reports/overall` → All-time analytics & visual distribution charts
   - `/team` → Creative team directory with Add Team Member capability
