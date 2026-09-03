@@ -113,6 +113,15 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Executive Team Profile Grid & Add Team Member Module (`/team`)**:
   - Updated [`src/app/team/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/team/page.tsx) with a **`+ Add Team Member`** button & form to add team members (Name, Designation, Email).
   - Added `createProfileRecord` and `deleteProfileRecord` service functions with subtle ToastAlert notifications.
+- [x] **Dashboard Daily Tasks & To-Do List Widget (`TodoListWidget.tsx` & `todo.ts`)**:
+  - **Database Persistence Table (`public.todos`)**: Created SQL Migration `008_create_todos_table.sql` with `id`, `user_id`, `task`, `is_completed`, `created_at`, `updated_at`, performance indexes, and full RLS policies.
+  - **Service Layer (`src/lib/services/todo.ts`)**: Implemented `fetchTodos`, `createTodo`, `toggleTodo`, and `deleteTodo` with dual Supabase PostgreSQL synchronization and local storage fallback.
+  - **Dashboard Widget (`src/components/dashboard/TodoListWidget.tsx`)**: Prominently placed on `/dashboard` with:
+    - Quick add input field with <kbd>Enter</kbd> key submission.
+    - Custom animated checkbox toggling with completion strike-through.
+    - Task filters: **All**, **Pending**, and **Done** with dynamic counters.
+    - Per-task deletion with toast alerts.
+    - Reorganized dashboard layout: Today's Work Log (`2 cols`) + To-Do List (`1 col`) + Quick Navigation 5-card launchpad below.
 
 ---
 

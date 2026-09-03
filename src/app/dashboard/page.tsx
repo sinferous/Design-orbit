@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { fetchWorkEntriesByDate, getLoggedInUser } from '@/lib/services/work-entry';
+import { fetchWorkEntriesByDate, fetchProfiles, getLoggedInUser } from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
 import { WorkEntryWithDetails } from '@/types';
-import { Plus, CheckCircle2, Clock, CalendarDays, ArrowUpRight, BarChart2, Layers, Users, PieChart, Sparkles, User } from 'lucide-react';
+import { Plus, CheckCircle2, Clock, CalendarDays, ArrowUpRight, BarChart2, Layers, Users, PieChart, Sparkles, User, CheckSquare } from 'lucide-react';
+import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -14,6 +15,7 @@ export default function DashboardPage() {
   const [weekSummary, setWeekSummary] = useState({ totalCreated: 0, totalApproved: 0, activeMembers: 0 });
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
+  const [currentProfileId, setCurrentProfileId] = useState<string | undefined>(undefined);
 
   const [greeting, setGreeting] = useState('Good day');
   const [subtitle, setSubtitle] = useState('Here is your live daily activity and weekly work summary.');
@@ -42,12 +44,22 @@ export default function DashboardPage() {
     async function loadDashboardData() {
       try {
         const week = getWeekRange(new Date());
-        const [tEntries, wData] = await Promise.all([
+        const [tEntries, wData, profiles] = await Promise.all([
           fetchWorkEntriesByDate(todayStr),
           getWeeklyReportData(week.startDate, week.endDate),
+          fetchProfiles(),
         ]);
 
         setTodayEntries(tEntries);
+
+        if (user?.name && profiles.length > 0) {
+          const matched = profiles.find(
+            p =>
+              p.name.toLowerCase() === user.name.toLowerCase() ||
+              (p.email && user.email && p.email.toLowerCase() === user.email.toLowerCase())
+          );
+          if (matched) setCurrentProfileId(matched.id);
+        }
 
         const wCreated = wData.reduce((acc, curr) => acc + curr.totalCreated, 0);
         const wApproved = wData.reduce((acc, curr) => acc + curr.totalApproved, 0);
@@ -146,9 +158,9 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Live Entries & Quick Links */}
+        {/* Live Entries & To-Do List Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Today's Work Activity */}
+          {/* Today's Work Activity (2 cols) */}
           <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
@@ -221,68 +233,80 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Core App Navigation Panel */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-base font-bold text-slate-900">Application Navigation</h2>
-            <div className="space-y-2.5">
-              <Link
-                href="/work/new"
-                className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
-              >
-                <div className="flex items-center space-x-3">
-                  <Plus className="w-4 h-4 text-sky-600" />
-                  <span className="text-sm font-semibold text-slate-800">Add Daily Work Entry</span>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600" />
-              </Link>
+          {/* Daily Tasks & To-Do List Widget (1 col) */}
+          <div className="lg:col-span-1">
+            <TodoListWidget userId={currentProfileId} />
+          </div>
+        </div>
 
-              <Link
-                href="/work"
-                className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
-              >
-                <div className="flex items-center space-x-3">
-                  <CalendarDays className="w-4 h-4 text-sky-600" />
-                  <span className="text-sm font-semibold text-slate-800">My Daily Work Log</span>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600" />
-              </Link>
-
-              <Link
-                href="/reports/weekly"
-                className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
-              >
-                <div className="flex items-center space-x-3">
-                  <BarChart2 className="w-4 h-4 text-teal-600" />
-                  <span className="text-sm font-semibold text-slate-800">Weekly Meeting Report</span>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600" />
-              </Link>
-
-              <Link
-                href="/reports/monthly"
-                className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
-              >
-                <div className="flex items-center space-x-3">
-                  <PieChart className="w-4 h-4 text-teal-600" />
-                  <span className="text-sm font-semibold text-slate-800">Monthly Performance</span>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600" />
-              </Link>
-
-              <Link
-                href="/team"
-                className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
-              >
-                <div className="flex items-center space-x-3">
-                  <Users className="w-4 h-4 text-sky-600" />
-                  <span className="text-sm font-semibold text-slate-800">Team Directory</span>
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600" />
-              </Link>
+        {/* Application Navigation Quick Launchpad */}
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Application Quick Navigation</h2>
+              <p className="text-xs text-slate-500">Fast access to key work tracking & reporting modules</p>
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <Link
+              href="/work/new"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-3">
+                <Plus className="w-4 h-4 text-sky-600" />
+                <span className="text-xs font-bold text-slate-800">Add Daily Work</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+            </Link>
+
+            <Link
+              href="/work"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-3">
+                <CalendarDays className="w-4 h-4 text-sky-600" />
+                <span className="text-xs font-bold text-slate-800">My Daily Log</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+            </Link>
+
+            <Link
+              href="/reports/weekly"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-3">
+                <BarChart2 className="w-4 h-4 text-teal-600" />
+                <span className="text-xs font-bold text-slate-800">Weekly Report</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
+            </Link>
+
+            <Link
+              href="/reports/monthly"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-3">
+                <PieChart className="w-4 h-4 text-teal-600" />
+                <span className="text-xs font-bold text-slate-800">Monthly Stats</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
+            </Link>
+
+            <Link
+              href="/team"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
+            >
+              <div className="flex items-center space-x-3">
+                <Users className="w-4 h-4 text-sky-600" />
+                <span className="text-xs font-bold text-slate-800">Team Roster</span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+            </Link>
           </div>
         </div>
       </main>
     </div>
   );
 }
+

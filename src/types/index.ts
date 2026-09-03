@@ -27,3 +27,13 @@ export interface WorkEntryFormData {
   notes?: string;
   status?: WorkStatus;
 }
+
+export interface TodoItem {
+  id: string;
+  user_id?: string | null;
+  task: string;
+  is_completed: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
