@@ -71,6 +71,18 @@ export default function WeeklyReportPage() {
     setEndDate(range.endDate);
   }, []);
 
+  const formatLocalDate = (d: Date): string => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const parseLocalDate = (str: string): Date => {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d, 12, 0, 0);
+  };
+
   const handleMonthDelta = (months: number) => {
     const next = new Date(viewDate);
     next.setMonth(next.getMonth() + months);
@@ -78,42 +90,41 @@ export default function WeeklyReportPage() {
   };
 
   const handleSelectWeekFromDate = (date: Date) => {
-    const startStr = date.toISOString().split('T')[0];
-    const endDateObj = new Date(date);
-    endDateObj.setDate(endDateObj.getDate() + 7);
-    const endStr = endDateObj.toISOString().split('T')[0];
+    const startStr = formatLocalDate(date);
+    // Exactly 7 days inclusive: Start date + 6 days
+    const endDateObj = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 6, 12, 0, 0);
+    const endStr = formatLocalDate(endDateObj);
     setStartDate(startStr);
     setEndDate(endStr);
   };
 
   const getWeekRangeLabel = () => {
     if (!startDate || !endDate) return 'Select Week Range';
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseLocalDate(startDate);
+    const end = parseLocalDate(endDate);
     return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   };
 
   const isSelected = (d: Date) => {
-    const dStr = d.toISOString().split('T')[0];
+    const dStr = formatLocalDate(d);
     return dStr >= startDate && dStr <= endDate;
   };
 
   const isStart = (d: Date) => {
-    const dStr = d.toISOString().split('T')[0];
+    const dStr = formatLocalDate(d);
     return dStr === startDate;
   };
 
   const isEnd = (d: Date) => {
-    const dStr = d.toISOString().split('T')[0];
+    const dStr = formatLocalDate(d);
     return dStr === endDate;
   };
 
   const getHoverWeekRange = (dateStr: string) => {
-    const d = new Date(dateStr);
-    const startStr = d.toISOString().split('T')[0];
-    const endDateObj = new Date(d);
-    endDateObj.setDate(endDateObj.getDate() + 7);
-    const endStr = endDateObj.toISOString().split('T')[0];
+    const d = parseLocalDate(dateStr);
+    const startStr = formatLocalDate(d);
+    const endDateObj = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 6, 12, 0, 0);
+    const endStr = formatLocalDate(endDateObj);
     return {
       start: startStr,
       end: endStr,
@@ -123,20 +134,20 @@ export default function WeeklyReportPage() {
   const isInHoverRange = (d: Date) => {
     if (!hoveredDate) return false;
     const { start, end } = getHoverWeekRange(hoveredDate);
-    const dStr = d.toISOString().split('T')[0];
+    const dStr = formatLocalDate(d);
     return dStr >= start && dStr <= end;
   };
 
   const generateCalendarDays = (vDate: Date) => {
     const year = vDate.getFullYear();
     const month = vDate.getMonth();
-    const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
-    const totalDays = new Date(year, month + 1, 0).getDate();
-    const prevMonthTotalDays = new Date(year, month, 0).getDate();
+    const firstDayIndex = (new Date(year, month, 1, 12, 0, 0).getDay() + 6) % 7;
+    const totalDays = new Date(year, month + 1, 0, 12, 0, 0).getDate();
+    const prevMonthTotalDays = new Date(year, month, 0, 12, 0, 0).getDate();
     const daysArr: { date: Date; isCurrentMonth: boolean; key: string }[] = [];
 
     for (let i = firstDayIndex - 1; i >= 0; i--) {
-      const d = new Date(year, month - 1, prevMonthTotalDays - i);
+      const d = new Date(year, month - 1, prevMonthTotalDays - i, 12, 0, 0);
       daysArr.push({
         date: d,
         isCurrentMonth: false,
@@ -145,7 +156,7 @@ export default function WeeklyReportPage() {
     }
 
     for (let i = 1; i <= totalDays; i++) {
-      const d = new Date(year, month, i);
+      const d = new Date(year, month, i, 12, 0, 0);
       daysArr.push({
         date: d,
         isCurrentMonth: true,
@@ -155,7 +166,7 @@ export default function WeeklyReportPage() {
 
     const remaining = 42 - daysArr.length;
     for (let i = 1; i <= remaining; i++) {
-      const d = new Date(year, month + 1, i);
+      const d = new Date(year, month + 1, i, 12, 0, 0);
       daysArr.push({
         date: d,
         isCurrentMonth: false,
@@ -190,13 +201,13 @@ export default function WeeklyReportPage() {
 
   const handleWeekDelta = (weeks: number) => {
     if (!startDate || !endDate) return;
-    const nextStart = new Date(startDate);
-    nextStart.setDate(nextStart.getDate() + weeks * 7);
-    const nextEnd = new Date(endDate);
-    nextEnd.setDate(nextEnd.getDate() + weeks * 7);
+    const currStart = parseLocalDate(startDate);
+    const currEnd = parseLocalDate(endDate);
+    currStart.setDate(currStart.getDate() + weeks * 7);
+    currEnd.setDate(currEnd.getDate() + weeks * 7);
 
-    setStartDate(nextStart.toISOString().split('T')[0]);
-    setEndDate(nextEnd.toISOString().split('T')[0]);
+    setStartDate(formatLocalDate(currStart));
+    setEndDate(formatLocalDate(currEnd));
   };
 
   const toggleExpand = (userId: string) => {
@@ -337,12 +348,12 @@ export default function WeeklyReportPage() {
                       {/* Days grid */}
                       <div className="grid grid-cols-7 gap-0.5">
                         {generateCalendarDays(viewDate).map((dayObj) => {
-                          const dStr = dayObj.date.toISOString().split('T')[0];
+                          const dStr = formatLocalDate(dayObj.date);
                           const active = isSelected(dayObj.date);
                           const hoverActive = isInHoverRange(dayObj.date);
                           const start = isStart(dayObj.date);
                           const end = isEnd(dayObj.date);
-                          const isToday = dStr === new Date().toISOString().split('T')[0];
+                          const isToday = dStr === formatLocalDate(new Date());
 
                           return (
                             <button

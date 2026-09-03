@@ -53,19 +53,26 @@ export function exportToCSV(filename: string, rows: Record<string, any>[]) {
   document.body.removeChild(link);
 }
 
-// Utility to calculate start and end of week (Monday to Sunday)
+// Utility to calculate start and end of week (Tuesday to Monday - exactly 7 days)
 export function getWeekRange(dateInput: Date = new Date()) {
   const d = new Date(dateInput);
   const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
-  const monday = new Date(d.setDate(diff));
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
+  // Tuesday is day 2. Calculate offset to Tuesday
+  const diff = d.getDate() - ((day - 2 + 7) % 7);
+  const tuesday = new Date(d.getFullYear(), d.getMonth(), diff, 12, 0, 0);
+  const monday = new Date(tuesday.getFullYear(), tuesday.getMonth(), tuesday.getDate() + 6, 12, 0, 0);
+
+  const formatLocal = (dt: Date) => {
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, '0');
+    const dayNum = String(dt.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dayNum}`;
+  };
 
   return {
-    startDate: monday.toISOString().split('T')[0],
-    endDate: sunday.toISOString().split('T')[0],
-    label: `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+    startDate: formatLocal(tuesday),
+    endDate: formatLocal(monday),
+    label: `${tuesday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
   };
 }
 
@@ -74,13 +81,18 @@ export async function getWeeklyReportData(startDateStr: string, endDateStr: stri
   const profiles = allProfiles.filter(p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator'));
   const workTypes = await fetchWorkTypes();
 
-  // Fetch entries for all dates in the range
-  const start = new Date(startDateStr);
-  const end = new Date(endDateStr);
+  // Parse dates cleanly using local components to eliminate timezone shifting
+  const [sy, sm, sd] = startDateStr.split('-').map(Number);
+  const [ey, em, ed] = endDateStr.split('-').map(Number);
+  const start = new Date(sy, sm - 1, sd, 12, 0, 0);
+  const end = new Date(ey, em - 1, ed, 12, 0, 0);
   const allEntries: WorkEntryWithDetails[] = [];
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const dStr = d.toISOString().split('T')[0];
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dayNum = String(d.getDate()).padStart(2, '0');
+    const dStr = `${y}-${m}-${dayNum}`;
     const dayEntries = await fetchWorkEntriesByDate(dStr);
     allEntries.push(...dayEntries);
   }
