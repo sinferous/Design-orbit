@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { TodoItem } from '@/types';
-import { fetchTodos, createTodo, toggleTodo, deleteTodo } from '@/lib/services/todo';
-import { CheckSquare, Plus, Trash2, Check, Sparkles } from 'lucide-react';
+import { fetchTodos, createTodo, toggleTodo, deleteTodo, reorderTodos } from '@/lib/services/todo';
+import { CheckSquare, Plus, Trash2, Check, Sparkles, GripVertical } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 interface TodoListWidgetProps {
@@ -19,6 +19,10 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
   const [adding, setAdding] = useState(false);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Drag and drop state
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const { showToast } = useToast();
 
@@ -92,6 +96,47 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
     }
   };
 
+  // Drag and drop reordering
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  };
+
+  const handleDragOver = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverId !== id) {
+      setDragOverId(id);
+    }
+  };
+
+  const handleDrop = async (targetId: string) => {
+    if (!draggedId || draggedId === targetId) {
+      setDraggedId(null);
+      setDragOverId(null);
+      return;
+    }
+
+    const fromIndex = todos.findIndex(t => t.id === draggedId);
+    const toIndex = todos.findIndex(t => t.id === targetId);
+    if (fromIndex === -1 || toIndex === -1) return;
+
+    const reordered = [...todos];
+    const [movedItem] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, movedItem);
+
+    setTodos(reordered);
+    setDraggedId(null);
+    setDragOverId(null);
+
+    try {
+      await reorderTodos(reordered.map(t => t.id));
+    } catch {
+      // Reorder saved silently in state
+    }
+  };
+
   const pendingCount = todos.filter(t => !t.is_completed).length;
   const completedCount = todos.filter(t => t.is_completed).length;
   const progressPercent = todos.length > 0 ? Math.round((completedCount / todos.length) * 100) : 0;
@@ -113,7 +158,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
             </div>
             <div className="min-w-0">
               <h2 className="text-sm font-bold text-slate-900 leading-tight truncate">Daily Tasks & To-Do</h2>
-              <p className="text-[11px] text-slate-500 truncate">Saved live to database</p>
+              <p className="text-[11px] text-slate-500 truncate">Drag to reorder • Live database sync</p>
             </div>
           </div>
 
@@ -202,7 +247,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
         </button>
       </form>
 
-      {/* Task Items List */}
+      {/* Task Items List with Drag & Drop Reordering */}
       <div className="flex-1 overflow-y-auto max-h-[380px] space-y-2 pr-1">
         {loading ? (
           <div className="p-8 text-center">
@@ -220,54 +265,86 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
             )}
           </div>
         ) : (
-          filteredTodos.map(todo => (
-            <div
-              key={todo.id}
-              className={`group p-2.5 sm:p-3 rounded-lg border transition-all flex items-center justify-between gap-2.5 ${
-                todo.is_completed
-                  ? 'bg-slate-50/60 border-slate-200/80 text-slate-400'
-                  : 'bg-white border-slate-200 hover:border-sky-300 hover:shadow-2xs text-slate-800'
-              }`}
-            >
-              {/* Checkbox & Task Label */}
+          filteredTodos.map(todo => {
+            const isBeingDragged = draggedId === todo.id;
+            const isTargeted = dragOverId === todo.id;
+
+            return (
               <div
-                onClick={() => handleToggleTodo(todo.id, todo.is_completed)}
-                className="flex items-center space-x-2.5 cursor-pointer min-w-0 flex-1 select-none"
+                key={todo.id}
+                draggable={true}
+                onDragStart={e => handleDragStart(e, todo.id)}
+                onDragOver={e => handleDragOver(e, todo.id)}
+                onDragLeave={() => {
+                  if (dragOverId === todo.id) setDragOverId(null);
+                }}
+                onDragEnd={() => {
+                  setDraggedId(null);
+                  setDragOverId(null);
+                }}
+                onDrop={e => {
+                  e.preventDefault();
+                  handleDrop(todo.id);
+                }}
+                className={`group p-2.5 sm:p-3 rounded-lg border transition-all flex items-center justify-between gap-2.5 cursor-move select-none ${
+                  isBeingDragged
+                    ? 'opacity-40 border-dashed border-sky-500 bg-sky-50/50 scale-[0.98]'
+                    : isTargeted
+                    ? 'border-sky-500 ring-2 ring-sky-300/70 bg-sky-50/30'
+                    : todo.is_completed
+                    ? 'bg-slate-50/60 border-slate-200/80 text-slate-400'
+                    : 'bg-white border-slate-200 hover:border-sky-300 hover:shadow-2xs text-slate-800'
+                }`}
               >
+                {/* Drag Handle & Checkbox & Task Label */}
+                <div className="flex items-center space-x-2 min-w-0 flex-1">
+                  <div
+                    className="cursor-grab active:cursor-grabbing p-0.5 text-slate-300 group-hover:text-slate-500 transition-colors shrink-0"
+                    title="Drag to reorder"
+                  >
+                    <GripVertical className="w-3.5 h-3.5" />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleToggleTodo(todo.id, todo.is_completed)}
+                    className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                      todo.is_completed
+                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-2xs'
+                        : 'border-slate-300 bg-white group-hover:border-sky-500'
+                    }`}
+                  >
+                    {todo.is_completed && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                  </button>
+
+                  <span
+                    onClick={() => handleToggleTodo(todo.id, todo.is_completed)}
+                    className={`text-xs leading-snug break-words font-medium transition-colors cursor-pointer flex-1 ${
+                      todo.is_completed
+                        ? 'line-through text-slate-400'
+                        : 'text-slate-800'
+                    }`}
+                  >
+                    {todo.task}
+                  </span>
+                </div>
+
+                {/* Delete Action */}
                 <button
                   type="button"
-                  className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
-                    todo.is_completed
-                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-2xs'
-                      : 'border-slate-300 bg-white group-hover:border-sky-500'
-                  }`}
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleDeleteTodo(todo.id);
+                  }}
+                  disabled={deletingId === todo.id}
+                  className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all opacity-80 group-hover:opacity-100 shrink-0 cursor-pointer"
+                  title="Delete task"
                 >
-                  {todo.is_completed && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
-
-                <span
-                  className={`text-xs leading-snug break-words font-medium transition-colors ${
-                    todo.is_completed
-                      ? 'line-through text-slate-400'
-                      : 'text-slate-800'
-                  }`}
-                >
-                  {todo.task}
-                </span>
               </div>
-
-              {/* Delete Action */}
-              <button
-                type="button"
-                onClick={() => handleDeleteTodo(todo.id)}
-                disabled={deletingId === todo.id}
-                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all opacity-80 group-hover:opacity-100 shrink-0 cursor-pointer"
-                title="Delete task"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
