@@ -34,6 +34,11 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
   };
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('design_orbit_local_todos');
+      } catch {}
+    }
     loadTodos();
   }, [userId]);
 
