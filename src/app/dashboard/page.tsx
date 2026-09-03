@@ -159,9 +159,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Live Entries & To-Do List Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Today's Work Activity (2 cols) */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Today's Work Activity (1 col) */}
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col h-full">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h2 className="text-base font-bold text-slate-900">Today's Work Log</h2>
@@ -177,12 +177,12 @@ export default function DashboardPage() {
             </div>
 
             {loading ? (
-              <div className="p-8 text-center">
+              <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
                 <div className="animate-spin w-5 h-5 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
                 <p className="mt-2 text-xs text-slate-400">Loading today's activity...</p>
               </div>
             ) : todayEntries.length === 0 ? (
-              <div className="p-8 text-center space-y-3 bg-slate-50/50 rounded-lg border border-slate-100">
+              <div className="p-8 text-center space-y-3 bg-slate-50/50 rounded-lg border border-slate-100 flex-1 flex flex-col items-center justify-center">
                 <p className="text-xs text-slate-500 font-medium">No work logged yet for today.</p>
                 <Link
                   href="/work/new"
@@ -193,11 +193,11 @@ export default function DashboardPage() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 flex-1 overflow-y-auto max-h-[460px] pr-1">
                 {todayEntries.map(entry => (
                   <div
                     key={entry.id}
-                    className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                    className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-sky-300 transition-colors"
                   >
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                       {entry.profile && (
@@ -234,7 +234,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Daily Tasks & To-Do List Widget (1 col) */}
-          <div className="lg:col-span-1">
+          <div className="flex flex-col h-full">
             <TodoListWidget userId={currentProfileId} />
           </div>
         </div>
