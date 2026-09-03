@@ -49,10 +49,11 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Work Entry Service Layer & Designer Attribution**:
   - Built [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) supporting single and batch `createWorkEntriesBatch` operations.
   - **Dashboard Designer Name Tag ('By [Name]')**: Updated Today's Work Log on the Dashboard (`src/app/dashboard/page.tsx`) to display a prominent teal pill tag indicating who logged the entry (*e.g., `By Varun`, `By Moveena`, `By Fazil`, `By Samantha`, `By Gajesh`*).
-- [x] **Client Directory Management Module (`/clients`) & Quick Add**:
-  - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, and delete unused clients cleanly with instant local state updates and subtle floating ToastAlert popups.
-  - Added **`+ Add New Client`** inline toggle button directly inside `WorkEntryForm.tsx` to add clients on the fly while filling out daily work.
-  - Added `createClientRecord` and `deleteClientRecord` service operations.
+- [x] **Client Directory Management Module (`/clients`), Inline Quick Add & Edit/Update**:
+  - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, edit/update existing client names inline, and delete unused clients cleanly with instant local state updates and subtle floating ToastAlert popups.
+  - **Edit & Update Client Name**: Added an inline editing interface to every client card in the directory with instant validation, duplicate prevention, keyboard shortcuts (Enter to update, Escape to cancel), and real-time Supabase PostgreSQL database synchronization.
+  - **Quick Edit from Work Entry Form**: Designers can now edit the selected client name directly from [`WorkEntryForm.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx) via an inline `Edit Client` action next to `+ Add New Client`.
+  - Added `createClientRecord`, `updateClientRecord`, and `deleteClientRecord` service operations in [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts).
 - [x] **Multi-Line Client Work Entry Form (`/work/new`)**:
   - **Client Name Dropdown First**: Pick client at the top with inline client addition option (sorted A-Z).
   - **Multi-Item Repeater**: Add multiple work items for the same client in one batch (e.g. 2 Statics + 1 Video for Longovia).

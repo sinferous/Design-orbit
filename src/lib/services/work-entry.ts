@@ -607,6 +607,92 @@ export async function deleteClientRecord(id: string): Promise<void> {
   }
 }
 
+export async function updateClientRecord(id: string, newName: string): Promise<Client> {
+  const trimmed = newName.trim();
+  if (!trimmed) throw new Error('Client name cannot be empty');
+
+  const origClient = INITIAL_MOCK_CLIENTS.find(c => c.id === id || c.name.toLowerCase() === id.toLowerCase());
+  const oldName = origClient ? origClient.name : '';
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+
+      // Check if another active client already has this new name
+      const { data: duplicateCheck } = await (supabase.from('clients') as any)
+        .select('id, name')
+        .ilike('name', trimmed)
+        .eq('is_active', true)
+        .limit(5);
+
+      if (duplicateCheck && duplicateCheck.length > 0) {
+        const isOther = duplicateCheck.some((c: any) => c.id !== id && c.name.toLowerCase() === trimmed.toLowerCase());
+        if (isOther) {
+          throw new Error(`A client with the name "${trimmed}" already exists.`);
+        }
+      }
+
+      let updatedClient: Client | null = null;
+
+      if (isUUID(id)) {
+        const { data, error } = await (supabase.from('clients') as any)
+          .update({ name: trimmed, updated_at: new Date().toISOString() })
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Supabase update client error:', error.message);
+          throw new Error(`Database Error: ${error.message}`);
+        }
+        if (data) updatedClient = data as Client;
+      } else if (oldName) {
+        const { data, error } = await (supabase.from('clients') as any)
+          .update({ name: trimmed, updated_at: new Date().toISOString() })
+          .ilike('name', oldName)
+          .select()
+          .single();
+
+        if (!error && data) {
+          updatedClient = data as Client;
+        }
+      }
+
+      // Update in mock array if present
+      const idx = INITIAL_MOCK_CLIENTS.findIndex(c => c.id === id || (oldName && c.name.toLowerCase() === oldName.toLowerCase()));
+      if (idx !== -1) {
+        INITIAL_MOCK_CLIENTS[idx].name = trimmed;
+        INITIAL_MOCK_CLIENTS[idx].updated_at = new Date().toISOString();
+      }
+      if (LEGACY_ID_TO_NAME_MAP[id]) {
+        LEGACY_ID_TO_NAME_MAP[id] = trimmed;
+      }
+
+      if (updatedClient) return updatedClient;
+    } catch (err: any) {
+      console.error('Supabase update client notice:', err);
+      throw err;
+    }
+  }
+
+  const idx = INITIAL_MOCK_CLIENTS.findIndex(c => c.id === id || (oldName && c.name.toLowerCase() === oldName.toLowerCase()));
+  if (idx !== -1) {
+    INITIAL_MOCK_CLIENTS[idx].name = trimmed;
+    INITIAL_MOCK_CLIENTS[idx].updated_at = new Date().toISOString();
+    return INITIAL_MOCK_CLIENTS[idx];
+  }
+
+  const updatedMock: Client = {
+    id,
+    name: trimmed,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  INITIAL_MOCK_CLIENTS.unshift(updatedMock);
+  return updatedMock;
+}
+
 export async function createProfileRecord(data: { name: string; designation: string; email?: string }): Promise<Profile> {
   const name = data.name.trim();
   const designation = data.designation.trim();

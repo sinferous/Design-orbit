@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Profile, WorkType, Client, WorkEntryWithDetails } from '@/types';
-import { fetchProfiles, fetchWorkTypes, fetchClients, createWorkEntriesBatch, updateWorkEntry, createClientRecord, getLoggedInUser } from '@/lib/services/work-entry';
-import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2, Link2 } from 'lucide-react';
+import { fetchProfiles, fetchWorkTypes, fetchClients, createWorkEntriesBatch, updateWorkEntry, createClientRecord, updateClientRecord, getLoggedInUser } from '@/lib/services/work-entry';
+import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2, Link2, Pencil } from 'lucide-react';
 import { ToastAlert } from '@/components/ui/ToastAlert';
 import { useToast } from '@/components/ui/ToastContext';
 
@@ -43,6 +43,11 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
   const [quickClientName, setQuickClientName] = useState('');
   const [addingQuickClient, setAddingQuickClient] = useState(false);
 
+  // Quick Edit Client inline state
+  const [showQuickEditClient, setShowQuickEditClient] = useState(false);
+  const [quickEditClientName, setQuickEditClientName] = useState('');
+  const [updatingQuickClient, setUpdatingQuickClient] = useState(false);
+
   // Work items for current client
   const [items, setItems] = useState<WorkItemRow[]>([
     {
@@ -73,6 +78,26 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       setError(err.message || 'Failed to add client');
     } finally {
       setAddingQuickClient(false);
+    }
+  };
+
+  const handleQuickUpdateClient = async () => {
+    const trimmed = quickEditClientName.trim();
+    if (!trimmed || !selectedClientId) return;
+    setUpdatingQuickClient(true);
+    try {
+      await updateClientRecord(selectedClientId, trimmed);
+      setClients(prev =>
+        prev
+          .map(c => (c.id === selectedClientId ? { ...c, name: trimmed } : c))
+          .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+      );
+      setShowQuickEditClient(false);
+      showToast(`Client updated to "${trimmed}" successfully!`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to update client', 'error');
+    } finally {
+      setUpdatingQuickClient(false);
     }
   };
 
@@ -294,17 +319,80 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           <label className="block text-xs font-extrabold uppercase tracking-wider text-sky-900">
             1. Client Name *
           </label>
-          <button
-            type="button"
-            onClick={() => setShowQuickAddClient(!showQuickAddClient)}
-            className="text-xs font-bold text-sky-700 hover:text-sky-900 flex items-center space-x-1 underline"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{showQuickAddClient ? 'Cancel' : '+ Add New Client'}</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            {selectedClientId && !showQuickAddClient && !showQuickEditClient && (
+              <button
+                type="button"
+                onClick={() => {
+                  const clientObj = clients.find(c => c.id === selectedClientId);
+                  if (clientObj) {
+                    setQuickEditClientName(clientObj.name);
+                    setShowQuickEditClient(true);
+                  }
+                }}
+                className="text-xs font-bold text-sky-700 hover:text-sky-900 flex items-center space-x-1 underline"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                <span>Edit Client</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setShowQuickAddClient(!showQuickAddClient);
+                if (showQuickEditClient) setShowQuickEditClient(false);
+              }}
+              className="text-xs font-bold text-sky-700 hover:text-sky-900 flex items-center space-x-1 underline"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>{showQuickAddClient ? 'Cancel' : '+ Add New Client'}</span>
+            </button>
+          </div>
         </div>
 
-        {showQuickAddClient ? (
+        {showQuickEditClient ? (
+          <div className="flex items-center space-x-2 bg-white p-2 rounded-lg border-2 border-sky-400">
+            <input
+              type="text"
+              placeholder="Edit client name..."
+              value={quickEditClientName}
+              onChange={e => setQuickEditClientName(e.target.value)}
+              className="flex-1 px-3 py-1.5 text-sm font-semibold text-slate-900 focus:outline-none"
+              autoFocus
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleQuickUpdateClient();
+                } else if (e.key === 'Escape') {
+                  setShowQuickEditClient(false);
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleQuickUpdateClient}
+              disabled={updatingQuickClient || !quickEditClientName.trim()}
+              className="px-4 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-md disabled:opacity-50 flex items-center space-x-1"
+            >
+              {updatingQuickClient ? (
+                <span>Updating...</span>
+              ) : (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Update</span>
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowQuickEditClient(false)}
+              disabled={updatingQuickClient}
+              className="px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 rounded-md"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : showQuickAddClient ? (
           <div className="flex items-center space-x-2 bg-white p-2 rounded-lg border border-sky-300">
             <input
               type="text"
