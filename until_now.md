@@ -69,6 +69,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Created [`src/app/work/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/page.tsx) defaulting to **ONLY the logged-in user's entries** (`My Log`).
   - **Client-Wise Entry Clubbing**: All daily work entries for the selected day are automatically clubbed together into dedicated **Client Section Cards** (*e.g., 🏢 Client: Amaron (3 items), 🏢 Client: 2am idea (2 items)*), sorted alphabetically A-Z with client item counts and client quantity totals.
   - **Team Log Filters**: Added Date selector & **Designer Filter Dropdown** (*All Designers vs specific team member*) when viewing `Entire Team Log`.
+  - **Custom Interactive Calendar Picker**: Replaced the native browser date input on `/work` with a modern custom calendar popup matching the Reports design. Clicking anywhere on the date pill opens a styled calendar card with month navigation, full day grid, active date highlights, and quick shortcuts (`Today`, `Yesterday`).
 - [x] **Edit Entry Workflow (`/work/[id]`)**:
   - Built [`src/app/work/[id]/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/%5Bid%5D/page.tsx) to modify existing daily entries.
 - [x] **Account & Change Password Settings (`/settings`)**:
