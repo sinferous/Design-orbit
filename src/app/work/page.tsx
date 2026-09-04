@@ -5,15 +5,29 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { fetchWorkEntriesByDate, deleteWorkEntry, fetchProfiles, getLoggedInUser } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
-import { formatDate } from '@/lib/utils';
-import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle, Copy, ExternalLink, Building2, Mail } from 'lucide-react';
+
+import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle, Copy, ExternalLink, Building2, Mail, ChevronDown } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { EmailDayLogModal } from '@/components/work/EmailDayLogModal';
 import { generateEmailTableHtml, generateCleanPlainText, copyToClipboardWithHtml } from '@/lib/services/email-formatter';
 
 export default function MyWorkPage() {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const formatLocalDate = (d: Date): string => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const parseLocalDate = (str: string): Date => {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d, 12, 0, 0);
+  };
+
+  const todayStr = formatLocalDate(new Date());
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+  const [viewDate, setViewDate] = useState<Date>(new Date());
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
 
@@ -53,11 +67,79 @@ export default function MyWorkPage() {
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
-
+  const formatDisplayDate = (str: string) => {
+    if (!str) return '';
+    const d = parseLocalDate(str);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
   const handleDateChange = (daysDelta: number) => {
-    const current = new Date(selectedDate);
+    const current = parseLocalDate(selectedDate);
     current.setDate(current.getDate() + daysDelta);
-    setSelectedDate(current.toISOString().split('T')[0]);
+    const nextStr = formatLocalDate(current);
+    setSelectedDate(nextStr);
+    setViewDate(current);
+  };
+
+  const getDateDisplayLabel = (str: string) => {
+    if (!str) return 'Select Date';
+    const d = parseLocalDate(str);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const nice = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return `${day}-${month}-${year} (${nice})`;
+  };
+
+  const handleMonthDelta = (months: number) => {
+    const next = new Date(viewDate);
+    next.setMonth(next.getMonth() + months);
+    setViewDate(next);
+  };
+
+  const generateCalendarDays = (vDate: Date) => {
+    const year = vDate.getFullYear();
+    const month = vDate.getMonth();
+    const firstDayIndex = (new Date(year, month, 1, 12, 0, 0).getDay() + 6) % 7;
+    const totalDays = new Date(year, month + 1, 0, 12, 0, 0).getDate();
+    const prevMonthTotalDays = new Date(year, month, 0, 12, 0, 0).getDate();
+    const daysArr: { date: Date; isCurrentMonth: boolean; key: string }[] = [];
+
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const d = new Date(year, month - 1, prevMonthTotalDays - i, 12, 0, 0);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: false,
+        key: `prev-${prevMonthTotalDays - i}`,
+      });
+    }
+
+    for (let i = 1; i <= totalDays; i++) {
+      const d = new Date(year, month, i, 12, 0, 0);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: true,
+        key: `curr-${i}`,
+      });
+    }
+
+    const remaining = (7 - (daysArr.length % 7)) % 7;
+    for (let i = 1; i <= remaining; i++) {
+      const d = new Date(year, month + 1, i, 12, 0, 0);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: false,
+        key: `next-${i}`,
+      });
+    }
+
+    return daysArr;
+  };
+
+  const handleSelectDate = (date: Date) => {
+    const dateStr = formatLocalDate(date);
+    setSelectedDate(dateStr);
+    setViewDate(date);
+    setIsCalendarOpen(false);
   };
 
   const { showToast, confirmDialog } = useToast();
@@ -214,17 +296,126 @@ export default function MyWorkPage() {
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center space-x-2 px-3 py-1 bg-slate-50 rounded-lg border border-slate-200">
-                <Calendar className="w-4 h-4 text-sky-600" />
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={e => setSelectedDate(e.target.value)}
-                  className="font-bold text-slate-900 focus:outline-none bg-transparent text-xs"
-                />
-                <span className="text-xs text-slate-500 font-medium">
-                  ({formatDate(selectedDate)})
-                </span>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewDate(parseLocalDate(selectedDate));
+                    setIsCalendarOpen(!isCalendarOpen);
+                  }}
+                  className="flex items-center space-x-2 px-3 py-1.5 bg-white hover:bg-sky-50/40 rounded-lg border border-slate-200 hover:border-sky-300 shadow-2xs transition-all cursor-pointer text-xs group"
+                  title="Click to choose a date"
+                >
+                  <Calendar className="w-4 h-4 text-sky-600 shrink-0 group-hover:scale-105 transition-transform" />
+                  <span className="font-bold text-slate-900">
+                    {getDateDisplayLabel(selectedDate)}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-slate-600 transition-colors" />
+                </button>
+
+                {isCalendarOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-30"
+                      onClick={() => setIsCalendarOpen(false)}
+                    />
+                    <div className="absolute right-0 sm:right-0 mt-2 z-40 bg-white border border-slate-200 rounded-xl shadow-xl p-4 w-[310px] sm:w-[330px] space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-150">
+                      {/* Calendar Month Header */}
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => handleMonthDelta(-1)}
+                          className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors cursor-pointer"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <span className="text-xs font-extrabold text-slate-900 tracking-wide">
+                          {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleMonthDelta(1)}
+                          className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors cursor-pointer"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Calendar Grid */}
+                      <div className="space-y-1">
+                        <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pb-1">
+                          <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-1">
+                          {generateCalendarDays(viewDate).map((dayObj) => {
+                            const dStr = formatLocalDate(dayObj.date);
+                            const isSelected = dStr === selectedDate;
+                            const isToday = dStr === todayStr;
+
+                            return (
+                              <button
+                                key={dayObj.key}
+                                type="button"
+                                onClick={() => handleSelectDate(dayObj.date)}
+                                className={`h-8 w-8 sm:h-8.5 sm:w-8.5 text-xs font-semibold rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
+                                  !dayObj.isCurrentMonth ? 'text-slate-300 hover:text-slate-500' : 'text-slate-700 hover:bg-slate-100'
+                                } ${
+                                  isSelected
+                                    ? '!bg-sky-600 !text-white font-bold !border-sky-700 shadow-sm'
+                                    : ''
+                                }`}
+                              >
+                                {dayObj.date.getDate()}
+                                {isToday && !isSelected && (
+                                  <span className="absolute bottom-1 w-1.5 h-1.5 bg-sky-600 rounded-full" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Quick Presets & Actions */}
+                      <div className="border-t border-slate-100 pt-2.5 flex items-center justify-between text-xs font-bold">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const today = new Date();
+                              setSelectedDate(formatLocalDate(today));
+                              setViewDate(today);
+                              setIsCalendarOpen(false);
+                            }}
+                            className="px-2.5 py-1 text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-md transition-colors cursor-pointer"
+                          >
+                            Today
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const yesterday = new Date();
+                              yesterday.setDate(yesterday.getDate() - 1);
+                              setSelectedDate(formatLocalDate(yesterday));
+                              setViewDate(yesterday);
+                              setIsCalendarOpen(false);
+                            }}
+                            className="px-2.5 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors cursor-pointer"
+                          >
+                            Yesterday
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsCalendarOpen(false)}
+                          className="px-2.5 py-1 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer text-xs"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <button
@@ -289,7 +480,7 @@ export default function MyWorkPage() {
             <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto">
               <Calendar className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">No work logged for {formatDate(selectedDate)}</h3>
+            <h3 className="text-base font-bold text-slate-900">No work logged for {formatDisplayDate(selectedDate)}</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
               {selectedUserFilter === 'my_work'
                 ? "You haven't logged any work items for this date yet."
