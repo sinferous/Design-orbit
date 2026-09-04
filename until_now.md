@@ -52,10 +52,10 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Client Directory Management Module (`/clients`), Inline Quick Add & Edit/Update**:
   - Created [`src/app/clients/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx) to manage client records, search clients, add new client names, edit/update existing client names inline, and delete unused clients cleanly with instant local state updates and subtle floating ToastAlert popups.
   - **Edit & Update Client Name**: Added an inline editing interface to every client card in the directory with instant validation, duplicate prevention, keyboard shortcuts (Enter to update, Escape to cancel), and real-time Supabase PostgreSQL database synchronization.
-  - **Quick Edit from Work Entry Form**: Designers can now edit the selected client name directly from [`WorkEntryForm.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx) via an inline `Edit Client` action next to `+ Add New Client`.
+  - **Dedicated Client Directory**: Client management (adding new clients and editing names) is centralized in [`/clients`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx), keeping the daily work entry form clean, fast, and distraction-free.
   - Added `createClientRecord`, `updateClientRecord`, and `deleteClientRecord` service operations in [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts).
 - [x] **Multi-Line Client Work Entry Form (`/work/new`)**:
-  - **Client Name Dropdown First**: Pick client at the top with inline client addition option (sorted A-Z).
+  - **Clean Client Name Dropdown**: Select from active clients (sorted A-Z) without clutter.
   - **Multi-Item Repeater**: Add multiple work items for the same client in one batch (e.g. 2 Statics + 1 Video for Longovia).
   - **Ordered Item Fields**: Work Type → Description → Quantity Done → Approved Quantity → Submission Status (`Approved` vs `Not Approved`).
   - **Auto-bound Context**: Automatically defaults designer to active logged-in user profile (*e.g., Varun, Fazil, Moveena, Samantha, Gajesh, etc.*).
