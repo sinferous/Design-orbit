@@ -1021,12 +1021,24 @@ export async function startWorkEntryTimer(
         if (typeof window !== 'undefined') {
           localStorage.setItem(`work_timer_started_${id}`, nowIso);
         }
-        const existing = activeEntries.find(e => e.id === id);
-        return {
+        const allEntries = getStoredMockEntries();
+        const target = allEntries.find(e => e.id === id);
+        if (target) {
+          target.timer_started_at = nowIso;
+          saveStoredMockEntries(allEntries);
+        }
+        const existing = activeEntries.find(e => e.id === id) || target;
+        const result = {
           ...(existing || {}),
           id,
           timer_started_at: nowIso,
         } as WorkEntryWithDetails;
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'start', entry: result } }));
+        }
+
+        return result;
       }
       console.error('Supabase startWorkEntryTimer error:', error.message);
       throw new Error(`Database Error: ${error.message}`);
@@ -1103,11 +1115,22 @@ export async function stopWorkEntryTimer(
           localStorage.removeItem(`work_timer_started_${id}`);
           localStorage.setItem(`work_time_spent_${id}`, String(newTotalSeconds));
         }
-        return {
+        const allEntries = getStoredMockEntries();
+        const target = allEntries.find(e => e.id === id);
+        if (target) {
+          target.time_spent_seconds = newTotalSeconds;
+          target.timer_started_at = null;
+          saveStoredMockEntries(allEntries);
+        }
+        const result = {
           ...currentEntry,
           time_spent_seconds: newTotalSeconds,
           timer_started_at: null,
         };
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'stop', entry: result } }));
+        }
+        return result;
       }
       console.error('Supabase stopWorkEntryTimer error:', error.message);
       throw new Error(`Database Error: ${error.message}`);

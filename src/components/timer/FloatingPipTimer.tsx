@@ -548,16 +548,55 @@ export function FloatingPipTimer() {
     };
   }, [refreshTimers, entries, openPipWindow]);
 
-  // Live stopwatch tick
+  // Unthrottled live stopwatch ticker (runs across Web Worker, main tab, and PiP window)
   useEffect(() => {
-    const hasRunning = entries.some(e => Boolean(e.timer_started_at));
-    if (!hasRunning) return;
+    let tickerWorker: Worker | null = null;
+    let workerUrl: string | null = null;
 
-    const interval = setInterval(() => {
+    try {
+      if (typeof window !== 'undefined' && window.Worker) {
+        const workerBlob = new Blob(
+          ['var timer = setInterval(function() { postMessage("tick"); }, 400);'],
+          { type: 'application/javascript' }
+        );
+        workerUrl = URL.createObjectURL(workerBlob);
+        tickerWorker = new Worker(workerUrl);
+        tickerWorker.onmessage = () => {
+          setNowMs(Date.now());
+        };
+      }
+    } catch (err) {
+      console.warn('Worker ticker fallback:', err);
+    }
+
+    const mainInterval = setInterval(() => {
       setNowMs(Date.now());
-    }, 500);
-    return () => clearInterval(interval);
-  }, [entries]);
+    }, 400);
+
+    let pipInterval: any = null;
+    if (pipWindow && !pipWindow.closed) {
+      try {
+        pipInterval = pipWindow.setInterval(() => {
+          setNowMs(Date.now());
+        }, 400);
+      } catch (e) {}
+    }
+
+    return () => {
+      if (tickerWorker) {
+        tickerWorker.terminate();
+      }
+      if (workerUrl) {
+        URL.revokeObjectURL(workerUrl);
+      }
+      clearInterval(mainInterval);
+      if (pipWindow && pipInterval) {
+        try {
+          pipWindow.clearInterval(pipInterval);
+        } catch (e) {}
+      }
+    };
+  }, [pipWindow]);
 
   // Actions from inside PiP or corner widget
   const handlePause = async (entry: WorkEntryWithDetails) => {
