@@ -160,9 +160,11 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Auto-Clamping**: Changing Quantity Done automatically clamps Approved Quantity if it exceeds the new total.
   - **Zero Equals Not Approved**: When Approved Quantity is 0, status is strictly `Not Approved`. When Approved status is selected, quantity automatically defaults to Quantity Done (cannot be 0).
   - **Visual Feedback**: Dynamic helper pills showing *Fully Approved*, *Partially Approved*, or *0 Approved (Not Approved)*.
-- [x] **Automatic PiP Launch on Start Task Fix**:
-  - Restored standard `requestWindow({ width, height })` options without unsupported optional flags that caused browser Promise rejections.
-  - Bound `openPip(activeEntry)` directly to user gesture clicks on both Dashboard and Daily Work page, immediately seeding the entry into PiP state and ensuring the floating window pops out smoothly on every Start click.
+- [x] **Multi-Task PiP Auto-Sizing & Full Visibility Fix**:
+  - Re-engineered `computeTargetHeight` to accurately account for the native OS titlebar chrome offset (~42px) and per-card dimensions (header, body padding, card heights, gaps), scaling from 154px (1 task) to 220px (2 tasks) and 286px (3 tasks).
+  - Widen PiP window to 320px for comfortable horizontal padding with zero wrapping.
+  - Added `flex-shrink: 0` to task cards preventing flexbox clipping or shrinking.
+  - Added real-time window resizing on both task start and task stop events so launching a 2nd or 3rd concurrent task automatically expands the floating window instantly to reveal all tasks without manual adjustment.
 
 
 ---

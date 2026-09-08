@@ -156,7 +156,9 @@ const PIP_EMBEDDED_STYLES = `
     flex-direction: column;
     gap: 6px;
     overflow-y: auto;
+    overflow-x: hidden;
     flex: 1;
+    min-height: 0;
   }
 
   .pip-list::-webkit-scrollbar {
@@ -175,6 +177,7 @@ const PIP_EMBEDDED_STYLES = `
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex-shrink: 0;
     transition: all 0.2s ease;
   }
 
@@ -375,12 +378,12 @@ export function FloatingPipTimer() {
     }
   }, [closePipWindow]);
 
-  // Precise dynamic height calculation matching the compact styling
+  // Precise dynamic height calculation matching the compact styling and OS window frame
   const computeTargetHeight = (taskCount: number) => {
     const count = Math.max(1, taskCount);
-    // Header is ~28px + padding ~16px + each card is ~58px + gap ~6px
-    const calculated = 36 + count * 64;
-    return Math.min(360, Math.max(102, calculated));
+    // Titlebar chrome ~42px + body padding/header ~46px + count * (card ~60px + gap 6px)
+    const calculated = 88 + count * 66;
+    return Math.min(460, Math.max(154, calculated));
   };
 
   // Safely inject styles into PiP window
@@ -419,14 +422,17 @@ export function FloatingPipTimer() {
       });
     }
 
-    if (pipWindowRef.current && !pipWindowRef.current.closed) {
-      pipWindowRef.current.focus();
-      return true;
-    }
-
     const count = Math.max(1, entries.length, initialEntry ? 1 : 0);
     const targetHeight = computeTargetHeight(count);
-    const targetWidth = 300;
+    const targetWidth = 320;
+
+    if (pipWindowRef.current && !pipWindowRef.current.closed) {
+      pipWindowRef.current.focus();
+      try {
+        pipWindowRef.current.resizeTo(targetWidth, targetHeight);
+      } catch (e) {}
+      return true;
+    }
 
     // Try Document Picture-in-Picture API first (Chrome 116+, Edge 116+)
     if ('documentPictureInPicture' in window && (window as any).documentPictureInPicture?.requestWindow) {
@@ -493,10 +499,10 @@ export function FloatingPipTimer() {
 
   // Dynamically adjust PiP window size as tasks change
   useEffect(() => {
-    if (pipWindow && !pipWindow.closed) {
+    if (pipWindowRef.current && !pipWindowRef.current.closed) {
       const targetHeight = computeTargetHeight(entries.length);
       try {
-        pipWindow.resizeTo(300, targetHeight);
+        pipWindowRef.current.resizeTo(320, targetHeight);
       } catch (e) {}
     }
   }, [entries.length, pipWindow]);
@@ -526,11 +532,15 @@ export function FloatingPipTimer() {
       }
 
       if (action === 'stop') {
-        // Immediately remove stopped task from PiP window
+        // Immediately remove stopped task from PiP window and resize
         setEntries(prev => {
           const remaining = prev.filter(item => item.id !== id);
           if (remaining.length === 0 && pipWindowRef.current && !pipWindowRef.current.closed) {
             closePipWindow();
+          } else if (pipWindowRef.current && !pipWindowRef.current.closed) {
+            try {
+              pipWindowRef.current.resizeTo(320, computeTargetHeight(remaining.length));
+            } catch (e) {}
           }
           return remaining;
         });
@@ -552,14 +562,20 @@ export function FloatingPipTimer() {
       if (action === 'start' || action === 'resume') {
         setEntries(prev => {
           const exists = prev.some(item => item.id === id);
-          if (exists) {
-            return prev.map(item => (item.id === id ? { ...item, ...(entry || {}) } : item));
+          const next = exists
+            ? prev.map(item => (item.id === id ? { ...item, ...(entry || {}) } : item))
+            : entry ? [entry, ...prev] : prev;
+
+          if (pipWindowRef.current && !pipWindowRef.current.closed) {
+            try {
+              pipWindowRef.current.resizeTo(320, computeTargetHeight(next.length));
+            } catch (e) {}
           }
-          return entry ? [entry, ...prev] : prev;
+          return next;
         });
 
         if (!pipWindowRef.current || pipWindowRef.current.closed) {
-          openPipWindow().catch(() => {});
+          openPipWindow(entry).catch(() => {});
         }
         return;
       }
