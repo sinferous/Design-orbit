@@ -122,15 +122,10 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Native Drag & Drop Reordering**: Added drag grip handles (`⋮⋮`) with native HTML5 drag-and-drop support to freely reorder tasks up and down with instant database synchronization.
   - **Optimal 65% / 35% Dashboard Layout**: Proportioned the main operational grid to **65% Today's Work Log** and **35% Daily Tasks & To-Do List**.
   - **Elevated Quick Navigation Launchpad**: Positioned the 5-card Application Quick Navigation launchpad directly below the 4 stat cards.
-- [x] **Task Time Tracking with Start & Stop Timers (`TodoListWidget.tsx`, `todo.ts`, `010_add_timer_to_todos.sql`)**:
-  - **Database Persistence Table Columns (`public.todos`)**: Created SQL Migration `010_add_timer_to_todos.sql` adding `time_spent_seconds INT NOT NULL DEFAULT 0` and `timer_started_at TIMESTAMPTZ DEFAULT NULL` with indexes.
-  - **Real-Time Start & Stop Controls**: Added interactive **`▶ Start`** and **`⏹ Stop`** controls next to each personal task item.
-  - **Live Stopwatch & Visual Status**: While active, displays a high-contrast pulsating stopwatch badge (`⏱️ 00:04:12`) ticking every second and turns the task row into an amber active focus state.
-  - **Survives Browser Navigation & Reloads**: Because `timer_started_at` is timestamped in the database, refreshing the browser or closing the tab preserves the timer and accurately calculates elapsed seconds upon reopening.
-  - **Auto-Stop on Task Completion**: Checking a task as complete automatically stops any running timer and commits accumulated seconds to `time_spent_seconds`.
-  - **Accumulated Time Badge**: Stopped/completed tasks display a formatted duration tag (e.g. `⏱️ 45m 20s` or `⏱️ 1h 15m`).
-  - **Total Logged Time Header**: Shows a dedicated summary badge in the widget header displaying the total time tracked across all tasks.
-- [x] **Daily Work Entry Time Tracking with Start & Stop Controls (`/work`, `/dashboard`, `work-entry.ts`, `011_add_timer_to_work_entries.sql`)**:
+- [x] **Lightweight Daily To-Do List (`TodoListWidget.tsx`, `todo.ts`)**:
+  - **Clean & Distraction-Free**: Personal daily to-dos remain focused, checkable items with native drag-and-drop reordering.
+  - **Timers Excluded**: All timer mechanisms are exclusively dedicated to billable daily client deliverables (`work_entries`), ensuring zero clutter on personal to-dos.
+- [x] **Daily Work Entry Time Tracking (`/work`, `/dashboard`, `work-entry.ts`, `011_add_timer_to_work_entries.sql`)**:
   - **Database Persistence Table Columns (`public.work_entries`)**: Created SQL Migration `011_add_timer_to_work_entries.sql` adding `time_spent_seconds INT NOT NULL DEFAULT 0` and `timer_started_at TIMESTAMPTZ DEFAULT NULL` with index on `timer_started_at`.
   - **Direct Deliverable Time Tracking**: Each created work entry (e.g. Statics, Videos, Websites logged under clients) has a dedicated **`▶ Start`** and **`⏹ Stop`** button.
   - **Live Stopwatch & Real-Time Row Focus**: When active, displays a pulsing stopwatch clock (`⏱️ 00:04:12`) with an animated red beacon and gives the work entry row a warm amber active border and background.
@@ -138,15 +133,14 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Accumulated Duration Badges**: Completed or paused deliverables display formatted duration tags (e.g. `⏱️ 45m 20s` or `⏱️ 1h 30m`).
   - **Total Time Tracked Summary Tile**: Added a 3rd summary stat tile on the Daily Work Log (`/work`) calculating the cumulative time spent across all client deliverables today.
   - **Dashboard Today's Work Log Integration**: Interactive timer controls and live stopwatch badges are also directly available in the 65% **Today's Work Log** widget on [`/dashboard`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx).
-  - **Email & Clipboard Day Log Integration**: All exported formatted email tables and grouped plain-text summaries automatically display the tracked time per deliverable.
+  - **Clean Email & Clipboard Day Log**: Daily summary email tables and plain-text summaries formatted cleanly without time clutter.
 - [x] **Team Work Log Ownership & Permission Security (`/work` & `/work/[id]`)**:
   - **Removed Edit & Delete Buttons on Others' Work**: In Team Work Log, action buttons are only visible on work items created by the logged-in user.
   - **Direct Edit Route Protection (`/work/[id]`)**: Guarded with ownership checks displaying an Access Denied notice if a user attempts to edit another designer's entry.
-- [x] **Timer Architecture Refinement & Dedicated Reports**:
-  - **Removed Timers from Personal To-Do List**: Personal daily to-dos remain clean, focused checkable task items with drag-and-drop reordering.
-  - **Clean Daily Email Copy**: Daily summary email tables and plain-text summaries formatted without time clutter.
-  - **Admin Client Time Tracking Report (`/reports/billing`)**: Created dedicated billing/client time tracking report aggregating tracked time across clients, deliverables, and team members with rich calendar date range picker, presets, and steppers.
-  - **Pure Time Tracking (Zero Rate Modules)**: Time tracking strictly records hours, minutes, and decimal hours—completely decoupled from pricing or hourly rate inputs.
+- [x] **Admin Client Time Tracking & Billing Report (`/reports/billing`)**:
+  - **Dedicated Client Hours Report**: Aggregates tracked time across clients, deliverables, and team members for client billing and operational oversight.
+  - **Rich Interactive Calendar Range Picker**: Custom interactive calendar popover with 7-day `< >` steppers, visual range selection, today highlights, and quick presets (*Today*, *This Week*, *This Month*, *Last 30 Days*).
+  - **Pure Time Tracking (Zero Rates)**: Displays hours, minutes, and decimal hours—rates/pricing modules completely removed so designers never deal with billing rates.
 
 ### Phase 5 — Picture-in-Picture (PiP) Floating Desktop Timer (Completed)
 - [x] **Document Picture-in-Picture (PiP) Always-On-Top Mini-Window**:
@@ -164,7 +158,8 @@ This document provides a comprehensive summary of all progress, architecture, an
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Live URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
+- **Latest Commit**: `3429203` (*feat: add floating picture-in-picture task timer and admin client time tracking report*)
+- **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: `npm run build` compiled successfully with **0 errors across all 15 routes**.
 - **All Active Routes**:
