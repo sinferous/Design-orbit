@@ -150,15 +150,22 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Automatic Pop Out**: PiP opens automatically when starting a task timer or when the designer switches tabs / leaves the browser window with running timers.
   - **Dynamic Task-Based Height Sizing**: Automatically sizes to fit the exact amount of tasks (102px for 1 task, 165px for 2 tasks, 230px for 3 tasks) with zero empty black space.
   - **Multi-Timer Support**: Supports running, monitoring, pausing, and resuming multiple deliverables simultaneously.
+  - **Cross-Platform Verified (macOS & Windows)**: Confirmed fully operational on macOS and Windows across Chrome and Edge, staying pinned over design software.
+  - **Unthrottled Web Worker Ticker**: Built-in dedicated Web Worker background heartbeat ensuring the stopwatch ticks accurately even when the main browser tab is minimized or occluded.
   - **Embedded Dark Aesthetic**: Self-contained radial dark-mode styling (`#151d30` to `#090d16`), luminous amber LED digital stopwatch (`SF Mono` / `Roboto Mono`), pulsing emerald status beacon, client/deliverable badges, and sleek gradient action buttons (`⏸ Pause`, `▶ Start`, `⏹ Stop`, `Dock`).
   - **Real-Time Two-Way Sync**: Instant bidirectional synchronization between PiP window, browser tab, and Supabase database.
+- [x] **Strict Approved Quantity Bounds & Submission Status Logic (`WorkEntryForm.tsx`)**:
+  - **Quantity Bounds**: Approved Quantity cannot exceed Quantity Done (`min={0}`, `max={quantity_done}`).
+  - **Auto-Clamping**: Changing Quantity Done automatically clamps Approved Quantity if it exceeds the new total.
+  - **Zero Equals Not Approved**: When Approved Quantity is 0, status is strictly `Not Approved`. When Approved status is selected, quantity automatically defaults to Quantity Done (cannot be 0).
+  - **Visual Feedback**: Dynamic helper pills showing *Fully Approved*, *Partially Approved*, or *0 Approved (Not Approved)*.
 
 ---
 
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Latest Commit**: `3429203` (*feat: add floating picture-in-picture task timer and admin client time tracking report*)
+- **Latest Commit**: `f24107f` (*feat: enforce strict approved quantity bounds and status synchronization*)
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: `npm run build` compiled successfully with **0 errors across all 15 routes**.
