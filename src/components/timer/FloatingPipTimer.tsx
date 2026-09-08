@@ -345,6 +345,13 @@ export function FloatingPipTimer() {
   const pipWindowRef = useRef<Window | null>(null);
   pipWindowRef.current = pipWindow;
 
+  const entriesRef = useRef<WorkEntryWithDetails[]>(entries);
+  entriesRef.current = entries;
+
+  const isOpeningPipRef = useRef<boolean>(false);
+  const pipOpenedAtRef = useRef<number>(0);
+  const recentlyStartedRef = useRef<Map<string, number>>(new Map());
+
   const closePipWindow = useCallback(() => {
     if (pipWindowRef.current && !pipWindowRef.current.closed) {
       pipWindowRef.current.close();
@@ -358,25 +365,38 @@ export function FloatingPipTimer() {
   const refreshTimers = useCallback(async () => {
     try {
       const active = await getActiveRunningWorkEntries();
+      const now = Date.now();
+
       setEntries(prev => {
         const activeIds = new Set(active.map(a => a.id));
 
-        // Keep items from prev ONLY if they were explicitly paused inside PiP (timer_started_at is falsy)
-        // If an item in prev was running but is no longer in active, it was stopped on the website or DB -> MUST be removed!
-        const pausedInPip = prev.filter(p => !p.timer_started_at && !activeIds.has(p.id));
+        // Keep items from prev if:
+        // 1. Explicitly paused in PiP (!p.timer_started_at)
+        // 2. OR started recently within 10 seconds (still in flight to Supabase)
+        // 3. OR present in localStorage timer
+        const pausedOrOptimistic = prev.filter(p => {
+          if (activeIds.has(p.id)) return false; // Handled by active list
+          if (!p.timer_started_at) return true; // Paused in PiP
 
-        const next = [...active, ...pausedInPip];
+          const lastStarted = recentlyStartedRef.current.get(p.id) || 0;
+          if (now - lastStarted < 10000) return true;
 
-        if (next.length === 0 && pipWindowRef.current && !pipWindowRef.current.closed) {
-          closePipWindow();
-        }
+          const startedAtMs = p.timer_started_at ? new Date(p.timer_started_at).getTime() : 0;
+          if (now - startedAtMs < 10000) return true;
 
-        return next;
+          try {
+            if (localStorage.getItem(`work_timer_started_${p.id}`)) return true;
+          } catch (e) {}
+
+          return false;
+        });
+
+        return [...active, ...pausedOrOptimistic];
       });
     } catch (err) {
       console.warn('FloatingPipTimer refresh error:', err);
     }
-  }, [closePipWindow]);
+  }, []);
 
   // Precise dynamic height calculation matching the compact styling and OS window frame
   const computeTargetHeight = (taskCount: number) => {
@@ -413,6 +433,7 @@ export function FloatingPipTimer() {
     if (typeof window === 'undefined') return false;
 
     if (initialEntry) {
+      recentlyStartedRef.current.set(initialEntry.id, Date.now());
       setEntries(prev => {
         const exists = prev.some(item => item.id === initialEntry.id);
         if (exists) {
@@ -422,8 +443,8 @@ export function FloatingPipTimer() {
       });
     }
 
-    const count = Math.max(1, entries.length, initialEntry ? 1 : 0);
-    const targetHeight = computeTargetHeight(count);
+    const currentCount = Math.max(1, entriesRef.current.length, initialEntry ? 1 : 0);
+    const targetHeight = computeTargetHeight(currentCount);
     const targetWidth = 320;
 
     if (pipWindowRef.current && !pipWindowRef.current.closed) {
@@ -434,68 +455,76 @@ export function FloatingPipTimer() {
       return true;
     }
 
-    // Try Document Picture-in-Picture API first (Chrome 116+, Edge 116+)
-    if ('documentPictureInPicture' in window && (window as any).documentPictureInPicture?.requestWindow) {
-      try {
-        const pip = await (window as any).documentPictureInPicture.requestWindow({
-          width: targetWidth,
-          height: targetHeight,
-        });
+    if (isOpeningPipRef.current) return false;
+    isOpeningPipRef.current = true;
+    pipOpenedAtRef.current = Date.now();
 
-        injectStylesIntoWindow(pip);
-
-        const container = pip.document.createElement('div');
-        container.id = 'pip-portal-root';
-        pip.document.body.appendChild(container);
-
-        pip.addEventListener('pagehide', () => {
-          setPipWindow(null);
-          pipWindowRef.current = null;
-          pipContainerRef.current = null;
-        });
-
-        pipContainerRef.current = container;
-        setPipWindow(pip);
-        pipWindowRef.current = pip;
-        return true;
-      } catch (pipErr: any) {
-        console.warn('Document Picture-in-Picture request rejected or failed:', pipErr);
-      }
-    }
-
-    // Fallback: lightweight popup window
     try {
-      const left = Math.max(0, window.screen.availWidth - targetWidth - 20);
-      const top = Math.max(0, window.screen.availHeight - targetHeight - 40);
-      const popup = window.open(
-        '',
-        'design_orbit_floating_timer',
-        `width=${targetWidth},height=${targetHeight},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`
-      );
+      // Try Document Picture-in-Picture API first (Chrome 116+, Edge 116+)
+      if ('documentPictureInPicture' in window && (window as any).documentPictureInPicture?.requestWindow) {
+        try {
+          const pip = await (window as any).documentPictureInPicture.requestWindow({
+            width: targetWidth,
+            height: targetHeight,
+          });
 
-      if (popup) {
-        injectStylesIntoWindow(popup);
-        const container = popup.document.createElement('div');
-        container.id = 'pip-portal-root';
-        popup.document.body.appendChild(container);
+          injectStylesIntoWindow(pip);
 
-        popup.addEventListener('pagehide', () => {
-          setPipWindow(null);
-          pipWindowRef.current = null;
-          pipContainerRef.current = null;
-        });
+          const container = pip.document.createElement('div');
+          container.id = 'pip-portal-root';
+          pip.document.body.appendChild(container);
 
-        pipContainerRef.current = container;
-        setPipWindow(popup);
-        pipWindowRef.current = popup;
-        return true;
+          pip.addEventListener('pagehide', () => {
+            setPipWindow(null);
+            pipWindowRef.current = null;
+            pipContainerRef.current = null;
+          });
+
+          pipContainerRef.current = container;
+          setPipWindow(pip);
+          pipWindowRef.current = pip;
+          return true;
+        } catch (pipErr: any) {
+          console.warn('Document Picture-in-Picture request rejected or failed:', pipErr);
+        }
       }
-    } catch (popupErr: any) {
-      console.warn('Popup window fallback failed:', popupErr);
-    }
 
-    return false;
-  }, [entries.length]);
+      // Fallback: lightweight popup window
+      try {
+        const left = Math.max(0, window.screen.availWidth - targetWidth - 20);
+        const top = Math.max(0, window.screen.availHeight - targetHeight - 40);
+        const popup = window.open(
+          '',
+          'design_orbit_floating_timer',
+          `width=${targetWidth},height=${targetHeight},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`
+        );
+
+        if (popup) {
+          injectStylesIntoWindow(popup);
+          const container = popup.document.createElement('div');
+          container.id = 'pip-portal-root';
+          popup.document.body.appendChild(container);
+
+          popup.addEventListener('pagehide', () => {
+            setPipWindow(null);
+            pipWindowRef.current = null;
+            pipContainerRef.current = null;
+          });
+
+          pipContainerRef.current = container;
+          setPipWindow(popup);
+          pipWindowRef.current = popup;
+          return true;
+        }
+      } catch (popupErr: any) {
+        console.warn('Popup window fallback failed:', popupErr);
+      }
+
+      return false;
+    } finally {
+      isOpeningPipRef.current = false;
+    }
+  }, []);
 
   // Dynamically adjust PiP window size as tasks change
   useEffect(() => {
@@ -532,6 +561,7 @@ export function FloatingPipTimer() {
       }
 
       if (action === 'stop') {
+        recentlyStartedRef.current.delete(id);
         // Immediately remove stopped task from PiP window and resize
         setEntries(prev => {
           const remaining = prev.filter(item => item.id !== id);
@@ -560,6 +590,7 @@ export function FloatingPipTimer() {
       }
 
       if (action === 'start' || action === 'resume') {
+        recentlyStartedRef.current.set(id, Date.now());
         setEntries(prev => {
           const exists = prev.some(item => item.id === id);
           const next = exists
@@ -618,24 +649,16 @@ export function FloatingPipTimer() {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        const hasActive = entries.some(e => Boolean(e.timer_started_at));
+        const hasActive = entriesRef.current.some(e => Boolean(e.timer_started_at));
         if (hasActive && (!pipWindowRef.current || pipWindowRef.current.closed)) {
           openPipWindow().catch(() => {});
         }
       }
     };
 
-    const handleWindowBlur = () => {
-      const hasActive = entries.some(e => Boolean(e.timer_started_at));
-      if (hasActive && (!pipWindowRef.current || pipWindowRef.current.closed)) {
-        openPipWindow().catch(() => {});
-      }
-    };
-
     window.addEventListener('design_orbit_timer_event', handleCustomEvent);
     window.addEventListener('storage', handleStorage);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', handleWindowBlur);
 
     const pollInterval = setInterval(refreshTimers, 2500);
 
@@ -643,7 +666,6 @@ export function FloatingPipTimer() {
       window.removeEventListener('design_orbit_timer_event', handleCustomEvent);
       window.removeEventListener('storage', handleStorage);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('blur', handleWindowBlur);
       if (channel) {
         try {
           channel.close();
@@ -651,7 +673,7 @@ export function FloatingPipTimer() {
       }
       clearInterval(pollInterval);
     };
-  }, [refreshTimers, entries, openPipWindow, closePipWindow]);
+  }, [refreshTimers, openPipWindow, closePipWindow]);
 
   // Unthrottled live stopwatch ticker (runs across Web Worker, main tab, and PiP window)
   useEffect(() => {
@@ -771,11 +793,17 @@ export function FloatingPipTimer() {
       if (entry.timer_started_at) {
         await stopWorkEntryTimer(entry.id, entry, undefined, 'stop');
       }
-      setEntries(prev => prev.filter(e => e.id !== entry.id));
+      recentlyStartedRef.current.delete(entry.id);
+      const remaining = entriesRef.current.filter(e => e.id !== entry.id);
+      setEntries(remaining);
       showToast(`Finalized: ${entry.client?.name || 'Deliverable'}`, 'success');
 
-      if (entries.length <= 1) {
+      if (remaining.length === 0) {
         closePipWindow();
+      } else if (pipWindowRef.current && !pipWindowRef.current.closed) {
+        try {
+          pipWindowRef.current.resizeTo(320, computeTargetHeight(remaining.length));
+        } catch (e) {}
       }
     } catch (err: any) {
       showToast(err.message || 'Failed to stop timer', 'error');
