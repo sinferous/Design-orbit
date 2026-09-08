@@ -3,10 +3,39 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { fetchWorkEntriesByDate, deleteWorkEntry, fetchProfiles, getLoggedInUser } from '@/lib/services/work-entry';
+import {
+  fetchWorkEntriesByDate,
+  deleteWorkEntry,
+  fetchProfiles,
+  getLoggedInUser,
+  startWorkEntryTimer,
+  stopWorkEntryTimer,
+  calculateWorkEntrySeconds,
+  formatWorkEntryDuration,
+  formatWorkEntryStopwatch,
+} from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
 
-import { Plus, ChevronLeft, ChevronRight, Calendar, Edit2, Trash2, CheckCircle2, Clock, User, Check, AlertCircle, Copy, ExternalLink, Building2, Mail, ChevronDown } from 'lucide-react';
+import {
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  Edit2,
+  Trash2,
+  CheckCircle2,
+  Clock,
+  User,
+  Check,
+  AlertCircle,
+  Copy,
+  ExternalLink,
+  Building2,
+  Mail,
+  ChevronDown,
+  Play,
+  Square,
+} from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { EmailDayLogModal } from '@/components/work/EmailDayLogModal';
 import { generateEmailTableHtml, generateCleanPlainText, copyToClipboardWithHtml } from '@/lib/services/email-formatter';
@@ -36,6 +65,8 @@ export default function MyWorkPage() {
   const [entries, setEntries] = useState<WorkEntryWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [timerLoadingId, setTimerLoadingId] = useState<string | null>(null);
+  const [nowMs, setNowMs] = useState<number>(Date.now());
   const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
@@ -167,6 +198,93 @@ export default function MyWorkPage() {
     });
   };
 
+  // Real-time interval ticking whenever at least one work entry timer is actively running
+  const hasRunningTimer = entries.some(e => Boolean(e.timer_started_at));
+  useEffect(() => {
+    if (!hasRunningTimer) return;
+    const interval = setInterval(() => {
+      setNowMs(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [hasRunningTimer]);
+
+  // Sync state when PiP or other components pause/start timers
+  useEffect(() => {
+    const handleTimerEvent = (e: any) => {
+      const { id, entry } = e.detail || {};
+      if (id && entry) {
+        setEntries(prev => prev.map(item => (item.id === id ? { ...item, ...entry } : item)));
+      } else {
+        loadEntries();
+      }
+    };
+    window.addEventListener('design_orbit_timer_event', handleTimerEvent);
+    return () => window.removeEventListener('design_orbit_timer_event', handleTimerEvent);
+  }, []);
+
+  const handleStartTimer = async (entry: WorkEntryWithDetails) => {
+    if (!activeProfile) return;
+    setTimerLoadingId(entry.id);
+    const nowIso = new Date().toISOString();
+    const now = Date.now();
+
+    // Directly open Picture-in-Picture window using this user click gesture
+    if (typeof window !== 'undefined') {
+      window.designOrbitPipManager?.openPip().catch(() => {});
+    }
+
+    // Optimistic state: start this timer without stopping other running timers
+    setEntries(prev =>
+      prev.map(e => (e.id === entry.id ? { ...e, timer_started_at: nowIso } : e))
+    );
+
+    try {
+      const updated = await startWorkEntryTimer(entry.id, entries, activeProfile.id);
+      setEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
+      showToast(`Timer started: "${entry.description.slice(0, 24)}${entry.description.length > 24 ? '...' : ''}"`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to start timer', 'error');
+      loadEntries();
+    } finally {
+      setTimerLoadingId(null);
+    }
+  };
+
+  const handleStopTimer = async (entry: WorkEntryWithDetails) => {
+    if (!activeProfile) return;
+    setTimerLoadingId(entry.id);
+    const now = Date.now();
+
+    let additional = 0;
+    if (entry.timer_started_at) {
+      const started = new Date(entry.timer_started_at).getTime();
+      if (!isNaN(started) && started > 0) {
+        additional = Math.max(0, Math.floor((now - started) / 1000));
+      }
+    }
+    const newTotal = (entry.time_spent_seconds || 0) + additional;
+
+    // Optimistic state: set stopped
+    setEntries(prev =>
+      prev.map(e =>
+        e.id === entry.id
+          ? { ...e, timer_started_at: null, time_spent_seconds: newTotal }
+          : e
+      )
+    );
+
+    try {
+      const updated = await stopWorkEntryTimer(entry.id, entry, activeProfile.id);
+      setEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
+      showToast(`Timer stopped! Recorded ${formatWorkEntryDuration(newTotal)}.`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to stop timer', 'error');
+      loadEntries();
+    } finally {
+      setTimerLoadingId(null);
+    }
+  };
+
   const handleQuickCopy = async () => {
     if (entries.length === 0) {
       showToast('No entries to copy.', 'error');
@@ -187,6 +305,8 @@ export default function MyWorkPage() {
 
   const totalDone = entries.reduce((acc, curr) => acc + curr.quantity_done, 0);
   const totalApproved = entries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
+  const totalTrackedSeconds = entries.reduce((acc, curr) => acc + calculateWorkEntrySeconds(curr, nowMs), 0);
+  const activeTimersCount = entries.filter(e => Boolean(e.timer_started_at)).length;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -439,11 +559,11 @@ export default function MyWorkPage() {
         </div>
 
         {/* Daily Summary Stat Tiles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600">
-                <Clock className="w-5 h-5" />
+                <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quantity Done</div>
@@ -456,7 +576,7 @@ export default function MyWorkPage() {
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
-                <CheckCircle2 className="w-5 h-5" />
+                <Check className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quantity Approved</div>
@@ -465,6 +585,30 @@ export default function MyWorkPage() {
             </div>
             <span className="text-xs text-teal-600 font-semibold">
               {totalDone > 0 ? `${Math.round((totalApproved / totalDone) * 100)}% approved` : '0%'}
+            </span>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Time Tracked</div>
+                <div className="text-2xl font-extrabold text-amber-900 font-mono">
+                  {formatWorkEntryDuration(totalTrackedSeconds)}
+                </div>
+              </div>
+            </div>
+            <span className="text-xs text-amber-700 font-semibold">
+              {activeTimersCount > 0 ? (
+                <span className="flex items-center space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-red-600 animate-ping inline-block" />
+                  <span>{activeTimersCount} Running</span>
+                </span>
+              ) : (
+                'All Paused'
+              )}
             </span>
           </div>
         </div>
@@ -554,7 +698,11 @@ export default function MyWorkPage() {
                           return (
                             <div
                               key={entry.id}
-                              className="p-5 hover:bg-slate-50/60 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+                              className={`p-5 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                                entry.timer_started_at
+                                  ? 'bg-amber-50/40 border-l-4 border-l-amber-500 shadow-2xs'
+                                  : 'hover:bg-slate-50/60'
+                              }`}
                             >
                               {/* Left Section: Work Type & Description */}
                               <div className="space-y-2 flex-1">
@@ -566,6 +714,13 @@ export default function MyWorkPage() {
                                   {selectedUserFilter !== 'my_work' && entry.profile && (
                                     <span className="text-xs text-slate-500 font-medium">
                                       By <strong className="text-slate-800">{entry.profile.name}</strong>
+                                    </span>
+                                  )}
+
+                                  {entry.timer_started_at && (
+                                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                                      <span>Timer Active</span>
                                     </span>
                                   )}
                                 </div>
@@ -599,8 +754,8 @@ export default function MyWorkPage() {
                                 )}
                               </div>
 
-                              {/* Right Section: Quantities, Status & Action Icons */}
-                              <div className="flex items-center space-x-6 justify-between md:justify-end">
+                              {/* Right Section: Quantities, Status, Timer & Action Icons */}
+                              <div className="flex flex-wrap items-center space-x-3 sm:space-x-5 justify-between md:justify-end gap-y-2">
                                 <div className="flex items-center space-x-4 text-xs">
                                   <div className="text-center">
                                     <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Done</div>
@@ -633,6 +788,79 @@ export default function MyWorkPage() {
                                     </>
                                   )}
                                 </span>
+
+                                {/* Timer Controls: Start / Stop & Stopwatch */}
+                                {isMyEntry ? (
+                                  <div className="flex items-center space-x-1.5 shrink-0">
+                                    {entry.timer_started_at ? (
+                                      // Active running timer: live clock + Stop button
+                                      <div className="flex items-center space-x-1.5">
+                                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg font-mono text-xs font-bold shadow-2xs">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                                          <Clock className="w-3 h-3 text-amber-700" />
+                                          <span>{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleStopTimer(entry)}
+                                          disabled={timerLoadingId === entry.id}
+                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                          title="Stop timer and record time in DB"
+                                        >
+                                          <Square className="w-2.5 h-2.5 fill-current" />
+                                          <span>Stop</span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            if (typeof window !== 'undefined') {
+                                              window.designOrbitPipManager?.openPip();
+                                            }
+                                          }}
+                                          className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                                          title="Float timer outside browser (Picture-in-Picture)"
+                                        >
+                                          <ExternalLink className="w-3 h-3 text-slate-600" />
+                                          <span className="hidden sm:inline">Float PiP</span>
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      // Idle timer: Accumulated time badge + Start button
+                                      <div className="flex items-center space-x-1.5">
+                                        {calculateWorkEntrySeconds(entry, nowMs) > 0 && (
+                                          <span
+                                            title={`Total time tracked: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
+                                            className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-mono font-bold"
+                                          >
+                                            <Clock className="w-3 h-3 text-slate-500" />
+                                            <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
+                                          </span>
+                                        )}
+                                        <button
+                                          type="button"
+                                          onClick={() => handleStartTimer(entry)}
+                                          disabled={timerLoadingId === entry.id}
+                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 hover:border-sky-300 rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                          title="Start timer for this task"
+                                        >
+                                          <Play className="w-2.5 h-2.5 fill-sky-600" />
+                                          <span>Start</span>
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  // Read-only time spent badge for other teammates
+                                  calculateWorkEntrySeconds(entry, nowMs) > 0 && (
+                                    <span
+                                      title={`Time spent: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
+                                      className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-xs font-mono font-medium"
+                                    >
+                                      <Clock className="w-3 h-3 text-slate-400" />
+                                      <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
+                                    </span>
+                                  )
+                                )}
 
                                 {/* Actions: Only visible and editable on the user's OWN work! */}
                                 {isMyEntry && (

@@ -26,6 +26,8 @@ export interface WorkEntryFormData {
   project_url?: string;
   notes?: string;
   status?: WorkStatus;
+  time_spent_seconds?: number;
+  timer_started_at?: string | null;
 }
 
 export interface TodoItem {
@@ -34,6 +36,8 @@ export interface TodoItem {
   task: string;
   is_completed: boolean;
   position?: number;
+  time_spent_seconds?: number;
+  timer_started_at?: string | null;
   created_at: string;
   updated_at?: string;
 }

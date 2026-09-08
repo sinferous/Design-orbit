@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { getOverallReportData, OverallSummaryItem, exportToCSV } from '@/lib/services/reports';
-import { Download, Users, Layers, Briefcase, BarChart3 } from 'lucide-react';
+import { getOverallReportData, OverallSummaryItem, exportToCSV, formatReportTime } from '@/lib/services/reports';
+import { Download, Users, Layers, Briefcase, BarChart3, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function OverallReportPage() {
@@ -37,6 +37,8 @@ export default function OverallReportPage() {
       'Total Created': item.totalDone,
       'Total Approved': item.totalApproved,
       'Approval Rate (%)': `${item.approvalRate}%`,
+      'Total Time Spent': formatReportTime(item.totalTimeSeconds || 0),
+      'Decimal Hours': ((item.totalTimeSeconds || 0) / 3600).toFixed(2),
     }));
     exportToCSV(`Overall_Report_grouped_by_${groupBy}`, csvRows);
     showToast('Exported Overall Analytics CSV successfully!', 'success');
@@ -71,6 +73,13 @@ export default function OverallReportPage() {
               className="py-3 text-xs sm:text-sm font-bold text-sky-600 border-b-2 border-sky-600 whitespace-nowrap"
             >
               Overall / All-Time
+            </Link>
+            <Link
+              href="/reports/billing"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 whitespace-nowrap"
+            >
+              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <span>Client Time Tracking</span>
             </Link>
           </div>
 
@@ -171,12 +180,22 @@ export default function OverallReportPage() {
 
                 return (
                   <div key={item.id} className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-1">
                       <span className="font-bold text-slate-900 text-sm">{item.name}</span>
-                      <span className="text-slate-600 font-medium">
-                        Created: <strong className="text-slate-900 font-extrabold">{item.totalDone}</strong> | Approved:{' '}
-                        <strong className="text-teal-700 font-extrabold">{item.totalApproved}</strong> ({item.approvalRate}%)
-                      </span>
+                      <div className="flex items-center space-x-3 text-slate-600 font-medium">
+                        <span>
+                          Created: <strong className="text-slate-900 font-extrabold">{item.totalDone}</strong>
+                        </span>
+                        <span>
+                          Approved: <strong className="text-teal-700 font-extrabold">{item.totalApproved}</strong> ({item.approvalRate}%)
+                        </span>
+                        {(item.totalTimeSeconds || 0) > 0 && (
+                          <span className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-mono font-bold flex items-center space-x-1">
+                            <Clock className="w-3 h-3 text-amber-600" />
+                            <span>{formatReportTime(item.totalTimeSeconds || 0)}</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex relative">

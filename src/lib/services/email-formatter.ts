@@ -45,7 +45,9 @@ export function generateEmailTableHtml(
         <td style="padding: 10px 12px; font-size: 13px; color: #334155; border-right: 1px solid #e2e8f0;">
           <span style="display: inline-block; padding: 2px 8px; background-color: #f1f5f9; border-radius: 4px; font-size: 12px; font-weight: 500;">${type}</span>
         </td>
-        <td style="padding: 10px 12px; font-size: 13px; color: #334155; line-height: 1.4; border-right: 1px solid #e2e8f0;">${desc}</td>
+        <td style="padding: 10px 12px; font-size: 13px; color: #334155; line-height: 1.4; border-right: 1px solid #e2e8f0;">
+          ${desc}
+        </td>
         <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; color: #0f172a; text-align: center; border-right: 1px solid #e2e8f0;">${qty}</td>
         <td style="padding: 10px 12px; text-align: center;">${linkHtml}</td>
       </tr>
@@ -133,7 +135,6 @@ export function generateGroupedEmailHtml(
       const linkHtml = url
         ? ` &mdash; <a href="${url}" target="_blank" style="color: #0284c7; font-weight: 600; text-decoration: underline; font-size: 12px;">View Deliverable &nearr;</a>`
         : '';
-
       return `
         <li style="margin-bottom: 8px; color: #334155; font-size: 13.5px; line-height: 1.5;">
           <strong style="color: #0f172a;">${type}</strong> (Qty: <strong>${item.quantity_done}</strong>): 
@@ -220,7 +221,6 @@ export function generateCleanPlainText(
       const type = item.work_type?.name || 'Task';
       const desc = item.description || '';
       const url = item.project_url || item.best_work_url;
-
       output += `  • ${type} (Qty: ${item.quantity_done}) - ${desc}\n`;
       if (url) {
         output += `    Project Link: ${url}\n`;

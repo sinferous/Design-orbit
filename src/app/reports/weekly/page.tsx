@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { getWeeklyReportData, getWeekRange, WeeklyUserSummary, exportToCSV } from '@/lib/services/reports';
+import { getWeeklyReportData, getWeekRange, WeeklyUserSummary, exportToCSV, formatReportTime } from '@/lib/services/reports';
 import { fetchWeeklyBestWorkRecords, saveWeeklyBestWorkLinkRecord } from '@/lib/services/work-entry';
-import { ChevronLeft, ChevronRight, Calendar, Download, ChevronDown, ChevronUp, Link as LinkIcon, Award, Sparkles, ExternalLink, Building2, Plus, Edit2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Download, ChevronDown, ChevronUp, Link as LinkIcon, Award, Sparkles, ExternalLink, Building2, Plus, Edit2, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { WeeklyBestWorkModal } from '@/components/reports/WeeklyBestWorkModal';
 
@@ -15,6 +15,7 @@ export default function WeeklyReportPage() {
   const [summaries, setSummaries] = useState<WeeklyUserSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  const [showTimeTracking, setShowTimeTracking] = useState(true);
 
   // Store weekly best work links per profile (persisted per week)
   const [bestWorkLinks, setBestWorkLinks] = useState<Record<string, string>>({});
@@ -221,6 +222,8 @@ export default function WeeklyReportPage() {
       'Total Created': s.totalCreated,
       'Total Approved': s.totalApproved,
       'Approval Rate (%)': `${s.approvalRate}%`,
+      'Total Time Spent': formatReportTime(s.totalTimeSeconds || 0),
+      'Time Spent (Hours)': ((s.totalTimeSeconds || 0) / 3600).toFixed(2),
       'Weekly Best Work Link': bestWorkLinks[s.profile.id] || '',
     }));
     exportToCSV(`Weekly_Report_${startDate}_to_${endDate}`, csvRows);
@@ -230,6 +233,7 @@ export default function WeeklyReportPage() {
   const grandTotalCreated = summaries.reduce((acc, curr) => acc + curr.totalCreated, 0);
   const grandTotalApproved = summaries.reduce((acc, curr) => acc + curr.totalApproved, 0);
   const grandApprovalRate = grandTotalCreated > 0 ? Math.round((grandTotalApproved / grandTotalCreated) * 100) : 0;
+  const grandTotalSeconds = summaries.reduce((acc, curr) => acc + (curr.totalTimeSeconds || 0), 0);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -257,16 +261,38 @@ export default function WeeklyReportPage() {
             >
               Overall / All-Time
             </Link>
+            <Link
+              href="/reports/billing"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 whitespace-nowrap"
+            >
+              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <span>Client Time Tracking</span>
+            </Link>
           </div>
 
-          <button
-            onClick={handleExportCSV}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap"
-          >
-            <Download className="w-4 h-4 text-slate-500" />
-            <span className="hidden sm:inline">Export CSV</span>
-            <span className="sm:hidden">CSV</span>
-          </button>
+          <div className="flex items-center space-x-2 shrink-0">
+            <button
+              onClick={() => setShowTimeTracking(!showTimeTracking)}
+              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer whitespace-nowrap ${
+                showTimeTracking
+                  ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-2xs'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+              }`}
+              title="Toggle Time Tracking Display"
+            >
+              <Clock className="w-3.5 h-3.5 text-amber-600" />
+              <span>{showTimeTracking ? 'Time: Visible' : 'Show Time'}</span>
+            </button>
+
+            <button
+              onClick={handleExportCSV}
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <Download className="w-4 h-4 text-slate-500" />
+              <span className="hidden sm:inline">Export CSV</span>
+              <span className="sm:hidden">CSV</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -465,7 +491,7 @@ export default function WeeklyReportPage() {
         </div>
 
         {/* Weekly Team Overview Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Team Total Created</div>
             <div className="text-3xl font-extrabold text-slate-900">{grandTotalCreated}</div>
@@ -476,6 +502,15 @@ export default function WeeklyReportPage() {
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Team Total Approved</div>
             <div className="text-3xl font-extrabold text-teal-700">{grandTotalApproved}</div>
             <p className="text-xs text-emerald-600 font-medium">{grandApprovalRate}% overall approval rate</p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Time Tracked</div>
+            <div className="text-3xl font-extrabold text-amber-700 flex items-center space-x-1.5">
+              <Clock className="w-6 h-6 text-amber-600" />
+              <span>{formatReportTime(grandTotalSeconds)}</span>
+            </div>
+            <p className="text-xs text-slate-500">Total billable deliverable time</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
@@ -524,6 +559,16 @@ export default function WeeklyReportPage() {
                     </div>
 
                     <div className="flex items-center space-x-6 justify-between lg:justify-end">
+                      {showTimeTracking && (
+                        <div className="text-right">
+                          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Time Tracked</div>
+                          <div className="text-lg font-bold text-amber-700 flex items-center justify-end space-x-1">
+                            <Clock className="w-4 h-4 text-amber-600" />
+                            <span>{formatReportTime(s.totalTimeSeconds || 0)}</span>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="text-right">
                         <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Created / Approved</div>
                         <div className="text-lg font-bold text-slate-900">
@@ -673,9 +718,16 @@ export default function WeeklyReportPage() {
                                           {clientName}
                                         </span>
                                       </div>
-                                      <span className="text-[11px] font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
-                                        {items.length} item(s)
-                                      </span>
+                                      <div className="flex items-center space-x-2">
+                                        {showTimeTracking && (
+                                          <span className="text-[11px] font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                                            ⏱ {formatReportTime(items.reduce((acc, curr) => acc + (curr.time_spent_seconds || 0), 0))}
+                                          </span>
+                                        )}
+                                        <span className="text-[11px] font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
+                                          {items.length} item(s)
+                                        </span>
+                                      </div>
                                     </div>
 
                                     {/* Entries for this Client */}
@@ -692,6 +744,11 @@ export default function WeeklyReportPage() {
                                             <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-semibold text-[11px]">
                                               {entry.work_type?.name || 'Work'}
                                             </span>
+                                            {showTimeTracking && (entry.time_spent_seconds || 0) > 0 && (
+                                              <span className="text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded text-[11px] font-mono font-bold">
+                                                ⏱ {formatReportTime(entry.time_spent_seconds || 0)}
+                                              </span>
+                                            )}
                                             <span className="text-slate-900 font-medium">{entry.description}</span>
                                             {(entry.project_url || entry.best_work_url) && (
                                               <a

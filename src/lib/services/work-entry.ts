@@ -246,6 +246,17 @@ export async function fetchWorkEntriesByDate(dateStr: string, userId?: string): 
 
       const { data, error } = await query;
       if (!error && data) {
+        if (typeof window !== 'undefined') {
+          return (data as WorkEntryWithDetails[]).map(e => {
+            const localStarted = localStorage.getItem(`work_timer_started_${e.id}`);
+            const localSpent = localStorage.getItem(`work_time_spent_${e.id}`);
+            return {
+              ...e,
+              timer_started_at: e.timer_started_at ?? localStarted ?? null,
+              time_spent_seconds: e.time_spent_seconds ?? (localSpent ? Number(localSpent) : 0),
+            };
+          });
+        }
         return data as WorkEntryWithDetails[];
       }
     } catch (err) {
@@ -413,12 +424,29 @@ export async function createWorkEntriesBatch(formDatas: WorkEntryFormData[]): Pr
         best_work_url: urlValue,
         notes: formData.notes || null,
         status: formData.status || 'Submitted',
+        time_spent_seconds: formData.time_spent_seconds || 0,
+        timer_started_at: formData.timer_started_at || null,
       });
     }
 
-    const { data, error } = await (supabase.from('work_entries') as any)
+    let { data, error } = await (supabase.from('work_entries') as any)
       .insert(insertPayload)
       .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)');
+
+    // Graceful fallback if time columns are missing in DB schema cache yet
+    if (error && (error.message?.includes('time_spent_seconds') || error.message?.includes('timer_started_at'))) {
+      const fallbackPayload = insertPayload.map(item => {
+        const copy = { ...item };
+        delete (copy as any).time_spent_seconds;
+        delete (copy as any).timer_started_at;
+        return copy;
+      });
+      const retry = await (supabase.from('work_entries') as any)
+        .insert(fallbackPayload)
+        .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)');
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) {
       console.error('Supabase work_entries insert error:', error.message);
@@ -914,4 +942,259 @@ export async function saveWeeklyBestWorkLinkRecord(profileId: string, weekStartD
       console.warn('Supabase saveWeeklyBestWorkLinkRecord notice:', err);
     }
   }
+}
+
+// ----------------------------------------------------
+// WORK ENTRY TIMER TRACKING SERVICE METHODS
+// ----------------------------------------------------
+
+export function calculateWorkEntrySeconds(
+  entry: WorkEntryWithDetails | WorkEntry,
+  nowMs: number = Date.now()
+): number {
+  let total = entry.time_spent_seconds || 0;
+  if (entry.timer_started_at) {
+    const started = new Date(entry.timer_started_at).getTime();
+    if (!isNaN(started) && started > 0) {
+      const elapsed = Math.max(0, Math.floor((nowMs - started) / 1000));
+      total += elapsed;
+    }
+  }
+  return total;
+}
+
+export function formatWorkEntryDuration(totalSeconds: number): string {
+  if (totalSeconds <= 0) return '0s';
+  const hrs = Math.floor(totalSeconds / 3600);
+  const mins = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+
+  if (hrs > 0) {
+    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  }
+  if (mins > 0) {
+    return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+  }
+  return `${secs}s`;
+}
+
+export function formatWorkEntryStopwatch(totalSeconds: number): string {
+  const hrs = Math.floor(totalSeconds / 3600);
+  const mins = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  if (hrs > 0) {
+    return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+  }
+  return `${pad(mins)}:${pad(secs)}`;
+}
+
+export async function startWorkEntryTimer(
+  id: string,
+  activeEntries: WorkEntryWithDetails[] = [],
+  userId?: string
+): Promise<WorkEntryWithDetails> {
+  const nowIso = new Date().toISOString();
+  const nowMs = Date.now();
+
+  if (isSupabaseConfigured()) {
+    const supabase = createClient();
+
+    // Start this work entry's timer (supports multiple simultaneous active timers)
+    const { data, error } = await (supabase.from('work_entries') as any)
+      .update({
+        timer_started_at: nowIso,
+        updated_at: nowIso,
+      })
+      .eq('id', id)
+      .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
+      .single();
+
+    if (error) {
+      if (
+        error.message?.includes('timer_started_at') ||
+        error.message?.includes('time_spent_seconds') ||
+        error.message?.toLowerCase().includes('schema cache')
+      ) {
+        console.warn('Supabase work_entries timer columns not migrated yet. Falling back to local state:', error.message);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(`work_timer_started_${id}`, nowIso);
+        }
+        const existing = activeEntries.find(e => e.id === id);
+        return {
+          ...(existing || {}),
+          id,
+          timer_started_at: nowIso,
+        } as WorkEntryWithDetails;
+      }
+      console.error('Supabase startWorkEntryTimer error:', error.message);
+      throw new Error(`Database Error: ${error.message}`);
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`work_timer_started_${id}`, nowIso);
+      window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'start', entry: data } }));
+    }
+
+    const allEntries = getStoredMockEntries();
+    const target = allEntries.find(e => e.id === id);
+    if (target) {
+      target.timer_started_at = nowIso;
+      saveStoredMockEntries(allEntries);
+    }
+
+    return data as WorkEntryWithDetails;
+  }
+
+  // Local offline fallback
+  const allEntries = getStoredMockEntries();
+  const target = allEntries.find(e => e.id === id);
+  if (!target) throw new Error('Work entry not found');
+
+  target.timer_started_at = nowIso;
+  saveStoredMockEntries(allEntries);
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'start', entry: target } }));
+  }
+
+  return target;
+}
+
+export async function stopWorkEntryTimer(
+  id: string,
+  currentEntry: WorkEntryWithDetails,
+  userId?: string
+): Promise<WorkEntryWithDetails> {
+  const nowIso = new Date().toISOString();
+  const nowMs = Date.now();
+
+  let additional = 0;
+  if (currentEntry.timer_started_at) {
+    const started = new Date(currentEntry.timer_started_at).getTime();
+    if (!isNaN(started) && started > 0) {
+      additional = Math.max(0, Math.floor((nowMs - started) / 1000));
+    }
+  }
+
+  const newTotalSeconds = (currentEntry.time_spent_seconds || 0) + additional;
+
+  if (isSupabaseConfigured()) {
+    const supabase = createClient();
+    const { data, error } = await (supabase.from('work_entries') as any)
+      .update({
+        time_spent_seconds: newTotalSeconds,
+        timer_started_at: null,
+        updated_at: nowIso,
+      })
+      .eq('id', id)
+      .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
+      .single();
+
+    if (error) {
+      if (
+        error.message?.includes('timer_started_at') ||
+        error.message?.includes('time_spent_seconds') ||
+        error.message?.toLowerCase().includes('schema cache')
+      ) {
+        console.warn('Supabase work_entries timer columns not migrated yet. Falling back to local state:', error.message);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(`work_timer_started_${id}`);
+          localStorage.setItem(`work_time_spent_${id}`, String(newTotalSeconds));
+        }
+        return {
+          ...currentEntry,
+          time_spent_seconds: newTotalSeconds,
+          timer_started_at: null,
+        };
+      }
+      console.error('Supabase stopWorkEntryTimer error:', error.message);
+      throw new Error(`Database Error: ${error.message}`);
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`work_timer_started_${id}`);
+      localStorage.setItem(`work_time_spent_${id}`, String(newTotalSeconds));
+      window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'stop', entry: data } }));
+    }
+
+    // Also update local mock store so both local & Supabase are in sync
+    const allEntries = getStoredMockEntries();
+    const target = allEntries.find(e => e.id === id);
+    if (target) {
+      target.time_spent_seconds = newTotalSeconds;
+      target.timer_started_at = null;
+      saveStoredMockEntries(allEntries);
+    }
+
+    return data as WorkEntryWithDetails;
+  }
+
+  // Local offline fallback
+  const allEntries = getStoredMockEntries();
+  const target = allEntries.find(e => e.id === id);
+  if (!target) throw new Error('Work entry not found');
+
+  target.time_spent_seconds = newTotalSeconds;
+  target.timer_started_at = null;
+  saveStoredMockEntries(allEntries);
+
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(`work_timer_started_${id}`);
+    localStorage.setItem(`work_time_spent_${id}`, String(newTotalSeconds));
+    window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'stop', entry: target } }));
+  }
+
+  return target;
+}
+
+export async function getActiveRunningWorkEntries(userId?: string): Promise<WorkEntryWithDetails[]> {
+  const activeEntries: WorkEntryWithDetails[] = [];
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      let query = (supabase.from('work_entries') as any)
+        .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
+        .not('timer_started_at', 'is', null)
+        .order('timer_started_at', { ascending: false });
+
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
+      if (!error && Array.isArray(data) && data.length > 0) {
+        return data as WorkEntryWithDetails[];
+      }
+    } catch (err) {
+      console.warn('getActiveRunningWorkEntries notice:', err);
+    }
+  }
+
+  // Check localStorage for fallback active timers
+  if (typeof window !== 'undefined') {
+    const activeIds: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('work_timer_started_')) {
+        const entryId = key.replace('work_timer_started_', '');
+        activeIds.push(entryId);
+      }
+    }
+
+    if (activeIds.length > 0) {
+      const all = getStoredMockEntries();
+      const matched = all.filter(e => activeIds.includes(e.id)).map(e => ({
+        ...e,
+        timer_started_at: localStorage.getItem(`work_timer_started_${e.id}`) || e.timer_started_at,
+        time_spent_seconds: Number(localStorage.getItem(`work_time_spent_${e.id}`)) || e.time_spent_seconds || 0,
+      }));
+      if (matched.length > 0) return matched;
+    }
+  }
+
+  const all = getStoredMockEntries();
+  return all.filter(e => Boolean(e.timer_started_at));
 }

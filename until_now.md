@@ -122,13 +122,42 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Native Drag & Drop Reordering**: Added drag grip handles (`⋮⋮`) with native HTML5 drag-and-drop support to freely reorder tasks up and down with instant database synchronization.
   - **Optimal 65% / 35% Dashboard Layout**: Proportioned the main operational grid to **65% Today's Work Log** and **35% Daily Tasks & To-Do List**.
   - **Elevated Quick Navigation Launchpad**: Positioned the 5-card Application Quick Navigation launchpad directly below the 4 stat cards.
+- [x] **Task Time Tracking with Start & Stop Timers (`TodoListWidget.tsx`, `todo.ts`, `010_add_timer_to_todos.sql`)**:
+  - **Database Persistence Table Columns (`public.todos`)**: Created SQL Migration `010_add_timer_to_todos.sql` adding `time_spent_seconds INT NOT NULL DEFAULT 0` and `timer_started_at TIMESTAMPTZ DEFAULT NULL` with indexes.
+  - **Real-Time Start & Stop Controls**: Added interactive **`▶ Start`** and **`⏹ Stop`** controls next to each personal task item.
+  - **Live Stopwatch & Visual Status**: While active, displays a high-contrast pulsating stopwatch badge (`⏱️ 00:04:12`) ticking every second and turns the task row into an amber active focus state.
+  - **Survives Browser Navigation & Reloads**: Because `timer_started_at` is timestamped in the database, refreshing the browser or closing the tab preserves the timer and accurately calculates elapsed seconds upon reopening.
+  - **Auto-Stop on Task Completion**: Checking a task as complete automatically stops any running timer and commits accumulated seconds to `time_spent_seconds`.
+  - **Accumulated Time Badge**: Stopped/completed tasks display a formatted duration tag (e.g. `⏱️ 45m 20s` or `⏱️ 1h 15m`).
+  - **Total Logged Time Header**: Shows a dedicated summary badge in the widget header displaying the total time tracked across all tasks.
+- [x] **Daily Work Entry Time Tracking with Start & Stop Controls (`/work`, `/dashboard`, `work-entry.ts`, `011_add_timer_to_work_entries.sql`)**:
+  - **Database Persistence Table Columns (`public.work_entries`)**: Created SQL Migration `011_add_timer_to_work_entries.sql` adding `time_spent_seconds INT NOT NULL DEFAULT 0` and `timer_started_at TIMESTAMPTZ DEFAULT NULL` with index on `timer_started_at`.
+  - **Direct Deliverable Time Tracking**: Each created work entry (e.g. Statics, Videos, Websites logged under clients) has a dedicated **`▶ Start`** and **`⏹ Stop`** button.
+  - **Live Stopwatch & Real-Time Row Focus**: When active, displays a pulsing stopwatch clock (`⏱️ 00:04:12`) with an animated red beacon and gives the work entry row a warm amber active border and background.
+  - **Simultaneous Multi-Task Timers**: Designers can run 2 or more task timers simultaneously (e.g. tracking video rendering in the background while designing static banners at the same time).
+  - **Accumulated Duration Badges**: Completed or paused deliverables display formatted duration tags (e.g. `⏱️ 45m 20s` or `⏱️ 1h 30m`).
+  - **Total Time Tracked Summary Tile**: Added a 3rd summary stat tile on the Daily Work Log (`/work`) calculating the cumulative time spent across all client deliverables today.
+  - **Dashboard Today's Work Log Integration**: Interactive timer controls and live stopwatch badges are also directly available in the 65% **Today's Work Log** widget on [`/dashboard`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx).
+  - **Email & Clipboard Day Log Integration**: All exported formatted email tables and grouped plain-text summaries automatically display the tracked time per deliverable.
 - [x] **Team Work Log Ownership & Permission Security (`/work` & `/work/[id]`)**:
   - **Removed Edit & Delete Buttons on Others' Work**: In Team Work Log, action buttons are only visible on work items created by the logged-in user.
   - **Direct Edit Route Protection (`/work/[id]`)**: Guarded with ownership checks displaying an Access Denied notice if a user attempts to edit another designer's entry.
-- [x] **Weekly Team Review Calendar & Date Cycle Optimization (`/reports/weekly` & `reports.ts`)**:
-  - **Timezone Drift Resolution**: Fixed the UTC `toISOString()` bug in the calendar picker that caused dates to shift backward by 1 day in local timezones (e.g. clicking on 2nd showing 1st).
-  - **Exact 7-Day Tuesday-to-Monday Cycle**: Enforced exact 7-day inclusive ranges across page loads, presets, and calendar selection (e.g. Tuesday Sep 1 to Monday Sep 7 = exactly 7 days).
-  - **Timezone-Safe Parsers**: Implemented `formatLocalDate` and `parseLocalDate` across weekly report data loops and calendar date generation.
+- [x] **Timer Architecture Refinement & Dedicated Reports**:
+  - **Removed Timers from Personal To-Do List**: Personal daily to-dos remain clean, focused checkable task items with drag-and-drop reordering.
+  - **Clean Daily Email Copy**: Daily summary email tables and plain-text summaries formatted without time clutter.
+  - **Admin Client Time Tracking Report (`/reports/billing`)**: Created dedicated billing/client time tracking report aggregating tracked time across clients, deliverables, and team members with rich calendar date range picker, presets, and steppers.
+  - **Pure Time Tracking (Zero Rate Modules)**: Time tracking strictly records hours, minutes, and decimal hours—completely decoupled from pricing or hourly rate inputs.
+
+### Phase 5 — Picture-in-Picture (PiP) Floating Desktop Timer (Completed)
+- [x] **Document Picture-in-Picture (PiP) Always-On-Top Mini-Window**:
+  - Built [`FloatingPipTimer.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/timer/FloatingPipTimer.tsx) mounted globally in [`RootLayout`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/layout.tsx).
+  - Uses the Chromium **Document Picture-in-Picture API** (`window.documentPictureInPicture.requestWindow()`) with fallback to lightweight desktop popups.
+  - Floats outside browser tabs in the bottom-right corner of Windows desktop, staying **always on top** over creative software (Photoshop, Illustrator, Premiere Pro, InDesign, Figma).
+  - **Automatic Pop Out**: PiP opens automatically when starting a task timer or when the designer switches tabs / leaves the browser window with running timers.
+  - **Dynamic Task-Based Height Sizing**: Automatically sizes to fit the exact amount of tasks (102px for 1 task, 165px for 2 tasks, 230px for 3 tasks) with zero empty black space.
+  - **Multi-Timer Support**: Supports running, monitoring, pausing, and resuming multiple deliverables simultaneously.
+  - **Embedded Dark Aesthetic**: Self-contained radial dark-mode styling (`#151d30` to `#090d16`), luminous amber LED digital stopwatch (`SF Mono` / `Roboto Mono`), pulsing emerald status beacon, client/deliverable badges, and sleek gradient action buttons (`⏸ Pause`, `▶ Start`, `⏹ Stop`, `Dock`).
+  - **Real-Time Two-Way Sync**: Instant bidirectional synchronization between PiP window, browser tab, and Supabase database.
 
 ---
 
@@ -137,7 +166,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
 - **Live URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
-- **Build Status**: `npm run build` compiled successfully with **0 errors across all 14 routes**.
+- **Build Status**: `npm run build` compiled successfully with **0 errors across all 15 routes**.
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`)
   - `/dashboard` → Production overview, live metrics, today's log (65%), private to-do list (35%), & quick navigation launchpad
@@ -147,6 +176,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - `/work` → Streamlined Personal & Team Daily Work Log with rich email table formatting, client grouping, & ownership security
   - `/work/new` → Multi-item client work entry form with quick client addition
   - `/work/[id]` → Edit existing work entry with strict ownership authorization guard
+  - `/reports/billing` → Dedicated Client Time Tracking & Work Hours Report for admin invoicing with rich calendar date range picker
   - `/reports/weekly` → Weekly Meeting Report with timezone-safe 7-day Tuesday-to-Monday cycle & weekly best work links
   - `/reports/monthly` → Monthly Summary report & breakdown tables
   - `/reports/overall` → All-time analytics & visual distribution charts

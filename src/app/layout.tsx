@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { CreativeBackground } from '@/components/ui/CreativeBackground';
 import { ToastProvider } from '@/components/ui/ToastContext';
+import { FloatingPipTimer } from '@/components/timer/FloatingPipTimer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
           <div className="relative z-10 flex-1 flex flex-col">
             {children}
           </div>
+          <FloatingPipTimer />
         </ToastProvider>
       </body>
     </html>

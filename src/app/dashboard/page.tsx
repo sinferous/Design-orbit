@@ -3,11 +3,38 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { fetchWorkEntriesByDate, fetchProfiles, getLoggedInUser, setLoggedInUser } from '@/lib/services/work-entry';
+import {
+  fetchWorkEntriesByDate,
+  fetchProfiles,
+  getLoggedInUser,
+  setLoggedInUser,
+  startWorkEntryTimer,
+  stopWorkEntryTimer,
+  calculateWorkEntrySeconds,
+  formatWorkEntryDuration,
+  formatWorkEntryStopwatch,
+} from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
 import { WorkEntryWithDetails } from '@/types';
-import { Plus, CheckCircle2, Clock, CalendarDays, ArrowUpRight, BarChart2, Layers, Users, PieChart, Sparkles, User, CheckSquare } from 'lucide-react';
+import {
+  Plus,
+  CheckCircle2,
+  Clock,
+  CalendarDays,
+  ArrowUpRight,
+  BarChart2,
+  Layers,
+  Users,
+  PieChart,
+  Sparkles,
+  User,
+  CheckSquare,
+  Play,
+  Square,
+  ExternalLink,
+} from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
+import { useToast } from '@/components/ui/ToastContext';
 
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -16,6 +43,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
   const [currentProfileId, setCurrentProfileId] = useState<string | undefined>(undefined);
+  const [nowMs, setNowMs] = useState<number>(Date.now());
+  const [timerLoadingId, setTimerLoadingId] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const [greeting, setGreeting] = useState('Good day');
   const [subtitle, setSubtitle] = useState('Here is your live daily activity and weekly work summary.');
@@ -91,6 +121,90 @@ export default function DashboardPage() {
 
     loadDashboardData();
   }, []);
+
+  // Real-time ticking effect whenever an entry timer is running
+  const hasRunningTimer = todayEntries.some(e => Boolean(e.timer_started_at));
+  useEffect(() => {
+    if (!hasRunningTimer) return;
+    const interval = setInterval(() => {
+      setNowMs(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [hasRunningTimer]);
+
+  // Sync state when PiP or other components pause/start timers
+  useEffect(() => {
+    const handleTimerEvent = (e: any) => {
+      const { id, entry } = e.detail || {};
+      if (id && entry) {
+        setTodayEntries(prev => prev.map(item => (item.id === id ? { ...item, ...entry } : item)));
+      } else if (id && e.detail?.action === 'stop') {
+        setTodayEntries(prev => prev.map(item => (item.id === id ? { ...item, timer_started_at: null } : item)));
+      }
+    };
+    window.addEventListener('design_orbit_timer_event', handleTimerEvent);
+    return () => window.removeEventListener('design_orbit_timer_event', handleTimerEvent);
+  }, []);
+
+  const handleStartTimer = async (entry: WorkEntryWithDetails) => {
+    if (!currentProfileId) return;
+    setTimerLoadingId(entry.id);
+    const nowIso = new Date().toISOString();
+    const now = Date.now();
+
+    // Directly open Picture-in-Picture window using user click gesture
+    if (typeof window !== 'undefined') {
+      window.designOrbitPipManager?.openPip().catch(() => {});
+    }
+
+    // Optimistic state: start this timer without pausing other active timers
+    setTodayEntries(prev =>
+      prev.map(e => (e.id === entry.id ? { ...e, timer_started_at: nowIso } : e))
+    );
+
+    try {
+      const updated = await startWorkEntryTimer(entry.id, todayEntries, currentProfileId);
+      setTodayEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
+      showToast(`Timer started: "${entry.description.slice(0, 24)}${entry.description.length > 24 ? '...' : ''}"`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to start timer', 'error');
+    } finally {
+      setTimerLoadingId(null);
+    }
+  };
+
+  const handleStopTimer = async (entry: WorkEntryWithDetails) => {
+    if (!currentProfileId) return;
+    setTimerLoadingId(entry.id);
+    const now = Date.now();
+
+    let additional = 0;
+    if (entry.timer_started_at) {
+      const started = new Date(entry.timer_started_at).getTime();
+      if (!isNaN(started) && started > 0) {
+        additional = Math.max(0, Math.floor((now - started) / 1000));
+      }
+    }
+    const newTotal = (entry.time_spent_seconds || 0) + additional;
+
+    setTodayEntries(prev =>
+      prev.map(e =>
+        e.id === entry.id
+          ? { ...e, timer_started_at: null, time_spent_seconds: newTotal }
+          : e
+      )
+    );
+
+    try {
+      const updated = await stopWorkEntryTimer(entry.id, entry, currentProfileId);
+      setTodayEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
+      showToast(`Timer stopped! Recorded ${formatWorkEntryDuration(newTotal)}.`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to stop timer', 'error');
+    } finally {
+      setTimerLoadingId(null);
+    }
+  };
 
   const todayDone = todayEntries.reduce((acc, curr) => acc + curr.quantity_done, 0);
   const todayApproved = todayEntries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
@@ -273,41 +387,122 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-3 flex-1 overflow-y-auto max-h-[460px] pr-1">
-                {todayEntries.map(entry => (
-                  <div
-                    key={entry.id}
-                    className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-sky-300 transition-colors"
-                  >
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                      {entry.profile && (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200 shadow-2xs">
-                          <User className="w-3 h-3 text-teal-600" />
-                          <span>By {entry.profile.name}</span>
+                {todayEntries.map(entry => {
+                  const isMyEntry = Boolean(
+                    currentProfileId && (entry.user_id === currentProfileId || entry.profile?.id === currentProfileId)
+                  );
+                  const isTimerRunning = Boolean(entry.timer_started_at);
+                  const liveSeconds = calculateWorkEntrySeconds(entry, nowMs);
+
+                  return (
+                    <div
+                      key={entry.id}
+                      className={`p-3.5 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-all ${
+                        isTimerRunning
+                          ? 'bg-amber-50/50 border-amber-300 ring-1 ring-amber-200/80 shadow-2xs'
+                          : 'bg-slate-50 border-slate-200 hover:border-sky-300'
+                      }`}
+                    >
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        {entry.profile && (
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200 shadow-2xs">
+                            <User className="w-3 h-3 text-teal-600" />
+                            <span>By {entry.profile.name}</span>
+                          </span>
+                        )}
+
+                        <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
+                          {entry.work_type?.name || 'Work'}
                         </span>
-                      )}
 
-                      <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
-                        {entry.work_type?.name || 'Work'}
-                      </span>
+                        {entry.client && (
+                          <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-200 text-slate-700">
+                            {entry.client.name}
+                          </span>
+                        )}
 
-                      {entry.client && (
-                        <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-200 text-slate-700">
-                          {entry.client.name}
+                        <span className="font-semibold text-slate-900">{entry.description}</span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center space-x-3 sm:space-x-4 shrink-0 text-slate-700">
+                        <span>Done: <strong>{entry.quantity_done}</strong></span>
+                        <span>Approved: <strong className="text-teal-700">{entry.quantity_approved}</strong></span>
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                          {entry.status}
                         </span>
-                      )}
 
-                      <span className="font-semibold text-slate-900">{entry.description}</span>
+                        {/* Timer Controls on Dashboard */}
+                        {isMyEntry ? (
+                          <div className="flex items-center space-x-1.5 shrink-0">
+                            {isTimerRunning ? (
+                              <div className="flex items-center space-x-1">
+                                <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded font-mono text-[11px] font-bold shadow-2xs">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                                  <span>{formatWorkEntryStopwatch(liveSeconds)}</span>
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleStopTimer(entry)}
+                                  disabled={timerLoadingId === entry.id}
+                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white rounded text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                  title="Stop timer and record time in DB"
+                                >
+                                  <Square className="w-2.5 h-2.5 fill-current" />
+                                  <span>Stop</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (typeof window !== 'undefined') {
+                                      window.designOrbitPipManager?.openPip();
+                                    }
+                                  }}
+                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                                  title="Float timer outside browser (Picture-in-Picture)"
+                                >
+                                  <ExternalLink className="w-2.5 h-2.5 text-slate-600" />
+                                  <span className="hidden sm:inline">Float PiP</span>
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center space-x-1">
+                                {liveSeconds > 0 && (
+                                  <span
+                                    title={`Time tracked: ${formatWorkEntryDuration(liveSeconds)}`}
+                                    className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded text-[10px] font-mono font-bold"
+                                  >
+                                    <Clock className="w-2.5 h-2.5 text-slate-500" />
+                                    <span>{formatWorkEntryDuration(liveSeconds)}</span>
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartTimer(entry)}
+                                  disabled={timerLoadingId === entry.id}
+                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 hover:border-sky-300 rounded text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                  title="Start timer for this task"
+                                >
+                                  <Play className="w-2.5 h-2.5 fill-sky-600" />
+                                  <span>Start</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          liveSeconds > 0 && (
+                            <span
+                              title={`Time spent: ${formatWorkEntryDuration(liveSeconds)}`}
+                              className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-mono font-medium"
+                            >
+                              <Clock className="w-2.5 h-2.5 text-slate-400" />
+                              <span>{formatWorkEntryDuration(liveSeconds)}</span>
+                            </span>
+                          )
+                        )}
+                      </div>
                     </div>
-
-                    <div className="flex items-center space-x-4 shrink-0 text-slate-700">
-                      <span>Done: <strong>{entry.quantity_done}</strong></span>
-                      <span>Approved: <strong className="text-teal-700">{entry.quantity_approved}</strong></span>
-                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                        {entry.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

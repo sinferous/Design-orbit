@@ -104,6 +104,8 @@ export interface Database {
           project_url?: string | null
           notes: string | null
           status: 'Draft' | 'Submitted' | 'Reviewed' | 'Needs Changes'
+          time_spent_seconds?: number
+          timer_started_at?: string | null
           created_at: string
           updated_at: string
         }
@@ -120,6 +122,8 @@ export interface Database {
           project_url?: string | null
           notes?: string | null
           status?: 'Draft' | 'Submitted' | 'Reviewed' | 'Needs Changes'
+          time_spent_seconds?: number
+          timer_started_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -136,6 +140,8 @@ export interface Database {
           project_url?: string | null
           notes?: string | null
           status?: 'Draft' | 'Submitted' | 'Reviewed' | 'Needs Changes'
+          time_spent_seconds?: number
+          timer_started_at?: string | null
           created_at?: string
           updated_at?: string
         }

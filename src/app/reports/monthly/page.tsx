@@ -3,10 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
-import { getMonthlyReportData, exportToCSV } from '@/lib/services/reports';
+import { getMonthlyReportData, exportToCSV, formatReportTime } from '@/lib/services/reports';
 import { fetchProfiles, fetchWorkTypes, fetchClients } from '@/lib/services/work-entry';
 import { Profile, WorkType, Client } from '@/types';
-import { Download, Calendar, Filter } from 'lucide-react';
+import { Download, Calendar, Filter, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function MonthlyReportPage() {
@@ -25,11 +25,13 @@ export default function MonthlyReportPage() {
     totalDoneAll: number;
     totalApprovedAll: number;
     overallApprovalRate: number;
+    totalTimeSecondsAll: number;
   }>({
     summaries: [],
     totalDoneAll: 0,
     totalApprovedAll: 0,
     overallApprovalRate: 0,
+    totalTimeSecondsAll: 0,
   });
 
   const [loading, setLoading] = useState(true);
@@ -94,6 +96,8 @@ export default function MonthlyReportPage() {
       'Total Created': s.totalDone,
       'Total Approved': s.totalApproved,
       'Approval Rate (%)': `${s.approvalRate}%`,
+      'Time Spent': formatReportTime(s.totalTimeSeconds || 0),
+      'Decimal Hours': ((s.totalTimeSeconds || 0) / 3600).toFixed(2),
     }));
     exportToCSV(`Monthly_Report_${selectedYear}_${selectedMonth}`, csvRows);
     showToast('Exported Monthly Report CSV successfully!', 'success');
@@ -124,6 +128,13 @@ export default function MonthlyReportPage() {
               className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
             >
               Overall / All-Time
+            </Link>
+            <Link
+              href="/reports/billing"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 whitespace-nowrap"
+            >
+              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <span>Client Time Tracking</span>
             </Link>
           </div>
 
@@ -238,7 +249,7 @@ export default function MonthlyReportPage() {
         </div>
 
         {/* Monthly Summary Statistics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               {months.find(m => m.value === selectedMonth)?.name} Total Created
@@ -253,6 +264,17 @@ export default function MonthlyReportPage() {
             </div>
             <div className="text-3xl font-extrabold text-teal-700">{reportData.totalApprovedAll}</div>
             <p className="text-xs text-emerald-600 font-medium">{reportData.overallApprovalRate}% approved</p>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Time Logged</div>
+            <div className="text-3xl font-extrabold text-amber-700 flex items-center space-x-1.5">
+              <Clock className="w-6 h-6 text-amber-600" />
+              <span>{formatReportTime(reportData.totalTimeSecondsAll || 0)}</span>
+            </div>
+            <p className="text-xs text-slate-500">
+              {((reportData.totalTimeSecondsAll || 0) / 3600).toFixed(1)} billable decimal hours
+            </p>
           </div>
 
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
@@ -287,6 +309,7 @@ export default function MonthlyReportPage() {
                     <th className="px-6 py-3.5 text-right">Created Quantity</th>
                     <th className="px-6 py-3.5 text-right">Approved Quantity</th>
                     <th className="px-6 py-3.5 text-right">Approval Rate</th>
+                    <th className="px-6 py-3.5 text-right">Time Spent</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white">
@@ -296,6 +319,9 @@ export default function MonthlyReportPage() {
                       <td className="px-6 py-4 text-right font-extrabold text-slate-900">{s.totalDone}</td>
                       <td className="px-6 py-4 text-right font-extrabold text-teal-700">{s.totalApproved}</td>
                       <td className="px-6 py-4 text-right font-bold text-sky-700">{s.approvalRate}%</td>
+                      <td className="px-6 py-4 text-right font-mono font-bold text-amber-800">
+                        {formatReportTime(s.totalTimeSeconds || 0)}
+                      </td>
                     </tr>
                   ))}
                   <tr className="bg-slate-100 font-extrabold text-slate-900">
@@ -303,6 +329,9 @@ export default function MonthlyReportPage() {
                     <td className="px-6 py-4 text-right text-slate-900">{reportData.totalDoneAll}</td>
                     <td className="px-6 py-4 text-right text-teal-700">{reportData.totalApprovedAll}</td>
                     <td className="px-6 py-4 text-right text-sky-700">{reportData.overallApprovalRate}%</td>
+                    <td className="px-6 py-4 text-right font-mono font-bold text-amber-800">
+                      {formatReportTime(reportData.totalTimeSecondsAll || 0)}
+                    </td>
                   </tr>
                 </tbody>
               </table>

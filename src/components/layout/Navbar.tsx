@@ -67,7 +67,9 @@ export function Navbar({ userName }: NavbarProps) {
             <nav className="hidden md:flex items-center space-x-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname.startsWith(item.href);
+                const isActive = item.href.startsWith('/reports')
+                  ? pathname.startsWith('/reports')
+                  : pathname.startsWith(item.href);
                 return (
                   <Link
                     key={item.href}
@@ -173,7 +175,9 @@ export function Navbar({ userName }: NavbarProps) {
 
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname.startsWith(item.href);
+              const isActive = item.href.startsWith('/reports')
+                ? pathname.startsWith('/reports')
+                : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.href}
