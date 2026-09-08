@@ -160,9 +160,9 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Auto-Clamping**: Changing Quantity Done automatically clamps Approved Quantity if it exceeds the new total.
   - **Zero Equals Not Approved**: When Approved Quantity is 0, status is strictly `Not Approved`. When Approved status is selected, quantity automatically defaults to Quantity Done (cannot be 0).
   - **Visual Feedback**: Dynamic helper pills showing *Fully Approved*, *Partially Approved*, or *0 Approved (Not Approved)*.
-- [x] **Typography Upgrade — Google Font "The Nautigal"**:
-  - Replaced legacy handwritten font (`Ink Free`) with Google Font **The Nautigal** via `next/font/google` (`--font-the-nautigal`).
-  - Styled branding highlights across the application including **Design Orbit** header logo in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx) and personalized user welcome greeting (*"Good morning, Varun"*) on the Dashboard ([`dashboard/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)).
+- [x] **Typography Upgrade — Google Font "EB Garamond"**:
+  - Configured Google Font **EB Garamond** via `next/font/google` (`--font-eb-garamond`) with elegant italic styling and balanced weights.
+  - Applied editorial accent styling to **Design Orbit** header branding in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx) and personalized user welcome greeting (*"Good morning, Varun"*) on the Dashboard ([`dashboard/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)).
 
 ---
 

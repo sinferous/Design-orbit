@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
-import { Inter, The_Nautigal } from 'next/font/google';
+import { Inter, EB_Garamond } from 'next/font/google';
 import './globals.css';
 import { CreativeBackground } from '@/components/ui/CreativeBackground';
 import { ToastProvider } from '@/components/ui/ToastContext';
 import { FloatingPipTimer } from '@/components/timer/FloatingPipTimer';
 
 const inter = Inter({ subsets: ['latin'] });
-const theNautigal = The_Nautigal({
-  weight: ['400', '700'],
+const ebGaramond = EB_Garamond({
   subsets: ['latin'],
-  variable: '--font-the-nautigal',
+  style: ['normal', 'italic'],
+  variable: '--font-eb-garamond',
 });
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full bg-[#f8fafc]">
-      <body className={`${inter.className} ${theNautigal.variable} min-h-full flex flex-col text-slate-900 antialiased relative selection:bg-sky-100 selection:text-sky-900`}>
+      <body className={`${inter.className} ${ebGaramond.variable} min-h-full flex flex-col text-slate-900 antialiased relative selection:bg-sky-100 selection:text-sky-900`}>
         <ToastProvider>
           <CreativeBackground />
           <div className="relative z-10 flex-1 flex flex-col">

@@ -88,8 +88,9 @@ body {
 }
 
 .font-handwritten {
-  font-family: var(--font-the-nautigal), 'The Nautigal', cursive;
+  font-family: var(--font-eb-garamond), 'EB Garamond', Garamond, Georgia, serif;
   color: #0052cc;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
