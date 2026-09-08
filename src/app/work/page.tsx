@@ -771,12 +771,12 @@ export default function MyWorkPage() {
                                 {/* Status Badge */}
                                 <span
                                   className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 ${
-                                    entry.quantity_approved > 0 || entry.status === 'Reviewed'
+                                    entry.quantity_approved > 0
                                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                       : 'bg-amber-50 text-amber-700 border border-amber-200'
                                   }`}
                                 >
-                                  {entry.quantity_approved > 0 || entry.status === 'Reviewed' ? (
+                                  {entry.quantity_approved > 0 ? (
                                     <>
                                       <Check className="w-3.5 h-3.5 text-emerald-600" />
                                       <span>Approved</span>

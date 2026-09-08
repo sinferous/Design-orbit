@@ -427,8 +427,14 @@ export default function DashboardPage() {
                       <div className="flex flex-wrap items-center space-x-3 sm:space-x-4 shrink-0 text-slate-700">
                         <span>Done: <strong>{entry.quantity_done}</strong></span>
                         <span>Approved: <strong className="text-teal-700">{entry.quantity_approved}</strong></span>
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                          {entry.status}
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                            entry.quantity_approved > 0
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}
+                        >
+                          {entry.quantity_approved > 0 ? 'Approved' : 'Not Approved'}
                         </span>
 
                         {/* Timer Controls on Dashboard */}

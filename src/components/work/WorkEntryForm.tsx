@@ -120,13 +120,69 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
     setItems(prev =>
       prev.map(item => {
         if (item.id !== id) return item;
-        const updated = { ...item, ...fields };
 
-        // Default quantity_approved when is_approved status button is clicked if not explicitly provided
+        let newQuantityDone =
+          fields.quantity_done !== undefined
+            ? Math.max(0, fields.quantity_done)
+            : item.quantity_done;
+
+        let newQuantityApproved =
+          fields.quantity_approved !== undefined
+            ? Math.max(0, fields.quantity_approved)
+            : item.quantity_approved;
+
+        let newIsApproved =
+          fields.is_approved !== undefined ? fields.is_approved : item.is_approved;
+
+        // 1. User toggled the submission status buttons explicitly
         if (fields.is_approved !== undefined && fields.quantity_approved === undefined) {
-          updated.quantity_approved = fields.is_approved ? updated.quantity_done : 0;
+          if (fields.is_approved) {
+            // When status is Approved, the value CANNOT be zero:
+            // Default to quantity_done (or at least 1)
+            newQuantityApproved = newQuantityDone > 0 ? newQuantityDone : 1;
+            if (newQuantityDone < 1) newQuantityDone = 1;
+            newIsApproved = true;
+          } else {
+            // When status is Not Approved, value MUST be 0
+            newQuantityApproved = 0;
+            newIsApproved = false;
+          }
         }
-        return updated;
+
+        // 2. User changed Quantity Done
+        if (fields.quantity_done !== undefined) {
+          // Approved cannot be greater than task number (quantity_done)
+          if (newQuantityApproved > newQuantityDone) {
+            newQuantityApproved = newQuantityDone;
+          }
+          // If approved value is zero, it is not approved
+          if (newQuantityApproved === 0) {
+            newIsApproved = false;
+          }
+        }
+
+        // 3. User changed Approved Quantity
+        if (fields.quantity_approved !== undefined) {
+          // Approved cannot be greater than task number (quantity_done)
+          if (newQuantityApproved > newQuantityDone) {
+            newQuantityApproved = newQuantityDone;
+          }
+          // If the value is zero, it's NOT approved!
+          if (newQuantityApproved === 0) {
+            newIsApproved = false;
+          } else {
+            // If the value is > 0, it IS approved!
+            newIsApproved = true;
+          }
+        }
+
+        return {
+          ...item,
+          ...fields,
+          quantity_done: newQuantityDone,
+          quantity_approved: newQuantityApproved,
+          is_approved: newIsApproved,
+        };
       })
     );
   };
@@ -140,7 +196,16 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       const item = items[i];
       if (!item.work_type_id) return `Item #${i + 1}: Please select a work type.`;
       if (!item.description.trim()) return `Item #${i + 1}: Please enter a description.`;
-      if (item.quantity_done < 0) return `Item #${i + 1}: Quantity cannot be negative.`;
+      if (item.quantity_done < 1) return `Item #${i + 1}: Quantity Done must be at least 1.`;
+      if (item.quantity_approved > item.quantity_done) {
+        return `Item #${i + 1}: Approved Quantity (${item.quantity_approved}) cannot exceed Quantity Done (${item.quantity_done}).`;
+      }
+      if (item.is_approved && item.quantity_approved <= 0) {
+        return `Item #${i + 1}: Status is marked Approved, so Approved Quantity must be at least 1.`;
+      }
+      if (!item.is_approved && item.quantity_approved > 0) {
+        return `Item #${i + 1}: Status is Not Approved, so Approved Quantity must be 0.`;
+      }
     }
     return null;
   };
@@ -366,46 +431,79 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                {/* Quantity */}
+                {/* Quantity Done */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                     Quantity Done *
                   </label>
                   <input
                     type="number"
-                    min={0}
+                    min={1}
                     required
                     value={item.quantity_done}
-                    onChange={e => updateItemRow(item.id, { quantity_done: parseInt(e.target.value) || 0 })}
+                    onChange={e => {
+                      const val = parseInt(e.target.value);
+                      updateItemRow(item.id, { quantity_done: isNaN(val) ? 0 : val });
+                    }}
                     className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
                   />
+                  <span className="block text-[10px] text-slate-400 mt-1">
+                    Total task count completed
+                  </span>
                 </div>
 
                 {/* Approved Quantity */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Approved Quantity
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span>Approved Quantity</span>
+                    <span className="text-[10px] text-slate-500 font-semibold">Max: {item.quantity_done}</span>
                   </label>
                   <input
                     type="number"
                     min={0}
+                    max={item.quantity_done}
                     required
                     value={item.quantity_approved}
-                    onChange={e => updateItemRow(item.id, { quantity_approved: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                    onChange={e => {
+                      const val = parseInt(e.target.value);
+                      updateItemRow(item.id, { quantity_approved: isNaN(val) ? 0 : val });
+                    }}
+                    className={`w-full px-3 py-2 bg-white border rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-colors ${
+                      item.quantity_approved > 0
+                        ? 'border-emerald-300 bg-emerald-50/20'
+                        : 'border-slate-300'
+                    }`}
                   />
+                  <div className="mt-1">
+                    {item.quantity_approved === 0 ? (
+                      <span className="text-[10px] font-semibold text-amber-600">
+                        0 Approved &bull; Not Approved
+                      </span>
+                    ) : item.quantity_approved === item.quantity_done ? (
+                      <span className="text-[10px] font-semibold text-emerald-600">
+                        ✓ Fully Approved ({item.quantity_approved} of {item.quantity_done})
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-semibold text-sky-600">
+                        Partially Approved ({item.quantity_approved} of {item.quantity_done})
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Submission Status: Only Approved or Not Approved */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Submission Status *
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span>Submission Status *</span>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      {item.is_approved ? 'Approved' : 'Not Approved'}
+                    </span>
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={() => updateItemRow(item.id, { is_approved: true })}
-                      className={`flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-xs font-bold transition-colors border ${
+                      className={`flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                         item.is_approved
                           ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                           : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
@@ -418,7 +516,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                     <button
                       type="button"
                       onClick={() => updateItemRow(item.id, { is_approved: false })}
-                      className={`flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-xs font-bold transition-colors border ${
+                      className={`flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                         !item.is_approved
                           ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
                           : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
@@ -428,6 +526,11 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                       <span>Not Approved</span>
                     </button>
                   </div>
+                  <span className="block text-[10px] text-slate-400 mt-1">
+                    {item.is_approved
+                      ? `${item.quantity_approved} item(s) approved`
+                      : 'Zero items approved'}
+                  </span>
                 </div>
               </div>
 
