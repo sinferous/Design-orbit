@@ -10,6 +10,7 @@ import {
   getLoggedInUser,
   startWorkEntryTimer,
   stopWorkEntryTimer,
+  dispatchGlobalTimerEvent,
   calculateWorkEntrySeconds,
   formatWorkEntryDuration,
   formatWorkEntryStopwatch,
@@ -210,33 +211,83 @@ export default function MyWorkPage() {
 
   // Sync state when PiP or other components pause/start timers
   useEffect(() => {
-    const handleTimerEvent = (e: any) => {
-      const { id, entry } = e.detail || {};
-      if (id && entry) {
-        setEntries(prev => prev.map(item => (item.id === id ? { ...item, ...entry } : item)));
+    const handleTimerAction = (detail: any) => {
+      const { id, entry, action } = detail || {};
+      if (id) {
+        if (action === 'stop') {
+          setEntries(prev =>
+            prev.map(item =>
+              item.id === id
+                ? {
+                    ...item,
+                    ...(entry || {}),
+                    timer_started_at: null,
+                    time_spent_seconds: entry?.time_spent_seconds ?? item.time_spent_seconds,
+                  }
+                : item
+            )
+          );
+        } else if (entry) {
+          setEntries(prev => prev.map(item => (item.id === id ? { ...item, ...entry } : item)));
+        }
       } else {
         loadEntries();
       }
     };
-    window.addEventListener('design_orbit_timer_event', handleTimerEvent);
-    return () => window.removeEventListener('design_orbit_timer_event', handleTimerEvent);
+
+    const handleCustomEvent = (e: any) => handleTimerAction(e.detail);
+
+    let channel: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        channel = new BroadcastChannel('design_orbit_timer_bus');
+        channel.onmessage = (ev) => {
+          if (ev.data) handleTimerAction(ev.data);
+        };
+      }
+    } catch (e) {}
+
+    const handleStorage = (ev: StorageEvent) => {
+      if (ev.key === 'design_orbit_timer_sync_event' && ev.newValue) {
+        try {
+          const parsed = JSON.parse(ev.newValue);
+          if (parsed?.detail) handleTimerAction(parsed.detail);
+        } catch (e) {}
+      }
+    };
+
+    window.addEventListener('design_orbit_timer_event', handleCustomEvent);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('design_orbit_timer_event', handleCustomEvent);
+      window.removeEventListener('storage', handleStorage);
+      if (channel) {
+        try { channel.close(); } catch (e) {}
+      }
+    };
   }, []);
 
   const handleStartTimer = async (entry: WorkEntryWithDetails) => {
     if (!activeProfile) return;
     setTimerLoadingId(entry.id);
     const nowIso = new Date().toISOString();
-    const now = Date.now();
 
-    // Directly open Picture-in-Picture window using this user click gesture
+    // Directly open Picture-in-Picture window using user click gesture
     if (typeof window !== 'undefined') {
       window.designOrbitPipManager?.openPip().catch(() => {});
     }
 
-    // Optimistic state: start this timer without stopping other running timers
+    // Optimistic state: start this timer immediately in local state & PiP
     setEntries(prev =>
       prev.map(e => (e.id === entry.id ? { ...e, timer_started_at: nowIso } : e))
     );
+
+    dispatchGlobalTimerEvent({
+      id: entry.id,
+      action: 'start',
+      entry: { ...entry, timer_started_at: nowIso },
+    });
 
     try {
       const updated = await startWorkEntryTimer(entry.id, entries, activeProfile.id);
@@ -264,7 +315,7 @@ export default function MyWorkPage() {
     }
     const newTotal = (entry.time_spent_seconds || 0) + additional;
 
-    // Optimistic state: set stopped
+    // Optimistic state: immediately mark stopped in local page state
     setEntries(prev =>
       prev.map(e =>
         e.id === entry.id
@@ -273,8 +324,15 @@ export default function MyWorkPage() {
       )
     );
 
+    // Immediately dispatch stop event across PiP and all windows without waiting for DB network call
+    dispatchGlobalTimerEvent({
+      id: entry.id,
+      action: 'stop',
+      entry: { ...entry, timer_started_at: null, time_spent_seconds: newTotal },
+    });
+
     try {
-      const updated = await stopWorkEntryTimer(entry.id, entry, activeProfile.id);
+      const updated = await stopWorkEntryTimer(entry.id, entry, activeProfile.id, 'stop');
       setEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
       showToast(`Timer stopped! Recorded ${formatWorkEntryDuration(newTotal)}.`, 'success');
     } catch (err: any) {

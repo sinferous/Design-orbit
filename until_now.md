@@ -160,9 +160,11 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Auto-Clamping**: Changing Quantity Done automatically clamps Approved Quantity if it exceeds the new total.
   - **Zero Equals Not Approved**: When Approved Quantity is 0, status is strictly `Not Approved`. When Approved status is selected, quantity automatically defaults to Quantity Done (cannot be 0).
   - **Visual Feedback**: Dynamic helper pills showing *Fully Approved*, *Partially Approved*, or *0 Approved (Not Approved)*.
-- [x] **Typography Upgrade — Google Font "EB Garamond"**:
-  - Configured Google Font **EB Garamond** via `next/font/google` (`--font-eb-garamond`) with elegant italic styling and balanced weights.
-  - Applied editorial accent styling to **Design Orbit** header branding in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx) and personalized user welcome greeting (*"Good morning, Varun"*) on the Dashboard ([`dashboard/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)).
+- [x] **PiP Stopwatch Stop Synchronization Across Website & Floating Windows**:
+  - Fixed an issue where stopping a task on the website did not immediately stop or remove it from the floating PiP window.
+  - Implemented `dispatchGlobalTimerEvent` with multi-channel broadcast (`BroadcastChannel('design_orbit_timer_bus')`, window events, and `storage` event fallback) so stops, pauses, and starts propagate instantly across tabs and PiP windows without waiting for network/DB roundtrips.
+  - Refactored PiP's `refreshTimers` and `getActiveRunningWorkEntries` so empty active sets from Supabase no longer incorrectly resurrect stale running entries from mock storage.
+  - PiP now immediately removes stopped tasks and cleanly closes the PiP window if no more active tasks remain.
 
 ---
 

@@ -990,13 +990,57 @@ export function formatWorkEntryStopwatch(totalSeconds: number): string {
   return `${pad(mins)}:${pad(secs)}`;
 }
 
+export function dispatchGlobalTimerEvent(detail: {
+  id: string;
+  action: 'start' | 'stop' | 'pause' | 'resume';
+  entry?: any;
+}) {
+  if (typeof window === 'undefined') return;
+
+  const { id, action, entry } = detail;
+
+  try {
+    if (action === 'stop' || action === 'pause') {
+      localStorage.removeItem(`work_timer_started_${id}`);
+      if (entry?.time_spent_seconds !== undefined) {
+        localStorage.setItem(`work_time_spent_${id}`, String(entry.time_spent_seconds));
+      }
+    } else if (action === 'start' || action === 'resume') {
+      if (entry?.timer_started_at) {
+        localStorage.setItem(`work_timer_started_${id}`, entry.timer_started_at);
+      }
+    }
+  } catch (e) {}
+
+  // 1. Current window custom event
+  try {
+    window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail }));
+  } catch (e) {}
+
+  // 2. BroadcastChannel across all tabs & popup/PiP windows
+  try {
+    if ('BroadcastChannel' in window) {
+      const channel = new BroadcastChannel('design_orbit_timer_bus');
+      channel.postMessage(detail);
+      channel.close();
+    }
+  } catch (e) {}
+
+  // 3. Storage event fallback for cross-tab sync
+  try {
+    localStorage.setItem(
+      'design_orbit_timer_sync_event',
+      JSON.stringify({ detail, timestamp: Date.now() })
+    );
+  } catch (e) {}
+}
+
 export async function startWorkEntryTimer(
   id: string,
   activeEntries: WorkEntryWithDetails[] = [],
   userId?: string
 ): Promise<WorkEntryWithDetails> {
   const nowIso = new Date().toISOString();
-  const nowMs = Date.now();
 
   if (isSupabaseConfigured()) {
     const supabase = createClient();
@@ -1018,9 +1062,6 @@ export async function startWorkEntryTimer(
         error.message?.toLowerCase().includes('schema cache')
       ) {
         console.warn('Supabase work_entries timer columns not migrated yet. Falling back to local state:', error.message);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(`work_timer_started_${id}`, nowIso);
-        }
         const allEntries = getStoredMockEntries();
         const target = allEntries.find(e => e.id === id);
         if (target) {
@@ -1034,20 +1075,14 @@ export async function startWorkEntryTimer(
           timer_started_at: nowIso,
         } as WorkEntryWithDetails;
 
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'start', entry: result } }));
-        }
-
+        dispatchGlobalTimerEvent({ id, action: 'start', entry: result });
         return result;
       }
       console.error('Supabase startWorkEntryTimer error:', error.message);
       throw new Error(`Database Error: ${error.message}`);
     }
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`work_timer_started_${id}`, nowIso);
-      window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'start', entry: data } }));
-    }
+    dispatchGlobalTimerEvent({ id, action: 'start', entry: data });
 
     const allEntries = getStoredMockEntries();
     const target = allEntries.find(e => e.id === id);
@@ -1067,9 +1102,7 @@ export async function startWorkEntryTimer(
   target.timer_started_at = nowIso;
   saveStoredMockEntries(allEntries);
 
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'start', entry: target } }));
-  }
+  dispatchGlobalTimerEvent({ id, action: 'start', entry: target });
 
   return target;
 }
@@ -1077,7 +1110,8 @@ export async function startWorkEntryTimer(
 export async function stopWorkEntryTimer(
   id: string,
   currentEntry: WorkEntryWithDetails,
-  userId?: string
+  userId?: string,
+  action: 'stop' | 'pause' = 'stop'
 ): Promise<WorkEntryWithDetails> {
   const nowIso = new Date().toISOString();
   const nowMs = Date.now();
@@ -1111,10 +1145,6 @@ export async function stopWorkEntryTimer(
         error.message?.toLowerCase().includes('schema cache')
       ) {
         console.warn('Supabase work_entries timer columns not migrated yet. Falling back to local state:', error.message);
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(`work_timer_started_${id}`);
-          localStorage.setItem(`work_time_spent_${id}`, String(newTotalSeconds));
-        }
         const allEntries = getStoredMockEntries();
         const target = allEntries.find(e => e.id === id);
         if (target) {
@@ -1127,20 +1157,20 @@ export async function stopWorkEntryTimer(
           time_spent_seconds: newTotalSeconds,
           timer_started_at: null,
         };
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'stop', entry: result } }));
-        }
+        dispatchGlobalTimerEvent({ id, action, entry: result });
         return result;
       }
+      // On any other database error, still ensure local state is stopped so timer does not run indefinitely
+      dispatchGlobalTimerEvent({
+        id,
+        action,
+        entry: { ...currentEntry, time_spent_seconds: newTotalSeconds, timer_started_at: null }
+      });
       console.error('Supabase stopWorkEntryTimer error:', error.message);
       throw new Error(`Database Error: ${error.message}`);
     }
 
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(`work_timer_started_${id}`);
-      localStorage.setItem(`work_time_spent_${id}`, String(newTotalSeconds));
-      window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'stop', entry: data } }));
-    }
+    dispatchGlobalTimerEvent({ id, action, entry: data });
 
     // Also update local mock store so both local & Supabase are in sync
     const allEntries = getStoredMockEntries();
@@ -1163,18 +1193,12 @@ export async function stopWorkEntryTimer(
   target.timer_started_at = null;
   saveStoredMockEntries(allEntries);
 
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(`work_timer_started_${id}`);
-    localStorage.setItem(`work_time_spent_${id}`, String(newTotalSeconds));
-    window.dispatchEvent(new CustomEvent('design_orbit_timer_event', { detail: { id, action: 'stop', entry: target } }));
-  }
+  dispatchGlobalTimerEvent({ id, action, entry: target });
 
   return target;
 }
 
 export async function getActiveRunningWorkEntries(userId?: string): Promise<WorkEntryWithDetails[]> {
-  const activeEntries: WorkEntryWithDetails[] = [];
-
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClient();
@@ -1188,7 +1212,8 @@ export async function getActiveRunningWorkEntries(userId?: string): Promise<Work
       }
 
       const { data, error } = await query;
-      if (!error && Array.isArray(data) && data.length > 0) {
+      // When Supabase succeeds, return data directly — even if empty (meaning 0 active timers)
+      if (!error && Array.isArray(data)) {
         return data as WorkEntryWithDetails[];
       }
     } catch (err) {
@@ -1196,7 +1221,7 @@ export async function getActiveRunningWorkEntries(userId?: string): Promise<Work
     }
   }
 
-  // Check localStorage for fallback active timers
+  // Check localStorage for fallback active timers ONLY if Supabase is unavailable
   if (typeof window !== 'undefined') {
     const activeIds: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -1221,3 +1246,4 @@ export async function getActiveRunningWorkEntries(userId?: string): Promise<Work
   const all = getStoredMockEntries();
   return all.filter(e => Boolean(e.timer_started_at));
 }
+

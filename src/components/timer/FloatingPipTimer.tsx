@@ -342,22 +342,38 @@ export function FloatingPipTimer() {
   const pipWindowRef = useRef<Window | null>(null);
   pipWindowRef.current = pipWindow;
 
+  const closePipWindow = useCallback(() => {
+    if (pipWindowRef.current && !pipWindowRef.current.closed) {
+      pipWindowRef.current.close();
+    }
+    setPipWindow(null);
+    pipWindowRef.current = null;
+    pipContainerRef.current = null;
+  }, []);
+
   // Sync active and recently running timers from storage / database
   const refreshTimers = useCallback(async () => {
     try {
       const active = await getActiveRunningWorkEntries();
       setEntries(prev => {
-        const map = new Map<string, WorkEntryWithDetails>();
-        // Keep previously present items so paused tasks can be resumed
-        prev.forEach(item => map.set(item.id, item));
-        // Overwrite / add active tasks
-        active.forEach(item => map.set(item.id, item));
-        return Array.from(map.values());
+        const activeIds = new Set(active.map(a => a.id));
+
+        // Keep items from prev ONLY if they were explicitly paused inside PiP (timer_started_at is falsy)
+        // If an item in prev was running but is no longer in active, it was stopped on the website or DB -> MUST be removed!
+        const pausedInPip = prev.filter(p => !p.timer_started_at && !activeIds.has(p.id));
+
+        const next = [...active, ...pausedInPip];
+
+        if (next.length === 0 && pipWindowRef.current && !pipWindowRef.current.closed) {
+          closePipWindow();
+        }
+
+        return next;
       });
     } catch (err) {
       console.warn('FloatingPipTimer refresh error:', err);
     }
-  }, []);
+  }, [closePipWindow]);
 
   // Precise dynamic height calculation matching the compact styling
   const computeTargetHeight = (taskCount: number) => {
@@ -463,15 +479,6 @@ export function FloatingPipTimer() {
     return false;
   }, [entries.length]);
 
-  const closePipWindow = useCallback(() => {
-    if (pipWindowRef.current && !pipWindowRef.current.closed) {
-      pipWindowRef.current.close();
-    }
-    setPipWindow(null);
-    pipWindowRef.current = null;
-    pipContainerRef.current = null;
-  }, []);
-
   // Dynamically adjust PiP window size as tasks change
   useEffect(() => {
     if (pipWindow && !pipWindow.closed) {
@@ -499,9 +506,53 @@ export function FloatingPipTimer() {
   useEffect(() => {
     refreshTimers();
 
-    const handleTimerEvent = (e: any) => {
-      const { id, entry } = e.detail || {};
-      if (id && entry) {
+    const handleTimerAction = (detail: any) => {
+      const { id, entry, action } = detail || {};
+      if (!id) {
+        refreshTimers();
+        return;
+      }
+
+      if (action === 'stop') {
+        // Immediately remove stopped task from PiP window
+        setEntries(prev => {
+          const remaining = prev.filter(item => item.id !== id);
+          if (remaining.length === 0 && pipWindowRef.current && !pipWindowRef.current.closed) {
+            closePipWindow();
+          }
+          return remaining;
+        });
+        return;
+      }
+
+      if (action === 'pause') {
+        // Stop stopwatch ticking and reflect paused state
+        setEntries(prev =>
+          prev.map(item =>
+            item.id === id
+              ? { ...item, ...(entry || {}), timer_started_at: null }
+              : item
+          )
+        );
+        return;
+      }
+
+      if (action === 'start' || action === 'resume') {
+        setEntries(prev => {
+          const exists = prev.some(item => item.id === id);
+          if (exists) {
+            return prev.map(item => (item.id === id ? { ...item, ...(entry || {}) } : item));
+          }
+          return entry ? [entry, ...prev] : prev;
+        });
+
+        if (!pipWindowRef.current || pipWindowRef.current.closed) {
+          openPipWindow().catch(() => {});
+        }
+        return;
+      }
+
+      if (entry) {
         setEntries(prev => {
           const exists = prev.some(item => item.id === id);
           if (exists) {
@@ -509,12 +560,31 @@ export function FloatingPipTimer() {
           }
           return [entry, ...prev];
         });
-      } else {
-        refreshTimers();
       }
+    };
 
-      if (e.detail?.action === 'start' && !pipWindowRef.current) {
-        openPipWindow().catch(() => {});
+    const handleCustomEvent = (e: any) => {
+      handleTimerAction(e.detail);
+    };
+
+    // Listen to cross-tab/cross-window BroadcastChannel
+    let channel: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        channel = new BroadcastChannel('design_orbit_timer_bus');
+        channel.onmessage = (ev) => {
+          if (ev.data) handleTimerAction(ev.data);
+        };
+      }
+    } catch (e) {}
+
+    // Storage event fallback
+    const handleStorage = (ev: StorageEvent) => {
+      if (ev.key === 'design_orbit_timer_sync_event' && ev.newValue) {
+        try {
+          const parsed = JSON.parse(ev.newValue);
+          if (parsed?.detail) handleTimerAction(parsed.detail);
+        } catch (e) {}
       }
     };
 
@@ -534,19 +604,26 @@ export function FloatingPipTimer() {
       }
     };
 
-    window.addEventListener('design_orbit_timer_event', handleTimerEvent);
+    window.addEventListener('design_orbit_timer_event', handleCustomEvent);
+    window.addEventListener('storage', handleStorage);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleWindowBlur);
 
     const pollInterval = setInterval(refreshTimers, 2500);
 
     return () => {
-      window.removeEventListener('design_orbit_timer_event', handleTimerEvent);
+      window.removeEventListener('design_orbit_timer_event', handleCustomEvent);
+      window.removeEventListener('storage', handleStorage);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleWindowBlur);
+      if (channel) {
+        try {
+          channel.close();
+        } catch (e) {}
+      }
       clearInterval(pollInterval);
     };
-  }, [refreshTimers, entries, openPipWindow]);
+  }, [refreshTimers, entries, openPipWindow, closePipWindow]);
 
   // Unthrottled live stopwatch ticker (runs across Web Worker, main tab, and PiP window)
   useEffect(() => {
@@ -622,11 +699,7 @@ export function FloatingPipTimer() {
 
     // 2. Persist to storage & DB
     try {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(`work_timer_started_${entry.id}`);
-        localStorage.setItem(`work_time_spent_${entry.id}`, String(newTotalSeconds));
-      }
-      const updated = await stopWorkEntryTimer(entry.id, entry);
+      const updated = await stopWorkEntryTimer(entry.id, entry, undefined, 'pause');
       setEntries(prev =>
         prev.map(e =>
           e.id === entry.id
@@ -653,9 +726,6 @@ export function FloatingPipTimer() {
     );
 
     try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(`work_timer_started_${entry.id}`, nowIso);
-      }
       const updated = await startWorkEntryTimer(entry.id, entries);
       setEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
       showToast(`Resumed: ${entry.client?.name || 'Deliverable'}`, 'success');
@@ -671,7 +741,7 @@ export function FloatingPipTimer() {
     setOperatingId(entry.id);
     try {
       if (entry.timer_started_at) {
-        await stopWorkEntryTimer(entry.id, entry);
+        await stopWorkEntryTimer(entry.id, entry, undefined, 'stop');
       }
       setEntries(prev => prev.filter(e => e.id !== entry.id));
       showToast(`Finalized: ${entry.client?.name || 'Deliverable'}`, 'success');
