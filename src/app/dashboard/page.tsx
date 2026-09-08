@@ -197,21 +197,22 @@ export default function DashboardPage() {
     if (!currentProfileId) return;
     setTimerLoadingId(entry.id);
     const nowIso = new Date().toISOString();
+    const activeEntry = { ...entry, timer_started_at: nowIso };
 
-    // Directly open Picture-in-Picture window using user click gesture
+    // Directly open Picture-in-Picture window using user click gesture and seed with activeEntry
     if (typeof window !== 'undefined') {
-      window.designOrbitPipManager?.openPip().catch(() => {});
+      window.designOrbitPipManager?.openPip(activeEntry).catch(() => {});
     }
 
     // Optimistic state: start this timer without pausing other active timers
     setTodayEntries(prev =>
-      prev.map(e => (e.id === entry.id ? { ...e, timer_started_at: nowIso } : e))
+      prev.map(e => (e.id === entry.id ? activeEntry : e))
     );
 
     dispatchGlobalTimerEvent({
       id: entry.id,
       action: 'start',
-      entry: { ...entry, timer_started_at: nowIso },
+      entry: activeEntry,
     });
 
     try {

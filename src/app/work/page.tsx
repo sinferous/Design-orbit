@@ -272,21 +272,22 @@ export default function MyWorkPage() {
     if (!activeProfile) return;
     setTimerLoadingId(entry.id);
     const nowIso = new Date().toISOString();
+    const activeEntry = { ...entry, timer_started_at: nowIso };
 
     // Directly open Picture-in-Picture window using user click gesture
     if (typeof window !== 'undefined') {
-      window.designOrbitPipManager?.openPip().catch(() => {});
+      window.designOrbitPipManager?.openPip(activeEntry).catch(() => {});
     }
 
     // Optimistic state: start this timer immediately in local state & PiP
     setEntries(prev =>
-      prev.map(e => (e.id === entry.id ? { ...e, timer_started_at: nowIso } : e))
+      prev.map(e => (e.id === entry.id ? activeEntry : e))
     );
 
     dispatchGlobalTimerEvent({
       id: entry.id,
       action: 'start',
-      entry: { ...entry, timer_started_at: nowIso },
+      entry: activeEntry,
     });
 
     try {
@@ -872,7 +873,7 @@ export default function MyWorkPage() {
                                           type="button"
                                           onClick={() => {
                                             if (typeof window !== 'undefined') {
-                                              window.designOrbitPipManager?.openPip();
+                                              window.designOrbitPipManager?.openPip(entry);
                                             }
                                           }}
                                           className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs"

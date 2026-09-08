@@ -160,11 +160,10 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Auto-Clamping**: Changing Quantity Done automatically clamps Approved Quantity if it exceeds the new total.
   - **Zero Equals Not Approved**: When Approved Quantity is 0, status is strictly `Not Approved`. When Approved status is selected, quantity automatically defaults to Quantity Done (cannot be 0).
   - **Visual Feedback**: Dynamic helper pills showing *Fully Approved*, *Partially Approved*, or *0 Approved (Not Approved)*.
-- [x] **PiP Stopwatch Stop Synchronization Across Website & Floating Windows**:
-  - Fixed an issue where stopping a task on the website did not immediately stop or remove it from the floating PiP window.
-  - Implemented `dispatchGlobalTimerEvent` with multi-channel broadcast (`BroadcastChannel('design_orbit_timer_bus')`, window events, and `storage` event fallback) so stops, pauses, and starts propagate instantly across tabs and PiP windows without waiting for network/DB roundtrips.
-  - Refactored PiP's `refreshTimers` and `getActiveRunningWorkEntries` so empty active sets from Supabase no longer incorrectly resurrect stale running entries from mock storage.
-  - PiP now immediately removes stopped tasks and cleanly closes the PiP window if no more active tasks remain.
+- [x] **Automatic PiP Launch on Start Task Fix**:
+  - Restored standard `requestWindow({ width, height })` options without unsupported optional flags that caused browser Promise rejections.
+  - Bound `openPip(activeEntry)` directly to user gesture clicks on both Dashboard and Daily Work page, immediately seeding the entry into PiP state and ensuring the floating window pops out smoothly on every Start click.
+
 
 ---
 

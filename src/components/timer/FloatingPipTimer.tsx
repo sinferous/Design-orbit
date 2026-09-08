@@ -25,7 +25,7 @@ import { useToast } from '@/components/ui/ToastContext';
 declare global {
   interface Window {
     designOrbitPipManager?: {
-      openPip: () => Promise<boolean>;
+      openPip: (initialEntry?: WorkEntryWithDetails) => Promise<boolean>;
       closePip: () => void;
       isPipOpen: () => boolean;
     };
@@ -406,14 +406,26 @@ export function FloatingPipTimer() {
   };
 
   // Open Document Picture-in-Picture window or popup fallback
-  const openPipWindow = useCallback(async (): Promise<boolean> => {
+  const openPipWindow = useCallback(async (initialEntry?: WorkEntryWithDetails): Promise<boolean> => {
     if (typeof window === 'undefined') return false;
+
+    if (initialEntry) {
+      setEntries(prev => {
+        const exists = prev.some(item => item.id === initialEntry.id);
+        if (exists) {
+          return prev.map(item => (item.id === initialEntry.id ? { ...item, ...initialEntry } : item));
+        }
+        return [initialEntry, ...prev];
+      });
+    }
+
     if (pipWindowRef.current && !pipWindowRef.current.closed) {
       pipWindowRef.current.focus();
       return true;
     }
 
-    const targetHeight = computeTargetHeight(entries.length || 1);
+    const count = Math.max(1, entries.length, initialEntry ? 1 : 0);
+    const targetHeight = computeTargetHeight(count);
     const targetWidth = 300;
 
     // Try Document Picture-in-Picture API first (Chrome 116+, Edge 116+)
@@ -422,7 +434,6 @@ export function FloatingPipTimer() {
         const pip = await (window as any).documentPictureInPicture.requestWindow({
           width: targetWidth,
           height: targetHeight,
-          disallowReturnToOpener: true,
         });
 
         injectStylesIntoWindow(pip);
