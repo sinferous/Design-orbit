@@ -155,6 +155,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Embedded Dark Aesthetic**: Self-contained radial dark-mode styling (`#151d30` to `#090d16`), luminous amber LED digital stopwatch (`SF Mono` / `Roboto Mono`), pulsing emerald status beacon, client/deliverable badges, and sleek gradient action buttons (`⏸ Pause`, `▶ Start`, `⏹ Stop`, `Dock`).
   - **Real-Time Two-Way Sync**: Instant bidirectional synchronization between PiP window, browser tab, and Supabase database.
 - [x] **Strict Approved Quantity Bounds & Submission Status Logic (`WorkEntryForm.tsx`)**:
+  - **Default Status**: Newly added deliverables now default to **`Not Approved`** with `Approved Quantity = 0` and `Quantity Done = 1`.
   - **Quantity Bounds**: Approved Quantity cannot exceed Quantity Done (`min={0}`, `max={quantity_done}`).
   - **Auto-Clamping**: Changing Quantity Done automatically clamps Approved Quantity if it exceeds the new total.
   - **Zero Equals Not Approved**: When Approved Quantity is 0, status is strictly `Not Approved`. When Approved status is selected, quantity automatically defaults to Quantity Done (cannot be 0).

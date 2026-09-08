@@ -80,8 +80,8 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
               work_type_id: wtData[0]?.id || '',
               description: '',
               quantity_done: 1,
-              quantity_approved: 1,
-              is_approved: true,
+              quantity_approved: 0,
+              is_approved: false,
               project_url: '',
             },
           ]);
@@ -104,8 +104,8 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
         work_type_id: defaultWorkType,
         description: '',
         quantity_done: 1,
-        quantity_approved: 1,
-        is_approved: true,
+        quantity_approved: 0,
+        is_approved: false,
         project_url: '',
       },
     ]);
