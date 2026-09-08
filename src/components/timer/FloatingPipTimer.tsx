@@ -422,6 +422,7 @@ export function FloatingPipTimer() {
         const pip = await (window as any).documentPictureInPicture.requestWindow({
           width: targetWidth,
           height: targetHeight,
+          disallowReturnToOpener: true,
         });
 
         injectStylesIntoWindow(pip);
