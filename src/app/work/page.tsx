@@ -791,18 +791,11 @@ export default function MyWorkPage() {
                                     </span>
                                   )}
 
-                                  {entry.timer_started_at && (
-                                    isMyEntry ? (
-                                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
-                                        <span>Timer Active (You)</span>
-                                      </span>
-                                    ) : (
-                                      <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
-                                        <span>Active Now: <strong>{entry.profile?.name || 'Teammate'}</strong></span>
-                                      </span>
-                                    )
+                                  {entry.timer_started_at && isMyEntry && (
+                                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                                      <span>Timer Active</span>
+                                    </span>
                                   )}
                                 </div>
 

@@ -172,8 +172,8 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Premature Auto-Close Prevention**: Fixed race conditions during timer startup so the floating window does not close prematurely before the first active task registers.
 - [x] **Live Active Team Timers on Entire Team Log (`/work`) & Dashboard (`/dashboard`)**:
   - In Entire Team Log (`/work`) and Today's Work Log on the Dashboard (`/dashboard`), active, live-running timers are visible across the entire design team.
-  - Active teammate tasks highlight with an emerald border and background (`bg-emerald-50/30 border-l-4 border-l-emerald-500`) and a pulsating green beacon with an `Active Now: [Designer Name]` badge.
-  - Displays a live ticking stopwatch and green `Live` badge reflecting time spent in real-time.
+  - Active teammate tasks highlight with an emerald border and background (`bg-emerald-50/30 border-l-4 border-l-emerald-500`).
+  - Displays a prominent live ticking stopwatch and green `Live` badge with an animated beacon on the right side reflecting time spent in real-time (omitting redundant badges near the designer's name for a clean UI).
   - 5-second background polling keeps teammates' newly started and stopped timers synchronized live without requiring page reloads.
   - Strict ownership guards: non-author team members cannot start, stop, float, edit, or delete another designer's deliverables.
 - [x] **Strict User Isolation in Picture-in-Picture (PiP)**:
