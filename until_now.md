@@ -170,15 +170,17 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Reliable Launch on Start**: Guaranteed PiP auto-launch triggers directly from the `Start` task user-gesture handler.
   - **Website-to-PiP Instant Sync**: Synchronized task stops initiated from the web interface immediately to the PiP window state without delay.
   - **Premature Auto-Close Prevention**: Fixed race conditions during timer startup so the floating window does not close prematurely before the first active task registers.
-- [x] **Typography & Styling Enhancements**:
-  - Upgraded cursive and decorative script font styling to Google Font **EB Garamond** for an elegant, professional editorial finish across brand elements.
+- [x] **Strict User-Specific Timer Isolation & Login Screen Suppression**:
+  - Isolated all timer tracking strictly to the logged-in user so one designer's active tasks are never visible to or synchronized with other team members.
+  - Automatically suppresses and unmounts the docked timer widget and closes any PiP window on login and landing routes (`/login`, `/`).
+  - Added route and authentication checks ensuring `FloatingPipTimer` only activates for an authenticated user on operational application pages.
 
 ---
 
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Latest Commit**: `19e815a` (*fix(pip): prevent premature pip auto-close when first task starts*)
+- **Latest Commit**: `862e1a5` (*fix(pip): isolate active timers strictly to the logged-in user*)
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: Production ready, compiled successfully with **0 errors across all 15 routes**.

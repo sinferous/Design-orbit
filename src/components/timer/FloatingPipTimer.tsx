@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { WorkEntryWithDetails } from '@/types';
 import {
@@ -337,6 +338,9 @@ const PIP_EMBEDDED_STYLES = `
 `;
 
 export function FloatingPipTimer() {
+  const pathname = usePathname();
+  const isLoginPage = pathname === '/login' || pathname === '/';
+
   const [entries, setEntries] = useState<WorkEntryWithDetails[]>([]);
   const [nowMs, setNowMs] = useState<number>(Date.now());
   const [pipWindow, setPipWindow] = useState<Window | null>(null);
@@ -371,8 +375,28 @@ export function FloatingPipTimer() {
     pipContainerRef.current = null;
   }, []);
 
+  // Immediately close PiP and purge entries if on login or landing route
+  useEffect(() => {
+    if (isLoginPage) {
+      closePipWindow();
+      setEntries([]);
+      setCurrentUser(null);
+      setCurrentProfileId(null);
+      currentProfileIdRef.current = null;
+      currentUserNameRef.current = null;
+    }
+  }, [isLoginPage, closePipWindow]);
+
   // Sync active and recently running timers from storage / database strictly for the logged-in user
   const refreshTimers = useCallback(async (explicitUserId?: string, explicitUserName?: string) => {
+    if (isLoginPage) {
+      setEntries([]);
+      if (pipWindowRef.current && !pipWindowRef.current.closed) {
+        closePipWindow();
+      }
+      return;
+    }
+
     const user = getLoggedInUser();
     if (!user || !user.name) {
       setEntries([]);
@@ -430,7 +454,7 @@ export function FloatingPipTimer() {
     } catch (err) {
       console.warn('FloatingPipTimer refresh error:', err);
     }
-  }, [closePipWindow]);
+  }, [closePipWindow, isLoginPage]);
 
   // Precise dynamic height calculation matching the compact styling and OS window frame
   const computeTargetHeight = (taskCount: number) => {
@@ -464,7 +488,7 @@ export function FloatingPipTimer() {
 
   // Open Document Picture-in-Picture window or popup fallback
   const openPipWindow = useCallback(async (initialEntry?: WorkEntryWithDetails): Promise<boolean> => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined' || isLoginPage) return false;
 
     const user = getLoggedInUser();
     if (!user || !user.name) {
@@ -607,6 +631,18 @@ export function FloatingPipTimer() {
     let mounted = true;
 
     async function syncUser() {
+      if (isLoginPage) {
+        if (mounted) {
+          setCurrentUser(null);
+          setCurrentProfileId(null);
+          currentProfileIdRef.current = null;
+          currentUserNameRef.current = null;
+          setEntries([]);
+          closePipWindow();
+        }
+        return;
+      }
+
       const user = getLoggedInUser();
       if (!user || !user.name) {
         if (mounted) {
@@ -659,13 +695,20 @@ export function FloatingPipTimer() {
       window.removeEventListener('design_orbit_auth_change', handleAuthChange);
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [closePipWindow, refreshTimers]);
+  }, [closePipWindow, refreshTimers, isLoginPage]);
 
   // Sync timers on timer events and auto-open PiP when leaving the page
   useEffect(() => {
+    if (isLoginPage) {
+      setEntries([]);
+      closePipWindow();
+      return;
+    }
+
     refreshTimers();
 
     const handleTimerAction = (detail: any) => {
+      if (isLoginPage) return;
       const { id, entry, action } = detail || {};
       if (!id) {
         refreshTimers();
@@ -771,6 +814,7 @@ export function FloatingPipTimer() {
     };
 
     const handleVisibilityChange = () => {
+      if (isLoginPage) return;
       if (document.visibilityState === 'hidden') {
         const targetId = currentProfileIdRef.current;
         const targetName = currentUserNameRef.current;
@@ -786,7 +830,9 @@ export function FloatingPipTimer() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const pollInterval = setInterval(() => {
-      refreshTimers();
+      if (!isLoginPage) {
+        refreshTimers();
+      }
     }, 2500);
 
     return () => {
@@ -800,7 +846,7 @@ export function FloatingPipTimer() {
       }
       clearInterval(pollInterval);
     };
-  }, [refreshTimers, openPipWindow, closePipWindow]);
+  }, [refreshTimers, openPipWindow, closePipWindow, isLoginPage]);
 
   // Unthrottled live stopwatch ticker (runs across Web Worker, main tab, and PiP window)
   useEffect(() => {
@@ -939,7 +985,7 @@ export function FloatingPipTimer() {
     }
   };
 
-  if (entries.length === 0) {
+  if (isLoginPage || !currentUser || entries.length === 0) {
     return null;
   }
 

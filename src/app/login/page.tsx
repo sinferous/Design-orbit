@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { setLoggedInUser, fetchProfiles, getUserPasswordFromDB } from '@/lib/services/work-entry';
@@ -27,6 +27,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { showToast } = useToast();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.designOrbitPipManager?.closePip();
+    }
+  }, []);
 
   const handleSelectAccount = (selectedEmail: string) => {
     if (!selectedEmail) return;
