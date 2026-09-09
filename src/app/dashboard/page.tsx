@@ -133,6 +133,20 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [hasRunningTimer]);
 
+  // Periodic background poll (every 5 seconds) to keep team's active timers synced live on dashboard
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      fetchWorkEntriesByDate(todayStr)
+        .then(newEntries => {
+          setTodayEntries(newEntries);
+        })
+        .catch(() => {});
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
+  }, []);
+
   // Sync state when PiP or other components pause/start timers
   useEffect(() => {
     const handleTimerAction = (detail: any) => {
@@ -417,9 +431,19 @@ export default function DashboardPage() {
           {/* Today's Work Activity (65%) */}
           <div className="w-full lg:w-[65%] bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h2 className="text-base font-bold text-slate-900">Today's Work Log</h2>
-                <p className="text-xs text-slate-500">Deliverables created and approved today</p>
+              <div className="flex items-center space-x-2">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h2 className="text-base font-bold text-slate-900">Today's Work Log</h2>
+                    {todayEntries.filter(e => Boolean(e.timer_started_at)).length > 0 && (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
+                        <span>{todayEntries.filter(e => Boolean(e.timer_started_at)).length} live</span>
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500">Deliverables created and approved today</p>
+                </div>
               </div>
               <Link
                 href="/work"
@@ -459,8 +483,10 @@ export default function DashboardPage() {
                     <div
                       key={entry.id}
                       className={`p-3.5 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-all ${
-                        isTimerRunning && isMyEntry
-                          ? 'bg-amber-50/50 border-amber-300 ring-1 ring-amber-200/80 shadow-2xs'
+                        isTimerRunning
+                          ? isMyEntry
+                            ? 'bg-amber-50/50 border-amber-300 ring-1 ring-amber-200/80 shadow-2xs'
+                            : 'bg-emerald-50/40 border-emerald-300 shadow-2xs'
                           : 'bg-slate-50 border-slate-200 hover:border-sky-300'
                       }`}
                     >
@@ -470,6 +496,20 @@ export default function DashboardPage() {
                             <User className="w-3 h-3 text-teal-600" />
                             <span>By {entry.profile.name}</span>
                           </span>
+                        )}
+
+                        {isTimerRunning && (
+                          isMyEntry ? (
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                              <span>Timer Active</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
+                              <span>Active Now</span>
+                            </span>
+                          )
                         )}
 
                         <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
@@ -521,7 +561,7 @@ export default function DashboardPage() {
                                   type="button"
                                   onClick={() => {
                                     if (typeof window !== 'undefined') {
-                                      window.designOrbitPipManager?.openPip();
+                                      window.designOrbitPipManager?.openPip(entry);
                                     }
                                   }}
                                   className="inline-flex items-center space-x-1 px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
@@ -556,15 +596,30 @@ export default function DashboardPage() {
                             )}
                           </div>
                         ) : (
-                          liveSeconds > 0 && (
-                            <span
-                              title={`Time spent: ${formatWorkEntryDuration(liveSeconds)}`}
-                              className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-mono font-medium"
-                            >
-                              <Clock className="w-2.5 h-2.5 text-slate-400" />
-                              <span>{formatWorkEntryDuration(liveSeconds)}</span>
-                            </span>
-                          )
+                          // Teammate's work entry: live running clock with emerald beacon, or accumulated time
+                          <div className="flex items-center space-x-1.5 shrink-0">
+                            {isTimerRunning ? (
+                              <span
+                                title={`${entry.profile?.name || 'Teammate'} is actively working on this right now`}
+                                className="inline-flex items-center space-x-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded font-mono text-[11px] font-bold shadow-2xs"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
+                                <Clock className="w-3 h-3 text-emerald-600" />
+                                <span>{formatWorkEntryStopwatch(liveSeconds)}</span>
+                                <span className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider bg-emerald-100 px-1 py-0.2 rounded">Live</span>
+                              </span>
+                            ) : (
+                              liveSeconds > 0 && (
+                                <span
+                                  title={`Time spent: ${formatWorkEntryDuration(liveSeconds)}`}
+                                  className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-mono font-medium"
+                                >
+                                  <Clock className="w-2.5 h-2.5 text-slate-400" />
+                                  <span>{formatWorkEntryDuration(liveSeconds)}</span>
+                                </span>
+                              )
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>

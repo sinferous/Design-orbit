@@ -99,6 +99,19 @@ export default function MyWorkPage() {
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
+
+  // Background polling every 5s so all team members' active timers appear live in real-time
+  useEffect(() => {
+    const pollTimer = setInterval(async () => {
+      try {
+        const userIdToFetch = selectedUserFilter === 'my_work' ? (activeProfile?.id || 'p1') : (selectedUserFilter === 'all' ? undefined : selectedUserFilter);
+        const data = await fetchWorkEntriesByDate(selectedDate, userIdToFetch);
+        setEntries(data);
+      } catch (e) {}
+    }, 5000);
+
+    return () => clearInterval(pollTimer);
+  }, [selectedDate, selectedUserFilter, activeProfile]);
   const formatDisplayDate = (str: string) => {
     if (!str) return '';
     const d = parseLocalDate(str);
@@ -758,8 +771,10 @@ export default function MyWorkPage() {
                             <div
                               key={entry.id}
                               className={`p-5 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                                entry.timer_started_at && isMyEntry
-                                  ? 'bg-amber-50/40 border-l-4 border-l-amber-500 shadow-2xs'
+                                entry.timer_started_at
+                                  ? isMyEntry
+                                    ? 'bg-amber-50/40 border-l-4 border-l-amber-500 shadow-2xs'
+                                    : 'bg-emerald-50/30 border-l-4 border-l-emerald-500 shadow-2xs'
                                   : 'hover:bg-slate-50/60'
                               }`}
                             >
@@ -776,11 +791,18 @@ export default function MyWorkPage() {
                                     </span>
                                   )}
 
-                                  {entry.timer_started_at && isMyEntry && (
-                                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                                      <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
-                                      <span>Timer Active</span>
-                                    </span>
+                                  {entry.timer_started_at && (
+                                    isMyEntry ? (
+                                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                                        <span>Timer Active (You)</span>
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
+                                        <span>Active Now: <strong>{entry.profile?.name || 'Teammate'}</strong></span>
+                                      </span>
+                                    )
                                   )}
                                 </div>
 
@@ -909,16 +931,30 @@ export default function MyWorkPage() {
                                     )}
                                   </div>
                                 ) : (
-                                  // Read-only time spent badge for other teammates
-                                  calculateWorkEntrySeconds(entry, nowMs) > 0 && (
-                                    <span
-                                      title={`Time spent: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
-                                      className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-xs font-mono font-medium"
-                                    >
-                                      <Clock className="w-3 h-3 text-slate-400" />
-                                      <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
-                                    </span>
-                                  )
+                                  // Read-only time spent badge for other teammates with live ticker if active
+                                  <div className="flex items-center space-x-1.5 shrink-0">
+                                    {entry.timer_started_at ? (
+                                      <span
+                                        title={`${entry.profile?.name || 'Teammate'} is actively working on this right now`}
+                                        className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-lg font-mono text-xs font-bold shadow-2xs"
+                                      >
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
+                                        <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                                        <span>{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
+                                        <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider bg-emerald-100 px-1.5 py-0.5 rounded">Live</span>
+                                      </span>
+                                    ) : (
+                                      calculateWorkEntrySeconds(entry, nowMs) > 0 && (
+                                        <span
+                                          title={`Time spent: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
+                                          className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-xs font-mono font-medium"
+                                        >
+                                          <Clock className="w-3 h-3 text-slate-400" />
+                                          <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
                                 )}
 
                                 {/* Actions: Only visible and editable on the user's OWN work! */}
