@@ -170,17 +170,21 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Reliable Launch on Start**: Guaranteed PiP auto-launch triggers directly from the `Start` task user-gesture handler.
   - **Website-to-PiP Instant Sync**: Synchronized task stops initiated from the web interface immediately to the PiP window state without delay.
   - **Premature Auto-Close Prevention**: Fixed race conditions during timer startup so the floating window does not close prematurely before the first active task registers.
-- [x] **Strict User-Specific Timer Isolation & Login Screen Suppression**:
-  - Isolated all timer tracking strictly to the logged-in user so one designer's active tasks are never visible to or synchronized with other team members.
-  - Automatically suppresses and unmounts the docked timer widget and closes any PiP window on login and landing routes (`/login`, `/`).
-  - Added route and authentication checks ensuring `FloatingPipTimer` only activates for an authenticated user on operational application pages.
+- [x] **Live Active Team Timers on Entire Team Log (`/work`) & Dashboard (`/dashboard`)**:
+  - In Entire Team Log (`/work`) and Today's Work Log on the Dashboard (`/dashboard`), active, live-running timers are visible across the entire design team.
+  - Active teammate tasks highlight with an emerald border and background (`bg-emerald-50/30 border-l-4 border-l-emerald-500`) and a pulsating green beacon with an `Active Now: [Designer Name]` badge.
+  - Displays a live ticking stopwatch and green `Live` badge reflecting time spent in real-time.
+  - 5-second background polling keeps teammates' newly started and stopped timers synchronized live without requiring page reloads.
+  - Strict ownership guards: non-author team members cannot start, stop, float, edit, or delete another designer's deliverables.
+- [x] **Strict User Isolation in Picture-in-Picture (PiP)**:
+  - The Picture-in-Picture floating mini-window and docked widget strictly display **only the logged-in user's active tasks**, never showing other users' tasks.
 
 ---
 
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Latest Commit**: `862e1a5` (*fix(pip): isolate active timers strictly to the logged-in user*)
+- **Latest Commit**: `57fc745` (*feat(team-log): display live active timers for all team members in entire team log and dashboard*)
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: Production ready, compiled successfully with **0 errors across all 15 routes**.
