@@ -165,17 +165,23 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Widen PiP window to 320px for comfortable horizontal padding with zero wrapping.
   - Added `flex-shrink: 0` to task cards preventing flexbox clipping or shrinking.
   - Added real-time window resizing on both task start and task stop events so launching a 2nd or 3rd concurrent task automatically expands the floating window instantly to reveal all tasks without manual adjustment.
-
+- [x] **PiP Window UX & Lifecycle Refinements**:
+  - **`disallowReturnToOpener` Configuration**: Added `{ disallowReturnToOpener: true }` to the Document PiP window request, removing the browser's native return-to-tab button to keep the floating titlebar clean and focused.
+  - **Reliable Launch on Start**: Guaranteed PiP auto-launch triggers directly from the `Start` task user-gesture handler.
+  - **Website-to-PiP Instant Sync**: Synchronized task stops initiated from the web interface immediately to the PiP window state without delay.
+  - **Premature Auto-Close Prevention**: Fixed race conditions during timer startup so the floating window does not close prematurely before the first active task registers.
+- [x] **Typography & Styling Enhancements**:
+  - Upgraded cursive and decorative script font styling to Google Font **EB Garamond** for an elegant, professional editorial finish across brand elements.
 
 ---
 
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Latest Commit**: `f24107f` (*feat: enforce strict approved quantity bounds and status synchronization*)
+- **Latest Commit**: `19e815a` (*fix(pip): prevent premature pip auto-close when first task starts*)
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
-- **Build Status**: `npm run build` compiled successfully with **0 errors across all 15 routes**.
+- **Build Status**: Production ready, compiled successfully with **0 errors across all 15 routes**.
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`)
   - `/dashboard` → Production overview, live metrics, today's log (65%), private to-do list (35%), & quick navigation launchpad

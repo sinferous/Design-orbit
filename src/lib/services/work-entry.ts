@@ -149,6 +149,11 @@ export function setLoggedInUser(name: string, email: string, profileId?: string)
     if (profileId) {
       localStorage.setItem('design_orbit_logged_in_profile_id', profileId);
     }
+    try {
+      window.dispatchEvent(new CustomEvent('design_orbit_auth_change', {
+        detail: { name, email, profileId }
+      }));
+    } catch (e) {}
   }
 }
 
@@ -158,6 +163,11 @@ export function logoutUser() {
       localStorage.removeItem('design_orbit_logged_in_name');
       localStorage.removeItem('design_orbit_logged_in_email');
       localStorage.removeItem('design_orbit_logged_in_profile_id');
+      try {
+        window.dispatchEvent(new CustomEvent('design_orbit_auth_change', {
+          detail: null
+        }));
+      } catch (e) {}
       if (isSupabaseConfigured()) {
         const supabase = createClient();
         supabase.auth.signOut();
@@ -166,6 +176,47 @@ export function logoutUser() {
       console.warn('Failed to sign out:', e);
     }
   }
+}
+
+export async function getLoggedInProfileId(): Promise<string | null> {
+  const user = getLoggedInUser();
+  if (!user || !user.name) return null;
+  if (user.profileId) return user.profileId;
+
+  try {
+    const profiles = await fetchProfiles();
+    const matched = profiles.find(
+      p =>
+        p.name.toLowerCase() === user.name.toLowerCase() ||
+        (p.email && user.email && p.email.toLowerCase() === user.email.toLowerCase())
+    );
+    if (matched) {
+      setLoggedInUser(user.name, user.email, matched.id);
+      return matched.id;
+    }
+  } catch (e) {
+    console.warn('getLoggedInProfileId resolution error:', e);
+  }
+  return null;
+}
+
+export function isEntryForUser(
+  entry: Partial<WorkEntryWithDetails> | undefined | null,
+  userId?: string | null,
+  userName?: string | null
+): boolean {
+  if (!entry) return false;
+  const cleanUserId = userId?.trim().toLowerCase();
+  const cleanUserName = userName?.trim().toLowerCase();
+
+  if (cleanUserId) {
+    if (entry.user_id && entry.user_id.toLowerCase() === cleanUserId) return true;
+    if (entry.profile?.id && entry.profile.id.toLowerCase() === cleanUserId) return true;
+  }
+  if (cleanUserName) {
+    if (entry.profile?.name && entry.profile.name.toLowerCase() === cleanUserName) return true;
+  }
+  return false;
 }
 
 export async function fetchWorkTypes(): Promise<WorkType[]> {
@@ -1199,6 +1250,20 @@ export async function stopWorkEntryTimer(
 }
 
 export async function getActiveRunningWorkEntries(userId?: string): Promise<WorkEntryWithDetails[]> {
+  // Resolve effective user ID: use explicit param or fall back to current session
+  let effectiveUserId = userId;
+  if (!effectiveUserId && typeof window !== 'undefined') {
+    const user = getLoggedInUser();
+    if (user?.profileId) {
+      effectiveUserId = user.profileId;
+    }
+  }
+
+  // If no user is identified and caller didn't request 'all', return empty list
+  if (!effectiveUserId) {
+    return [];
+  }
+
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClient();
@@ -1207,8 +1272,8 @@ export async function getActiveRunningWorkEntries(userId?: string): Promise<Work
         .not('timer_started_at', 'is', null)
         .order('timer_started_at', { ascending: false });
 
-      if (userId) {
-        query = query.eq('user_id', userId);
+      if (effectiveUserId !== 'all') {
+        query = query.eq('user_id', effectiveUserId);
       }
 
       const { data, error } = await query;
@@ -1234,16 +1299,18 @@ export async function getActiveRunningWorkEntries(userId?: string): Promise<Work
 
     if (activeIds.length > 0) {
       const all = getStoredMockEntries();
-      const matched = all.filter(e => activeIds.includes(e.id)).map(e => ({
-        ...e,
-        timer_started_at: localStorage.getItem(`work_timer_started_${e.id}`) || e.timer_started_at,
-        time_spent_seconds: Number(localStorage.getItem(`work_time_spent_${e.id}`)) || e.time_spent_seconds || 0,
-      }));
+      const matched = all
+        .filter(e => activeIds.includes(e.id) && (effectiveUserId === 'all' || e.user_id === effectiveUserId))
+        .map(e => ({
+          ...e,
+          timer_started_at: localStorage.getItem(`work_timer_started_${e.id}`) || e.timer_started_at,
+          time_spent_seconds: Number(localStorage.getItem(`work_time_spent_${e.id}`)) || e.time_spent_seconds || 0,
+        }));
       if (matched.length > 0) return matched;
     }
   }
 
   const all = getStoredMockEntries();
-  return all.filter(e => Boolean(e.timer_started_at));
+  return all.filter(e => Boolean(e.timer_started_at) && (effectiveUserId === 'all' || e.user_id === effectiveUserId));
 }
 

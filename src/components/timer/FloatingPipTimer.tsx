@@ -9,6 +9,9 @@ import {
   stopWorkEntryTimer,
   calculateWorkEntrySeconds,
   formatWorkEntryStopwatch,
+  getLoggedInUser,
+  getLoggedInProfileId,
+  isEntryForUser,
 } from '@/lib/services/work-entry';
 import {
   Play,
@@ -341,6 +344,13 @@ export function FloatingPipTimer() {
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const { showToast } = useToast();
 
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string; profileId?: string } | null>(null);
+  const [currentProfileId, setCurrentProfileId] = useState<string | null>(null);
+  const currentProfileIdRef = useRef<string | null>(null);
+  currentProfileIdRef.current = currentProfileId;
+  const currentUserNameRef = useRef<string | null>(null);
+  currentUserNameRef.current = currentUser?.name || null;
+
   const pipContainerRef = useRef<HTMLDivElement | null>(null);
   const pipWindowRef = useRef<Window | null>(null);
   pipWindowRef.current = pipWindow;
@@ -361,22 +371,42 @@ export function FloatingPipTimer() {
     pipContainerRef.current = null;
   }, []);
 
-  // Sync active and recently running timers from storage / database
-  const refreshTimers = useCallback(async () => {
+  // Sync active and recently running timers from storage / database strictly for the logged-in user
+  const refreshTimers = useCallback(async (explicitUserId?: string, explicitUserName?: string) => {
+    const user = getLoggedInUser();
+    if (!user || !user.name) {
+      setEntries([]);
+      if (pipWindowRef.current && !pipWindowRef.current.closed) {
+        closePipWindow();
+      }
+      return;
+    }
+
+    const targetId = explicitUserId || currentProfileIdRef.current || user.profileId || (await getLoggedInProfileId());
+    const targetName = explicitUserName || currentUserNameRef.current || user.name;
+
+    if (!targetId && !targetName) {
+      setEntries([]);
+      if (pipWindowRef.current && !pipWindowRef.current.closed) {
+        closePipWindow();
+      }
+      return;
+    }
+
     try {
-      const active = await getActiveRunningWorkEntries();
+      const active = await getActiveRunningWorkEntries(targetId || undefined);
+      // Strictly enforce user ownership: filter out any tasks not belonging to the logged-in user
+      const userActive = active.filter(item => isEntryForUser(item, targetId, targetName));
       const now = Date.now();
 
       setEntries(prev => {
-        const activeIds = new Set(active.map(a => a.id));
+        const activeIds = new Set(userActive.map(a => a.id));
 
-        // Keep items from prev if:
-        // 1. Explicitly paused in PiP (!p.timer_started_at)
-        // 2. OR started recently within 10 seconds (still in flight to Supabase)
-        // 3. OR present in localStorage timer
+        // Keep items from prev ONLY IF they belong to the current user
         const pausedOrOptimistic = prev.filter(p => {
+          if (!isEntryForUser(p, targetId, targetName)) return false;
           if (activeIds.has(p.id)) return false; // Handled by active list
-          if (!p.timer_started_at) return true; // Paused in PiP
+          if (!p.timer_started_at) return true; // Paused in PiP for this user
 
           const lastStarted = recentlyStartedRef.current.get(p.id) || 0;
           if (now - lastStarted < 10000) return true;
@@ -391,12 +421,16 @@ export function FloatingPipTimer() {
           return false;
         });
 
-        return [...active, ...pausedOrOptimistic];
+        const merged = [...userActive, ...pausedOrOptimistic];
+        if (merged.length === 0 && pipWindowRef.current && !pipWindowRef.current.closed) {
+          closePipWindow();
+        }
+        return merged;
       });
     } catch (err) {
       console.warn('FloatingPipTimer refresh error:', err);
     }
-  }, []);
+  }, [closePipWindow]);
 
   // Precise dynamic height calculation matching the compact styling and OS window frame
   const computeTargetHeight = (taskCount: number) => {
@@ -432,7 +466,20 @@ export function FloatingPipTimer() {
   const openPipWindow = useCallback(async (initialEntry?: WorkEntryWithDetails): Promise<boolean> => {
     if (typeof window === 'undefined') return false;
 
+    const user = getLoggedInUser();
+    if (!user || !user.name) {
+      return false;
+    }
+
+    const targetId = currentProfileIdRef.current || user.profileId;
+    const targetName = currentUserNameRef.current || user.name;
+
     if (initialEntry) {
+      // Strictly enforce: do NOT open PiP for another user's task
+      if (!isEntryForUser(initialEntry, targetId, targetName)) {
+        return false;
+      }
+
       recentlyStartedRef.current.set(initialEntry.id, Date.now());
       setEntries(prev => {
         const exists = prev.some(item => item.id === initialEntry.id);
@@ -441,6 +488,12 @@ export function FloatingPipTimer() {
         }
         return [initialEntry, ...prev];
       });
+    } else {
+      // If called with no entry, ensure we actually have running tasks for this user
+      const hasMyActive = entriesRef.current.some(e => isEntryForUser(e, targetId, targetName) && Boolean(e.timer_started_at));
+      if (!hasMyActive && entriesRef.current.length === 0) {
+        return false;
+      }
     }
 
     const currentCount = Math.max(1, entriesRef.current.length, initialEntry ? 1 : 0);
@@ -549,6 +602,65 @@ export function FloatingPipTimer() {
     };
   }, [openPipWindow, closePipWindow]);
 
+  // Synchronize active logged in user and handle login / logout / user switching
+  useEffect(() => {
+    let mounted = true;
+
+    async function syncUser() {
+      const user = getLoggedInUser();
+      if (!user || !user.name) {
+        if (mounted) {
+          setCurrentUser(null);
+          setCurrentProfileId(null);
+          currentProfileIdRef.current = null;
+          currentUserNameRef.current = null;
+          setEntries([]);
+          closePipWindow();
+        }
+        return;
+      }
+
+      if (mounted) setCurrentUser(user);
+
+      let pId = user.profileId || null;
+      if (!pId) {
+        pId = await getLoggedInProfileId();
+      }
+
+      if (mounted) {
+        setCurrentProfileId(pId);
+        currentProfileIdRef.current = pId;
+        currentUserNameRef.current = user.name;
+        refreshTimers(pId || undefined, user.name);
+      }
+    }
+
+    syncUser();
+
+    const handleAuthChange = () => {
+      syncUser();
+    };
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (
+        e.key === 'design_orbit_logged_in_name' ||
+        e.key === 'design_orbit_logged_in_profile_id' ||
+        e.key === 'design_orbit_logged_in_email'
+      ) {
+        syncUser();
+      }
+    };
+
+    window.addEventListener('design_orbit_auth_change', handleAuthChange);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener('design_orbit_auth_change', handleAuthChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [closePipWindow, refreshTimers]);
+
   // Sync timers on timer events and auto-open PiP when leaving the page
   useEffect(() => {
     refreshTimers();
@@ -559,6 +671,9 @@ export function FloatingPipTimer() {
         refreshTimers();
         return;
       }
+
+      const targetId = currentProfileIdRef.current;
+      const targetName = currentUserNameRef.current;
 
       if (action === 'stop') {
         recentlyStartedRef.current.delete(id);
@@ -590,6 +705,11 @@ export function FloatingPipTimer() {
       }
 
       if (action === 'start' || action === 'resume') {
+        // User specificity check: ignore timers started by other users
+        if (entry && !isEntryForUser(entry, targetId, targetName)) {
+          return;
+        }
+
         recentlyStartedRef.current.set(id, Date.now());
         setEntries(prev => {
           const exists = prev.some(item => item.id === id);
@@ -612,6 +732,9 @@ export function FloatingPipTimer() {
       }
 
       if (entry) {
+        if (!isEntryForUser(entry, targetId, targetName)) {
+          return;
+        }
         setEntries(prev => {
           const exists = prev.some(item => item.id === id);
           if (exists) {
@@ -649,7 +772,9 @@ export function FloatingPipTimer() {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        const hasActive = entriesRef.current.some(e => Boolean(e.timer_started_at));
+        const targetId = currentProfileIdRef.current;
+        const targetName = currentUserNameRef.current;
+        const hasActive = entriesRef.current.some(e => isEntryForUser(e, targetId, targetName) && Boolean(e.timer_started_at));
         if (hasActive && (!pipWindowRef.current || pipWindowRef.current.closed)) {
           openPipWindow().catch(() => {});
         }
@@ -660,7 +785,9 @@ export function FloatingPipTimer() {
     window.addEventListener('storage', handleStorage);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    const pollInterval = setInterval(refreshTimers, 2500);
+    const pollInterval = setInterval(() => {
+      refreshTimers();
+    }, 2500);
 
     return () => {
       window.removeEventListener('design_orbit_timer_event', handleCustomEvent);
@@ -749,7 +876,7 @@ export function FloatingPipTimer() {
 
     // 2. Persist to storage & DB
     try {
-      const updated = await stopWorkEntryTimer(entry.id, entry, undefined, 'pause');
+      const updated = await stopWorkEntryTimer(entry.id, entry, currentProfileIdRef.current || undefined, 'pause');
       setEntries(prev =>
         prev.map(e =>
           e.id === entry.id
@@ -776,7 +903,7 @@ export function FloatingPipTimer() {
     );
 
     try {
-      const updated = await startWorkEntryTimer(entry.id, entries);
+      const updated = await startWorkEntryTimer(entry.id, entries, currentProfileIdRef.current || undefined);
       setEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
       showToast(`Resumed: ${entry.client?.name || 'Deliverable'}`, 'success');
     } catch (err: any) {
@@ -791,7 +918,7 @@ export function FloatingPipTimer() {
     setOperatingId(entry.id);
     try {
       if (entry.timer_started_at) {
-        await stopWorkEntryTimer(entry.id, entry, undefined, 'stop');
+        await stopWorkEntryTimer(entry.id, entry, currentProfileIdRef.current || undefined, 'stop');
       }
       recentlyStartedRef.current.delete(entry.id);
       const remaining = entriesRef.current.filter(e => e.id !== entry.id);

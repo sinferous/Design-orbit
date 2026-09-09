@@ -758,7 +758,7 @@ export default function MyWorkPage() {
                             <div
                               key={entry.id}
                               className={`p-5 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                                entry.timer_started_at
+                                entry.timer_started_at && isMyEntry
                                   ? 'bg-amber-50/40 border-l-4 border-l-amber-500 shadow-2xs'
                                   : 'hover:bg-slate-50/60'
                               }`}
@@ -776,7 +776,7 @@ export default function MyWorkPage() {
                                     </span>
                                   )}
 
-                                  {entry.timer_started_at && (
+                                  {entry.timer_started_at && isMyEntry && (
                                     <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
                                       <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
                                       <span>Timer Active</span>

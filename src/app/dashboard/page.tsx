@@ -459,7 +459,7 @@ export default function DashboardPage() {
                     <div
                       key={entry.id}
                       className={`p-3.5 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-all ${
-                        isTimerRunning
+                        isTimerRunning && isMyEntry
                           ? 'bg-amber-50/50 border-amber-300 ring-1 ring-amber-200/80 shadow-2xs'
                           : 'bg-slate-50 border-slate-200 hover:border-sky-300'
                       }`}
