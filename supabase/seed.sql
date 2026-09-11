@@ -8,7 +8,7 @@ INSERT INTO public.work_types (name) VALUES
     ('Landing Page'),
     ('Website'),
     ('UI/UX'),
-    ('Logo'),
+    ('Branding'),
     ('Edits'),
     ('Working'),
     ('Other')

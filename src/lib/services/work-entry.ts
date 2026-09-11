@@ -15,7 +15,7 @@ const LEGACY_ID_TO_NAME_MAP: Record<string, string> = {
   c26: 'Amaron', c27: 'Internal Project', c28: 'Design Orbit',
   p0: 'Admin', p1: 'Gajesh', p2: 'Fazil', p3: 'Varun', p4: 'Moveena', p5: 'Shashiraj', p6: 'Prasanna Lakshmi', p7: 'Samantha',
   wt1: 'Static', wt2: 'Video', wt3: 'Mobile App', wt4: 'Landing Page', wt5: 'Website',
-  wt6: 'UI/UX', wt7: 'Logo', wt8: 'Edits', wt9: 'Working', wt10: 'Other',
+  wt6: 'UI/UX', wt7: 'Branding', wt8: 'Edits', wt9: 'Working', wt10: 'Other',
 };
 
 // DELETED CLIENT TRACKER (persists across renders)
@@ -65,7 +65,7 @@ export const INITIAL_MOCK_WORK_TYPES: WorkType[] = [
   { id: '10000000-0000-4000-a000-000000000004', name: 'Landing Page', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: '10000000-0000-4000-a000-000000000005', name: 'Website', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: '10000000-0000-4000-a000-000000000006', name: 'UI/UX', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: '10000000-0000-4000-a000-000000000007', name: 'Logo', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '10000000-0000-4000-a000-000000000007', name: 'Branding', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: '10000000-0000-4000-a000-000000000008', name: 'Edits', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: '10000000-0000-4000-a000-000000000010', name: 'Other', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
