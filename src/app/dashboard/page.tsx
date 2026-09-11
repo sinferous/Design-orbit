@@ -390,7 +390,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <Link
               href="/work/new"
               className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
@@ -449,17 +449,6 @@ export default function DashboardPage() {
                 <span className="text-xs font-bold text-slate-800">Monthly Stats</span>
               </div>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
-            </Link>
-
-            <Link
-              href="/clients"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
-            >
-              <div className="flex items-center space-x-2.5">
-                <Building2 className="w-4 h-4 text-sky-600" />
-                <span className="text-xs font-bold text-slate-800">Clients</span>
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
             </Link>
           </div>
         </div>
