@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, Suspense } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { WorkEntryForm } from '@/components/work/WorkEntryForm';
 import { fetchWorkEntryById, getLoggedInUser } from '@/lib/services/work-entry';
@@ -72,7 +72,9 @@ export default function EditWorkEntryPage({ params }: EditWorkEntryPageProps) {
             {error}
           </div>
         ) : (
-          <WorkEntryForm initialData={entry} isEditMode={true} />
+          <Suspense fallback={<div className="p-8 text-center text-sm text-slate-400">Loading form...</div>}>
+            <WorkEntryForm initialData={entry} isEditMode={true} />
+          </Suspense>
         )}
       </main>
     </div>

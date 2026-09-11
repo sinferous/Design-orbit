@@ -475,6 +475,86 @@ export function getPendingUrgency(daysAgo: number): {
   };
 }
 
+// ----------------------------------------------------
+// Carryover & In-Progress ("Continue Tomorrow") Helpers
+// ----------------------------------------------------
+
+export function isInProgressEntry(entry: Partial<WorkEntryWithDetails> | null | undefined): boolean {
+  if (!entry) return false;
+  if ((entry.quantity_done ?? 1) === 0) return true;
+  if (entry.notes && (entry.notes.includes('[IN_PROGRESS]') || entry.notes.toLowerCase().includes('in progress'))) {
+    return true;
+  }
+  return false;
+}
+
+export function getCarryoverParentId(entry: Partial<WorkEntryWithDetails> | null | undefined): string | null {
+  if (!entry?.notes) return null;
+  const match = entry.notes.match(/\[CONTINUES:([a-zA-Z0-9_-]+)\]/);
+  return match ? match[1] : null;
+}
+
+export async function fetchCarryoverEntries(userId?: string): Promise<WorkEntryWithDetails[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      let query = supabase
+        .from('work_entries')
+        .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
+        .order('work_date', { ascending: false });
+
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      // Fetch entries from the past 21 days
+      const pastCutoff = new Date();
+      pastCutoff.setDate(pastCutoff.getDate() - 21);
+      const pastCutoffStr = pastCutoff.toISOString().split('T')[0];
+      query = query.gte('work_date', pastCutoffStr);
+
+      const { data, error } = await query;
+      if (!error && data) {
+        const allEntries = data as WorkEntryWithDetails[];
+        // Find which in-progress parent entries have already been finished in a subsequent entry
+        const completedParentIds = new Set<string>();
+        allEntries.forEach(e => {
+          const parentId = getCarryoverParentId(e);
+          if (parentId && (e.quantity_done || 0) > 0) {
+            completedParentIds.add(parentId);
+          }
+        });
+
+        return allEntries.filter(e => {
+          const inProgress = isInProgressEntry(e);
+          const notYetCompleted = !completedParentIds.has(e.id);
+          return inProgress && notYetCompleted;
+        });
+      }
+    } catch (err) {
+      console.warn('fetchCarryoverEntries Supabase error:', err);
+    }
+  }
+
+  const localEntries = getStoredMockEntries();
+  const completedParentIds = new Set<string>();
+  localEntries.forEach(e => {
+    const parentId = getCarryoverParentId(e);
+    if (parentId && (e.quantity_done || 0) > 0) {
+      completedParentIds.add(parentId);
+    }
+  });
+
+  return localEntries
+    .filter(e => {
+      const matchUser = userId ? e.user_id === userId : true;
+      const inProgress = isInProgressEntry(e);
+      const notYetCompleted = !completedParentIds.has(e.id);
+      return matchUser && inProgress && notYetCompleted;
+    })
+    .sort((a, b) => b.work_date.localeCompare(a.work_date));
+}
+
 export async function fetchWorkEntryById(id: string): Promise<WorkEntryWithDetails | null> {
   if (!isSupabaseConfigured()) {
     return mockWorkEntriesStore.find(e => e.id === id) || null;

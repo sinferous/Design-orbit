@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { WorkEntryForm } from '@/components/work/WorkEntryForm';
 
@@ -14,7 +15,9 @@ export default function NewWorkEntryPage() {
           </p>
         </div>
 
-        <WorkEntryForm />
+        <Suspense fallback={<div className="p-8 text-center text-sm text-slate-400">Loading work form...</div>}>
+          <WorkEntryForm />
+        </Suspense>
       </main>
     </div>
   );

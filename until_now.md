@@ -239,22 +239,50 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 ---
 
+### Phase 8 — Multi-Day Carryover & "Continue Tomorrow" Flow for In-Progress Tasks (Completed)
+- [x] **Core Accounting & Output Integrity Model (Option 1)**:
+  - **Problem Solved**: Long-form deliverables (videos, 3D renders, web development, UI/UX systems) span multiple working days. When a designer works on Day 1, logging the full quantity (`1 Video`) falsely inflates team output, while not logging at all erases billable time and daily presence.
+  - **The Solution**:
+    - **Day 1 ("In Progress / Continue Tomorrow")**: Tracks billable time spent (`time_spent_seconds`), locks deliverable quantity to `0` (`quantity_done: 0`), and sets approval to `0`. Adds time to the daily log and billing reports, but adds `0` to completed deliverable counts.
+    - **Day 2 / Final Day ("Completed Today")**: Tracks Day 2's time and records the finished deliverable quantity (`quantity_done: 1`).
+    - **Result**: Weekly/monthly reports reflect the true output (`1 Video`), both days' billable hours are captured accurately, and client approval is only requested once the deliverable is actually finished.
+- [x] **Work Entry Form Deliverable Status Switcher (`WorkEntryForm.tsx`)**:
+  - Added a row-level segmented control on each item in `/work/new`:
+    - `[ ✓ Completed Today ]` (Default): Sets deliverable count (`quantity_done >= 1`) and client approval eligibility.
+    - `[ ⏳ In Progress (Continue Tomorrow) ]`: Automatically locks quantity to `0`, displays an informational helper badge, bypasses quantity validation, and tags the entry with `[IN_PROGRESS]` notes.
+- [x] **Quick-Resume Carryover Banner & 1-Click Loading (`WorkEntryForm.tsx`)**:
+  - When opening `/work/new`, checks for recent in-progress tasks from the last 21 days that haven't been marked completed yet.
+  - Displays a sleek **"Carryover Tasks from Previous Day"** banner at the top of the form with 1-click **`Resume Task →`** button.
+  - Supports deep-linking via query parameters: `/work/new?resume=<entry_id>`.
+  - Automatically pre-populates Client, Work Type, Description, and Project URL, ready for today's work session.
+- [x] **Dashboard Carryover Reminder Card (`/dashboard`)**:
+  - Glassmorphic **"Carryover Tasks In Progress"** reminder card placed on the designer dashboard alongside Pending Client Approvals.
+  - Displays client, task title, original start date, elapsed time logged so far, and a 1-click **`Continue Today →`** button.
+- [x] **Clean Work Log Row Presentation (`/work` & `/dashboard`)**:
+  - In-progress sessions render a distinctive badge: `⏳ In-Progress Session (0 qty • Time logged)` with a direct `[ Continue Today → ]` shortcut button instead of confusing "0 done / Not Approved" badges.
+- [x] **Service Layer & DB Schema Compatibility (`work-entry.ts`)**:
+  - `isInProgressEntry(entry)`: Accurately detects multi-day in-progress tasks (`quantity_done === 0` or notes containing `[IN_PROGRESS]`).
+  - `getCarryoverParentId(entry)`: Extracts parent relationship tag `[CONTINUES:<parent_id>]`.
+  - `fetchCarryoverEntries(userId?)`: Fetches uncompleted in-progress tasks while excluding any that have already been finalized in subsequent sessions.
+  - Fully compatible with existing Supabase PostgreSQL constraint `CHECK (quantity_done >= 0)` without requiring database migrations.
+
+---
+
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Latest Commit**: `4b3adad`
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: Production ready, compiled successfully with **0 errors across all 16 routes**.
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`)
   - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO Add Work controls)
-  - `/dashboard` → Production overview, live metrics, pending approvals reminder card, today's log (65%), private to-do list (35%), & quick navigation launchpad
+  - `/dashboard` → Production overview, live metrics, carryover tasks widget, pending approvals reminder card, today's log (65%), private to-do list (35%), & quick navigation launchpad
   - `/clients` → Client Directory Management module with inline edit & update
   - `/login` → Authentication with Eye password toggles, preset account choices, & profile ID binding
   - `/settings` → Change Password & Account Settings with Eye password toggles
   - `/work` → Streamlined Personal & Team Daily Work Log, plus full **Pending Approvals Queue (`?view=pending`)** with search, age filters & zero date hunting
-  - `/work/new` → Multi-item client work entry form with quick client addition
+  - `/work/new` → Multi-item client work entry form with carryover banner and in-progress/continue tomorrow switcher
   - `/work/[id]` → Edit existing work entry with strict ownership authorization guard
   - `/reports/billing` → Dedicated Client Time Tracking & Work Hours Report for admin invoicing with rich calendar date range picker
   - `/reports/weekly` → Weekly Meeting Report with timezone-safe 7-day Tuesday-to-Monday cycle & weekly best work links

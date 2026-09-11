@@ -18,6 +18,7 @@ import {
   fetchPendingApprovalEntries,
   getPendingDaysAgo,
   getPendingUrgency,
+  isInProgressEntry,
 } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
 
@@ -991,72 +992,92 @@ export default function MyWorkPage() {
 
                               {/* Right Section: Quantities, Status, Timer & Action Icons */}
                               <div className="flex flex-wrap items-center space-x-3 sm:space-x-5 justify-between md:justify-end gap-y-2">
-                                <div className="flex items-center space-x-4 text-xs">
-                                  <div className="text-center">
-                                    <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Qty</div>
-                                    <div className="text-base font-extrabold text-slate-900">{entry.quantity_done}</div>
-                                  </div>
-
-                                  <div className="text-center">
-                                    <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Approved</div>
-                                    <div className="text-base font-extrabold text-teal-700">{entry.quantity_approved}</div>
-                                  </div>
-                                </div>
-
-                                {/* Quick Interactive Approval Action */}
-                                {isMyEntry || isAdmin ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => setSelectedApprovalEntry(entry)}
-                                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1.5 transition-all border shadow-2xs hover:scale-105 active:scale-95 cursor-pointer ${
-                                      entry.quantity_approved === entry.quantity_done
-                                        ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300'
-                                        : entry.quantity_approved > 0
-                                        ? 'bg-sky-50 hover:bg-sky-100 text-sky-800 border-sky-300'
-                                        : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300'
-                                    }`}
-                                    title="Click to update approved count"
-                                  >
-                                    {entry.quantity_approved === entry.quantity_done ? (
-                                      <>
-                                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                        <span>Approved ({entry.quantity_approved})</span>
-                                        <span className="text-[10px] opacity-60">▾</span>
-                                      </>
-                                    ) : entry.quantity_approved > 0 ? (
-                                      <>
-                                        <Check className="w-3.5 h-3.5 text-sky-600" />
-                                        <span>Partial ({entry.quantity_approved}/{entry.quantity_done})</span>
-                                        <span className="text-[10px] opacity-60">▾</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                                        <span>Not Approved (0)</span>
-                                        <span className="text-[10px] opacity-60">▾</span>
-                                      </>
+                                {isInProgressEntry(entry) ? (
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
+                                      <span>⏳ In-Progress Session</span>
+                                      <span className="text-[11px] text-amber-700 font-semibold">(0 qty • Time logged)</span>
+                                    </span>
+                                    {isMyEntry && (
+                                      <Link
+                                        href={`/work/new?resume=${entry.id}`}
+                                        className="inline-flex items-center space-x-1 px-3 py-1 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg shadow-2xs transition-all"
+                                        title="Continue working on this deliverable today"
+                                      >
+                                        <span>Continue Today →</span>
+                                      </Link>
                                     )}
-                                  </button>
+                                  </div>
                                 ) : (
-                                  <span
-                                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 ${
-                                      entry.quantity_approved > 0
-                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                        : 'bg-amber-50 text-amber-700 border border-amber-200'
-                                    }`}
-                                  >
-                                    {entry.quantity_approved > 0 ? (
-                                      <>
-                                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                        <span>Approved ({entry.quantity_approved})</span>
-                                      </>
+                                  <>
+                                    <div className="flex items-center space-x-4 text-xs">
+                                      <div className="text-center">
+                                        <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Qty</div>
+                                        <div className="text-base font-extrabold text-slate-900">{entry.quantity_done}</div>
+                                      </div>
+
+                                      <div className="text-center">
+                                        <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Approved</div>
+                                        <div className="text-base font-extrabold text-teal-700">{entry.quantity_approved}</div>
+                                      </div>
+                                    </div>
+
+                                    {/* Quick Interactive Approval Action */}
+                                    {isMyEntry || isAdmin ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => setSelectedApprovalEntry(entry)}
+                                        className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1.5 transition-all border shadow-2xs hover:scale-105 active:scale-95 cursor-pointer ${
+                                          entry.quantity_approved === entry.quantity_done
+                                            ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300'
+                                            : entry.quantity_approved > 0
+                                            ? 'bg-sky-50 hover:bg-sky-100 text-sky-800 border-sky-300'
+                                            : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300'
+                                        }`}
+                                        title="Click to update approved count"
+                                      >
+                                        {entry.quantity_approved === entry.quantity_done ? (
+                                          <>
+                                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                            <span>Approved ({entry.quantity_approved})</span>
+                                            <span className="text-[10px] opacity-60">▾</span>
+                                          </>
+                                        ) : entry.quantity_approved > 0 ? (
+                                          <>
+                                            <Check className="w-3.5 h-3.5 text-sky-600" />
+                                            <span>Partial ({entry.quantity_approved}/{entry.quantity_done})</span>
+                                            <span className="text-[10px] opacity-60">▾</span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                                            <span>Not Approved (0)</span>
+                                            <span className="text-[10px] opacity-60">▾</span>
+                                          </>
+                                        )}
+                                      </button>
                                     ) : (
-                                      <>
-                                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                                        <span>Not Approved</span>
-                                      </>
+                                      <span
+                                        className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 ${
+                                          entry.quantity_approved > 0
+                                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                        }`}
+                                      >
+                                        {entry.quantity_approved > 0 ? (
+                                          <>
+                                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                            <span>Approved ({entry.quantity_approved})</span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                                            <span>Not Approved</span>
+                                          </>
+                                        )}
+                                      </span>
                                     )}
-                                  </span>
+                                  </>
                                 )}
 
                                 {/* Timer Controls: Start / Stop & Stopwatch */}
