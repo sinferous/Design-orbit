@@ -268,30 +268,37 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 ---
 
-### Phase 9 — Simple Dismiss Button & Strict Ownership for Pending Approvals (Completed)
-- [x] **Multi-Option Deliverables & Dismissal Flow**:
-  - **Problem Solved**: Designers often present multiple creative options (e.g. `2 Done` — Option A and Option B). When the client selects and approves Option A (`1 Approved`), Option B is an unselected concept that will never be approved. Previously, this kept the item stuck in the Pending Approvals Queue indefinitely.
-  - **The Solution**: Added a simple **`Dismiss`** button directly in the Pending Queue (`/work?view=pending`) and inside `QuickApprovalModal`.
-  - Clicking "Dismiss" clears the item from the queue by appending `[DISMISSED_PENDING]` to notes.
-  - **Work Done & Time Credited**: The designer's full completed count (`2 Done`) and billable hours are **100% preserved**. It only clears the "waiting for approval" reminder.
-- [x] **Strict Ownership & Teammate Permission Guard**:
-  - In the Pending Approvals Queue, user ownership is strictly verified:
-    - **Own Deliverables**: The designer (e.g., Varun) can see and click both **`Approve`** and **`Dismiss`**.
-    - **Teammates' Deliverables**: When viewing the team's pending queue, other members' deliverables display a clean read-only badge: `Awaiting Client` with **zero interactive buttons**. Designers can view team tasks for coordination, but cannot modify or dismiss another designer's approval.
-    - **Admin**: Retains agency-wide control to approve or dismiss any deliverable when required.
-- [x] **Service Helpers (`work-entry.ts`)**:
-  - Added `isDismissedPendingEntry(entry)` to identify dismissed pending entries.
-  - Added `dismissPendingApproval(entryId)` to safely record the dismissal tag in Supabase.
-  - Updated `fetchPendingApprovalEntries` to automatically exclude dismissed entries and 0-quantity carryover entries.
+### Phase 8 — Admin Dashboard Focus & System Security (Completed)
+- [x] **Executive Admin Dashboard (`/admin`)**:
+  - Removed personal daily work logs from the Admin view to focus purely on agency-wide operations.
+  - Retained high-level agency KPIs, live team workload distribution, real-time agency deliverables feed, and team-wide pending approvals queue.
+- [x] **Strict Authentication & Route Security**:
+  - Audited middleware and client-side guards across all 16 routes.
+  - Verified that unauthenticated users with direct URLs are immediately redirected to `/login`.
+
+### Phase 9 — Pending Approvals Queue & Dismiss Flow (Completed)
+- [x] **Pending Approvals Queue (`/work?view=pending` & Dashboard Card)**:
+  - Centralized queue for past-date deliverables awaiting client sign-off, eliminating calendar hunting.
+  - Filter by age urgency: **Fresh (≤4d)**, **Follow-up (5-7d)**, and **Overdue (>7d)**.
+- [x] **Multi-Option Deliverables Dismissal Flow**:
+  - **Problem Solved**: When a designer produces 2 concepts (Option A & Option B) and the client approves Option A, Option B previously remained stuck in pending forever.
+  - **Solution**: Added a clean **`Dismiss`** action on the task row. Clicking Dismiss clears the reminder by appending `[DISMISSED_PENDING]` to notes.
+  - **Work & Time Credited**: The designer's completed count (`2 Done`) and billable hours stay **100% credited** in all reports.
+- [x] **Strict Ownership & Permissions**:
+  - Designers (e.g. Varun) can only approve or dismiss their own deliverables.
+  - Teammates' deliverables are view-only with an `Awaiting Client` badge to avoid accidental changes.
+  - Admin retains full agency-wide approval and dismissal authority.
+- [x] **Streamlined Quick Approval Modal**:
+  - Removed the redundant dismiss checkbox from inside the modal, keeping it purely focused on setting approved quantities with `+ / -` counter buttons and one-click presets (`All Approved`, `Not Approved`).
 
 ### Phase 10 — Simplified In-Progress Work ("Working" Status) (Completed)
 - [x] **No Parent/Child Complications**:
   - Eliminated complex parent/child linking, resume URL parameters (`?resume=...`), and artificial carryover tags.
   - Work is tracked cleanly as independent daily sessions without mental overhead.
 - [x] **Clean 2-State Switcher on `/work/new`**:
-  - `[ ✓ Completed ]`: Standard deliverable (Quantity >= 1, counted towards weekly/monthly report deliverables, client approval tracking enabled).
+  - `[ ✓ Completed ]`: Standard deliverable (Quantity >= 1, counted towards weekly/monthly deliverables, client approval tracking enabled).
   - `[ ⏳ Working ]`: Ongoing work session.
-    - Sets `quantity_done = 0` and `status = 'Draft'`.
+    - Sets `quantity_done = 0` and database status to `'Draft'`.
     - Preserves all time spent (`time_spent_seconds`) for client billing and daily work logs.
     - Does not count as a completed deliverable in weekly/monthly statistics.
     - Prompts user to put task details in the Description field (e.g. *"Diwali video rough cut"*).
@@ -299,6 +306,33 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Clean Status Badges in Dashboard & Daily Work Logs**:
   - In `/dashboard` and `/work`: in-progress work displays an intuitive badge: `⏳ Working (0 qty • Time logged)`.
   - All "Resume →" and "Continue Today →" redirects removed in favor of a clean, seamless UI.
+
+### Phase 11 — Weekly Report Aggregation Clean-Up (Completed)
+- [x] **Removed "Working" from Work Type Categories**:
+  - Filtered out the legacy `"Working"` entry from `fetchWorkTypes()` and the Weekly Team Review aggregation grid.
+  - Weekly report now exclusively shows real design categories: **Static**, **Video**, **UI/UX**, **Website**, **Landing Page**, **Branding**, **Edits**, **Mobile App**, and **Other**.
+  - Tracked time for in-progress tasks is 100% captured in **Total Time Tracked** and client billing without creating a confusing `Working 0 (0)` card.
+
+### Phase 12 — Email Daily Work Log "Working" Badges (Completed)
+- [x] **Transparent Communication in Email Reports**:
+  - **Modern Table (Rich HTML for Gmail & Outlook)**: Under the `QTY` column, in-progress tasks now display an amber badge: **`Working`** instead of an ambiguous `0`.
+  - **Client Digest & Plain Text**: Tasks now explicitly say `• Task [Working] - Description` instead of `(Qty: 0)`.
+  - **Email Headers & Footers**: Clarifies completed deliverables vs ongoing tasks (e.g. `24 items (+1 working)`).
+  - **Modal Header Badge**: Displays `X Deliverables • Y Working`.
+
+### Phase 13 — Database Integrity & UI Streamlining (Completed)
+- [x] **Live Supabase PostgreSQL Verification**:
+  - Verified that all pending tasks and daily work logs run directly against the live production Supabase database (`https://xttbbandssespupfhgus.supabase.co`) with genuine UUIDs.
+  - Added database-level filtering (`quantity_done > 0`) to optimize query speeds.
+- [x] **Dashboard Clean-Up**:
+  - Removed **Clients** from the **Application Quick Navigation** bar on `/dashboard`, re-balancing the quick launchpad into a clean 5-item grid (`+ Add Daily Work`, `My Daily Log`, `Pending Queue`, `Weekly Report`, `Monthly Stats`).
+- [x] **Login Accounts Ascending Order (A → Z)**:
+  - Sorted all team accounts alphabetically by designer name:
+    `Admin → Fazil → Gajesh → Moveena → Prasanna Lakshmi → Samantha → Shashiraj → Varun`.
+  - Connected the login dropdown to fetch dynamically from Supabase on mount, ensuring any new team member is automatically ordered alphabetically.
+- [x] **Renamed Category: "Logo" → "Branding"**:
+  - Updated row `959a85ae-8b59-4343-b52a-6da5a66dd61b` in the live Supabase `work_types` table from `'Logo'` to **`'Branding'`**.
+  - Updated application definitions, seed files, and report mappings to **Branding**.
 
 ---
 
@@ -309,11 +343,11 @@ This document provides a comprehensive summary of all progress, architecture, an
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: Production ready, compiled successfully with **0 errors across all 16 routes**.
 - **All Active Routes**:
-  - `/` → Opens **Login Page** (`LoginPage`)
-  - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO Add Work controls)
-  - `/dashboard` → Production overview, live metrics, pending approvals reminder card, today's log (65%), private to-do list (35%), & quick navigation launchpad
+  - `/` → Opens **Login Page** (`LoginPage`) with alphabetical A-Z member account selector
+  - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO personal daily logs)
+  - `/dashboard` → Production overview, live metrics, pending approvals reminder card, today's log (65%), private to-do list (35%), & clean 5-item quick navigation launchpad
   - `/clients` → Client Directory Management module with inline edit & update
-  - `/login` → Authentication with Eye password toggles, preset account choices, & profile ID binding
+  - `/login` → Authentication with Eye password toggles, preset account choices in A-Z order, & profile ID binding
   - `/settings` → Change Password & Account Settings with Eye password toggles
   - `/work` → Streamlined Personal & Team Daily Work Log, plus full **Pending Approvals Queue (`?view=pending`)** with search, age filters, strict ownership controls, & dismiss button
   - `/work/new` → Multi-item client work entry form with simple `Completed` vs `Working` status toggle
@@ -323,4 +357,5 @@ This document provides a comprehensive summary of all progress, architecture, an
   - `/reports/monthly` → Monthly Summary report & breakdown tables
   - `/reports/overall` → All-time analytics & visual distribution charts
   - `/team` → Creative team directory with Add Team Member capability
+
 
