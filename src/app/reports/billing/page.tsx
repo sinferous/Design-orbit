@@ -198,6 +198,32 @@ export default function ClientTimeTrackingReportPage() {
     }
   };
 
+  const isPresetActive = (preset: 'today' | 'this_week' | 'this_month' | 'last_30') => {
+    const today = new Date();
+    if (preset === 'today') {
+      const tStr = formatLocalDate(today);
+      return startDate === tStr && endDate === tStr;
+    }
+    if (preset === 'this_week') {
+      const range = getWeekRange(today);
+      return startDate === range.startDate && endDate === range.endDate;
+    }
+    if (preset === 'this_month') {
+      const y = today.getFullYear();
+      const m = today.getMonth() + 1;
+      const daysInMonth = new Date(y, m, 0).getDate();
+      const mStart = `${y}-${String(m).padStart(2, '0')}-01`;
+      const mEnd = `${y}-${String(m).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+      return startDate === mStart && endDate === mEnd;
+    }
+    if (preset === 'last_30') {
+      const past = new Date();
+      past.setDate(today.getDate() - 30);
+      return startDate === formatLocalDate(past) && endDate === formatLocalDate(today);
+    }
+    return false;
+  };
+
   const getWeekRangeLabel = () => {
     if (!startDate || !endDate) return 'Select Date Range';
     const start = parseLocalDate(startDate);
@@ -523,21 +549,27 @@ export default function ClientTimeTrackingReportPage() {
                         <button
                           type="button"
                           onClick={() => applyPreset('this_week')}
-                          className="text-sky-600 hover:text-sky-800 cursor-pointer"
+                          className={`cursor-pointer transition-colors ${
+                            isPresetActive('this_week') ? 'text-sky-700 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                          }`}
                         >
                           This Week
                         </button>
                         <button
                           type="button"
                           onClick={() => applyPreset('this_month')}
-                          className="text-slate-500 hover:text-slate-800 cursor-pointer"
+                          className={`cursor-pointer transition-colors ${
+                            isPresetActive('this_month') ? 'text-sky-700 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                          }`}
                         >
                           This Month
                         </button>
                         <button
                           type="button"
                           onClick={() => applyPreset('last_30')}
-                          className="text-slate-500 hover:text-slate-800 cursor-pointer"
+                          className={`cursor-pointer transition-colors ${
+                            isPresetActive('last_30') ? 'text-sky-700 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                          }`}
                         >
                           30 Days
                         </button>
@@ -576,28 +608,44 @@ export default function ClientTimeTrackingReportPage() {
               <button
                 type="button"
                 onClick={() => applyPreset('today')}
-                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors cursor-pointer"
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  isPresetActive('today')
+                    ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-2xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                }`}
               >
                 Today
               </button>
               <button
                 type="button"
                 onClick={() => applyPreset('this_week')}
-                className="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-md transition-colors cursor-pointer"
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  isPresetActive('this_week')
+                    ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-2xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                }`}
               >
                 This Week (Tue-Mon)
               </button>
               <button
                 type="button"
                 onClick={() => applyPreset('this_month')}
-                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors cursor-pointer"
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  isPresetActive('this_month')
+                    ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-2xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                }`}
               >
                 This Month
               </button>
               <button
                 type="button"
                 onClick={() => applyPreset('last_30')}
-                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors cursor-pointer"
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  isPresetActive('last_30')
+                    ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-2xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                }`}
               >
                 Last 30 Days
               </button>
