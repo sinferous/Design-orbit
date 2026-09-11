@@ -358,10 +358,9 @@ export default function ClientTimeTrackingReportPage() {
             </Link>
             <Link
               href="/reports/billing"
-              className="py-3 text-xs sm:text-sm font-bold text-sky-600 border-b-2 border-sky-600 flex items-center space-x-1.5 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-bold text-sky-600 border-b-2 border-sky-600 whitespace-nowrap"
             >
-              <Clock className="w-3.5 h-3.5 text-sky-600" />
-              <span>Client Time Tracking</span>
+              Client Time Tracking
             </Link>
           </div>
 

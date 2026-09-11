@@ -76,10 +76,9 @@ export default function OverallReportPage() {
             </Link>
             <Link
               href="/reports/billing"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
             >
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
-              <span>Client Time Tracking</span>
+              Client Time Tracking
             </Link>
           </div>
 
