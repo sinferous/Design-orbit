@@ -268,6 +268,24 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 ---
 
+### Phase 9 — Simple Dismiss Button & Strict Ownership for Pending Approvals (Completed)
+- [x] **Multi-Option Deliverables & Dismissal Flow**:
+  - **Problem Solved**: Designers often present multiple creative options (e.g. `2 Done` — Option A and Option B). When the client selects and approves Option A (`1 Approved`), Option B is an unselected concept that will never be approved. Previously, this kept the item stuck in the Pending Approvals Queue indefinitely.
+  - **The Solution**: Added a simple **`Dismiss`** button directly in the Pending Queue (`/work?view=pending`) and inside `QuickApprovalModal`.
+  - Clicking "Dismiss" clears the item from the queue by appending `[DISMISSED_PENDING]` to notes.
+  - **Work Done & Time Credited**: The designer's full completed count (`2 Done`) and billable hours are **100% preserved**. It only clears the "waiting for approval" reminder.
+- [x] **Strict Ownership & Teammate Permission Guard**:
+  - In the Pending Approvals Queue, user ownership is strictly verified:
+    - **Own Deliverables**: The designer (e.g., Varun) can see and click both **`Approve`** and **`Dismiss`**.
+    - **Teammates' Deliverables**: When viewing the team's pending queue, other members' deliverables display a clean read-only badge: `Awaiting Client` with **zero interactive buttons**. Designers can view team tasks for coordination, but cannot modify or dismiss another designer's approval.
+    - **Admin**: Retains agency-wide control to approve or dismiss any deliverable when required.
+- [x] **Service Helpers (`work-entry.ts`)**:
+  - Added `isDismissedPendingEntry(entry)` to identify dismissed pending entries.
+  - Added `dismissPendingApproval(entryId)` to safely record the dismissal tag in Supabase.
+  - Updated `fetchPendingApprovalEntries` to automatically exclude dismissed entries and 0-quantity carryover entries.
+
+---
+
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)

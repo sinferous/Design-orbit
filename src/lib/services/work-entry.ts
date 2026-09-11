@@ -348,6 +348,21 @@ export async function fetchWorkEntriesByDate(dateStr: string, userId?: string): 
   });
 }
 
+export function isDismissedPendingEntry(entry?: { notes?: string | null } | null): boolean {
+  return Boolean(entry?.notes && entry.notes.includes('[DISMISSED_PENDING]'));
+}
+
+export async function dismissPendingApproval(entryId: string): Promise<WorkEntry | null> {
+  const entry = await fetchWorkEntryById(entryId);
+  if (!entry) return null;
+
+  const currentNotes = entry.notes || '';
+  if (currentNotes.includes('[DISMISSED_PENDING]')) return entry;
+
+  const updatedNotes = currentNotes.trim() ? `${currentNotes.trim()} [DISMISSED_PENDING]` : '[DISMISSED_PENDING]';
+  return updateWorkEntry(entryId, { notes: updatedNotes });
+}
+
 export async function fetchPendingApprovalEntries(userId?: string): Promise<WorkEntryWithDetails[]> {
   if (isSupabaseConfigured()) {
     try {
@@ -364,7 +379,11 @@ export async function fetchPendingApprovalEntries(userId?: string): Promise<Work
       const { data, error } = await query;
       if (!error && data) {
         return (data as WorkEntryWithDetails[]).filter(
-          e => (e.quantity_approved || 0) < (e.quantity_done || 1)
+          e =>
+            (e.quantity_done || 0) > 0 &&
+            (e.quantity_approved || 0) < (e.quantity_done || 0) &&
+            !isInProgressEntry(e) &&
+            !isDismissedPendingEntry(e)
         );
       }
     } catch (err) {
@@ -375,7 +394,11 @@ export async function fetchPendingApprovalEntries(userId?: string): Promise<Work
   const localEntries = getStoredMockEntries();
   return localEntries
     .filter(e => {
-      const isPending = (e.quantity_approved || 0) < (e.quantity_done || 1);
+      const isPending =
+        (e.quantity_done || 0) > 0 &&
+        (e.quantity_approved || 0) < (e.quantity_done || 0) &&
+        !isInProgressEntry(e) &&
+        !isDismissedPendingEntry(e);
       const matchUser = userId ? e.user_id === userId : true;
       return isPending && matchUser;
     })

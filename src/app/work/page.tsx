@@ -19,6 +19,7 @@ import {
   getPendingDaysAgo,
   getPendingUrgency,
   isInProgressEntry,
+  dismissPendingApproval,
 } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
 
@@ -77,6 +78,7 @@ export default function MyWorkPage() {
   const [entries, setEntries] = useState<WorkEntryWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [dismissingId, setDismissingId] = useState<string | null>(null);
   const [timerLoadingId, setTimerLoadingId] = useState<string | null>(null);
   const [nowMs, setNowMs] = useState<number>(Date.now());
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -257,6 +259,37 @@ export default function MyWorkPage() {
           showToast('Work entry removed.', 'success');
         } finally {
           setDeletingId(null);
+        }
+      },
+    });
+  };
+
+  const handleDismissPending = (entry: WorkEntryWithDetails) => {
+    confirmDialog({
+      title: 'Dismiss from Pending Queue',
+      message: `Dismiss "${entry.description}" from pending approvals? Your work time and completed quantity (${entry.quantity_done}) will stay 100% intact.`,
+      confirmText: 'Dismiss from Queue',
+      variant: 'warning',
+      onConfirm: async () => {
+        setDismissingId(entry.id);
+        try {
+          await dismissPendingApproval(entry.id);
+          setPendingEntries(prev => prev.filter(e => e.id !== entry.id));
+          setEntries(prev =>
+            prev.map(e =>
+              e.id === entry.id
+                ? {
+                    ...e,
+                    notes: e.notes ? `${e.notes} [DISMISSED_PENDING]` : '[DISMISSED_PENDING]',
+                  }
+                : e
+            )
+          );
+          showToast('Deliverable dismissed from pending approvals queue.', 'success');
+        } catch (err: any) {
+          showToast('Failed to dismiss item. Please try again.', 'error');
+        } finally {
+          setDismissingId(null);
         }
       },
     });
@@ -1462,44 +1495,75 @@ export default function MyWorkPage() {
                                     )}
                                   </div>
 
-                                  {/* Right: Quantities & 1-Click Interactive Approval Stepper */}
-                                  <div className="flex items-center space-x-4 shrink-0 justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-100">
-                                    <div className="text-right text-xs">
-                                      <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">
-                                        Done / Approved
-                                      </div>
-                                      <div className="text-sm font-extrabold text-slate-900">
-                                        {entry.quantity_done} <span className="text-slate-300 font-normal">/</span>{' '}
-                                        <span className="text-teal-700">{entry.quantity_approved}</span>
-                                      </div>
-                                    </div>
+                                  {/* Right: Quantities & Actions */}
+                                  {(() => {
+                                    const isMyPending = Boolean(
+                                      activeProfile?.id && (entry.user_id === activeProfile.id || entry.profile?.id === activeProfile.id)
+                                    );
+                                    const canManage = isMyPending || isAdmin;
 
-                                    {/* 1-Click Quick Approval Button */}
-                                    <button
-                                      type="button"
-                                      onClick={() => setSelectedApprovalEntry(entry)}
-                                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all border shadow-2xs hover:scale-105 active:scale-95 cursor-pointer ${
-                                        (entry.quantity_approved || 0) > 0
-                                          ? 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300'
-                                          : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-300'
-                                      }`}
-                                      title="Click to update approved count"
-                                    >
-                                      {(entry.quantity_approved || 0) > 0 ? (
-                                        <>
-                                          <Check className="w-3.5 h-3.5 text-amber-600" />
-                                          <span>Partial ({entry.quantity_approved}/{entry.quantity_done})</span>
-                                          <span className="text-[10px] opacity-60">▾</span>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-                                          <span>Approve Deliverable</span>
-                                          <span className="text-[10px] opacity-60">▾</span>
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
+                                    return (
+                                      <div className="flex items-center space-x-3 shrink-0 justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-100">
+                                        <div className="text-right text-xs">
+                                          <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                                            Done / Approved
+                                          </div>
+                                          <div className="text-sm font-extrabold text-slate-900">
+                                            {entry.quantity_done} <span className="text-slate-300 font-normal">/</span>{' '}
+                                            <span className="text-teal-700">{entry.quantity_approved}</span>
+                                          </div>
+                                        </div>
+
+                                        {canManage ? (
+                                          <div className="flex items-center space-x-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => setSelectedApprovalEntry(entry)}
+                                              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all border shadow-2xs hover:scale-105 active:scale-95 cursor-pointer ${
+                                                (entry.quantity_approved || 0) > 0
+                                                  ? 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300'
+                                                  : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-300'
+                                              }`}
+                                              title="Click to update approved count"
+                                            >
+                                              {(entry.quantity_approved || 0) > 0 ? (
+                                                <>
+                                                  <Check className="w-3.5 h-3.5 text-amber-600" />
+                                                  <span>Partial ({entry.quantity_approved}/{entry.quantity_done})</span>
+                                                  <span className="text-[10px] opacity-60">▾</span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                                                  <span>Approve</span>
+                                                  <span className="text-[10px] opacity-60">▾</span>
+                                                </>
+                                              )}
+                                            </button>
+
+                                            <button
+                                              type="button"
+                                              onClick={() => handleDismissPending(entry)}
+                                              disabled={dismissingId === entry.id}
+                                              className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer flex items-center space-x-1"
+                                              title="Dismiss from pending queue (e.g. client chose 1 of multiple options)"
+                                            >
+                                              <span>Dismiss</span>
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <div className="flex items-center">
+                                            <span
+                                              className="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-500 bg-slate-100 border border-slate-200"
+                                              title="Only the task creator or admin can update approval"
+                                            >
+                                              Awaiting Client
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
                                 </div>
                               );
                             })}
@@ -1529,6 +1593,14 @@ export default function MyWorkPage() {
           onClose={() => setSelectedApprovalEntry(null)}
           onSuccess={updated => {
             setEntries(prev => prev.map(e => e.id === updated.id ? updated : e));
+            if (
+              (updated.quantity_approved || 0) >= (updated.quantity_done || 0) ||
+              Boolean(updated.notes && updated.notes.includes('[DISMISSED_PENDING]'))
+            ) {
+              setPendingEntries(prev => prev.filter(e => e.id !== updated.id));
+            } else {
+              setPendingEntries(prev => prev.map(e => e.id === updated.id ? updated : e));
+            }
           }}
         />
       </main>

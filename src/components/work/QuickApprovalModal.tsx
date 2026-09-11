@@ -21,11 +21,13 @@ export function QuickApprovalModal({
 }: QuickApprovalModalProps) {
   const { showToast } = useToast();
   const [approvedQty, setApprovedQty] = useState(0);
+  const [dismissPending, setDismissPending] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (entry) {
       setApprovedQty(entry.quantity_approved || 0);
+      setDismissPending(Boolean(entry.notes && entry.notes.includes('[DISMISSED_PENDING]')));
     }
   }, [entry]);
 
@@ -69,9 +71,18 @@ export function QuickApprovalModal({
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const currentNotes = entry.notes || '';
+      let updatedNotes = currentNotes;
+      if (dismissPending && !currentNotes.includes('[DISMISSED_PENDING]')) {
+        updatedNotes = currentNotes.trim() ? `${currentNotes.trim()} [DISMISSED_PENDING]` : '[DISMISSED_PENDING]';
+      } else if (!dismissPending && currentNotes.includes('[DISMISSED_PENDING]')) {
+        updatedNotes = currentNotes.replace(/\[DISMISSED_PENDING\]/g, '').trim();
+      }
+
       const updated = await updateWorkEntry(entry.id, {
         quantity_approved: approvedQty,
         status: approvedQty > 0 ? 'Reviewed' : 'Submitted',
+        notes: updatedNotes,
       });
 
       const fullUpdated: WorkEntryWithDetails = {
@@ -79,10 +90,13 @@ export function QuickApprovalModal({
         ...updated,
         quantity_approved: approvedQty,
         status: approvedQty > 0 ? 'Reviewed' : 'Submitted',
+        notes: updatedNotes,
       };
 
       showToast(
-        approvedQty > 0
+        dismissPending && approvedQty < maxQty
+          ? `Marked ${approvedQty} approved and dismissed remaining from pending queue.`
+          : approvedQty > 0
           ? `Marked ${approvedQty} of ${maxQty} approved!`
           : 'Deliverable marked as Not Approved.',
         'success'
@@ -232,6 +246,26 @@ export function QuickApprovalModal({
               </button>
             </div>
           </div>
+
+          {/* Dismiss remaining from pending queue option */}
+          {approvedQty < maxQty && (
+            <div className="pt-2 border-t border-slate-100">
+              <label className="flex items-start space-x-2.5 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={dismissPending}
+                  onChange={e => setDismissPending(e.target.checked)}
+                  className="mt-0.5 rounded border-slate-300 text-sky-600 focus:ring-sky-500 cursor-pointer"
+                />
+                <div className="text-xs">
+                  <span className="font-bold text-slate-800">Dismiss from Pending Queue</span>
+                  <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                    No more approvals needed (e.g. client chose 1 of multiple options). Done quantity ({maxQty}) remains 100% credited.
+                  </p>
+                </div>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
