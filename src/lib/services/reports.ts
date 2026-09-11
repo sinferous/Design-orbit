@@ -143,6 +143,7 @@ export async function getWeeklyReportData(startDateStr: string, endDateStr: stri
 
     userEntries.forEach(entry => {
       const wtName = entry.work_type?.name || 'Other';
+      if (wtName.trim().toLowerCase() === 'working') return;
       if (!breakdown[wtName]) breakdown[wtName] = { done: 0, approved: 0, timeSeconds: 0 };
       breakdown[wtName].done += entry.quantity_done;
       breakdown[wtName].approved += entry.quantity_approved;
@@ -392,6 +393,7 @@ export async function getClientBillingReportData(
       });
       cEntries.forEach(e => {
         const wtName = e.work_type?.name || 'Other';
+        if (wtName.trim().toLowerCase() === 'working') return;
         if (!breakdown[wtName]) breakdown[wtName] = { count: 0, timeSeconds: 0 };
         breakdown[wtName].count += e.quantity_done;
         breakdown[wtName].timeSeconds += calculateWorkEntrySeconds(e);

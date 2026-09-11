@@ -583,8 +583,10 @@ export default function WeeklyReportPage() {
                       Work Type Aggregation — {s.profile.name}
                     </h3>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-2">
-                      {Object.entries(s.workTypeBreakdown).map(([typeName, data]) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
+                      {Object.entries(s.workTypeBreakdown)
+                        .filter(([typeName]) => typeName.trim().toLowerCase() !== 'working')
+                        .map(([typeName, data]) => (
                         <div
                           key={typeName}
                           className={`p-3 rounded-lg border text-center space-y-1 ${

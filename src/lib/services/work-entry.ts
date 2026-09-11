@@ -67,7 +67,6 @@ export const INITIAL_MOCK_WORK_TYPES: WorkType[] = [
   { id: '10000000-0000-4000-a000-000000000006', name: 'UI/UX', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: '10000000-0000-4000-a000-000000000007', name: 'Logo', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: '10000000-0000-4000-a000-000000000008', name: 'Edits', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: '10000000-0000-4000-a000-000000000009', name: 'Working', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   { id: '10000000-0000-4000-a000-000000000010', name: 'Other', is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
@@ -245,7 +244,9 @@ export function isEntryForUser(
 }
 
 export async function fetchWorkTypes(): Promise<WorkType[]> {
-  if (!isSupabaseConfigured()) return INITIAL_MOCK_WORK_TYPES;
+  const filterOutWorking = (list: WorkType[]) => list.filter(wt => wt.name.trim().toLowerCase() !== 'working');
+
+  if (!isSupabaseConfigured()) return filterOutWorking(INITIAL_MOCK_WORK_TYPES);
   try {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -253,10 +254,10 @@ export async function fetchWorkTypes(): Promise<WorkType[]> {
       .select('*')
       .eq('is_active', true)
       .order('name');
-    if (error || !data || data.length === 0) return INITIAL_MOCK_WORK_TYPES;
-    return data;
+    if (error || !data || data.length === 0) return filterOutWorking(INITIAL_MOCK_WORK_TYPES);
+    return filterOutWorking(data);
   } catch {
-    return INITIAL_MOCK_WORK_TYPES;
+    return filterOutWorking(INITIAL_MOCK_WORK_TYPES);
   }
 }
 
