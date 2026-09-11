@@ -493,11 +493,8 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
 
                 {/* Submission Status: Only Approved or Not Approved */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                    <span>Submission Status *</span>
-                    <span className="text-[10px] text-slate-400 font-normal">
-                      {item.is_approved ? 'Approved' : 'Not Approved'}
-                    </span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Submission Status *
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -526,11 +523,6 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                       <span>Not Approved</span>
                     </button>
                   </div>
-                  <span className="block text-[10px] text-slate-400 mt-1">
-                    {item.is_approved
-                      ? `${item.quantity_approved} item(s) approved`
-                      : 'Zero items approved'}
-                  </span>
                 </div>
               </div>
 
