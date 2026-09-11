@@ -142,6 +142,19 @@ export function getLoggedInUser(): { name: string; email: string; profileId?: st
   return null;
 }
 
+export function isAdminUser(user?: { name?: string | null; email?: string | null; designation?: string | null } | null): boolean {
+  if (!user) return false;
+  const name = (user.name || '').trim().toLowerCase();
+  const email = (user.email || '').trim().toLowerCase();
+  const designation = (user.designation || '').trim().toLowerCase();
+  return (
+    name === 'admin' ||
+    email === 'admin@webtreeonline.com' ||
+    designation.includes('administrator') ||
+    designation.includes('system admin')
+  );
+}
+
 export function setLoggedInUser(name: string, email: string, profileId?: string) {
   if (typeof window !== 'undefined') {
     localStorage.setItem('design_orbit_logged_in_name', name);

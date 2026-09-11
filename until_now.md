@@ -201,18 +201,27 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Weekly Meeting Report Streamlining (Removed `Time: Visible` & Individual Entry Time)**:
   - Removed the `Time: Visible` toggle button from the sub-navigation header in the Weekly Meeting Report ([`/reports/weekly`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/weekly/page.tsx)).
   - Removed individual time displays across designer summary cards, client groupings, and individual deliverable entry items, keeping weekly meetings strictly focused on creative deliverables, review quality, approval counts, and project showcase links (while detailed time tracking is cleanly housed in [`/reports/billing`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/billing/page.tsx)).
+- [x] **Dedicated Executive Admin Dashboard (`/admin`) & Role-Based Login Flow**:
+  - **No "Add Work" Section**: Cleanly removed all task creation and timer controls from the Admin Dashboard and Admin navigation bar.
+  - **Direct Admin Login Redirection**: Entering `admin@webtreeonline.com` or selecting the Admin preset automatically routes directly to `/admin`.
+  - **Role-Based Navigation**: When signed in as an administrator, the brand logo and Dashboard nav links point to `/admin`, the "+ Add Work" button is hidden, and the daily log tab labels "Team Log". Non-admin users visiting `/admin` are automatically redirected to `/dashboard`.
+  - **Top 4 Agency KPIs**: Live real-time stats for Today's Team Output (created & approved items), Weekly Production & Approval Rate %, Deliverable Time Logged (today's hours + weekly billable total), and Active Client Accounts.
+  - **Live Team Workload & Timer Status**: Real-time roster showing each designer's active state, live pulsating beacon for currently running task timers with real-time stopwatches, and today's deliverable output.
+  - **Today's Agency Deliverables Feed**: Live stream of all deliverables logged today across the creative team with client badges, designer attribution, project links, and interactive 1-click Quick Approval adjustment dialog.
+  - **Executive Operations Launchpad**: Instant shortcuts to Client Time & Invoicing, Weekly Review, Monthly Stats, Client Directory, and Team Management.
 
 ---
 
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Latest Commit**: `6ac11fc` (*feat(ui): add RichDatePicker component and replace native date input in WorkEntryForm*)
+- **Latest Commit**: `4b3adad` (*fix(reports): remove Time: Visible button and hide individual entry times in weekly report*)
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
-- **Build Status**: Production ready, compiled successfully with **0 errors across all 15 routes**.
+- **Build Status**: Production ready, compiled successfully with **0 errors across all 16 routes**.
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`)
+  - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, NO Add Work controls)
   - `/dashboard` → Production overview, live metrics, today's log (65%), private to-do list (35%), & quick navigation launchpad
   - `/clients` → Client Directory Management module with inline edit & update
   - `/login` → Authentication with Eye password toggles, preset account choices, & profile ID binding

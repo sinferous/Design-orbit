@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { setLoggedInUser, fetchProfiles, getUserPasswordFromDB } from '@/lib/services/work-entry';
+import { setLoggedInUser, fetchProfiles, getUserPasswordFromDB, isAdminUser } from '@/lib/services/work-entry';
 import { Profile } from '@/types';
 import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
@@ -114,8 +114,9 @@ export default function LoginPage() {
     setLoggedInUser(userName, profileMatch.email || inputEmail, profileMatch.id);
     showToast(`Welcome back, ${userName}! Signed in successfully.`, 'success');
 
+    const destination = isAdminUser(profileMatch) ? '/admin' : '/dashboard';
     setTimeout(() => {
-      router.push('/dashboard');
+      router.push(destination);
     }, 400);
   };
 

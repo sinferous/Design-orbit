@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import {
@@ -14,6 +15,7 @@ import {
   calculateWorkEntrySeconds,
   formatWorkEntryDuration,
   formatWorkEntryStopwatch,
+  isAdminUser,
 } from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
 import { WorkEntryWithDetails } from '@/types';
@@ -48,12 +50,17 @@ export default function DashboardPage() {
   const [timerLoadingId, setTimerLoadingId] = useState<string | null>(null);
   const [selectedApprovalEntry, setSelectedApprovalEntry] = useState<WorkEntryWithDetails | null>(null);
   const { showToast } = useToast();
+  const router = useRouter();
 
   const [greeting, setGreeting] = useState('Good day');
   const [subtitle, setSubtitle] = useState('Here is your live daily activity and weekly work summary.');
 
   useEffect(() => {
     const user = getLoggedInUser();
+    if (user && isAdminUser(user)) {
+      router.replace('/admin');
+      return;
+    }
     if (user?.name) {
       setCurrentUser(user);
     }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Calendar, BarChart3, PlusCircle, LogOut, Building2, KeyRound, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getLoggedInUser, logoutUser } from '@/lib/services/work-entry';
+import { getLoggedInUser, logoutUser, isAdminUser } from '@/lib/services/work-entry';
 
 interface NavbarProps {
   userName?: string;
@@ -15,12 +15,14 @@ export function Navbar({ userName }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<string>(userName || 'Team Member');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const user = getLoggedInUser();
     if (user) {
       setCurrentUser(user.name);
+      setIsAdmin(isAdminUser(user));
     } else {
       router.push('/login');
     }
@@ -38,8 +40,8 @@ export function Navbar({ userName }: NavbarProps) {
   }, [pathname]);
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'My Work', href: '/work', icon: Calendar },
+    { label: 'Dashboard', href: isAdmin ? '/admin' : '/dashboard', icon: LayoutDashboard },
+    { label: isAdmin ? 'Team Log' : 'My Work', href: '/work', icon: Calendar },
     { label: 'Clients', href: '/clients', icon: Building2 },
     { label: 'Reports', href: '/reports/weekly', icon: BarChart3 },
   ];
@@ -50,7 +52,7 @@ export function Navbar({ userName }: NavbarProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
           <div className="flex items-center space-x-4 md:space-x-8">
-            <Link href="/dashboard" className="flex items-center space-x-2.5 sm:space-x-3.5 group">
+            <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center space-x-2.5 sm:space-x-3.5 group">
               <img
                 src="/logo/webtree-logo.svg"
                 alt="Webtree Logo"
@@ -68,7 +70,7 @@ export function Navbar({ userName }: NavbarProps) {
                 const Icon = item.icon;
                 const isActive = item.href.startsWith('/reports')
                   ? pathname.startsWith('/reports')
-                  : pathname.startsWith(item.href);
+                  : pathname === item.href || (item.href !== '/dashboard' && item.href !== '/admin' && pathname.startsWith(item.href));
                 return (
                   <Link
                     key={item.href}
@@ -90,14 +92,16 @@ export function Navbar({ userName }: NavbarProps) {
 
           {/* Action Button & Profile */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <Link
-              href="/work/new"
-              className="inline-flex items-center space-x-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span className="hidden xs:inline">Add Work</span>
-              <span className="xs:hidden">Add</span>
-            </Link>
+            {!isAdmin && (
+              <Link
+                href="/work/new"
+                className="inline-flex items-center space-x-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span className="hidden xs:inline">Add Work</span>
+                <span className="xs:hidden">Add</span>
+              </Link>
+            )}
 
             <div className="hidden sm:block h-6 w-px bg-slate-200" />
 
