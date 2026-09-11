@@ -12,13 +12,13 @@ import { RichSelect } from '@/components/ui/RichSelect';
 const PRESET_ACCOUNTS = [
   { name: 'Select a Team Member (Optional)', email: '' },
   { name: 'Admin (System Administrator)', email: 'admin@webtreeonline.com' },
-  { name: 'Gajesh (UI/UX Designer)', email: 'gajesh@webtreeonline.com' },
   { name: 'Fazil (Senior UI/UX Designer)', email: 'fazil@webtreeonline.com' },
-  { name: 'Samantha (Design Team Lead)', email: 'sams@webtreeonline.com' },
+  { name: 'Gajesh (UI/UX Designer)', email: 'gajesh@webtreeonline.com' },
   { name: 'Moveena (Senior Graphic Designer)', email: 'moveena@webtreeonline.com' },
   { name: 'Prasanna Lakshmi (Graphic Designer)', email: 'prasanna@webtreeonline.com' },
-  { name: 'Varun (Graphic Designer)', email: 'varun@webtreeonline.com' },
+  { name: 'Samantha (Design Team Lead)', email: 'sams@webtreeonline.com' },
   { name: 'Shashiraj (Graphic Designer)', email: 'shashiraj@webtreeonline.com' },
+  { name: 'Varun (Graphic Designer)', email: 'varun@webtreeonline.com' },
 ];
 
 export default function LoginPage() {
@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [accountOptions, setAccountOptions] = useState(PRESET_ACCOUNTS);
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -33,6 +34,27 @@ export default function LoginPage() {
     if (typeof window !== 'undefined') {
       window.designOrbitPipManager?.closePip();
     }
+
+    async function loadAccounts() {
+      try {
+        const dbProfiles = await fetchProfiles();
+        if (dbProfiles && dbProfiles.length > 0) {
+          const sorted = [...dbProfiles]
+            .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+            .map(p => ({
+              name: p.designation ? `${p.name} (${p.designation})` : p.name,
+              email: p.email || '',
+            }));
+          setAccountOptions([
+            { name: 'Select a Team Member (Optional)', email: '' },
+            ...sorted,
+          ]);
+        }
+      } catch (err) {
+        console.warn('Failed to load dynamic accounts for login:', err);
+      }
+    }
+    loadAccounts();
   }, []);
 
   const handleSelectAccount = (selectedEmail: string) => {
@@ -149,7 +171,7 @@ export default function LoginPage() {
             <RichSelect
               value={email}
               onChange={val => handleSelectAccount(String(val))}
-              options={PRESET_ACCOUNTS.map(acc => ({
+              options={accountOptions.map(acc => ({
                 value: acc.email,
                 label: acc.name,
               }))}
