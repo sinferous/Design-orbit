@@ -196,9 +196,9 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       const item = items[i];
       if (!item.work_type_id) return `Item #${i + 1}: Please select a work type.`;
       if (!item.description.trim()) return `Item #${i + 1}: Please enter a description.`;
-      if (item.quantity_done < 1) return `Item #${i + 1}: Quantity Done must be at least 1.`;
+      if (item.quantity_done < 1) return `Item #${i + 1}: Quantity must be at least 1.`;
       if (item.quantity_approved > item.quantity_done) {
-        return `Item #${i + 1}: Approved Quantity (${item.quantity_approved}) cannot exceed Quantity Done (${item.quantity_done}).`;
+        return `Item #${i + 1}: Approved Quantity (${item.quantity_approved}) cannot exceed Quantity (${item.quantity_done}).`;
       }
       if (item.is_approved && item.quantity_approved <= 0) {
         return `Item #${i + 1}: Status is marked Approved, so Approved Quantity must be at least 1.`;
@@ -431,10 +431,10 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                {/* Quantity Done */}
+                {/* Quantity */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Quantity Done *
+                    Quantity *
                   </label>
                   <input
                     type="number"
@@ -448,7 +448,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                     className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
                   />
                   <span className="block text-[10px] text-slate-400 mt-1">
-                    Total task count completed
+                    Number of deliverables / items to work on
                   </span>
                 </div>
 
@@ -491,10 +491,10 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                   </div>
                 </div>
 
-                {/* Submission Status: Only Approved or Not Approved */}
+                {/* Approval Status: Only Approved or Not Approved */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Submission Status *
+                    Approval Status *
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <button

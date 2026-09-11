@@ -10,7 +10,7 @@ export default function NewWorkEntryPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Add Daily Work Entry</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Log your completed work, quantities, and links for daily tracking and weekly report aggregation.
+            Add deliverables to track time, manage quantities, and record daily progress.
           </p>
         </div>
 
