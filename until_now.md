@@ -103,7 +103,7 @@ This document provides a comprehensive summary of all progress, architecture, an
     - **`WeeklyBestWorkModal`**: Clicking add or edit opens a dedicated modal that fetches live links from Supabase DB `public.weekly_best_work`, allows URL testing, saves/updates records, or deletes links with toast confirmation.
   - One-click CSV export.
 - [x] **Monthly Report Page (`/reports/monthly`)**:
-  - Month & Year selectors (e.g. August 2026).
+  - Automatically defaults to the **active system month & year** (`new Date().getMonth() + 1` / `new Date().getFullYear()`) with dynamic year choices and timezone-safe date queries.
   - Filters for Team Member, Work Type, and Client (sorted A-Z).
   - Work Type breakdown table with Created, Approved, and Approval Rate %.
   - CSV export.

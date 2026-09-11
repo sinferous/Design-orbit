@@ -181,16 +181,16 @@ export async function getMonthlyReportData(
   clientIdFilter?: string
 ) {
   const workTypes = await fetchWorkTypes();
-  const startDateStr = `${year}-${String(month).padStart(2, '0')}-01`;
   const daysInMonth = new Date(year, month, 0).getDate();
-  const endDateStr = `${year}-${String(month).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
-
-  const start = new Date(startDateStr);
-  const end = new Date(endDateStr);
+  const start = new Date(year, month - 1, 1, 12, 0, 0);
+  const end = new Date(year, month - 1, daysInMonth, 12, 0, 0);
   let monthEntries: WorkEntryWithDetails[] = [];
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const dStr = d.toISOString().split('T')[0];
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dayNum = String(d.getDate()).padStart(2, '0');
+    const dStr = `${y}-${m}-${dayNum}`;
     const dayEntries = await fetchWorkEntriesByDate(dStr, userIdFilter || undefined);
     monthEntries.push(...dayEntries);
   }

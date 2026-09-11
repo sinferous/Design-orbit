@@ -10,8 +10,8 @@ import { Download, Calendar, Filter, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function MonthlyReportPage() {
-  const [selectedYear, setSelectedYear] = useState<number>(2026);
-  const [selectedMonth, setSelectedMonth] = useState<number>(8); // August
+  const [selectedYear, setSelectedYear] = useState<number>(() => new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(() => new Date().getMonth() + 1);
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedWorkType, setSelectedWorkType] = useState<string>('');
   const [selectedClient, setSelectedClient] = useState<string>('');
@@ -187,8 +187,13 @@ export default function MonthlyReportPage() {
               onChange={e => setSelectedYear(parseInt(e.target.value))}
               className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900"
             >
-              <option value={2026}>2026</option>
-              <option value={2025}>2025</option>
+              {Array.from(new Set([new Date().getFullYear(), new Date().getFullYear() - 1, 2026, 2025]))
+                .sort((a, b) => b - a)
+                .map(y => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
             </select>
           </div>
 
