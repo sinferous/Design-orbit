@@ -14,6 +14,7 @@ import {
   calculateWorkEntrySeconds,
   formatWorkEntryDuration,
   formatWorkEntryStopwatch,
+  isAdminUser,
 } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
 
@@ -63,7 +64,8 @@ export default function MyWorkPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
 
-  // Default view: ONLY the logged-in user's entries
+  // Default view: ONLY the logged-in user's entries (or all for admin)
+  const [isAdmin, setIsAdmin] = useState(false);
   const [selectedUserFilter, setSelectedUserFilter] = useState<string>('my_work');
   const [entries, setEntries] = useState<WorkEntryWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,6 +80,11 @@ export default function MyWorkPage() {
       const pData = await fetchProfiles();
       setProfiles(pData);
       const user = getLoggedInUser();
+      const admin = isAdminUser(user);
+      setIsAdmin(admin);
+      if (admin) {
+        setSelectedUserFilter('all');
+      }
       const current = user 
         ? (pData.find(p => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0])
         : pData[0];
@@ -89,7 +96,8 @@ export default function MyWorkPage() {
   const loadEntries = useCallback(async () => {
     setLoading(true);
     try {
-      const userIdToFetch = selectedUserFilter === 'my_work' ? (activeProfile?.id || 'p1') : (selectedUserFilter === 'all' ? undefined : selectedUserFilter);
+      const isMyWork = !isAdmin && selectedUserFilter === 'my_work';
+      const userIdToFetch = isMyWork ? (activeProfile?.id || 'p1') : (selectedUserFilter === 'all' ? undefined : selectedUserFilter);
       const data = await fetchWorkEntriesByDate(selectedDate, userIdToFetch);
       setEntries(data);
     } catch (err) {
@@ -97,7 +105,7 @@ export default function MyWorkPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedDate, selectedUserFilter, activeProfile]);
+  }, [selectedDate, selectedUserFilter, activeProfile, isAdmin]);
 
   useEffect(() => {
     loadEntries();
@@ -392,17 +400,19 @@ export default function MyWorkPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">
-              {selectedUserFilter === 'my_work' ? 'My Daily Work Log' : 'Team Work Log'}
+              {isAdmin ? 'Creative Team Work Log' : (selectedUserFilter === 'my_work' ? 'My Daily Work Log' : 'Team Work Log')}
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              {selectedUserFilter === 'my_work'
-                ? `Showing work entries logged by ${activeProfile?.name || 'you'}`
-                : 'Showing work entries logged across the team'}
+              {isAdmin
+                ? 'Showing work entries logged across the creative design team'
+                : (selectedUserFilter === 'my_work'
+                  ? `Showing work entries logged by ${activeProfile?.name || 'you'}`
+                  : 'Showing work entries logged across the team')}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-            {selectedUserFilter === 'my_work' && entries.length > 0 && (
+            {!isAdmin && selectedUserFilter === 'my_work' && entries.length > 0 && (
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setShowEmailModal(true)}
@@ -424,46 +434,72 @@ export default function MyWorkPage() {
               </div>
             )}
 
-            <Link
-              href="/work/new"
-              className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
-            >
-              <Plus className="w-4.5 h-4.5" />
-              <span>Add Work Entry</span>
-            </Link>
+            {!isAdmin && (
+              <Link
+                href="/work/new"
+                className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
+              >
+                <Plus className="w-4.5 h-4.5" />
+                <span>Add Work Entry</span>
+              </Link>
+            )}
           </div>
         </div>
 
         {/* View Toggle Bar & Date Selector */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* My Work vs Team Tabs */}
-          <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg w-full md:w-auto">
-            <button
-              onClick={() => setSelectedUserFilter('my_work')}
-              className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                selectedUserFilter === 'my_work'
-                  ? 'bg-white text-sky-700 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              My Log ({activeProfile?.name || 'Gajesh'})
-            </button>
-            <button
-              onClick={() => setSelectedUserFilter('all')}
-              className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                selectedUserFilter !== 'my_work'
-                  ? 'bg-white text-sky-700 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Entire Team Log
-            </button>
-          </div>
+          {/* If Admin: show Team filter; Else: My Work vs Team Tabs */}
+          {isAdmin ? (
+            <div className="flex items-center space-x-2.5 w-full md:w-auto">
+              <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200 shadow-2xs shrink-0">
+                Team Work Log
+              </span>
+              <div className="w-60">
+                <RichSelect
+                  value={selectedUserFilter}
+                  onChange={val => setSelectedUserFilter(val)}
+                  options={[
+                    { value: 'all', label: 'All Designers / Entire Team' },
+                    ...profiles.filter(p => !isAdminUser(p)).map(p => ({
+                      value: p.id,
+                      label: p.name,
+                      badge: p.designation || 'Team',
+                    })),
+                  ]}
+                  size="sm"
+                  icon={<User className="w-3.5 h-3.5" />}
+                  placeholder="Filter by Designer"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg w-full md:w-auto">
+              <button
+                onClick={() => setSelectedUserFilter('my_work')}
+                className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                  selectedUserFilter === 'my_work'
+                    ? 'bg-white text-sky-700 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                My Log ({activeProfile?.name || 'Gajesh'})
+              </button>
+              <button
+                onClick={() => setSelectedUserFilter('all')}
+                className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                  selectedUserFilter !== 'my_work'
+                    ? 'bg-white text-sky-700 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Entire Team Log
+              </button>
+            </div>
+          )}
 
-          {/* Date Selector & Designer Filter */}
+          {/* Date Selector & Designer Filter for non-admin */}
           <div className="flex flex-wrap items-center space-x-2 w-full md:w-auto justify-between md:justify-end gap-2">
-            {/* Designer Filter Dropdown (shown when Entire Team Log tab is selected) */}
-            {selectedUserFilter !== 'my_work' && (
+            {!isAdmin && selectedUserFilter !== 'my_work' && (
               <div className="w-52">
                 <RichSelect
                   value={selectedUserFilter}
@@ -702,19 +738,21 @@ export default function MyWorkPage() {
             </div>
             <h3 className="text-base font-bold text-slate-900">No work logged for {formatDisplayDate(selectedDate)}</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              {selectedUserFilter === 'my_work'
-                ? "You haven't logged any work items for this date yet."
-                : "No team members have logged work for this date."}
+              {isAdmin || selectedUserFilter !== 'my_work'
+                ? "No team members have logged work for this date."
+                : "You haven't logged any work items for this date yet."}
             </p>
-            <div className="pt-2">
-              <Link
-                href="/work/new"
-                className="inline-flex items-center space-x-2 px-4 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-lg"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Log Daily Work</span>
-              </Link>
-            </div>
+            {!isAdmin && (
+              <div className="pt-2">
+                <Link
+                  href="/work/new"
+                  className="inline-flex items-center space-x-2 px-4 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-lg"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Log Daily Work</span>
+                </Link>
+              </div>
+            )}
           </div>
         ) : (
           (() => {
@@ -847,7 +885,7 @@ export default function MyWorkPage() {
                                 </div>
 
                                 {/* Quick Interactive Approval Action */}
-                                {isMyEntry ? (
+                                {isMyEntry || isAdmin ? (
                                   <button
                                     type="button"
                                     onClick={() => setSelectedApprovalEntry(entry)}
