@@ -195,6 +195,9 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Implemented across all 6 core workflows: Client & Work Type creation ([`/work/new`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx)), Team Log designer filter ([`/work`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/page.tsx)), Monthly Performance Report ([`/reports/monthly`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/monthly/page.tsx)), Client Hours & Billing ([`/reports/billing`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/billing/page.tsx)), Account login presets ([`/login`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/login/page.tsx)), and Team Member role selection ([`/team`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/team/page.tsx)).
 - [x] **Streamlined Account Settings (`/settings`)**:
   - Removed the legacy "Clear Local Session Cache" section from [`src/app/settings/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx), eliminating developmental cache purges and keeping production settings strictly focused on user password management.
+- [x] **Rich Date Picker Component (`RichDatePicker.tsx`)**:
+  - Replaced browser-native `<input type="date">` in the Daily Work Entry form ([`/work/new`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx) & [`/work/[id]`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/%5Bid%5D/page.tsx)) with a custom, interactive `RichDatePicker` component ([`src/components/ui/RichDatePicker.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/RichDatePicker.tsx)).
+  - Features an animated calendar dropdown, month navigation steppers, 42-day Monday-based grid, today & active date highlights, and 1-click `Today` / `Yesterday` quick presets.
 
 ---
 

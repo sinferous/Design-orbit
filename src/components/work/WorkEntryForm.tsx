@@ -8,6 +8,7 @@ import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Buil
 import { ToastAlert } from '@/components/ui/ToastAlert';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
+import { RichDatePicker } from '@/components/ui/RichDatePicker';
 
 interface WorkItemRow {
   id: string;
@@ -323,12 +324,10 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
 
         <div className="flex items-center space-x-2 text-xs">
           <span className="text-slate-500 font-medium">System Date:</span>
-          <input
-            type="date"
-            required
+          <RichDatePicker
             value={workDate}
-            onChange={e => setWorkDate(e.target.value)}
-            className="px-2.5 py-1 bg-white border border-slate-300 rounded-md text-xs font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-sky-500"
+            onChange={dStr => setWorkDate(dStr)}
+            size="sm"
           />
         </div>
       </div>
