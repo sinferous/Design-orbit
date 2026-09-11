@@ -27,7 +27,6 @@ import {
   Layers,
   Users,
   PieChart,
-  Sparkles,
   User,
   CheckSquare,
   Play,
@@ -302,15 +301,7 @@ export default function DashboardPage() {
         {/* Welcome Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center space-x-1">
-                <Sparkles className="w-3 h-3 text-emerald-600" />
-                <span>Webtree Creative Team</span>
-              </span>
-              <span className="text-xs text-slate-400">•</span>
-              <span className="text-xs font-semibold text-slate-500">Creative Team Member</span>
-            </div>
-            <h1 className="text-2xl font-bold text-slate-900 mt-1.5 flex items-baseline flex-wrap">
+            <h1 className="text-2xl font-bold text-slate-900 flex items-baseline flex-wrap">
               {greeting}, <span className="font-display font-extrabold text-2xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">

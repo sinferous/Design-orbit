@@ -184,6 +184,8 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Active Clients KPI (Replaced Static Active Contributors)**:
   - Replaced the static, non-actionable `Active Contributors` card with dynamic **`Active Clients`** tracking unique client brands serviced across the agency on both the Dashboard ([`/dashboard`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)) and Weekly Meeting Report ([`/reports/weekly`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/weekly/page.tsx)).
   - Calculates unique client accounts from active deliverables with dedicated `Building2` branding and live weekly aggregation.
+- [x] **Streamlined Dashboard Welcome Header**:
+  - Removed redundant "Webtree Creative Team" pill badge and "Creative Team Member" subtitle tag from the Dashboard ([`/dashboard`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)), keeping the header clean, minimal, and focused on the designer greeting and day status.
 
 ---
 
