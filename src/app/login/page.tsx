@@ -7,6 +7,7 @@ import { setLoggedInUser, fetchProfiles, getUserPasswordFromDB } from '@/lib/ser
 import { Profile } from '@/types';
 import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { RichSelect } from '@/components/ui/RichSelect';
 
 const PRESET_ACCOUNTS = [
   { name: 'Select a Team Member (Optional)', email: '' },
@@ -144,17 +145,16 @@ export default function LoginPage() {
               <UserCheck className="w-3.5 h-3.5 text-sky-600" />
               <span>Select Member Account</span>
             </label>
-            <select
+            <RichSelect
               value={email}
-              onChange={e => handleSelectAccount(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
-            >
-              {PRESET_ACCOUNTS.map(acc => (
-                <option key={acc.email || 'empty'} value={acc.email}>
-                  {acc.name}
-                </option>
-              ))}
-            </select>
+              onChange={val => handleSelectAccount(String(val))}
+              options={PRESET_ACCOUNTS.map(acc => ({
+                value: acc.email,
+                label: acc.name,
+              }))}
+              size="sm"
+              placeholder="Select Member Account..."
+            />
           </div>
 
           <form className="space-y-4" onSubmit={handleLogin}>

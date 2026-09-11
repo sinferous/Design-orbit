@@ -6,6 +6,7 @@ import { fetchProfiles, createProfileRecord, deleteProfileRecord } from '@/lib/s
 import { Profile } from '@/types';
 import { Users, Mail, Sparkles, Plus, Trash2, UserPlus, X } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { RichSelect } from '@/components/ui/RichSelect';
 
 export default function TeamPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -171,18 +172,19 @@ export default function TeamPage() {
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Designation
                   </label>
-                  <select
+                  <RichSelect
                     value={designation}
-                    onChange={e => setDesignation(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
-                  >
-                    <option value="Graphic Designer">Graphic Designer</option>
-                    <option value="Senior Graphic Designer">Senior Graphic Designer</option>
-                    <option value="UI/UX Designer">UI/UX Designer</option>
-                    <option value="Senior UI/UX Designer">Senior UI/UX Designer</option>
-                    <option value="Design Team Lead">Design Team Lead</option>
-                    <option value="Other">Other (Custom)</option>
-                  </select>
+                    onChange={val => setDesignation(String(val))}
+                    options={[
+                      { value: 'Graphic Designer', label: 'Graphic Designer' },
+                      { value: 'Senior Graphic Designer', label: 'Senior Graphic Designer' },
+                      { value: 'UI/UX Designer', label: 'UI/UX Designer' },
+                      { value: 'Senior UI/UX Designer', label: 'Senior UI/UX Designer' },
+                      { value: 'Design Team Lead', label: 'Design Team Lead' },
+                      { value: 'Other', label: 'Other (Custom)' },
+                    ]}
+                    size="md"
+                  />
                 </div>
               </div>
 

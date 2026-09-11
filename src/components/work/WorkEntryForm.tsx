@@ -7,6 +7,7 @@ import { fetchProfiles, fetchWorkTypes, fetchClients, createWorkEntriesBatch, up
 import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2, Link2 } from 'lucide-react';
 import { ToastAlert } from '@/components/ui/ToastAlert';
 import { useToast } from '@/components/ui/ToastContext';
+import { RichSelect } from '@/components/ui/RichSelect';
 
 interface WorkItemRow {
   id: string;
@@ -340,18 +341,15 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           </label>
         </div>
 
-        <select
+        <RichSelect
           value={selectedClientId}
-          onChange={e => setSelectedClientId(e.target.value)}
-          className="w-full px-4 py-3 bg-white border border-sky-300 rounded-lg text-base font-bold text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-        >
-          <option value="" disabled>-- Select Client --</option>
-          {clients.map(c => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+          onChange={val => setSelectedClientId(val)}
+          options={clients.map(c => ({ value: c.id, label: c.name }))}
+          placeholder="-- Select Client --"
+          size="lg"
+          searchable
+          triggerClassName="border-sky-300 bg-white"
+        />
       </div>
 
       {/* 2. WORK ITEMS LIST FOR SELECTED CLIENT */}
@@ -401,17 +399,13 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                   <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                     Work Type *
                   </label>
-                  <select
+                  <RichSelect
                     value={item.work_type_id}
-                    onChange={e => updateItemRow(item.id, { work_type_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
-                  >
-                    {workTypes.map(wt => (
-                      <option key={wt.id} value={wt.id}>
-                        {wt.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={val => updateItemRow(item.id, { work_type_id: val })}
+                    options={workTypes.map(wt => ({ value: wt.id, label: wt.name }))}
+                    placeholder="Select Work Type"
+                    size="md"
+                  />
                 </div>
 
                 {/* Description */}

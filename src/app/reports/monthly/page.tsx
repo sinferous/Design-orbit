@@ -6,8 +6,9 @@ import { Navbar } from '@/components/layout/Navbar';
 import { getMonthlyReportData, exportToCSV, formatReportTime } from '@/lib/services/reports';
 import { fetchProfiles, fetchWorkTypes, fetchClients } from '@/lib/services/work-entry';
 import { Profile, WorkType, Client } from '@/types';
-import { Download, Calendar, Filter, Clock } from 'lucide-react';
+import { Download, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { RichSelect } from '@/components/ui/RichSelect';
 
 export default function MonthlyReportPage() {
   const [selectedYear, setSelectedYear] = useState<number>(() => new Date().getFullYear());
@@ -165,90 +166,79 @@ export default function MonthlyReportPage() {
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Month
             </label>
-            <select
+            <RichSelect
               value={selectedMonth}
-              onChange={e => setSelectedMonth(parseInt(e.target.value))}
-              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900"
-            >
-              {months.map(m => (
-                <option key={m.value} value={m.value}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+              onChange={val => setSelectedMonth(Number(val))}
+              options={months.map(m => ({ value: m.value, label: m.name }))}
+              size="sm"
+            />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Year
             </label>
-            <select
+            <RichSelect
               value={selectedYear}
-              onChange={e => setSelectedYear(parseInt(e.target.value))}
-              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900"
-            >
-              {Array.from(new Set([new Date().getFullYear(), new Date().getFullYear() - 1, 2026, 2025]))
+              onChange={val => setSelectedYear(Number(val))}
+              options={Array.from(new Set([new Date().getFullYear(), new Date().getFullYear() - 1, 2026, 2025]))
                 .sort((a, b) => b - a)
-                .map(y => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-            </select>
+                .map(y => ({ value: y, label: String(y) }))}
+              size="sm"
+            />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Team Member
             </label>
-            <select
+            <RichSelect
               value={selectedUser}
-              onChange={e => setSelectedUser(e.target.value)}
-              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700"
-            >
-              <option value="">All Team Members</option>
-              {profiles.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              onChange={val => setSelectedUser(String(val))}
+              options={[
+                { value: '', label: 'All Team Members' },
+                ...profiles.map(p => ({
+                  value: p.id,
+                  label: p.name,
+                  badge: p.designation || 'Team',
+                })),
+              ]}
+              size="sm"
+              placeholder="All Team Members"
+            />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Work Type
             </label>
-            <select
+            <RichSelect
               value={selectedWorkType}
-              onChange={e => setSelectedWorkType(e.target.value)}
-              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700"
-            >
-              <option value="">All Work Types</option>
-              {workTypes.map(wt => (
-                <option key={wt.id} value={wt.id}>
-                  {wt.name}
-                </option>
-              ))}
-            </select>
+              onChange={val => setSelectedWorkType(String(val))}
+              options={[
+                { value: '', label: 'All Work Types' },
+                ...workTypes.map(wt => ({ value: wt.id, label: wt.name })),
+              ]}
+              size="sm"
+              placeholder="All Work Types"
+            />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Client
             </label>
-            <select
+            <RichSelect
               value={selectedClient}
-              onChange={e => setSelectedClient(e.target.value)}
-              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700"
-            >
-              <option value="">All Clients</option>
-              {clients.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              onChange={val => setSelectedClient(String(val))}
+              options={[
+                { value: '', label: 'All Clients' },
+                ...clients.map(c => ({ value: c.id, label: c.name })),
+              ]}
+              size="sm"
+              searchable
+              placeholder="All Clients"
+            />
           </div>
         </div>
 

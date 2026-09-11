@@ -40,6 +40,7 @@ import {
 import { useToast } from '@/components/ui/ToastContext';
 import { EmailDayLogModal } from '@/components/work/EmailDayLogModal';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
+import { RichSelect } from '@/components/ui/RichSelect';
 import { generateEmailTableHtml, generateCleanPlainText, copyToClipboardWithHtml } from '@/lib/services/email-formatter';
 
 export default function MyWorkPage() {
@@ -463,21 +464,22 @@ export default function MyWorkPage() {
           <div className="flex flex-wrap items-center space-x-2 w-full md:w-auto justify-between md:justify-end gap-2">
             {/* Designer Filter Dropdown (shown when Entire Team Log tab is selected) */}
             {selectedUserFilter !== 'my_work' && (
-              <div className="flex items-center space-x-1.5 px-3 py-1 bg-slate-50 rounded-lg border border-slate-200 text-xs">
-                <User className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-slate-500 font-semibold">Designer:</span>
-                <select
+              <div className="w-52">
+                <RichSelect
                   value={selectedUserFilter}
-                  onChange={e => setSelectedUserFilter(e.target.value)}
-                  className="font-bold text-slate-900 bg-transparent focus:outline-none text-xs"
-                >
-                  <option value="all">All Designers / Team</option>
-                  {profiles.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} ({p.designation || 'Team'})
-                    </option>
-                  ))}
-                </select>
+                  onChange={val => setSelectedUserFilter(val)}
+                  options={[
+                    { value: 'all', label: 'All Designers / Team' },
+                    ...profiles.map(p => ({
+                      value: p.id,
+                      label: p.name,
+                      badge: p.designation || 'Team',
+                    })),
+                  ]}
+                  size="sm"
+                  icon={<User className="w-3.5 h-3.5" />}
+                  placeholder="Select Designer"
+                />
               </div>
             )}
 

@@ -29,6 +29,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { RichSelect } from '@/components/ui/RichSelect';
 
 export default function ClientTimeTrackingReportPage() {
   const [startDate, setStartDate] = useState<string>('');
@@ -662,54 +663,53 @@ export default function ClientTimeTrackingReportPage() {
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
                 Filter Client
               </label>
-              <select
+              <RichSelect
                 value={selectedClient}
-                onChange={e => setSelectedClient(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 shadow-2xs"
-              >
-                <option value="">All Clients</option>
-                {clients.map(c => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                onChange={val => setSelectedClient(String(val))}
+                options={[
+                  { value: '', label: 'All Clients' },
+                  ...clients.map(c => ({ value: c.id, label: c.name })),
+                ]}
+                size="sm"
+                searchable
+                placeholder="All Clients"
+              />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
                 Filter Team Member
               </label>
-              <select
+              <RichSelect
                 value={selectedUser}
-                onChange={e => setSelectedUser(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 shadow-2xs"
-              >
-                <option value="">All Team Members</option>
-                {profiles.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+                onChange={val => setSelectedUser(String(val))}
+                options={[
+                  { value: '', label: 'All Team Members' },
+                  ...profiles.map(p => ({
+                    value: p.id,
+                    label: p.name,
+                    badge: p.designation || 'Team',
+                  })),
+                ]}
+                size="sm"
+                placeholder="All Team Members"
+              />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
                 Filter Work Type
               </label>
-              <select
+              <RichSelect
                 value={selectedWorkType}
-                onChange={e => setSelectedWorkType(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 shadow-2xs"
-              >
-                <option value="">All Work Types</option>
-                {workTypes.map(wt => (
-                  <option key={wt.id} value={wt.id}>
-                    {wt.name}
-                  </option>
-                ))}
-              </select>
+                onChange={val => setSelectedWorkType(String(val))}
+                options={[
+                  { value: '', label: 'All Work Types' },
+                  ...workTypes.map(wt => ({ value: wt.id, label: wt.name })),
+                ]}
+                size="sm"
+                placeholder="All Work Types"
+              />
             </div>
           </div>
         </div>
