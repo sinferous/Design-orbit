@@ -371,6 +371,7 @@ export async function fetchPendingApprovalEntries(userId?: string): Promise<Work
       let query = supabase
         .from('work_entries')
         .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
+        .gt('quantity_done', 0)
         .order('work_date', { ascending: false });
 
       if (userId) {
