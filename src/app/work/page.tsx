@@ -1026,20 +1026,11 @@ export default function MyWorkPage() {
                               {/* Right Section: Quantities, Status, Timer & Action Icons */}
                               <div className="flex flex-wrap items-center space-x-3 sm:space-x-5 justify-between md:justify-end gap-y-2">
                                 {isInProgressEntry(entry) ? (
-                                  <div className="flex flex-wrap items-center gap-2">
+                                  <div className="flex items-center">
                                     <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
-                                      <span>⏳ In-Progress Session</span>
+                                      <span>⏳ Working</span>
                                       <span className="text-[11px] text-amber-700 font-semibold">(0 qty • Time logged)</span>
                                     </span>
-                                    {isMyEntry && (
-                                      <Link
-                                        href={`/work/new?resume=${entry.id}`}
-                                        className="inline-flex items-center space-x-1 px-3 py-1 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg shadow-2xs transition-all"
-                                        title="Continue working on this deliverable today"
-                                      >
-                                        <span>Continue Today →</span>
-                                      </Link>
-                                    )}
                                   </div>
                                 ) : (
                                   <>

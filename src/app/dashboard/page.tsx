@@ -19,7 +19,6 @@ import {
   fetchPendingApprovalEntries,
   getPendingDaysAgo,
   getPendingUrgency,
-  fetchCarryoverEntries,
   isInProgressEntry,
 } from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
@@ -43,7 +42,6 @@ import {
   ChevronRight,
   Hourglass,
   CheckCheck,
-  CalendarClock,
 } from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { useToast } from '@/components/ui/ToastContext';
@@ -53,7 +51,6 @@ export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
   const [todayEntries, setTodayEntries] = useState<WorkEntryWithDetails[]>([]);
   const [pendingApprovals, setPendingApprovals] = useState<WorkEntryWithDetails[]>([]);
-  const [carryoverTasks, setCarryoverTasks] = useState<WorkEntryWithDetails[]>([]);
   const [weekSummary, setWeekSummary] = useState({ totalCreated: 0, totalApproved: 0, activeClients: 0 });
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
@@ -128,12 +125,8 @@ export default function DashboardPage() {
           }
         }
 
-        const [pApprovals, cTasks] = await Promise.all([
-          fetchPendingApprovalEntries(resolvedId),
-          fetchCarryoverEntries(resolvedId),
-        ]);
+        const pApprovals = await fetchPendingApprovalEntries(resolvedId);
         setPendingApprovals(pApprovals);
-        setCarryoverTasks(cTasks);
 
         const wCreated = wData.reduce((acc, curr) => acc + curr.totalCreated, 0);
         const wApproved = wData.reduce((acc, curr) => acc + curr.totalApproved, 0);
@@ -471,91 +464,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Carryover In-Progress Tasks from Previous Day */}
-        {carryoverTasks.length > 0 && (
-          <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-300/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-indigo-200/60 pb-3.5">
-              <div className="flex items-center space-x-3">
-                <div className="p-2.5 rounded-xl bg-indigo-600 text-white shadow-sm ring-4 ring-indigo-100">
-                  <CalendarClock className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <h2 className="text-base font-bold text-slate-900">
-                      Carryover Tasks In Progress
-                    </h2>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-indigo-200 text-indigo-950 border border-indigo-300">
-                      {carryoverTasks.length} {carryoverTasks.length === 1 ? 'task' : 'tasks'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    Deliverables you started on a previous day. Time spent was recorded without inflating quantity. Continue working on them today to finalize!
-                  </p>
-                </div>
-              </div>
-
-              <Link
-                href="/work/new"
-                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold text-indigo-900 bg-indigo-100 hover:bg-indigo-200 border border-indigo-300 rounded-xl transition-all shadow-2xs shrink-0 self-start sm:self-auto"
-              >
-                <span>Open Work Form</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {carryoverTasks.map((entry) => {
-                const formattedDate = new Date(entry.work_date + 'T00:00:00').toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                });
-                const timeLogged = calculateWorkEntrySeconds(entry);
-
-                return (
-                  <div
-                    key={entry.id}
-                    className="bg-white/95 backdrop-blur-xs p-3.5 rounded-xl border border-indigo-200/80 hover:border-indigo-400 shadow-2xs transition-all flex flex-col justify-between space-y-2.5"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[11px] font-bold truncate max-w-[120px]">
-                          {entry.client?.name || 'Client'}
-                        </span>
-                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold border bg-indigo-50 text-indigo-800 border-indigo-200">
-                          <span>⏳ In Progress</span>
-                        </span>
-                      </div>
-
-                      <p className="text-xs font-semibold text-slate-900 line-clamp-2" title={entry.description}>
-                        {entry.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                      <div className="text-[11px] text-slate-500">
-                        <span className="font-medium text-slate-700">📅 Started {formattedDate}</span>
-                        {timeLogged > 0 && (
-                          <>
-                            <span className="mx-1.5 text-slate-300">•</span>
-                            <span className="font-semibold text-indigo-700">{formatWorkEntryDuration(timeLogged)} logged</span>
-                          </>
-                        )}
-                      </div>
-
-                      <Link
-                        href={`/work/new?resume=${entry.id}`}
-                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-2xs transition-all cursor-pointer"
-                      >
-                        <span>Continue Today →</span>
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {/* Pending Client Approvals Reminder Card */}
         {pendingApprovals.length > 0 && (
           <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-300/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
@@ -747,20 +655,11 @@ export default function DashboardPage() {
 
                       <div className="flex flex-wrap items-center space-x-3 sm:space-x-4 shrink-0 text-slate-700">
                         {isInProgressEntry(entry) ? (
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center">
                             <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
-                              <span>⏳ In-Progress Session</span>
+                              <span>⏳ Working</span>
                               <span className="text-[10px] text-amber-700 font-semibold">(0 qty • Time logged)</span>
                             </span>
-                            {isMyEntry && (
-                              <Link
-                                href={`/work/new?resume=${entry.id}`}
-                                className="text-[11px] font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded shadow-2xs"
-                                title="Continue working on this deliverable"
-                              >
-                                Resume →
-                              </Link>
-                            )}
                           </div>
                         ) : (
                           <>

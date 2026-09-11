@@ -504,6 +504,7 @@ export function getPendingUrgency(daysAgo: number): {
 
 export function isInProgressEntry(entry: Partial<WorkEntryWithDetails> | null | undefined): boolean {
   if (!entry) return false;
+  if (entry.status === 'Draft') return true;
   if ((entry.quantity_done ?? 1) === 0) return true;
   if (entry.notes && (entry.notes.includes('[IN_PROGRESS]') || entry.notes.toLowerCase().includes('in progress'))) {
     return true;

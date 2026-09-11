@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Profile, WorkType, Client, WorkEntryWithDetails } from '@/types';
+import { useRouter } from 'next/navigation';
+import { Profile, WorkType, Client, WorkEntryWithDetails, WorkStatus } from '@/types';
 import {
   fetchProfiles,
   fetchWorkTypes,
@@ -10,13 +10,9 @@ import {
   createWorkEntriesBatch,
   updateWorkEntry,
   getLoggedInUser,
-  fetchCarryoverEntries,
-  fetchWorkEntryById,
   isInProgressEntry,
-  getCarryoverParentId,
-  formatWorkEntryDuration,
 } from '@/lib/services/work-entry';
-import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2, Link2, Hourglass, ArrowRight, Sparkles } from 'lucide-react';
+import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2, Link2, Hourglass } from 'lucide-react';
 import { ToastAlert } from '@/components/ui/ToastAlert';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
@@ -31,7 +27,6 @@ interface WorkItemRow {
   is_approved: boolean; // Approved vs Not Approved
   project_url?: string;
   is_in_progress?: boolean;
-  parent_carryover_id?: string | null;
 }
 
 interface WorkEntryFormProps {
@@ -41,14 +36,11 @@ interface WorkEntryFormProps {
 
 export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryFormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const resumeId = searchParams.get('resume');
   const { showToast } = useToast();
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [workTypes, setWorkTypes] = useState<WorkType[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [carryoverTasks, setCarryoverTasks] = useState<WorkEntryWithDetails[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(true);
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -57,8 +49,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
   const [workDate, setWorkDate] = useState<string>(initialData?.work_date || todayStr);
   const [selectedClientId, setSelectedClientId] = useState<string>(initialData?.client_id || '');
 
-  const initialIsInProgress = initialData ? isInProgressEntry(initialData) : false;
-  const initialParentId = initialData ? getCarryoverParentId(initialData) : null;
+  const initialIsInProgress = initialData ? (initialData.status === 'Draft' || initialData.quantity_done === 0 || isInProgressEntry(initialData)) : false;
 
   // Work items for current client
   const [items, setItems] = useState<WorkItemRow[]>([
@@ -71,7 +62,6 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       is_approved: (initialData?.status === 'Reviewed' || (initialData?.quantity_approved ?? 0) > 0),
       project_url: initialData?.project_url || initialData?.best_work_url || '',
       is_in_progress: initialIsInProgress,
-      parent_carryover_id: initialParentId,
     },
   ]);
 
@@ -101,34 +91,6 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           setSelectedClientId(cData[0]?.id || '');
         }
 
-        // Fetch in-progress carryover tasks if not in edit mode
-        if (!isEditMode && resolvedUserId) {
-          const carryovers = await fetchCarryoverEntries(resolvedUserId);
-          setCarryoverTasks(carryovers);
-
-          // If resume parameter is provided in the URL, pre-populate that task
-          if (resumeId) {
-            const match = carryovers.find(c => c.id === resumeId) || (await fetchWorkEntryById(resumeId));
-            if (match) {
-              if (match.client_id) setSelectedClientId(match.client_id);
-              setItems([
-                {
-                  id: `resumed_${match.id}`,
-                  work_type_id: match.work_type_id,
-                  description: match.description,
-                  quantity_done: 1, // Ready to finish today
-                  quantity_approved: 0,
-                  is_approved: false,
-                  project_url: match.project_url || match.best_work_url || '',
-                  is_in_progress: false,
-                  parent_carryover_id: match.id,
-                },
-              ]);
-              return;
-            }
-          }
-        }
-
         if (!initialData) {
           setItems([
             {
@@ -136,8 +98,8 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
               work_type_id: wtData[0]?.id || '',
               description: '',
               quantity_done: 1,
-              quantity_approved: 0,
-              is_approved: false,
+              quantity_approved: 1,
+              is_approved: true,
               project_url: '',
               is_in_progress: false,
             },
@@ -150,25 +112,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       }
     }
     loadFormOptions();
-  }, [initialData, isEditMode, resumeId]);
-
-  const handleResumeCarryover = (task: WorkEntryWithDetails) => {
-    if (task.client_id) setSelectedClientId(task.client_id);
-    setItems([
-      {
-        id: `resumed_${task.id}`,
-        work_type_id: task.work_type_id,
-        description: task.description,
-        quantity_done: 1, // Ready to finish today
-        quantity_approved: 0,
-        is_approved: false,
-        project_url: task.project_url || task.best_work_url || '',
-        is_in_progress: false,
-        parent_carryover_id: task.id,
-      },
-    ]);
-    showToast(`Loaded "${task.description.slice(0, 24)}...". Ready to continue today.`, 'success');
-  };
+  }, [initialData, isEditMode]);
 
   const addItemRow = () => {
     const defaultWorkType = workTypes[0]?.id || '';
@@ -312,16 +256,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
     try {
       if (isEditMode && initialData?.id) {
         const item = items[0];
-        let notesVal = initialData.notes || undefined;
-        if (item.is_in_progress) {
-          notesVal = item.parent_carryover_id
-            ? `[IN_PROGRESS] [CONTINUES:${item.parent_carryover_id}]`
-            : `[IN_PROGRESS]`;
-        } else if (item.parent_carryover_id) {
-          notesVal = `[COMPLETED] [CONTINUES:${item.parent_carryover_id}]`;
-        } else if (notesVal?.includes('[IN_PROGRESS]')) {
-          notesVal = notesVal.replace('[IN_PROGRESS]', '').trim() || undefined;
-        }
+        const statusVal: WorkStatus = item.is_in_progress ? 'Draft' : item.is_approved ? 'Reviewed' : 'Submitted';
 
         await updateWorkEntry(initialData.id, {
           user_id: selectedUserId,
@@ -333,21 +268,13 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           quantity_approved: item.is_in_progress ? 0 : item.quantity_approved,
           project_url: item.project_url || undefined,
           best_work_url: item.project_url || undefined,
-          notes: notesVal,
-          status: item.is_in_progress ? 'Submitted' : item.is_approved ? 'Reviewed' : 'Submitted',
+          status: statusVal,
         });
         showToast('Work entry updated successfully!', 'success');
         setTimeout(() => router.push('/work'), 600);
       } else {
         const payload = items.map(item => {
-          let notesVal: string | undefined = undefined;
-          if (item.is_in_progress) {
-            notesVal = item.parent_carryover_id
-              ? `[IN_PROGRESS] [CONTINUES:${item.parent_carryover_id}]`
-              : `[IN_PROGRESS]`;
-          } else if (item.parent_carryover_id) {
-            notesVal = `[COMPLETED] [CONTINUES:${item.parent_carryover_id}]`;
-          }
+          const statusVal: WorkStatus = item.is_in_progress ? 'Draft' : item.is_approved ? 'Reviewed' : 'Submitted';
 
           return {
             user_id: selectedUserId,
@@ -359,8 +286,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
             quantity_approved: item.is_in_progress ? 0 : item.quantity_approved,
             project_url: item.project_url || undefined,
             best_work_url: item.project_url || undefined,
-            notes: notesVal,
-            status: (item.is_in_progress ? 'Submitted' : item.is_approved ? 'Reviewed' : 'Submitted') as any,
+            status: statusVal,
           };
         });
 
@@ -414,42 +340,6 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
 
       <form className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
-
-      {/* Quick-Resume In-Progress Carryover Banner */}
-      {carryoverTasks.length > 0 && !isEditMode && (
-        <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border border-amber-300/80 rounded-2xl p-4 shadow-2xs space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-amber-200/60 pb-2">
-            <div className="flex items-center space-x-2">
-              <span className="p-1 rounded-md bg-amber-500 text-white shadow-2xs">
-                <Hourglass className="w-3.5 h-3.5" />
-              </span>
-              <span className="text-xs font-bold text-slate-900">
-                In-Progress Work from Previous Days ({carryoverTasks.length})
-              </span>
-            </div>
-            <span className="text-[11px] text-amber-900 font-medium">Click a task below to resume work today</span>
-          </div>
-
-          <div className="flex flex-wrap gap-2 pt-0.5">
-            {carryoverTasks.map(task => (
-              <button
-                key={task.id}
-                type="button"
-                onClick={() => handleResumeCarryover(task)}
-                className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-white border border-amber-200 hover:border-amber-400 text-xs text-slate-800 shadow-2xs hover:bg-amber-50/50 transition-all text-left cursor-pointer group"
-                title="Click to pre-fill row and continue today"
-              >
-                <span className="font-bold text-amber-900">{task.client?.name || 'Client'}:</span>
-                <span className="truncate max-w-[180px] font-medium text-slate-700">{task.description}</span>
-                {Boolean(task.time_spent_seconds) && (
-                  <span className="text-[10px] text-slate-500 font-mono">({formatWorkEntryDuration(task.time_spent_seconds || 0)})</span>
-                )}
-                <ArrowRight className="w-3 h-3 text-amber-600 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Auto User & System Date Bar */}
       <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -569,87 +459,52 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                 </div>
               </div>
 
-              {/* Deliverable Progress Status Selector */}
-              <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <div>
-                  <span className="text-xs font-bold text-slate-800">Task Completion Status:</span>
-                  <span className="text-[11px] text-slate-500 ml-1.5 hidden sm:inline">
-                    {item.is_in_progress
-                      ? 'Multi-day deliverable: working adds time today, 0 quantity'
-                      : 'Completed deliverable: adds quantity & time'}
-                  </span>
+              {/* Status Switcher: Completed vs Working */}
+              <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-semibold text-slate-700">Status:</span>
+                  <div className="inline-flex p-0.5 rounded-lg bg-slate-100 border border-slate-200 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => updateItemRow(item.id, { is_in_progress: false, quantity_done: item.quantity_done || 1 })}
+                      className={`px-3 py-1 rounded-md font-bold transition-all cursor-pointer ${
+                        !item.is_in_progress
+                          ? 'bg-white text-slate-900 shadow-2xs'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      ✓ Completed
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateItemRow(item.id, { is_in_progress: true, quantity_done: 0, quantity_approved: 0, is_approved: false })}
+                      className={`px-3 py-1 rounded-md font-bold transition-all cursor-pointer ${
+                        item.is_in_progress
+                          ? 'bg-amber-500 text-white shadow-2xs'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      ⏳ Working
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg self-start sm:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => updateItemRow(item.id, { is_in_progress: false })}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                      !item.is_in_progress
-                        ? 'bg-white text-slate-900 shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    ✓ Completed Today
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateItemRow(item.id, { is_in_progress: true })}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
-                      item.is_in_progress
-                        ? 'bg-amber-500 text-white shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    <Hourglass className="w-3.5 h-3.5" />
-                    <span>⏳ In Progress (Continue Tomorrow)</span>
-                  </button>
-                </div>
+                {item.is_in_progress ? (
+                  <span className="text-[11px] text-amber-800 font-medium">
+                    (Working adds time today &bull; Details in description)
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-slate-400">
+                    Finished deliverable (counted in reports)
+                  </span>
+                )}
               </div>
 
-              {!isEditMode ? (
-                /* Creation Mode: In-Progress Alert vs Quantity (1/3) + Project URL (2/3) */
-                item.is_in_progress ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 items-start">
-                    <div className="sm:col-span-1 p-3.5 bg-amber-50 border border-amber-200 rounded-xl space-y-1">
-                      <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-950">
-                        <Hourglass className="w-3.5 h-3.5 text-amber-600" />
-                        <span>In-Progress Session</span>
-                      </div>
-                      <p className="text-[11px] text-amber-900 leading-tight">
-                        Working adds time today, but <strong>0 quantity</strong> so reports won't double-count.
-                      </p>
-                    </div>
-
-                    <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                        <span className="flex items-center space-x-1.5">
-                          <Link2 className="w-3.5 h-3.5 text-sky-600" />
-                          <span>Project URL</span>
-                          <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
-                        </span>
-                        <span className="text-[11px] text-slate-400 font-normal hidden sm:inline">
-                          Figma, Behance, Drive, or site link
-                        </span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="url"
-                          placeholder="https://figma.com/file/... or https://..."
-                          value={item.project_url || ''}
-                          onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50/60 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder:text-slate-400"
-                        />
-                        <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                      </div>
-                      <span className="block text-[10px] text-slate-400 mt-1">
-                        Deliverable link for review or meeting reference
-                      </span>
-                    </div>
-                  </div>
-                ) : (
+              {/* Fields: Quantity & Project URL */}
+              {!item.is_in_progress ? (
+                !isEditMode ? (
+                  /* Creation Mode */
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                    {/* Quantity */}
                     <div className="sm:col-span-1">
                       <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                         Quantity *
@@ -665,21 +520,14 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                         }}
                         className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
                       />
-                      <span className="block text-[10px] text-slate-400 mt-1">
-                        Deliverables / items to work on
-                      </span>
                     </div>
 
-                    {/* Project URL */}
                     <div className="sm:col-span-2">
                       <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
                         <span className="flex items-center space-x-1.5">
                           <Link2 className="w-3.5 h-3.5 text-sky-600" />
                           <span>Project URL</span>
                           <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
-                        </span>
-                        <span className="text-[11px] text-slate-400 font-normal hidden sm:inline">
-                          Figma, Behance, Drive, or site link
                         </span>
                       </label>
                       <div className="relative">
@@ -692,28 +540,12 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                         />
                         <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                       </div>
-                      <span className="block text-[10px] text-slate-400 mt-1">
-                        Deliverable link for review or meeting reference
-                      </span>
                     </div>
-                  </div>
-                )
-              ) : (
-                /* Edit Mode */
-                item.is_in_progress ? (
-                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl space-y-1">
-                    <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-950">
-                      <Hourglass className="w-3.5 h-3.5 text-amber-600" />
-                      <span>In-Progress Session</span>
-                    </div>
-                    <p className="text-[11px] text-amber-900 leading-tight">
-                      This task is recorded as In-Progress for this day (adds time, 0 quantity). Toggle to "Completed Today" above if this was the final delivery.
-                    </p>
                   </div>
                 ) : (
+                  /* Edit Mode */
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                      {/* Quantity */}
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                           Quantity *
@@ -729,12 +561,8 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                           }}
                           className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
                         />
-                        <span className="block text-[10px] text-slate-400 mt-1">
-                          Deliverables / items to work on
-                        </span>
                       </div>
 
-                      {/* Approved Quantity */}
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
                           <span>Approved Quantity</span>
@@ -756,24 +584,8 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                               : 'border-slate-300'
                           }`}
                         />
-                        <div className="mt-1">
-                          {item.quantity_approved === 0 ? (
-                            <span className="text-[10px] font-semibold text-amber-600">
-                              0 Approved &bull; Not Approved
-                            </span>
-                          ) : item.quantity_approved === item.quantity_done ? (
-                            <span className="text-[10px] font-semibold text-emerald-600">
-                              ✓ Fully Approved ({item.quantity_approved} of {item.quantity_done})
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-semibold text-sky-600">
-                              Partially Approved ({item.quantity_approved} of {item.quantity_done})
-                            </span>
-                          )}
-                        </div>
                       </div>
 
-                      {/* Approval Status */}
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                           Approval Status *
@@ -805,22 +617,15 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                             <span>Not Approved</span>
                           </button>
                         </div>
-                        <span className="block text-[10px] text-slate-400 mt-1">
-                          Client sign-off state
-                        </span>
                       </div>
                     </div>
 
-                    {/* Project URL in Edit Mode */}
                     <div className="pt-2">
                       <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
                         <span className="flex items-center space-x-1.5">
                           <Link2 className="w-3.5 h-3.5 text-sky-600" />
                           <span>Project URL</span>
                           <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
-                        </span>
-                        <span className="text-[11px] text-slate-400 font-normal hidden sm:inline">
-                          Figma, Behance, Drive, or site link
                         </span>
                       </label>
                       <div className="relative">
@@ -836,6 +641,27 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                     </div>
                   </>
                 )
+              ) : (
+                /* Working mode: Just Project URL, NO yellow box */
+                <div className="pt-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span className="flex items-center space-x-1.5">
+                      <Link2 className="w-3.5 h-3.5 text-sky-600" />
+                      <span>Project URL</span>
+                      <span className="text-[10px] font-normal text-slate-400">(Optional link)</span>
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="url"
+                      placeholder="https://figma.com/file/... or https://..."
+                      value={item.project_url || ''}
+                      onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
+                      className="w-full pl-9 pr-3 py-2 bg-slate-50/60 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder:text-slate-400"
+                    />
+                    <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  </div>
+                </div>
               )}
             </div>
           ))}

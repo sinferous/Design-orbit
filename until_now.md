@@ -284,6 +284,22 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Added `dismissPendingApproval(entryId)` to safely record the dismissal tag in Supabase.
   - Updated `fetchPendingApprovalEntries` to automatically exclude dismissed entries and 0-quantity carryover entries.
 
+### Phase 10 — Simplified In-Progress Work ("Working" Status) (Completed)
+- [x] **No Parent/Child Complications**:
+  - Eliminated complex parent/child linking, resume URL parameters (`?resume=...`), and artificial carryover tags.
+  - Work is tracked cleanly as independent daily sessions without mental overhead.
+- [x] **Clean 2-State Switcher on `/work/new`**:
+  - `[ ✓ Completed ]`: Standard deliverable (Quantity >= 1, counted towards weekly/monthly report deliverables, client approval tracking enabled).
+  - `[ ⏳ Working ]`: Ongoing work session.
+    - Sets `quantity_done = 0` and `status = 'Draft'`.
+    - Preserves all time spent (`time_spent_seconds`) for client billing and daily work logs.
+    - Does not count as a completed deliverable in weekly/monthly statistics.
+    - Prompts user to put task details in the Description field (e.g. *"Diwali video rough cut"*).
+    - Hides unnecessary quantity/approval fields, leaving only an optional Project URL.
+- [x] **Clean Status Badges in Dashboard & Daily Work Logs**:
+  - In `/dashboard` and `/work`: in-progress work displays an intuitive badge: `⏳ Working (0 qty • Time logged)`.
+  - All "Resume →" and "Continue Today →" redirects removed in favor of a clean, seamless UI.
+
 ---
 
 ## 3. Current System Status
@@ -295,15 +311,16 @@ This document provides a comprehensive summary of all progress, architecture, an
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`)
   - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO Add Work controls)
-  - `/dashboard` → Production overview, live metrics, carryover tasks widget, pending approvals reminder card, today's log (65%), private to-do list (35%), & quick navigation launchpad
+  - `/dashboard` → Production overview, live metrics, pending approvals reminder card, today's log (65%), private to-do list (35%), & quick navigation launchpad
   - `/clients` → Client Directory Management module with inline edit & update
   - `/login` → Authentication with Eye password toggles, preset account choices, & profile ID binding
   - `/settings` → Change Password & Account Settings with Eye password toggles
-  - `/work` → Streamlined Personal & Team Daily Work Log, plus full **Pending Approvals Queue (`?view=pending`)** with search, age filters & zero date hunting
-  - `/work/new` → Multi-item client work entry form with carryover banner and in-progress/continue tomorrow switcher
+  - `/work` → Streamlined Personal & Team Daily Work Log, plus full **Pending Approvals Queue (`?view=pending`)** with search, age filters, strict ownership controls, & dismiss button
+  - `/work/new` → Multi-item client work entry form with simple `Completed` vs `Working` status toggle
   - `/work/[id]` → Edit existing work entry with strict ownership authorization guard
   - `/reports/billing` → Dedicated Client Time Tracking & Work Hours Report for admin invoicing with rich calendar date range picker
   - `/reports/weekly` → Weekly Meeting Report with timezone-safe 7-day Tuesday-to-Monday cycle & weekly best work links
   - `/reports/monthly` → Monthly Summary report & breakdown tables
   - `/reports/overall` → All-time analytics & visual distribution charts
   - `/team` → Creative team directory with Add Team Member capability
+
