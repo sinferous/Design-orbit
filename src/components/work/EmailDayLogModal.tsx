@@ -9,6 +9,7 @@ import {
   copyToClipboardWithHtml,
   formatEmailDate,
 } from '@/lib/services/email-formatter';
+import { isInProgressEntry } from '@/lib/services/work-entry';
 import { X, Copy, Check, Mail, Table2, ListOrdered, FileText, ExternalLink } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
@@ -39,6 +40,8 @@ export function EmailDayLogModal({
   const groupedHtml = generateGroupedEmailHtml(entries, designerName, selectedDate);
   const plainText = generateCleanPlainText(entries, designerName, selectedDate);
   const formattedDate = formatEmailDate(selectedDate);
+  const completedCount = entries.filter(e => !isInProgressEntry(e) && (e.quantity_done || 0) > 0).length;
+  const workingCount = entries.filter(e => isInProgressEntry(e) || (e.quantity_done || 0) === 0).length;
 
   const handleCopyRich = async () => {
     const htmlToCopy = activeTab === 'grouped' ? groupedHtml : tableHtml;
@@ -83,7 +86,7 @@ export function EmailDayLogModal({
               <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2">
                 <span>Email Daily Work Log</span>
                 <span className="px-2 py-0.5 text-xs font-semibold bg-sky-100 text-sky-700 rounded-full border border-sky-200">
-                  {entries.length} Deliverables
+                  {completedCount} Deliverable{completedCount === 1 ? '' : 's'}{workingCount > 0 ? ` • ${workingCount} Working` : ''}
                 </span>
               </h3>
               <p className="text-xs text-slate-500">

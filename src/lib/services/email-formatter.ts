@@ -1,4 +1,5 @@
 import { WorkEntryWithDetails } from '@/types';
+import { isInProgressEntry } from './work-entry';
 
 // Format date nicely (e.g. Thursday, Sep 3, 2026)
 export function formatEmailDate(dateStr: string): string {
@@ -23,20 +24,29 @@ export function generateEmailTableHtml(
   dateStr: string
 ): string {
   const formattedDate = formatEmailDate(dateStr);
-  const totalQty = entries.reduce((acc, curr) => acc + (curr.quantity_done || 0), 0);
+  const totalCompletedQty = entries
+    .filter(e => !isInProgressEntry(e) && (e.quantity_done || 0) > 0)
+    .reduce((acc, curr) => acc + (curr.quantity_done || 0), 0);
+  const totalWorkingCount = entries
+    .filter(e => isInProgressEntry(e) || (e.quantity_done || 0) === 0)
+    .length;
   const uniqueClients = new Set(entries.map(e => e.client?.name || 'General')).size;
 
   const rows = entries.map((entry, idx) => {
     const client = entry.client?.name || 'General';
     const type = entry.work_type?.name || 'Task';
     const desc = entry.description || 'No description provided';
-    const qty = entry.quantity_done;
+    const isWorking = isInProgressEntry(entry) || (entry.quantity_done || 0) === 0;
     const url = entry.project_url || entry.best_work_url;
     const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
 
     const linkHtml = url
       ? `<a href="${url}" target="_blank" style="display: inline-block; color: #0284c7; font-weight: 600; text-decoration: underline; font-size: 12px;">View Deliverable &nearr;</a>`
       : `<span style="color: #94a3b8; font-size: 12px;">&mdash;</span>`;
+
+    const qtyCellHtml = isWorking
+      ? `<span style="display: inline-block; padding: 2.5px 8px; background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;">Working</span>`
+      : `<span style="font-weight: 700; color: #0f172a; font-size: 13px;">${entry.quantity_done}</span>`;
 
     return `
       <tr style="background-color: ${bg}; border-bottom: 1px solid #e2e8f0;">
@@ -48,7 +58,7 @@ export function generateEmailTableHtml(
         <td style="padding: 10px 12px; font-size: 13px; color: #334155; line-height: 1.4; border-right: 1px solid #e2e8f0;">
           ${desc}
         </td>
-        <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; color: #0f172a; text-align: center; border-right: 1px solid #e2e8f0;">${qty}</td>
+        <td style="padding: 10px 12px; text-align: center; border-right: 1px solid #e2e8f0;">${qtyCellHtml}</td>
         <td style="padding: 10px 12px; text-align: center;">${linkHtml}</td>
       </tr>
     `;
@@ -63,7 +73,7 @@ export function generateEmailTableHtml(
     </h2>
     <div style="color: #64748b; font-size: 13px; margin-top: 4px;">
       <strong>Date:</strong> ${formattedDate} &nbsp;|&nbsp; 
-      <strong>Total Deliverables:</strong> ${totalQty} items across ${uniqueClients} client(s)
+      <strong>Total Deliverables:</strong> ${totalCompletedQty} items${totalWorkingCount > 0 ? ` (+${totalWorkingCount} working)` : ''} across ${uniqueClients} client(s)
     </div>
   </div>
 
@@ -88,7 +98,7 @@ export function generateEmailTableHtml(
           Total Deliverables Done:
         </td>
         <td style="padding: 10px 12px; font-size: 14px; color: #0284c7; text-align: center; border-right: 1px solid #e2e8f0;">
-          ${totalQty}
+          ${totalCompletedQty}${totalWorkingCount > 0 ? `<div style="font-size: 10px; color: #b45309; font-weight: 600; margin-top: 2px;">+${totalWorkingCount} working</div>` : ''}
         </td>
         <td></td>
       </tr>
@@ -110,7 +120,12 @@ export function generateGroupedEmailHtml(
   dateStr: string
 ): string {
   const formattedDate = formatEmailDate(dateStr);
-  const totalQty = entries.reduce((acc, curr) => acc + (curr.quantity_done || 0), 0);
+  const totalCompletedQty = entries
+    .filter(e => !isInProgressEntry(e) && (e.quantity_done || 0) > 0)
+    .reduce((acc, curr) => acc + (curr.quantity_done || 0), 0);
+  const totalWorkingCount = entries
+    .filter(e => isInProgressEntry(e) || (e.quantity_done || 0) === 0)
+    .length;
 
   // Group by client
   const clientMap: Record<string, WorkEntryWithDetails[]> = {};
@@ -126,22 +141,33 @@ export function generateGroupedEmailHtml(
 
   const clientSections = sortedClients.map(clientName => {
     const items = clientMap[clientName];
-    const clientQty = items.reduce((acc, curr) => acc + curr.quantity_done, 0);
+    const completedItems = items.filter(i => !isInProgressEntry(i) && (i.quantity_done || 0) > 0);
+    const workingItems = items.filter(i => isInProgressEntry(i) || (i.quantity_done || 0) === 0);
+    const clientQty = completedItems.reduce((acc, curr) => acc + curr.quantity_done, 0);
 
     const itemList = items.map(item => {
       const type = item.work_type?.name || 'Task';
       const desc = item.description || '';
       const url = item.project_url || item.best_work_url;
+      const isWorking = isInProgressEntry(item) || (item.quantity_done || 0) === 0;
       const linkHtml = url
         ? ` &mdash; <a href="${url}" target="_blank" style="color: #0284c7; font-weight: 600; text-decoration: underline; font-size: 12px;">View Deliverable &nearr;</a>`
         : '';
+      const statusBadge = isWorking
+        ? `<span style="display: inline-block; padding: 1px 7px; background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Working</span>`
+        : `(Qty: <strong>${item.quantity_done}</strong>)`;
+
       return `
         <li style="margin-bottom: 8px; color: #334155; font-size: 13.5px; line-height: 1.5;">
-          <strong style="color: #0f172a;">${type}</strong> (Qty: <strong>${item.quantity_done}</strong>): 
+          <strong style="color: #0f172a;">${type}</strong> ${statusBadge}: 
           <span>${desc}</span>${linkHtml}
         </li>
       `;
     }).join('');
+
+    const badgeText = clientQty > 0
+      ? `${clientQty} deliverable(s)${workingItems.length > 0 ? ` + ${workingItems.length} working` : ''}`
+      : `${workingItems.length} in progress`;
 
     return `
       <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px;">
@@ -150,7 +176,7 @@ export function generateGroupedEmailHtml(
             🏢 ${clientName}
           </h4>
           <span style="font-size: 12px; font-weight: 600; color: #0284c7; background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 2px 8px; border-radius: 12px;">
-            ${clientQty} item(s)
+            ${badgeText}
           </span>
         </div>
         <ul style="margin: 0; padding-left: 20px;">
@@ -169,7 +195,7 @@ export function generateGroupedEmailHtml(
     </h2>
     <div style="color: #64748b; font-size: 13px;">
       <strong>Date:</strong> ${formattedDate} &nbsp;|&nbsp; 
-      <strong>Total Deliverables:</strong> ${totalQty} items across ${sortedClients.length} client(s)
+      <strong>Total Deliverables:</strong> ${totalCompletedQty} items${totalWorkingCount > 0 ? ` (+${totalWorkingCount} working)` : ''} across ${sortedClients.length} client(s)
     </div>
   </div>
 
@@ -193,7 +219,12 @@ export function generateCleanPlainText(
   dateStr: string
 ): string {
   const formattedDate = formatEmailDate(dateStr);
-  const totalQty = entries.reduce((acc, curr) => acc + (curr.quantity_done || 0), 0);
+  const totalCompletedQty = entries
+    .filter(e => !isInProgressEntry(e) && (e.quantity_done || 0) > 0)
+    .reduce((acc, curr) => acc + (curr.quantity_done || 0), 0);
+  const totalWorkingCount = entries
+    .filter(e => isInProgressEntry(e) || (e.quantity_done || 0) === 0)
+    .length;
 
   const clientMap: Record<string, WorkEntryWithDetails[]> = {};
   entries.forEach(e => {
@@ -208,20 +239,29 @@ export function generateCleanPlainText(
 
   let output = `Daily Work Log — ${designerName}\n`;
   output += `Date: ${formattedDate}\n`;
-  output += `Total Deliverables: ${totalQty} items across ${sortedClients.length} client(s)\n`;
+  output += `Total Deliverables: ${totalCompletedQty} items${totalWorkingCount > 0 ? ` (+${totalWorkingCount} working)` : ''} across ${sortedClients.length} client(s)\n`;
   output += `--------------------------------------------------------\n\n`;
 
   sortedClients.forEach((clientName, cIdx) => {
     const items = clientMap[clientName];
-    const clientQty = items.reduce((acc, curr) => acc + curr.quantity_done, 0);
+    const completedItems = items.filter(i => !isInProgressEntry(i) && (i.quantity_done || 0) > 0);
+    const workingItems = items.filter(i => isInProgressEntry(i) || (i.quantity_done || 0) === 0);
+    const clientQty = completedItems.reduce((acc, curr) => acc + curr.quantity_done, 0);
 
-    output += `[${cIdx + 1}] CLIENT: ${clientName} (${clientQty} items)\n`;
+    const clientHeaderQty = clientQty > 0
+      ? `${clientQty} items${workingItems.length > 0 ? ` + ${workingItems.length} working` : ''}`
+      : `${workingItems.length} in progress`;
 
-    items.forEach((item, iIdx) => {
+    output += `[${cIdx + 1}] CLIENT: ${clientName} (${clientHeaderQty})\n`;
+
+    items.forEach((item) => {
       const type = item.work_type?.name || 'Task';
       const desc = item.description || '';
       const url = item.project_url || item.best_work_url;
-      output += `  • ${type} (Qty: ${item.quantity_done}) - ${desc}\n`;
+      const isWorking = isInProgressEntry(item) || (item.quantity_done || 0) === 0;
+      const qtyTag = isWorking ? `[Working]` : `(Qty: ${item.quantity_done})`;
+
+      output += `  • ${type} ${qtyTag} - ${desc}\n`;
       if (url) {
         output += `    Project Link: ${url}\n`;
       }
