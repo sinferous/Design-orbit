@@ -304,7 +304,7 @@ export default function DashboardPage() {
               <span className="text-xs font-semibold text-slate-500">Creative Team Member</span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 mt-1.5 flex items-baseline flex-wrap">
-              {greeting}, <span className="font-handwritten text-3xl ml-2 inline-block font-semibold">{currentUser.name}</span>
+              {greeting}, <span className="font-display font-extrabold text-2xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
               {subtitle}

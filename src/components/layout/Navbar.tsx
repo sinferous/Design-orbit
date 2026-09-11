@@ -59,7 +59,7 @@ export function Navbar({ userName }: NavbarProps) {
               />
               <div className="h-4 sm:h-5 w-px bg-slate-300" />
               <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight flex items-baseline">
-                Design <span className="font-handwritten text-xl sm:text-2xl ml-1.5 inline-block font-semibold">Orbit</span>
+                Design <span className="font-display font-extrabold text-base sm:text-lg ml-1.5 inline-block bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent tracking-tight">Orbit</span>
               </span>
             </Link>
 
