@@ -186,6 +186,9 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Calculates unique client accounts from active deliverables with dedicated `Building2` branding and live weekly aggregation.
 - [x] **Streamlined Dashboard Welcome Header**:
   - Removed redundant "Webtree Creative Team" pill badge and "Creative Team Member" subtitle tag from the Dashboard ([`/dashboard`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)), keeping the header clean, minimal, and focused on the designer greeting and day status.
+- [x] **Streamlined Navigation Bar (Removed Team Section)**:
+  - Removed the Team tab from the desktop navbar and mobile navigation drawer in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx).
+  - Updated the Dashboard quick launchpad to feature the Clients Directory ([`/clients`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx)) instead of the team roster.
 
 ---
 

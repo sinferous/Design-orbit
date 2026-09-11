@@ -25,7 +25,6 @@ import {
   ArrowUpRight,
   BarChart2,
   Layers,
-  Users,
   PieChart,
   User,
   CheckSquare,
@@ -414,12 +413,12 @@ export default function DashboardPage() {
             </Link>
 
             <Link
-              href="/team"
+              href="/clients"
               className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group col-span-2 sm:col-span-1"
             >
               <div className="flex items-center space-x-2.5">
-                <Users className="w-4 h-4 text-sky-600" />
-                <span className="text-xs font-bold text-slate-800">Team Roster</span>
+                <Building2 className="w-4 h-4 text-sky-600" />
+                <span className="text-xs font-bold text-slate-800">Clients Directory</span>
               </div>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
             </Link>
