@@ -51,27 +51,32 @@ export default function AdminDashboardPage() {
   });
   const [nowMs, setNowMs] = useState<number>(Date.now());
   const [selectedApprovalEntry, setSelectedApprovalEntry] = useState<WorkEntryWithDetails | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
-  // Role Guard: Check if logged-in user is an Admin
+  // Strict Role Guard: Check if logged-in user is an Admin
   useEffect(() => {
     const user = getLoggedInUser();
     if (!user) {
+      setIsAuthorized(false);
       router.replace('/login');
       return;
     }
     if (!isAdminUser(user)) {
+      setIsAuthorized(false);
       router.replace('/dashboard');
       return;
     }
+    setIsAuthorized(true);
   }, [router]);
 
   // Live timer tick every second for real-time stopwatches
   useEffect(() => {
+    if (!isAuthorized) return;
     const interval = setInterval(() => {
       setNowMs(Date.now());
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuthorized]);
 
   const loadData = async (isManualRefresh = false) => {
     if (isManualRefresh) setRefreshing(true);
@@ -121,6 +126,7 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
+    if (!isAuthorized) return;
     loadData();
 
     // 5-second polling to capture team members' live timers in real-time
@@ -128,7 +134,20 @@ export default function AdminDashboardPage() {
       loadData();
     }, 5000);
     return () => clearInterval(pollInterval);
-  }, []);
+  }, [isAuthorized]);
+
+  // If unauthorized or checking credentials, prevent any dashboard rendering
+  if (isAuthorized !== true) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center space-y-3 p-8 bg-white rounded-2xl border border-slate-200 shadow-sm max-w-sm mx-auto">
+          <div className="w-10 h-10 border-3 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm font-bold text-slate-800">Verifying Administrator Authorization...</p>
+          <p className="text-xs text-slate-400">Restricted executive area. Validating access credentials.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Today calculations across the agency
   const todayCreated = todayEntries.reduce((acc, curr) => acc + (curr.quantity_done || 0), 0);

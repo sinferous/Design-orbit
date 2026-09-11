@@ -57,11 +57,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const user = getLoggedInUser();
-    if (user && isAdminUser(user)) {
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+    if (isAdminUser(user)) {
       router.replace('/admin');
       return;
     }
-    if (user?.name) {
+    if (user.name) {
       setCurrentUser(user);
     }
     if (user?.profileId) {

@@ -210,6 +210,12 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Live Team Workload & Timer Status**: Real-time roster showing each designer's active state, live pulsating beacon for currently running task timers with real-time stopwatches, and today's deliverable output.
   - **Today's Agency Deliverables Feed**: Live stream of all deliverables logged today across the creative team with client badges, designer attribution, project links, and interactive 1-click Quick Approval adjustment dialog.
   - **Executive Operations Launchpad**: Instant shortcuts to Client Time & Invoicing, Weekly Review, Monthly Stats, Client Directory, and Team Management.
+- [x] **Full-App Edge Security & Route Authorization Guard (`middleware.ts` & Double-Tier Defense)**:
+  - **Edge-Level Link Protection**: Built Next.js edge middleware ([`src/middleware.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/middleware.ts)) that intercepts every incoming HTTP request before server rendering. Anyone navigating to direct URLs (*e.g., `https://design-orbit-sigma.vercel.app/admin`*) without valid session credentials is immediately intercepted and issued an HTTP 307 redirect to `/login`. Unauthenticated clients receive 0 page HTML/data.
+  - **Admin-Only Role Verification at the Edge**: If an authenticated non-admin user attempts to access `/admin`, the edge middleware verifies role credentials and instantly redirects them to `/dashboard`.
+  - **Synchronized Session Cookie (`design_orbit_auth`)**: Updated `setLoggedInUser`, `getLoggedInUser`, and `logoutUser` in [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) to maintain a secure, synced 30-day session cookie alongside localStorage. Logging out deletes both immediately.
+  - **Client-Side Verification Curtain (`isAuthorized`)**: In [`src/app/admin/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/admin/page.tsx), all agency data fetching and component rendering are strictly blocked behind `isAuthorized === true`. Displays an executive verification curtain during credential verification, preventing any flash of restricted agency data.
+  - **Universal Route Protection**: Applied across all 14 internal application routes (`/admin`, `/dashboard`, `/work`, `/work/new`, `/work/[id]`, `/clients`, `/team`, `/reports/weekly`, `/reports/monthly`, `/reports/billing`, `/reports/overall`, `/settings`). Only `/login` and static assets remain public.
 
 ---
 

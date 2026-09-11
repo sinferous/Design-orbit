@@ -136,6 +136,12 @@ export function getLoggedInUser(): { name: string; email: string; profileId?: st
     const storedEmail = localStorage.getItem('design_orbit_logged_in_email');
     const storedProfileId = localStorage.getItem('design_orbit_logged_in_profile_id') || undefined;
     if (storedName) {
+      // Ensure cookie is synchronized with localStorage for Next.js middleware protection
+      if (!document.cookie.includes('design_orbit_auth=')) {
+        const isAdmin = isAdminUser({ name: storedName, email: storedEmail });
+        const authData = JSON.stringify({ name: storedName, email: storedEmail, profileId: storedProfileId, isAdmin });
+        document.cookie = `design_orbit_auth=${encodeURIComponent(authData)}; path=/; max-age=2592000; SameSite=Lax`;
+      }
       return { name: storedName, email: storedEmail || '', profileId: storedProfileId };
     }
   }
@@ -162,6 +168,10 @@ export function setLoggedInUser(name: string, email: string, profileId?: string)
     if (profileId) {
       localStorage.setItem('design_orbit_logged_in_profile_id', profileId);
     }
+    const isAdmin = isAdminUser({ name, email });
+    const authData = JSON.stringify({ name, email, profileId, isAdmin });
+    // Secure session cookie for Next.js middleware protection (30 days persistence)
+    document.cookie = `design_orbit_auth=${encodeURIComponent(authData)}; path=/; max-age=2592000; SameSite=Lax`;
     try {
       window.dispatchEvent(new CustomEvent('design_orbit_auth_change', {
         detail: { name, email, profileId }
@@ -176,6 +186,8 @@ export function logoutUser() {
       localStorage.removeItem('design_orbit_logged_in_name');
       localStorage.removeItem('design_orbit_logged_in_email');
       localStorage.removeItem('design_orbit_logged_in_profile_id');
+      // Clear session cookie immediately
+      document.cookie = 'design_orbit_auth=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       try {
         window.dispatchEvent(new CustomEvent('design_orbit_auth_change', {
           detail: null
