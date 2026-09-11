@@ -181,6 +181,9 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Streamlined Pre-Task Creation & Quick Inline Approval Flow (`QuickApprovalModal.tsx`, `/work/new`, `/work`, `/dashboard`)**:
   - **Ultra-Fast Task Creation**: When creating a new task on `/work/new`, `Approved Quantity` and `Approval Status` fields are completely hidden. The designer only enters Client, Work Type, Description, Quantity, and optional URL (~5 seconds), automatically defaulting to 0 approved in the background so they can immediately hit **▶ Start**.
   - **Quick Inline Approval Dialog (`QuickApprovalModal.tsx`)**: On the Daily Work Log (`/work`) and Dashboard (`/dashboard`), the approval badge (`⏳ Not Approved (0)` or `✓ Approved`) is an interactive button. Clicking it opens a fast dialog with stepper controls (`[-]` / `[+]`) and 1-click presets (`✓ All Approved` / `✕ Not Approved`) that update database records and daily totals immediately without full-page navigation.
+- [x] **Active Clients KPI (Replaced Static Active Contributors)**:
+  - Replaced the static, non-actionable `Active Contributors` card with dynamic **`Active Clients`** tracking unique client brands serviced across the agency on both the Dashboard ([`/dashboard`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)) and Weekly Meeting Report ([`/reports/weekly`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/weekly/page.tsx)).
+  - Calculates unique client accounts from active deliverables with dedicated `Building2` branding and live weekly aggregation.
 
 ---
 

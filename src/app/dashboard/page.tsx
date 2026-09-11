@@ -33,6 +33,7 @@ import {
   Play,
   Square,
   ExternalLink,
+  Building2,
 } from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { useToast } from '@/components/ui/ToastContext';
@@ -41,7 +42,7 @@ import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
   const [todayEntries, setTodayEntries] = useState<WorkEntryWithDetails[]>([]);
-  const [weekSummary, setWeekSummary] = useState({ totalCreated: 0, totalApproved: 0, activeMembers: 0 });
+  const [weekSummary, setWeekSummary] = useState({ totalCreated: 0, totalApproved: 0, activeClients: 0 });
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
   const [currentProfileId, setCurrentProfileId] = useState<string | undefined>(undefined);
@@ -108,12 +109,18 @@ export default function DashboardPage() {
 
         const wCreated = wData.reduce((acc, curr) => acc + curr.totalCreated, 0);
         const wApproved = wData.reduce((acc, curr) => acc + curr.totalApproved, 0);
-        const wActive = wData.filter(s => s.totalCreated > 0).length;
+        const clientSet = new Set<string>();
+        wData.forEach(s => {
+          s.entries?.forEach(e => {
+            if (e.client?.name) clientSet.add(e.client.name.trim());
+            else if (e.client_id) clientSet.add(e.client_id);
+          });
+        });
 
         setWeekSummary({
           totalCreated: wCreated,
           totalApproved: wApproved,
-          activeMembers: wActive,
+          activeClients: clientSet.size,
         });
       } catch (err) {
         console.error('Failed to load dashboard statistics:', err);
@@ -353,11 +360,11 @@ export default function DashboardPage() {
 
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-xs font-semibold uppercase tracking-wider">Active Contributors</span>
-              <Users className="w-4 h-4 text-teal-600" />
+              <span className="text-xs font-semibold uppercase tracking-wider">Active Clients</span>
+              <Building2 className="w-4 h-4 text-teal-600" />
             </div>
-            <div className="text-3xl font-extrabold text-sky-700">{weekSummary.activeMembers}</div>
-            <p className="text-xs text-slate-500">Team members logging work</p>
+            <div className="text-3xl font-extrabold text-sky-700">{weekSummary.activeClients}</div>
+            <p className="text-xs text-slate-500">Client brands serviced this week</p>
           </div>
         </div>
 

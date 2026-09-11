@@ -234,6 +234,14 @@ export default function WeeklyReportPage() {
   const grandTotalApproved = summaries.reduce((acc, curr) => acc + curr.totalApproved, 0);
   const grandApprovalRate = grandTotalCreated > 0 ? Math.round((grandTotalApproved / grandTotalCreated) * 100) : 0;
   const grandTotalSeconds = summaries.reduce((acc, curr) => acc + (curr.totalTimeSeconds || 0), 0);
+  const activeClientSet = new Set<string>();
+  summaries.forEach(s => {
+    s.entries?.forEach(e => {
+      if (e.client?.name) activeClientSet.add(e.client.name.trim());
+      else if (e.client_id) activeClientSet.add(e.client_id);
+    });
+  });
+  const totalActiveClients = activeClientSet.size;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -513,11 +521,12 @@ export default function WeeklyReportPage() {
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Contributors</div>
-            <div className="text-3xl font-extrabold text-sky-700">
-              {summaries.filter(s => s.totalCreated > 0).length} / {summaries.length}
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Clients</div>
+            <div className="text-3xl font-extrabold text-sky-700 flex items-center space-x-1.5">
+              <Building2 className="w-6 h-6 text-sky-600" />
+              <span>{totalActiveClients}</span>
             </div>
-            <p className="text-xs text-slate-500">Team members logging work</p>
+            <p className="text-xs text-slate-500">Client brands serviced this week</p>
           </div>
         </div>
 
