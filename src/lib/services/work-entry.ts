@@ -348,6 +348,133 @@ export async function fetchWorkEntriesByDate(dateStr: string, userId?: string): 
   });
 }
 
+export async function fetchPendingApprovalEntries(userId?: string): Promise<WorkEntryWithDetails[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      let query = supabase
+        .from('work_entries')
+        .select('*, profile:profiles(*), client:clients(*), work_type:work_types(*)')
+        .order('work_date', { ascending: false });
+
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
+      if (!error && data) {
+        return (data as WorkEntryWithDetails[]).filter(
+          e => (e.quantity_approved || 0) < (e.quantity_done || 1)
+        );
+      }
+    } catch (err) {
+      console.warn('Supabase fetchPendingApprovalEntries error:', err);
+    }
+  }
+
+  const localEntries = getStoredMockEntries();
+  return localEntries
+    .filter(e => {
+      const isPending = (e.quantity_approved || 0) < (e.quantity_done || 1);
+      const matchUser = userId ? e.user_id === userId : true;
+      return isPending && matchUser;
+    })
+    .sort((a, b) => b.work_date.localeCompare(a.work_date));
+}
+
+export function getPendingDaysAgo(dateStr: string): number {
+  if (!dateStr) return 0;
+  try {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const entryDate = new Date(y, m - 1, d);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffMs = today.getTime() - entryDate.getTime();
+    return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+  } catch {
+    return 0;
+  }
+}
+
+export function getPendingUrgency(daysAgo: number): {
+  badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+  label: string;
+  dotColor: string;
+  bg: string;
+  text: string;
+  border: string;
+  dot: string;
+} {
+  if (daysAgo <= 1) {
+    const badgeBg = 'bg-emerald-50';
+    const badgeText = 'text-emerald-800';
+    const badgeBorder = 'border-emerald-200';
+    const dotColor = 'bg-emerald-500';
+    return {
+      badgeBg,
+      badgeText,
+      badgeBorder,
+      label: daysAgo === 0 ? 'Logged today' : '1 day ago',
+      dotColor,
+      bg: badgeBg,
+      text: badgeText,
+      border: badgeBorder,
+      dot: dotColor,
+    };
+  }
+  if (daysAgo <= 4) {
+    const badgeBg = 'bg-sky-50';
+    const badgeText = 'text-sky-800';
+    const badgeBorder = 'border-sky-200';
+    const dotColor = 'bg-sky-500';
+    return {
+      badgeBg,
+      badgeText,
+      badgeBorder,
+      label: `${daysAgo} days ago`,
+      dotColor,
+      bg: badgeBg,
+      text: badgeText,
+      border: badgeBorder,
+      dot: dotColor,
+    };
+  }
+  if (daysAgo <= 7) {
+    const badgeBg = 'bg-amber-50';
+    const badgeText = 'text-amber-800';
+    const badgeBorder = 'border-amber-300';
+    const dotColor = 'bg-amber-500';
+    return {
+      badgeBg,
+      badgeText,
+      badgeBorder,
+      label: `${daysAgo}d ago • Follow-up`,
+      dotColor,
+      bg: badgeBg,
+      text: badgeText,
+      border: badgeBorder,
+      dot: dotColor,
+    };
+  }
+  const badgeBg = 'bg-rose-50';
+  const badgeText = 'text-rose-800';
+  const badgeBorder = 'border-rose-300';
+  const dotColor = 'bg-rose-500';
+  return {
+    badgeBg,
+    badgeText,
+    badgeBorder,
+    label: `${daysAgo}d ago • Overdue`,
+    dotColor,
+    bg: badgeBg,
+    text: badgeText,
+    border: badgeBorder,
+    dot: dotColor,
+  };
+}
+
 export async function fetchWorkEntryById(id: string): Promise<WorkEntryWithDetails | null> {
   if (!isSupabaseConfigured()) {
     return mockWorkEntriesStore.find(e => e.id === id) || null;

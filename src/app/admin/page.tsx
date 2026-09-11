@@ -12,6 +12,9 @@ import {
   formatWorkEntryStopwatch,
   formatWorkEntryDuration,
   isAdminUser,
+  fetchPendingApprovalEntries,
+  getPendingDaysAgo,
+  getPendingUrgency,
 } from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
 import { WorkEntryWithDetails, Profile } from '@/types';
@@ -29,6 +32,9 @@ import {
   PieChart,
   ArrowUpRight,
   Sparkles,
+  Hourglass,
+  CheckCheck,
+  AlertTriangle,
 } from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
@@ -42,6 +48,7 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [todayEntries, setTodayEntries] = useState<WorkEntryWithDetails[]>([]);
+  const [agencyPendingEntries, setAgencyPendingEntries] = useState<WorkEntryWithDetails[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [weekSummary, setWeekSummary] = useState({
     totalCreated: 0,
@@ -82,14 +89,16 @@ export default function AdminDashboardPage() {
     if (isManualRefresh) setRefreshing(true);
     try {
       const week = getWeekRange(new Date());
-      const [tEntries, wData, profList] = await Promise.all([
+      const [tEntries, wData, profList, pendingList] = await Promise.all([
         fetchWorkEntriesByDate(todayStr),
         getWeeklyReportData(week.startDate, week.endDate),
         fetchProfiles(),
+        fetchPendingApprovalEntries(),
       ]);
 
       setTodayEntries(tEntries);
       setProfiles(profList.filter(p => !isAdminUser(p))); // Filter designers
+      setAgencyPendingEntries(pendingList);
 
       // Calculate weekly totals
       const created = wData.reduce((acc, curr) => acc + curr.totalCreated, 0);
@@ -386,6 +395,149 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* Agency Pending Client Approvals Queue & Follow-up Tracker */}
+        {agencyPendingEntries.length > 0 && (() => {
+          const totalUnapproved = agencyPendingEntries.reduce(
+            (acc, curr) => acc + (curr.quantity_done - curr.quantity_approved),
+            0
+          );
+          const uniqueClients = new Set(
+            agencyPendingEntries.map((e) => e.client?.name?.trim().toLowerCase() || e.client_id).filter(Boolean)
+          ).size;
+
+          let freshCount = 0;
+          let followupCount = 0;
+          let overdueCount = 0;
+
+          agencyPendingEntries.forEach((entry) => {
+            const days = getPendingDaysAgo(entry.work_date);
+            if (days <= 4) freshCount++;
+            else if (days <= 7) followupCount++;
+            else overdueCount++;
+          });
+
+          return (
+            <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-300/80 rounded-2xl p-6 shadow-sm space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-200/60 pb-4">
+                <div className="flex items-center space-x-3.5">
+                  <div className="p-3 rounded-xl bg-amber-500 text-white shadow-sm ring-4 ring-amber-100">
+                    <Hourglass className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2.5">
+                      <h2 className="text-lg font-bold text-slate-900">
+                        Agency Pending Client Approvals Queue
+                      </h2>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-950 border border-amber-300">
+                        {totalUnapproved} deliverables ({agencyPendingEntries.length} tasks)
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-0.5">
+                      Deliverables awaiting client sign-off across {uniqueClients} {uniqueClients === 1 ? 'client' : 'clients'}. When client confirms, approve in 1-click without searching historical dates.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 shrink-0">
+                  <Link
+                    href="/work?view=pending"
+                    className="inline-flex items-center space-x-2 px-4 py-2 text-xs font-bold text-amber-950 bg-amber-200 hover:bg-amber-300 border border-amber-300 rounded-xl transition-all shadow-2xs"
+                  >
+                    <span>Open Full Agency Queue</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Urgency Status Indicators */}
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-slate-500 font-medium">Breakdown:</span>
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-[11px]">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Fresh (≤4d): {freshCount}</span>
+                </span>
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-semibold text-[11px]">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span>Follow-up (5-7d): {followupCount}</span>
+                </span>
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 font-semibold text-[11px]">
+                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+                  <span>Overdue (&gt;7d): {overdueCount}</span>
+                </span>
+              </div>
+
+              {/* Preview Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-1">
+                {agencyPendingEntries.slice(0, 4).map((entry) => {
+                  const daysAgo = getPendingDaysAgo(entry.work_date);
+                  const urgency = getPendingUrgency(daysAgo);
+                  const unapproved = (entry.quantity_done || 0) - (entry.quantity_approved || 0);
+                  const formattedDate = new Date(entry.work_date + 'T00:00:00').toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  });
+
+                  return (
+                    <div
+                      key={entry.id}
+                      className="bg-white/95 backdrop-blur-xs p-3.5 rounded-xl border border-amber-200/80 hover:border-amber-400 shadow-2xs transition-all flex flex-col justify-between space-y-2.5"
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 text-[10px] font-bold truncate max-w-[120px]">
+                            By {entry.profile?.name || 'Designer'}
+                          </span>
+                          <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${urgency.bg} ${urgency.text} ${urgency.border}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${urgency.dot}`} />
+                            <span>{urgency.label}</span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center space-x-1 text-[11px] font-bold text-slate-800 truncate">
+                          <Building2 className="w-3 h-3 text-sky-600 shrink-0" />
+                          <span className="truncate">{entry.client?.name || 'Client'}</span>
+                        </div>
+
+                        <p className="text-xs font-semibold text-slate-900 line-clamp-2" title={entry.description}>
+                          {entry.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div className="text-[11px] text-slate-500">
+                          <span className="font-medium text-slate-700">📅 {formattedDate}</span>
+                          <span className="mx-1 text-slate-300">•</span>
+                          <span className="font-bold text-amber-800">{unapproved} left</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedApprovalEntry(entry)}
+                          className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-300 rounded-lg shadow-2xs transition-all cursor-pointer"
+                        >
+                          <CheckCheck className="w-3 h-3 text-teal-600" />
+                          <span>Approve</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {agencyPendingEntries.length > 4 && (
+                <div className="pt-1 text-center">
+                  <Link
+                    href="/work?view=pending"
+                    className="text-xs font-bold text-amber-900 hover:text-amber-950 underline inline-flex items-center space-x-1"
+                  >
+                    <span>+ {agencyPendingEntries.length - 4} more pending deliverables across agency. View full queue with real-time search →</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         {/* 2-Column Main Section: Today's Deliverables Feed (65%) + Admin Launchpad & Notes (35%) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left: Agency Today's Deliverables Stream (8 Cols) */}
@@ -512,6 +664,29 @@ export default function AdminDashboardPage() {
 
               <div className="space-y-2">
                 <Link
+                  href="/work?view=pending"
+                  className="flex items-center justify-between p-3 rounded-xl border border-amber-200 bg-amber-50/50 hover:border-amber-400 hover:bg-amber-100/60 transition-colors group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-lg bg-amber-100 text-amber-800 group-hover:bg-amber-200">
+                      <Hourglass className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-1.5">
+                        <h3 className="text-xs font-bold text-slate-900 leading-tight">Pending Client Approvals</h3>
+                        {agencyPendingEntries.length > 0 && (
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-200 text-amber-950">
+                            {agencyPendingEntries.length}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500">Zero-date-hunting approval queue</p>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-700" />
+                </Link>
+
+                <Link
                   href="/reports/billing"
                   className="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50/40 transition-colors group"
                 >
@@ -607,8 +782,15 @@ export default function AdminDashboardPage() {
           entry={selectedApprovalEntry}
           isOpen={Boolean(selectedApprovalEntry)}
           onClose={() => setSelectedApprovalEntry(null)}
-          onSuccess={() => {
+          onSuccess={(updated) => {
             setSelectedApprovalEntry(null);
+            setAgencyPendingEntries(prev => {
+              if (updated.quantity_approved >= updated.quantity_done) {
+                return prev.filter(e => e.id !== updated.id);
+              }
+              return prev.map(e => e.id === updated.id ? updated : e);
+            });
+            showToast(`Approved count updated to ${updated.quantity_approved}`, 'success');
             loadData();
           }}
         />

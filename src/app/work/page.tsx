@@ -15,6 +15,9 @@ import {
   formatWorkEntryDuration,
   formatWorkEntryStopwatch,
   isAdminUser,
+  fetchPendingApprovalEntries,
+  getPendingDaysAgo,
+  getPendingUrgency,
 } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails, Profile } from '@/types';
 
@@ -37,6 +40,9 @@ import {
   ChevronDown,
   Play,
   Square,
+  Search,
+  CalendarClock,
+  AlertTriangle,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { EmailDayLogModal } from '@/components/work/EmailDayLogModal';
@@ -75,6 +81,23 @@ export default function MyWorkPage() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [selectedApprovalEntry, setSelectedApprovalEntry] = useState<WorkEntryWithDetails | null>(null);
 
+  // Work View Mode: 'calendar' vs 'pending'
+  const [workViewMode, setWorkViewMode] = useState<'calendar' | 'pending'>('calendar');
+  const [pendingEntries, setPendingEntries] = useState<WorkEntryWithDetails[]>([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [pendingSearch, setPendingSearch] = useState('');
+  const [pendingFilterUrgency, setPendingFilterUrgency] = useState<'all' | 'fresh' | 'attention' | 'overdue'>('all');
+
+  // Check URL query on mount for ?view=pending
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('view') === 'pending') {
+        setWorkViewMode('pending');
+      }
+    }
+  }, []);
+
   useEffect(() => {
     async function loadProfiles() {
       const pData = await fetchProfiles();
@@ -107,9 +130,24 @@ export default function MyWorkPage() {
     }
   }, [selectedDate, selectedUserFilter, activeProfile, isAdmin]);
 
+  const loadPendingEntries = useCallback(async () => {
+    setPendingLoading(true);
+    try {
+      const isMyWork = !isAdmin && selectedUserFilter === 'my_work';
+      const userIdToFetch = isMyWork ? (activeProfile?.id || 'p1') : (selectedUserFilter === 'all' ? undefined : selectedUserFilter);
+      const data = await fetchPendingApprovalEntries(userIdToFetch);
+      setPendingEntries(data);
+    } catch (err) {
+      console.error('Failed to load pending entries:', err);
+    } finally {
+      setPendingLoading(false);
+    }
+  }, [selectedUserFilter, activeProfile, isAdmin]);
+
   useEffect(() => {
     loadEntries();
-  }, [loadEntries]);
+    loadPendingEntries();
+  }, [loadEntries, loadPendingEntries]);
 
   // Background polling every 5s so all team members' active timers appear live in real-time
   useEffect(() => {
@@ -391,6 +429,38 @@ export default function MyWorkPage() {
   const totalTrackedSeconds = entries.reduce((acc, curr) => acc + calculateWorkEntrySeconds(curr, nowMs), 0);
   const activeTimersCount = entries.filter(e => Boolean(e.timer_started_at)).length;
 
+  // Filtered Pending Approvals for Queue Mode
+  const filteredPendingEntries = pendingEntries.filter(entry => {
+    const q = pendingSearch.trim().toLowerCase();
+    if (q) {
+      const clientMatch = entry.client?.name?.toLowerCase().includes(q);
+      const descMatch = entry.description?.toLowerCase().includes(q);
+      const typeMatch = entry.work_type?.name?.toLowerCase().includes(q);
+      const designerMatch = entry.profile?.name?.toLowerCase().includes(q);
+      if (!clientMatch && !descMatch && !typeMatch && !designerMatch) return false;
+    }
+
+    if (pendingFilterUrgency !== 'all') {
+      const daysAgo = getPendingDaysAgo(entry.work_date);
+      if (pendingFilterUrgency === 'fresh' && daysAgo > 4) return false;
+      if (pendingFilterUrgency === 'attention' && (daysAgo < 5 || daysAgo > 7)) return false;
+      if (pendingFilterUrgency === 'overdue' && daysAgo < 8) return false;
+    }
+
+    return true;
+  });
+
+  const freshPendingCount = pendingEntries.filter(e => getPendingDaysAgo(e.work_date) <= 4).length;
+  const attentionPendingCount = pendingEntries.filter(e => {
+    const d = getPendingDaysAgo(e.work_date);
+    return d >= 5 && d <= 7;
+  }).length;
+  const overduePendingCount = pendingEntries.filter(e => getPendingDaysAgo(e.work_date) > 7).length;
+
+  const totalPendingDone = filteredPendingEntries.reduce((acc, curr) => acc + curr.quantity_done, 0);
+  const totalPendingApproved = filteredPendingEntries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
+  const totalPendingWaiting = totalPendingDone - totalPendingApproved;
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar userName={activeProfile?.name || 'Gajesh'} />
@@ -446,7 +516,56 @@ export default function MyWorkPage() {
           </div>
         </div>
 
-        {/* View Toggle Bar & Date Selector */}
+        {/* Primary View Mode Switcher: Daily Calendar vs Pending Approvals Queue */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-2">
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setWorkViewMode('calendar')}
+              className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                workViewMode === 'calendar'
+                  ? 'bg-sky-600 text-white shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Daily Log (By Date)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setWorkViewMode('pending')}
+              className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                workViewMode === 'pending'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <CalendarClock className={`w-4 h-4 ${workViewMode === 'pending' ? 'text-white' : 'text-amber-600'}`} />
+              <span>Pending Approvals Queue</span>
+              {pendingEntries.length > 0 && (
+                <span className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                  workViewMode === 'pending'
+                    ? 'bg-white text-amber-800'
+                    : 'bg-amber-100 text-amber-900 border border-amber-300'
+                }`}>
+                  {pendingEntries.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          <span className="text-xs text-slate-500 font-medium hidden sm:inline">
+            {workViewMode === 'pending'
+              ? 'Deliverables awaiting client feedback • Direct approval without date hunting'
+              : 'Browse deliverables by calendar date'}
+          </span>
+        </div>
+
+        {/* Primary Content: Daily Calendar View vs Pending Approvals Queue */}
+        {workViewMode === 'calendar' ? (
+          <>
+            {/* View Toggle Bar & Date Selector */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
           {/* If Admin: show Team filter; Else: My Work vs Team Tabs */}
           {isAdmin ? (
@@ -1058,6 +1177,320 @@ export default function MyWorkPage() {
               </div>
             );
           })()
+        )}
+          </>
+        ) : (
+          /* Pending Approvals Queue Content */
+          <div className="space-y-6">
+            {/* Pending Approvals Control & Search Bar */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+              {/* Designer Filter for Team/Admin or My Log tab */}
+              {isAdmin ? (
+                <div className="flex items-center space-x-2.5 w-full md:w-auto">
+                  <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs shrink-0">
+                    Pending Team Approvals
+                  </span>
+                  <div className="w-56">
+                    <RichSelect
+                      value={selectedUserFilter}
+                      onChange={val => setSelectedUserFilter(val)}
+                      options={[
+                        { value: 'all', label: 'All Designers / Entire Team' },
+                        ...profiles.filter(p => !isAdminUser(p)).map(p => ({
+                          value: p.id,
+                          label: p.name,
+                          badge: p.designation || 'Team',
+                        })),
+                      ]}
+                      size="sm"
+                      icon={<User className="w-3.5 h-3.5" />}
+                      placeholder="Filter by Designer"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg w-full md:w-auto">
+                  <button
+                    onClick={() => setSelectedUserFilter('my_work')}
+                    className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                      selectedUserFilter === 'my_work'
+                        ? 'bg-white text-amber-700 shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    My Pending ({activeProfile?.name || 'Gajesh'})
+                  </button>
+                  <button
+                    onClick={() => setSelectedUserFilter('all')}
+                    className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                      selectedUserFilter !== 'my_work'
+                        ? 'bg-white text-amber-700 shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Entire Team Pending
+                  </button>
+                </div>
+              )}
+
+              {/* Search Box */}
+              <div className="relative w-full md:w-80">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Search className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  value={pendingSearch}
+                  onChange={e => setPendingSearch(e.target.value)}
+                  placeholder="Search client, task, designer..."
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all"
+                />
+                {pendingSearch && (
+                  <button
+                    onClick={() => setPendingSearch('')}
+                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Urgency Filter Chips & Pending Summary Tiles */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] mr-1">Filter By Age:</span>
+                <button
+                  onClick={() => setPendingFilterUrgency('all')}
+                  className={`px-3 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
+                    pendingFilterUrgency === 'all'
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  All ({pendingEntries.length})
+                </button>
+                <button
+                  onClick={() => setPendingFilterUrgency('fresh')}
+                  className={`px-3 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
+                    pendingFilterUrgency === 'fresh'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                      : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                  }`}
+                >
+                  Fresh &le;4d ({freshPendingCount})
+                </button>
+                <button
+                  onClick={() => setPendingFilterUrgency('attention')}
+                  className={`px-3 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
+                    pendingFilterUrgency === 'attention'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                      : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+                  }`}
+                >
+                  Follow-up 5-7d ({attentionPendingCount})
+                </button>
+                <button
+                  onClick={() => setPendingFilterUrgency('overdue')}
+                  className={`px-3 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
+                    pendingFilterUrgency === 'overdue'
+                      ? 'bg-rose-600 text-white border-rose-600 shadow-2xs'
+                      : 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
+                  }`}
+                >
+                  Overdue &gt;7d ({overduePendingCount})
+                </button>
+              </div>
+
+              <div className="text-xs text-slate-500 font-medium">
+                Waiting for sign-off: <strong className="text-amber-800 font-bold">{totalPendingWaiting} item(s)</strong> across <strong className="text-slate-900 font-bold">{filteredPendingEntries.length}</strong> task(s)
+              </div>
+            </div>
+
+            {/* Pending Approvals Deliverables List */}
+            {pendingLoading ? (
+              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                <div className="animate-spin w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full mx-auto" />
+                <p className="mt-3 text-xs text-slate-500 font-medium">Scanning for pending client approvals...</p>
+              </div>
+            ) : filteredPendingEntries.length === 0 ? (
+              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mx-auto">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">All Caught Up! No Pending Approvals</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  {pendingSearch || pendingFilterUrgency !== 'all'
+                    ? 'No pending approvals match your search filter criteria.'
+                    : 'Every logged deliverable has received full client sign-off.'}
+                </p>
+                {(pendingSearch || pendingFilterUrgency !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setPendingSearch('');
+                      setPendingFilterUrgency('all');
+                    }}
+                    className="text-xs font-semibold text-amber-700 hover:underline cursor-pointer"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            ) : (
+              (() => {
+                const pendingClientMap: Record<string, WorkEntryWithDetails[]> = {};
+                filteredPendingEntries.forEach(entry => {
+                  const clientName = entry.client?.name || 'General / Internal Work';
+                  if (!pendingClientMap[clientName]) pendingClientMap[clientName] = [];
+                  pendingClientMap[clientName].push(entry);
+                });
+                const sortedPendingClients = Object.keys(pendingClientMap).sort((a, b) =>
+                  a.localeCompare(b, undefined, { sensitivity: 'base' })
+                );
+
+                return (
+                  <div className="space-y-4">
+                    {sortedPendingClients.map(clientName => {
+                      const clientItems = pendingClientMap[clientName];
+                      const clientDone = clientItems.reduce((acc, curr) => acc + curr.quantity_done, 0);
+                      const clientApproved = clientItems.reduce((acc, curr) => acc + curr.quantity_approved, 0);
+
+                      return (
+                        <div
+                          key={clientName}
+                          className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+                        >
+                          {/* Client Header */}
+                          <div className="px-5 py-3 bg-slate-50/90 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div className="flex items-center space-x-2.5">
+                              <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center border border-amber-200">
+                                <Building2 className="w-4 h-4" />
+                              </div>
+                              <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+                                {clientName}
+                              </h3>
+                              <span className="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                                {clientItems.length} awaiting sign-off
+                              </span>
+                            </div>
+
+                            <div className="flex items-center space-x-3 text-xs text-slate-500 font-semibold">
+                              <span>Done: <strong className="text-slate-900">{clientDone}</strong></span>
+                              <span className="text-slate-300">•</span>
+                              <span>Approved: <strong className="text-teal-700">{clientApproved}</strong></span>
+                              <span className="text-slate-300">•</span>
+                              <span className="text-amber-800 font-bold">Waiting: {clientDone - clientApproved}</span>
+                            </div>
+                          </div>
+
+                          {/* Deliverable Items for this Client */}
+                          <div className="divide-y divide-slate-100">
+                            {clientItems.map(entry => {
+                              const daysAgo = getPendingDaysAgo(entry.work_date);
+                              const urgency = getPendingUrgency(daysAgo);
+
+                              return (
+                                <div
+                                  key={entry.id}
+                                  className="p-4 hover:bg-slate-50/70 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
+                                >
+                                  <div className="space-y-1.5 flex-1 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      {/* Original Work Date Tag */}
+                                      <span className="font-bold text-slate-800 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[11px]">
+                                        📅 {formatDisplayDate(entry.work_date)}
+                                      </span>
+
+                                      {/* Relative Urgency Age Badge */}
+                                      <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${urgency.badgeBg} ${urgency.badgeText} ${urgency.badgeBorder}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${urgency.dotColor}`} />
+                                        <span>{urgency.label}</span>
+                                      </span>
+
+                                      {/* Designer Tag */}
+                                      <span className="px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 font-bold text-[11px]">
+                                        By {entry.profile?.name || 'Designer'}
+                                      </span>
+
+                                      {/* Work Type */}
+                                      <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-semibold text-[11px]">
+                                        {entry.work_type?.name || 'Work'}
+                                      </span>
+                                    </div>
+
+                                    <p className="text-slate-900 font-medium text-xs sm:text-sm">{entry.description}</p>
+
+                                    {(entry.project_url || entry.best_work_url) && (
+                                      <div className="pt-0.5">
+                                        <a
+                                          href={entry.project_url || entry.best_work_url!}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center space-x-1 text-sky-600 hover:text-sky-800 font-semibold underline text-[11px]"
+                                        >
+                                          <ExternalLink className="w-3 h-3" />
+                                          <span>Project Link</span>
+                                        </a>
+                                      </div>
+                                    )}
+
+                                    {entry.notes && (
+                                      <p className="text-[11px] text-slate-500 italic">
+                                        Note: {entry.notes}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  {/* Right: Quantities & 1-Click Interactive Approval Stepper */}
+                                  <div className="flex items-center space-x-4 shrink-0 justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-100">
+                                    <div className="text-right text-xs">
+                                      <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                                        Done / Approved
+                                      </div>
+                                      <div className="text-sm font-extrabold text-slate-900">
+                                        {entry.quantity_done} <span className="text-slate-300 font-normal">/</span>{' '}
+                                        <span className="text-teal-700">{entry.quantity_approved}</span>
+                                      </div>
+                                    </div>
+
+                                    {/* 1-Click Quick Approval Button */}
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedApprovalEntry(entry)}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all border shadow-2xs hover:scale-105 active:scale-95 cursor-pointer ${
+                                        (entry.quantity_approved || 0) > 0
+                                          ? 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300'
+                                          : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-300'
+                                      }`}
+                                      title="Click to update approved count"
+                                    >
+                                      {(entry.quantity_approved || 0) > 0 ? (
+                                        <>
+                                          <Check className="w-3.5 h-3.5 text-amber-600" />
+                                          <span>Partial ({entry.quantity_approved}/{entry.quantity_done})</span>
+                                          <span className="text-[10px] opacity-60">▾</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                                          <span>Approve Deliverable</span>
+                                          <span className="text-[10px] opacity-60">▾</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()
+            )}
+          </div>
         )}
         {/* Email Day Log Modal */}
         <EmailDayLogModal

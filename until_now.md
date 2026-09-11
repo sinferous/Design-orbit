@@ -215,25 +215,45 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Admin-Only Role Verification at the Edge**: If an authenticated non-admin user attempts to access `/admin`, the edge middleware verifies role credentials and instantly redirects them to `/dashboard`.
   - **Synchronized Session Cookie (`design_orbit_auth`)**: Updated `setLoggedInUser`, `getLoggedInUser`, and `logoutUser` in [`src/lib/services/work-entry.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/work-entry.ts) to maintain a secure, synced 30-day session cookie alongside localStorage. Logging out deletes both immediately.
   - **Client-Side Verification Curtain (`isAuthorized`)**: In [`src/app/admin/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/admin/page.tsx), all agency data fetching and component rendering are strictly blocked behind `isAuthorized === true`. Displays an executive verification curtain during credential verification, preventing any flash of restricted agency data.
-  - **Universal Route Protection**: Applied across all 14 internal application routes (`/admin`, `/dashboard`, `/work`, `/work/new`, `/work/[id]`, `/clients`, `/team`, `/reports/weekly`, `/reports/monthly`, `/reports/billing`, `/reports/overall`, `/settings`). Only `/login` and static assets remain public.
+- [x] **"Not Approved" Reminder & "Zero Date Hunting" Deliverable Resolution Flow**:
+  - **Problem Solved**: Client feedback and approvals often arrive days or weeks later. Designers and admins previously had to guess or search through previous calendar dates to locate the specific day a deliverable was originally logged to mark it as approved.
+  - **Pending Approvals Queue (`/work?view=pending`)**:
+    - Added a primary mode toggle on `/work`: `[ 📅 Daily Log (By Date) ]` vs `[ ⏳ Pending Approvals Queue ({count}) ]`.
+    - Automatically activates via query parameter (`/work?view=pending`) from dashboard widgets and notification badges.
+    - **Real-Time Search**: Filter pending deliverables instantaneously by client brand, task description, work type, or designer name.
+    - **Age Filter Chips**: Categorize deliverables by elapsed waiting time (`All`, `Fresh ≤4d`, `Follow-up 5-7d`, `Overdue >7d`).
+    - **Designer Filter**: Allows switching between "My Pending Deliverables" and "Entire Team Pending Deliverables" (strictly defaults to team queue for Admin).
+    - **Client-Grouped Deliverable Cards**: Deliverables grouped under client banners with original logging dates (*e.g., `📅 Tuesday, Sep 8, 2026`*), relative age badges (*e.g., `⏳ 2d ago`, `⚠️ 5d ago`, `🚨 10d ago`*), designer tags, and direct project links.
+    - **1-Click Quick Approval & Optimistic Removal**: Clicking "Approve" triggers the `QuickApprovalModal`. Once fully approved, the item immediately vanishes from the queue with an optimistic animation and updates Supabase by entry ID—preserving the historical work date for accurate weekly reports.
+  - **Designer Dashboard Reminder Widget (`/dashboard`)**:
+    - Features a high-visibility, glassmorphic **Pending Client Approvals Reminder Card** when the logged-in designer has unapproved deliverables from past dates.
+    - Displays waiting count, client name, original work date, relative urgency badge, and a 1-click "Approve" resolution button, alongside a "View Full Pending Queue" link.
+    - Added a dedicated "Pending Queue" shortcut to the Application Quick Navigation launchpad.
+  - **Admin Executive Overview & Agency Tracker (`/admin`)**:
+    - Prominent **Agency Pending Client Approvals Queue & Follow-up Tracker** section displaying total unapproved items, affected client count, and urgency breakdown (*Fresh ≤4d, Follow-up 5-7d, Overdue >7d*).
+    - Top pending deliverable cards with designer badges, client names, original logged dates, and 1-click approval modal trigger.
+    - Added "Pending Client Approvals" shortcut card directly to the Executive Agency Controls launchpad.
+  - **Service Helpers (`work-entry.ts`)**:
+    - Added `fetchPendingApprovalEntries(userId?)` to fetch deliverables where `quantity_approved < quantity_done`.
+    - Added `getPendingDaysAgo(dateStr)` and `getPendingUrgency(daysAgo)` providing color tokens, urgency labels, and status dot indicators.
 
 ---
 
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
-- **Latest Commit**: `4b3adad` (*fix(reports): remove Time: Visible button and hide individual entry times in weekly report*)
+- **Latest Commit**: `4b3adad`
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: Production ready, compiled successfully with **0 errors across all 16 routes**.
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`)
-  - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, NO Add Work controls)
-  - `/dashboard` → Production overview, live metrics, today's log (65%), private to-do list (35%), & quick navigation launchpad
+  - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO Add Work controls)
+  - `/dashboard` → Production overview, live metrics, pending approvals reminder card, today's log (65%), private to-do list (35%), & quick navigation launchpad
   - `/clients` → Client Directory Management module with inline edit & update
   - `/login` → Authentication with Eye password toggles, preset account choices, & profile ID binding
   - `/settings` → Change Password & Account Settings with Eye password toggles
-  - `/work` → Streamlined Personal & Team Daily Work Log with rich email table formatting, client grouping, & ownership security
+  - `/work` → Streamlined Personal & Team Daily Work Log, plus full **Pending Approvals Queue (`?view=pending`)** with search, age filters & zero date hunting
   - `/work/new` → Multi-item client work entry form with quick client addition
   - `/work/[id]` → Edit existing work entry with strict ownership authorization guard
   - `/reports/billing` → Dedicated Client Time Tracking & Work Hours Report for admin invoicing with rich calendar date range picker

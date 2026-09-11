@@ -16,6 +16,9 @@ import {
   formatWorkEntryDuration,
   formatWorkEntryStopwatch,
   isAdminUser,
+  fetchPendingApprovalEntries,
+  getPendingDaysAgo,
+  getPendingUrgency,
 } from '@/lib/services/work-entry';
 import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
 import { WorkEntryWithDetails } from '@/types';
@@ -34,6 +37,10 @@ import {
   Square,
   ExternalLink,
   Building2,
+  AlertCircle,
+  ChevronRight,
+  Hourglass,
+  CheckCheck,
 } from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { useToast } from '@/components/ui/ToastContext';
@@ -42,6 +49,7 @@ import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
   const [todayEntries, setTodayEntries] = useState<WorkEntryWithDetails[]>([]);
+  const [pendingApprovals, setPendingApprovals] = useState<WorkEntryWithDetails[]>([]);
   const [weekSummary, setWeekSummary] = useState({ totalCreated: 0, totalApproved: 0, activeClients: 0 });
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
@@ -98,8 +106,8 @@ export default function DashboardPage() {
 
         setTodayEntries(tEntries);
 
+        let resolvedId = user?.profileId;
         if (profiles.length > 0) {
-          let resolvedId = user?.profileId;
           if (!resolvedId && user?.name) {
             const matched = profiles.find(
               p =>
@@ -115,6 +123,9 @@ export default function DashboardPage() {
             setCurrentProfileId(resolvedId);
           }
         }
+
+        const pApprovals = await fetchPendingApprovalEntries(resolvedId);
+        setPendingApprovals(pApprovals);
 
         const wCreated = wData.reduce((acc, curr) => acc + curr.totalCreated, 0);
         const wApproved = wData.reduce((acc, curr) => acc + curr.totalApproved, 0);
@@ -378,7 +389,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <Link
               href="/work/new"
               className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
@@ -399,6 +410,22 @@ export default function DashboardPage() {
                 <span className="text-xs font-bold text-slate-800">My Daily Log</span>
               </div>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+            </Link>
+
+            <Link
+              href="/work?view=pending"
+              className="flex items-center justify-between p-3 rounded-lg border border-amber-200 bg-amber-50/40 hover:border-amber-400 hover:bg-amber-50 transition-colors group"
+            >
+              <div className="flex items-center space-x-2.5">
+                <Hourglass className="w-4 h-4 text-amber-600" />
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-slate-800">Pending Queue</span>
+                  {pendingApprovals.length > 0 && (
+                    <span className="text-[10px] font-extrabold text-amber-700">{pendingApprovals.length} waiting</span>
+                  )}
+                </div>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600" />
             </Link>
 
             <Link
@@ -425,16 +452,113 @@ export default function DashboardPage() {
 
             <Link
               href="/clients"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group col-span-2 sm:col-span-1"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
                 <Building2 className="w-4 h-4 text-sky-600" />
-                <span className="text-xs font-bold text-slate-800">Clients Directory</span>
+                <span className="text-xs font-bold text-slate-800">Clients</span>
               </div>
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
             </Link>
           </div>
         </div>
+
+        {/* Pending Client Approvals Reminder Card */}
+        {pendingApprovals.length > 0 && (
+          <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-300/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-200/60 pb-3.5">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-sm ring-4 ring-amber-100">
+                  <Hourglass className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h2 className="text-base font-bold text-slate-900">
+                      Pending Client Approvals
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-950 border border-amber-300">
+                      {pendingApprovals.length} {pendingApprovals.length === 1 ? 'item' : 'items'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Deliverables awaiting client sign-off from past dates. Once client approves, sign off here directly without calendar hunting!
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                href="/work?view=pending"
+                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-xl transition-all shadow-2xs shrink-0 self-start sm:self-auto"
+              >
+                <span>View Full Pending Queue</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {pendingApprovals.slice(0, 3).map((entry) => {
+                const daysAgo = getPendingDaysAgo(entry.work_date);
+                const urgency = getPendingUrgency(daysAgo);
+                const unapproved = entry.quantity_done - entry.quantity_approved;
+                const formattedDate = new Date(entry.work_date + 'T00:00:00').toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+
+                return (
+                  <div
+                    key={entry.id}
+                    className="bg-white/95 backdrop-blur-xs p-3.5 rounded-xl border border-amber-200/80 hover:border-amber-400 shadow-2xs transition-all flex flex-col justify-between space-y-2.5"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[11px] font-bold truncate max-w-[120px]">
+                          {entry.client?.name || 'Client'}
+                        </span>
+                        <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${urgency.bg} ${urgency.text} ${urgency.border}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${urgency.dot}`} />
+                          <span>{urgency.label}</span>
+                        </span>
+                      </div>
+
+                      <p className="text-xs font-semibold text-slate-900 line-clamp-2" title={entry.description}>
+                        {entry.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                      <div className="text-[11px] text-slate-500">
+                        <span className="font-medium text-slate-700">📅 {formattedDate}</span>
+                        <span className="mx-1.5 text-slate-300">•</span>
+                        <span className="font-bold text-amber-800">{unapproved} pending</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedApprovalEntry(entry)}
+                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-300 rounded-lg shadow-2xs transition-all cursor-pointer"
+                      >
+                        <CheckCheck className="w-3 h-3 text-teal-600" />
+                        <span>Approve</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {pendingApprovals.length > 3 && (
+              <div className="pt-1 text-center">
+                <Link
+                  href="/work?view=pending"
+                  className="text-xs font-bold text-amber-900 hover:text-amber-950 underline inline-flex items-center space-x-1"
+                >
+                  <span>+ {pendingApprovals.length - 3} more deliverables waiting for client approval. Click to open full queue →</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Live Entries & To-Do List (65% / 35% Split) */}
         <div className="flex flex-col lg:flex-row gap-6 items-stretch">
@@ -669,6 +793,13 @@ export default function DashboardPage() {
           onClose={() => setSelectedApprovalEntry(null)}
           onSuccess={updated => {
             setTodayEntries(prev => prev.map(e => e.id === updated.id ? updated : e));
+            setPendingApprovals(prev => {
+              if (updated.quantity_approved >= updated.quantity_done) {
+                return prev.filter(e => e.id !== updated.id);
+              }
+              return prev.map(e => e.id === updated.id ? updated : e);
+            });
+            showToast(`Approved count updated to ${updated.quantity_approved}`, 'success');
           }}
         />
       </main>
