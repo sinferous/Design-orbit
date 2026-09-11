@@ -430,30 +430,82 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                 </div>
               </div>
 
-              <div className={`grid grid-cols-1 ${isEditMode ? 'sm:grid-cols-3' : 'sm:grid-cols-1 max-w-xs'} gap-4 pt-1`}>
-                {/* Quantity */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Quantity *
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    required
-                    value={item.quantity_done}
-                    onChange={e => {
-                      const val = parseInt(e.target.value);
-                      updateItemRow(item.id, { quantity_done: isNaN(val) ? 0 : val });
-                    }}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
-                  />
-                  <span className="block text-[10px] text-slate-400 mt-1">
-                    Number of deliverables / items to work on
-                  </span>
-                </div>
+              {!isEditMode ? (
+                /* Creation Mode: Quantity (1/3) + Project URL (2/3) side-by-side */
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                  {/* Quantity */}
+                  <div className="sm:col-span-1">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Quantity *
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      required
+                      value={item.quantity_done}
+                      onChange={e => {
+                        const val = parseInt(e.target.value);
+                        updateItemRow(item.id, { quantity_done: isNaN(val) ? 0 : val });
+                      }}
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                    />
+                    <span className="block text-[10px] text-slate-400 mt-1">
+                      Deliverables / items to work on
+                    </span>
+                  </div>
 
-                {isEditMode && (
-                  <>
+                  {/* Project URL */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center space-x-1.5">
+                        <Link2 className="w-3.5 h-3.5 text-sky-600" />
+                        <span>Project URL</span>
+                        <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-normal hidden sm:inline">
+                        Figma, Behance, Drive, or site link
+                      </span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="url"
+                        placeholder="https://figma.com/file/... or https://..."
+                        value={item.project_url || ''}
+                        onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
+                        className="w-full pl-9 pr-3 py-2 bg-slate-50/60 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder:text-slate-400"
+                      />
+                      <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    </div>
+                    <span className="block text-[10px] text-slate-400 mt-1">
+                      Deliverable link for review or meeting reference
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                /* Edit Mode: Quantity + Approved Quantity + Approval Status, then URL below */
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                    {/* Quantity */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Quantity *
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        required
+                        value={item.quantity_done}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          updateItemRow(item.id, { quantity_done: isNaN(val) ? 0 : val });
+                        }}
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                      />
+                      <span className="block text-[10px] text-slate-400 mt-1">
+                        Deliverables / items to work on
+                      </span>
+                    </div>
+
                     {/* Approved Quantity */}
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
@@ -526,31 +578,31 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                         </button>
                       </div>
                     </div>
-                  </>
-                )}
-              </div>
+                  </div>
 
-              {/* Project URL (Optional) */}
-              <div className="pt-3 border-t border-slate-100">
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                  <span className="flex items-center space-x-1.5">
-                    <Link2 className="w-3.5 h-3.5 text-sky-600" />
-                    <span>Project URL</span>
-                    <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-normal">Figma, Behance, Drive, or site link</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="url"
-                    placeholder="https://figma.com/file/... or https://..."
-                    value={item.project_url || ''}
-                    onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2 bg-slate-50/60 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder:text-slate-400"
-                  />
-                  <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                </div>
-              </div>
+                  {/* Project URL (Optional) for Edit Mode */}
+                  <div className="pt-3 border-t border-slate-100">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center space-x-1.5">
+                        <Link2 className="w-3.5 h-3.5 text-sky-600" />
+                        <span>Project URL</span>
+                        <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-normal">Figma, Behance, Drive, or site link</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="url"
+                        placeholder="https://figma.com/file/... or https://..."
+                        value={item.project_url || ''}
+                        onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
+                        className="w-full pl-9 pr-3 py-2 bg-slate-50/60 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder:text-slate-400"
+                      />
+                      <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
