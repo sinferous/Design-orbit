@@ -430,7 +430,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+              <div className={`grid grid-cols-1 ${isEditMode ? 'sm:grid-cols-3' : 'sm:grid-cols-1 max-w-xs'} gap-4 pt-1`}>
                 {/* Quantity */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1.5">
@@ -452,78 +452,82 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                   </span>
                 </div>
 
-                {/* Approved Quantity */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                    <span>Approved Quantity</span>
-                    <span className="text-[10px] text-slate-500 font-semibold">Max: {item.quantity_done}</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={item.quantity_done}
-                    required
-                    value={item.quantity_approved}
-                    onChange={e => {
-                      const val = parseInt(e.target.value);
-                      updateItemRow(item.id, { quantity_approved: isNaN(val) ? 0 : val });
-                    }}
-                    className={`w-full px-3 py-2 bg-white border rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-colors ${
-                      item.quantity_approved > 0
-                        ? 'border-emerald-300 bg-emerald-50/20'
-                        : 'border-slate-300'
-                    }`}
-                  />
-                  <div className="mt-1">
-                    {item.quantity_approved === 0 ? (
-                      <span className="text-[10px] font-semibold text-amber-600">
-                        0 Approved &bull; Not Approved
-                      </span>
-                    ) : item.quantity_approved === item.quantity_done ? (
-                      <span className="text-[10px] font-semibold text-emerald-600">
-                        ✓ Fully Approved ({item.quantity_approved} of {item.quantity_done})
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-semibold text-sky-600">
-                        Partially Approved ({item.quantity_approved} of {item.quantity_done})
-                      </span>
-                    )}
-                  </div>
-                </div>
+                {isEditMode && (
+                  <>
+                    {/* Approved Quantity */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                        <span>Approved Quantity</span>
+                        <span className="text-[10px] text-slate-500 font-semibold">Max: {item.quantity_done}</span>
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={item.quantity_done}
+                        required
+                        value={item.quantity_approved}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          updateItemRow(item.id, { quantity_approved: isNaN(val) ? 0 : val });
+                        }}
+                        className={`w-full px-3 py-2 bg-white border rounded-lg text-sm font-bold text-slate-900 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-colors ${
+                          item.quantity_approved > 0
+                            ? 'border-emerald-300 bg-emerald-50/20'
+                            : 'border-slate-300'
+                        }`}
+                      />
+                      <div className="mt-1">
+                        {item.quantity_approved === 0 ? (
+                          <span className="text-[10px] font-semibold text-amber-600">
+                            0 Approved &bull; Not Approved
+                          </span>
+                        ) : item.quantity_approved === item.quantity_done ? (
+                          <span className="text-[10px] font-semibold text-emerald-600">
+                            ✓ Fully Approved ({item.quantity_approved} of {item.quantity_done})
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-semibold text-sky-600">
+                            Partially Approved ({item.quantity_approved} of {item.quantity_done})
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-                {/* Approval Status: Only Approved or Not Approved */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Approval Status *
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => updateItemRow(item.id, { is_approved: true })}
-                      className={`flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
-                        item.is_approved
-                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Approved</span>
-                    </button>
+                    {/* Approval Status: Only Approved or Not Approved */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Approval Status *
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => updateItemRow(item.id, { is_approved: true })}
+                          className={`flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+                            item.is_approved
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Approved</span>
+                        </button>
 
-                    <button
-                      type="button"
-                      onClick={() => updateItemRow(item.id, { is_approved: false })}
-                      className={`flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
-                        !item.is_approved
-                          ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      <X className="w-3.5 h-3.5" />
-                      <span>Not Approved</span>
-                    </button>
-                  </div>
-                </div>
+                        <button
+                          type="button"
+                          onClick={() => updateItemRow(item.id, { is_approved: false })}
+                          className={`flex items-center justify-center space-x-1 py-2 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+                            !item.is_approved
+                              ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>Not Approved</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Project URL (Optional) */}

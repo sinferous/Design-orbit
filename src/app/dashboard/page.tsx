@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { useToast } from '@/components/ui/ToastContext';
+import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -46,6 +47,7 @@ export default function DashboardPage() {
   const [currentProfileId, setCurrentProfileId] = useState<string | undefined>(undefined);
   const [nowMs, setNowMs] = useState<number>(Date.now());
   const [timerLoadingId, setTimerLoadingId] = useState<string | null>(null);
+  const [selectedApprovalEntry, setSelectedApprovalEntry] = useState<WorkEntryWithDetails | null>(null);
   const { showToast } = useToast();
 
   const [greeting, setGreeting] = useState('Good day');
@@ -519,17 +521,41 @@ export default function DashboardPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center space-x-3 sm:space-x-4 shrink-0 text-slate-700">
-                        <span>Done: <strong>{entry.quantity_done}</strong></span>
+                        <span>Qty: <strong>{entry.quantity_done}</strong></span>
                         <span>Approved: <strong className="text-teal-700">{entry.quantity_approved}</strong></span>
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                            entry.quantity_approved > 0
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-amber-50 text-amber-700 border-amber-200'
-                          }`}
-                        >
-                          {entry.quantity_approved > 0 ? 'Approved' : 'Not Approved'}
-                        </span>
+                        {isMyEntry ? (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedApprovalEntry(entry)}
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 flex items-center space-x-1 ${
+                              entry.quantity_approved === entry.quantity_done
+                                ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-300'
+                                : entry.quantity_approved > 0
+                                ? 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-300'
+                                : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-300'
+                            }`}
+                            title="Click to update approved deliverables"
+                          >
+                            <span>
+                              {entry.quantity_approved === entry.quantity_done
+                                ? `Approved (${entry.quantity_approved})`
+                                : entry.quantity_approved > 0
+                                ? `Partial (${entry.quantity_approved}/${entry.quantity_done})`
+                                : 'Not Approved (0)'}
+                            </span>
+                            <span className="text-[10px] opacity-60">▾</span>
+                          </button>
+                        ) : (
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                              entry.quantity_approved > 0
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                            }`}
+                          >
+                            {entry.quantity_approved > 0 ? `Approved (${entry.quantity_approved})` : 'Not Approved'}
+                          </span>
+                        )}
 
                         {/* Timer Controls on Dashboard */}
                         {isMyEntry ? (
@@ -627,6 +653,16 @@ export default function DashboardPage() {
             <TodoListWidget userId={currentProfileId} />
           </div>
         </div>
+
+        {/* Quick Inline Approval Modal */}
+        <QuickApprovalModal
+          entry={selectedApprovalEntry}
+          isOpen={Boolean(selectedApprovalEntry)}
+          onClose={() => setSelectedApprovalEntry(null)}
+          onSuccess={updated => {
+            setTodayEntries(prev => prev.map(e => e.id === updated.id ? updated : e));
+          }}
+        />
       </main>
     </div>
   );

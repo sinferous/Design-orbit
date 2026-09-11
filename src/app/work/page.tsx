@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { EmailDayLogModal } from '@/components/work/EmailDayLogModal';
+import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { generateEmailTableHtml, generateCleanPlainText, copyToClipboardWithHtml } from '@/lib/services/email-formatter';
 
 export default function MyWorkPage() {
@@ -69,6 +70,7 @@ export default function MyWorkPage() {
   const [timerLoadingId, setTimerLoadingId] = useState<string | null>(null);
   const [nowMs, setNowMs] = useState<number>(Date.now());
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [selectedApprovalEntry, setSelectedApprovalEntry] = useState<WorkEntryWithDetails | null>(null);
 
   useEffect(() => {
     async function loadProfiles() {
@@ -638,7 +640,7 @@ export default function MyWorkPage() {
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quantity Done</div>
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Quantity</div>
                 <div className="text-2xl font-extrabold text-slate-900">{totalDone}</div>
               </div>
             </div>
@@ -685,7 +687,7 @@ export default function MyWorkPage() {
           </div>
         </div>
 
-        {/* Streamlined, Uncluttered Entries View */}
+        {/* Work Entries Content */}
         {loading ? (
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
             <div className="animate-spin w-6 h-6 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
@@ -750,7 +752,7 @@ export default function MyWorkPage() {
                         </div>
 
                         <div className="flex items-center space-x-4 text-xs font-semibold text-slate-500">
-                          <span>Done: <strong className="text-slate-900 font-extrabold">{clientDone}</strong></span>
+                          <span>Total Qty: <strong className="text-slate-900 font-extrabold">{clientDone}</strong></span>
                           <span className="text-slate-300">•</span>
                           <span>Approved: <strong className="text-teal-700 font-extrabold">{clientApproved}</strong></span>
                         </div>
@@ -832,7 +834,7 @@ export default function MyWorkPage() {
                               <div className="flex flex-wrap items-center space-x-3 sm:space-x-5 justify-between md:justify-end gap-y-2">
                                 <div className="flex items-center space-x-4 text-xs">
                                   <div className="text-center">
-                                    <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Done</div>
+                                    <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Qty</div>
                                     <div className="text-base font-extrabold text-slate-900">{entry.quantity_done}</div>
                                   </div>
 
@@ -842,26 +844,61 @@ export default function MyWorkPage() {
                                   </div>
                                 </div>
 
-                                {/* Status Badge */}
-                                <span
-                                  className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 ${
-                                    entry.quantity_approved > 0
-                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                      : 'bg-amber-50 text-amber-700 border border-amber-200'
-                                  }`}
-                                >
-                                  {entry.quantity_approved > 0 ? (
-                                    <>
-                                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                      <span>Approved</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                                      <span>Not Approved</span>
-                                    </>
-                                  )}
-                                </span>
+                                {/* Quick Interactive Approval Action */}
+                                {isMyEntry ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedApprovalEntry(entry)}
+                                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1.5 transition-all border shadow-2xs hover:scale-105 active:scale-95 cursor-pointer ${
+                                      entry.quantity_approved === entry.quantity_done
+                                        ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300'
+                                        : entry.quantity_approved > 0
+                                        ? 'bg-sky-50 hover:bg-sky-100 text-sky-800 border-sky-300'
+                                        : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300'
+                                    }`}
+                                    title="Click to update approved count"
+                                  >
+                                    {entry.quantity_approved === entry.quantity_done ? (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                        <span>Approved ({entry.quantity_approved})</span>
+                                        <span className="text-[10px] opacity-60">▾</span>
+                                      </>
+                                    ) : entry.quantity_approved > 0 ? (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-sky-600" />
+                                        <span>Partial ({entry.quantity_approved}/{entry.quantity_done})</span>
+                                        <span className="text-[10px] opacity-60">▾</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                                        <span>Not Approved (0)</span>
+                                        <span className="text-[10px] opacity-60">▾</span>
+                                      </>
+                                    )}
+                                  </button>
+                                ) : (
+                                  <span
+                                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 ${
+                                      entry.quantity_approved > 0
+                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                        : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    }`}
+                                  >
+                                    {entry.quantity_approved > 0 ? (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                        <span>Approved ({entry.quantity_approved})</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                                        <span>Not Approved</span>
+                                      </>
+                                    )}
+                                  </span>
+                                )}
 
                                 {/* Timer Controls: Start / Stop & Stopwatch */}
                                 {isMyEntry ? (
@@ -989,6 +1026,16 @@ export default function MyWorkPage() {
           entries={entries}
           designerName={activeProfile?.name || 'Gajesh'}
           selectedDate={selectedDate}
+        />
+
+        {/* Quick Inline Approval Modal */}
+        <QuickApprovalModal
+          entry={selectedApprovalEntry}
+          isOpen={Boolean(selectedApprovalEntry)}
+          onClose={() => setSelectedApprovalEntry(null)}
+          onSuccess={updated => {
+            setEntries(prev => prev.map(e => e.id === updated.id ? updated : e));
+          }}
         />
       </main>
     </div>
