@@ -198,6 +198,9 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Rich Date Picker Component (`RichDatePicker.tsx`)**:
   - Replaced browser-native `<input type="date">` in the Daily Work Entry form ([`/work/new`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx) & [`/work/[id]`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/%5Bid%5D/page.tsx)) with a custom, interactive `RichDatePicker` component ([`src/components/ui/RichDatePicker.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/RichDatePicker.tsx)).
   - Features an animated calendar dropdown, month navigation steppers, 42-day Monday-based grid, today & active date highlights, and 1-click `Today` / `Yesterday` quick presets.
+- [x] **Weekly Meeting Report Streamlining (Removed `Time: Visible` & Individual Entry Time)**:
+  - Removed the `Time: Visible` toggle button from the sub-navigation header in the Weekly Meeting Report ([`/reports/weekly`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/weekly/page.tsx)).
+  - Removed individual time displays across designer summary cards, client groupings, and individual deliverable entry items, keeping weekly meetings strictly focused on creative deliverables, review quality, approval counts, and project showcase links (while detailed time tracking is cleanly housed in [`/reports/billing`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/billing/page.tsx)).
 
 ---
 
