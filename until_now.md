@@ -350,6 +350,11 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Tuned page container padding (`px-3.5 sm:px-6`) and card padding (`p-3.5 sm:p-6`) for optimal breathing room on smaller screens.
 - [x] **Removed Redundant Pending Queue Link on Dashboard**:
   - Removed duplicate bottom hyperlink (`+ X more deliverables waiting for client approval`) since the dedicated `View Full Pending Queue` button is already present in the card header on both PC and mobile.
+- [x] **Daily Work Log Mobile Alignment & Sizing Improvements (`/work`)**:
+  - **Equal 50%/50% Width View Mode Buttons**: Upgraded the `Daily Log (By Date)` and `Pending Approvals Queue` switcher to a 2-column mobile grid (`grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto`) with fixed `h-11` heights, ensuring both buttons are equal 50% width on mobile screens instead of uneven flex widths.
+  - **Centered Date Navigation Row**: Aligned the `< [ 📅 Date Picker ] >` row to `justify-center md:justify-end`, perfectly centering the calendar picker in the card on mobile devices.
+  - **Centered Calendar Dropdown Popover**: Added `left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0` so the monthly date picker popover remains centered without horizontal viewport overflow.
+  - **Side-by-Side Deliverable Stat Tiles**: Arranged `Total Quantity` and `Approved Qty` side-by-side in a 2-column grid (`grid grid-cols-2 sm:grid-cols-3`), with `Total Time Tracked` positioned as a full-width tile (`col-span-2 sm:col-span-1`) underneath.
 
 ---
 

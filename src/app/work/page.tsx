@@ -552,33 +552,33 @@ export default function MyWorkPage() {
 
         {/* Primary View Mode Switcher: Daily Calendar vs Pending Approvals Queue */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-2">
-          <div className="flex items-center space-x-2">
+          <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto items-center">
             <button
               type="button"
               onClick={() => setWorkViewMode('calendar')}
-              className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full sm:w-auto h-11 sm:h-auto inline-flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${
                 workViewMode === 'calendar'
                   ? 'bg-sky-600 text-white shadow-xs'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
-              <Calendar className="w-4 h-4" />
-              <span>Daily Log (By Date)</span>
+              <Calendar className="w-4 h-4 shrink-0" />
+              <span className="truncate">Daily Log <span className="hidden min-[420px]:inline text-[11px] font-normal opacity-90">(By Date)</span></span>
             </button>
 
             <button
               type="button"
               onClick={() => setWorkViewMode('pending')}
-              className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full sm:w-auto h-11 sm:h-auto inline-flex items-center justify-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${
                 workViewMode === 'pending'
                   ? 'bg-amber-600 text-white shadow-xs'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
-              <CalendarClock className={`w-4 h-4 ${workViewMode === 'pending' ? 'text-white' : 'text-amber-600'}`} />
-              <span>Pending Approvals Queue</span>
+              <CalendarClock className={`w-4 h-4 shrink-0 ${workViewMode === 'pending' ? 'text-white' : 'text-amber-600'}`} />
+              <span className="truncate">Pending Queue</span>
               {pendingEntries.length > 0 && (
-                <span className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold shrink-0 ${
                   workViewMode === 'pending'
                     ? 'bg-white text-amber-800'
                     : 'bg-amber-100 text-amber-900 border border-amber-300'
@@ -651,9 +651,9 @@ export default function MyWorkPage() {
           )}
 
           {/* Date Selector & Designer Filter for non-admin */}
-          <div className="flex flex-wrap items-center space-x-2 w-full md:w-auto justify-between md:justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 w-full md:w-auto">
             {!isAdmin && selectedUserFilter !== 'my_work' && (
-              <div className="w-52">
+              <div className="w-full sm:w-52">
                 <RichSelect
                   value={selectedUserFilter}
                   onChange={val => setSelectedUserFilter(val)}
@@ -672,10 +672,10 @@ export default function MyWorkPage() {
               </div>
             )}
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center space-x-2">
               <button
                 onClick={() => handleDateChange(-1)}
-                className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shrink-0"
                 title="Previous Day"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -704,7 +704,7 @@ export default function MyWorkPage() {
                       className="fixed inset-0 z-30"
                       onClick={() => setIsCalendarOpen(false)}
                     />
-                    <div className="absolute right-0 sm:right-0 mt-2 z-40 bg-white border border-slate-200 rounded-xl shadow-xl p-4 w-[310px] sm:w-[330px] space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 mt-2 z-40 bg-white border border-slate-200 rounded-xl shadow-xl p-4 w-[310px] sm:w-[330px] space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-150">
                       {/* Calendar Month Header */}
                       <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                         <button
@@ -826,46 +826,46 @@ export default function MyWorkPage() {
         {/* Daily Summary Stat Tiles - Compact on Mobile */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
           <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between">
-            <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
                 <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Quantity</div>
-                <div className="text-xl sm:text-2xl font-extrabold text-slate-900">{totalDone}</div>
+              <div className="min-w-0">
+                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Total Quantity</div>
+                <div className="text-lg sm:text-2xl font-extrabold text-slate-900">{totalDone}</div>
               </div>
             </div>
-            <span className="text-[11px] sm:text-xs text-slate-400 font-medium hidden sm:inline">{entries.length} items</span>
+            <span className="text-[10px] sm:text-xs text-slate-400 font-medium hidden min-[400px]:inline shrink-0">{entries.length} items</span>
           </div>
 
           <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between">
-            <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600 shrink-0">
                 <Check className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Approved</div>
-                <div className="text-xl sm:text-2xl font-extrabold text-teal-700">{totalApproved}</div>
+              <div className="min-w-0">
+                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Approved Qty</div>
+                <div className="text-lg sm:text-2xl font-extrabold text-teal-700">{totalApproved}</div>
               </div>
             </div>
-            <span className="text-[11px] sm:text-xs text-teal-600 font-semibold truncate">
+            <span className="text-[10px] sm:text-xs text-teal-600 font-bold shrink-0">
               {totalDone > 0 ? `${Math.round((totalApproved / totalDone) * 100)}%` : '0%'}
             </span>
           </div>
 
           <div className="col-span-2 sm:col-span-1 bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between">
-            <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Time Tracked</div>
-                <div className="text-xl sm:text-2xl font-extrabold text-amber-900 font-mono">
+              <div className="min-w-0">
+                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Total Time Tracked</div>
+                <div className="text-lg sm:text-2xl font-extrabold text-amber-900 font-mono">
                   {formatWorkEntryDuration(totalTrackedSeconds)}
                 </div>
               </div>
             </div>
-            <span className="text-xs text-amber-700 font-semibold">
+            <span className="text-xs text-amber-700 font-semibold shrink-0">
               {activeTimersCount > 0 ? (
                 <span className="flex items-center space-x-1">
                   <span className="w-2 h-2 rounded-full bg-red-600 animate-ping inline-block" />
