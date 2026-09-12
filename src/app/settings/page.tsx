@@ -1,11 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
-import { getLoggedInUser, updateProfilePasswordInDB, fetchProfileByEmail, getUserPasswordFromDB } from '@/lib/services/work-entry';
-import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff } from 'lucide-react';
+import {
+  getLoggedInUser,
+  updateProfilePasswordInDB,
+  fetchProfileByEmail,
+  fetchProfiles,
+  getUserPasswordFromDB
+} from '@/lib/services/work-entry';
+import {
+  fetchMonthlyDesignerActivity,
+  MonthlyDesignerActivity
+} from '@/lib/services/activity';
+import { MonthlyActivityHeatmap } from '@/components/activity/MonthlyActivityHeatmap';
+import { Profile } from '@/types';
+import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff, Sparkles, Activity } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function SettingsPage() {
@@ -21,29 +33,65 @@ export default function SettingsPage() {
   const [loadingPassword, setLoadingPassword] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [currentUser, setCurrentUser] = useState({ name: 'Team Member', email: '' });
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  // Profile-specific monthly activity heatmap state
+  const [activityYear, setActivityYear] = useState<number>(new Date().getFullYear());
+  const [activityMonth, setActivityMonth] = useState<number>(new Date().getMonth() + 1);
+  const [activity, setActivity] = useState<MonthlyDesignerActivity | null>(null);
+  const [loadingActivity, setLoadingActivity] = useState<boolean>(true);
 
   const { showToast } = useToast();
 
+  const loadActivity = useCallback(async (profId: string, yr: number, mo: number) => {
+    setLoadingActivity(true);
+    try {
+      const data = await fetchMonthlyDesignerActivity(yr, mo, profId);
+      setActivity(data);
+    } catch (err) {
+      console.error('Failed to load user activity heatmap:', err);
+    } finally {
+      setLoadingActivity(false);
+    }
+  }, []);
+
   useEffect(() => {
-    async function loadUserPasswordFromDB() {
+    async function loadUserData() {
       const user = getLoggedInUser();
       if (user?.name) {
         setCurrentUser(user);
-        if (user.email) {
-          try {
-            const dbProf = await fetchProfileByEmail(user.email);
-            const pass = getUserPasswordFromDB(dbProf, user.email);
-            setDbPassword(pass);
-            setCurrentPassword(pass);
-          } catch (err) {
-            console.error('Failed to load password from DB:', err);
+        try {
+          let activeProf: Profile | null = null;
+          if (user.email) {
+            activeProf = await fetchProfileByEmail(user.email);
           }
+          if (!activeProf) {
+            const all = await fetchProfiles();
+            activeProf = all.find(p => p.name.toLowerCase() === user.name.toLowerCase()) || null;
+          }
+
+          if (activeProf) {
+            setProfile(activeProf);
+            if (user.email) {
+              const pass = getUserPasswordFromDB(activeProf, user.email);
+              setDbPassword(pass);
+              setCurrentPassword(pass);
+            }
+          }
+        } catch (err) {
+          console.error('Failed to load profile data:', err);
         }
       }
       setLoadingPassword(false);
     }
-    loadUserPasswordFromDB();
+    loadUserData();
   }, []);
+
+  useEffect(() => {
+    if (profile?.id) {
+      loadActivity(profile.id, activityYear, activityMonth);
+    }
+  }, [profile?.id, activityYear, activityMonth, loadActivity]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,22 +146,22 @@ export default function SettingsPage() {
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
-                Account Settings
+                Personal Profile
               </span>
               <span className="text-xs text-slate-400">•</span>
               <span className="text-xs font-semibold text-slate-500">{currentUser.name}</span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 mt-1">
-              Security & Password
+              Profile & Account Settings
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Manage your login credentials and security configuration.
+              Review your monthly deliverable heatmap, daily work entries, and manage your security credentials.
             </p>
           </div>
 
           <Link
             href="/dashboard"
-            className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+            className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Dashboard</span>
@@ -121,18 +169,43 @@ export default function SettingsPage() {
         </div>
 
         {/* User Card */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-teal-600 text-white font-extrabold flex items-center justify-center text-xl shadow-sm">
-            {currentUser.name.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center space-x-2 w-fit">
-              <User className="w-3.5 h-3.5 text-sky-600" />
-              <span>{currentUser.name}</span>
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-teal-600 text-white font-extrabold flex items-center justify-center text-xl shadow-sm">
+              {currentUser.name.charAt(0).toUpperCase()}
             </div>
-            <p className="text-xs text-slate-500 mt-1">{currentUser.email || 'varun@webtreeonline.com'}</p>
+            <div>
+              <div className="flex items-center space-x-2">
+                <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 flex items-center space-x-2 w-fit">
+                  <User className="w-3.5 h-3.5 text-sky-600" />
+                  <span>{currentUser.name}</span>
+                </div>
+                {profile?.designation && (
+                  <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md">
+                    {profile.designation}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">{currentUser.email || 'varun@webtreeonline.com'}</p>
+            </div>
           </div>
         </div>
+
+        {/* Profile-Specific Monthly Heatmap & Daily Deliverables Inspector */}
+        {loadingActivity ? (
+          <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <div className="animate-spin w-7 h-7 border-2 border-emerald-600 border-t-transparent rounded-full mx-auto" />
+            <p className="mt-3 text-xs text-slate-500 font-medium">Loading your deliverable heatmap & activity matrix...</p>
+          </div>
+        ) : activity ? (
+          <MonthlyActivityHeatmap
+            activity={activity}
+            onMonthChange={(y, m) => {
+              setActivityYear(y);
+              setActivityMonth(m);
+            }}
+          />
+        ) : null}
 
         {/* Change Password Card */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
