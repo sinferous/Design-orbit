@@ -239,7 +239,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 ---
 
-### Phase 8 — Multi-Day Carryover & "Continue Tomorrow" Flow for In-Progress Tasks (Completed)
+### Phase 6 — Multi-Day Carryover & Initial "Continue Tomorrow" Architecture (Completed)
 - [x] **Core Accounting & Output Integrity Model (Option 1)**:
   - **Problem Solved**: Long-form deliverables (videos, 3D renders, web development, UI/UX systems) span multiple working days. When a designer works on Day 1, logging the full quantity (`1 Video`) falsely inflates team output, while not logging at all erases billable time and daily presence.
   - **The Solution**:
@@ -268,7 +268,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 ---
 
-### Phase 8 — Admin Dashboard Focus & System Security (Completed)
+### Phase 7 — Admin Dashboard Focus & System Security (Completed)
 - [x] **Executive Admin Dashboard (`/admin`)**:
   - Removed personal daily work logs from the Admin view to focus purely on agency-wide operations.
   - Retained high-level agency KPIs, live team workload distribution, real-time agency deliverables feed, and team-wide pending approvals queue.
@@ -276,7 +276,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Audited middleware and client-side guards across all 16 routes.
   - Verified that unauthenticated users with direct URLs are immediately redirected to `/login`.
 
-### Phase 9 — Pending Approvals Queue & Dismiss Flow (Completed)
+### Phase 8 — Pending Approvals Queue & Dismiss Flow (Completed)
 - [x] **Pending Approvals Queue (`/work?view=pending` & Dashboard Card)**:
   - Centralized queue for past-date deliverables awaiting client sign-off, eliminating calendar hunting.
   - Filter by age urgency: **Fresh (≤4d)**, **Follow-up (5-7d)**, and **Overdue (>7d)**.
@@ -291,7 +291,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Streamlined Quick Approval Modal**:
   - Removed the redundant dismiss checkbox from inside the modal, keeping it purely focused on setting approved quantities with `+ / -` counter buttons and one-click presets (`All Approved`, `Not Approved`).
 
-### Phase 10 — Simplified In-Progress Work ("Working" Status) (Completed)
+### Phase 9 — Simplified In-Progress Work ("Working" Status) (Completed)
 - [x] **No Parent/Child Complications**:
   - Eliminated complex parent/child linking, resume URL parameters (`?resume=...`), and artificial carryover tags.
   - Work is tracked cleanly as independent daily sessions without mental overhead.
@@ -307,20 +307,20 @@ This document provides a comprehensive summary of all progress, architecture, an
   - In `/dashboard` and `/work`: in-progress work displays an intuitive badge: `⏳ Working (0 qty • Time logged)`.
   - All "Resume →" and "Continue Today →" redirects removed in favor of a clean, seamless UI.
 
-### Phase 11 — Weekly Report Aggregation Clean-Up (Completed)
+### Phase 10 — Weekly Report Aggregation Clean-Up (Completed)
 - [x] **Removed "Working" from Work Type Categories**:
   - Filtered out the legacy `"Working"` entry from `fetchWorkTypes()` and the Weekly Team Review aggregation grid.
   - Weekly report now exclusively shows real design categories: **Static**, **Video**, **UI/UX**, **Website**, **Landing Page**, **Branding**, **Edits**, **Mobile App**, and **Other**.
   - Tracked time for in-progress tasks is 100% captured in **Total Time Tracked** and client billing without creating a confusing `Working 0 (0)` card.
 
-### Phase 12 — Email Daily Work Log "Working" Badges (Completed)
+### Phase 11 — Email Daily Work Log "Working" Badges (Completed)
 - [x] **Transparent Communication in Email Reports**:
   - **Modern Table (Rich HTML for Gmail & Outlook)**: Under the `QTY` column, in-progress tasks now display an amber badge: **`Working`** instead of an ambiguous `0`.
   - **Client Digest & Plain Text**: Tasks now explicitly say `• Task [Working] - Description` instead of `(Qty: 0)`.
   - **Email Headers & Footers**: Clarifies completed deliverables vs ongoing tasks (e.g. `24 items (+1 working)`).
   - **Modal Header Badge**: Displays `X Deliverables • Y Working`.
 
-### Phase 13 — Database Integrity & UI Streamlining (Completed)
+### Phase 12 — Database Integrity & UI Streamlining (Completed)
 - [x] **Live Supabase PostgreSQL Verification**:
   - Verified that all pending tasks and daily work logs run directly against the live production Supabase database (`https://xttbbandssespupfhgus.supabase.co`) with genuine UUIDs.
   - Added database-level filtering (`quantity_done > 0`) to optimize query speeds.
