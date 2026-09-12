@@ -379,6 +379,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **All Designers View**: Displays agency monthly averages and a comprehensive Team Consistency Table comparing each designer's active days, consistency score, deliverables, and mini heat strip side by side.
   - **Inline Designer Matrix (Zero Popups)**: Clicking any designer row in the table, clicking the **View Heatmap →** button, or clicking a designer card in the Workload section immediately switches the view and loads that designer's complete monthly activity heatmap & daily deliverables inspector **directly inline on the page**, with a quick `← All Designers` return toggle. Completely eliminated modal popouts.
   - **Individual Designer View**: Renders the complete 7-column calendar heatmap with day-by-day deliverables inspector.
+  - **Removed To-Do List from Admin Dashboard**: Removed the personal to-do list widget from [`/admin`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/admin/page.tsx) to keep the executive dashboard strictly focused on high-level agency operations, client approvals, live deliverable feeds, and team metrics without clutter.
 - [x] **Individual Profile Page Heatmap & Daily Inspector (`/settings`)**:
   - Embedded the full profile-specific monthly activity heatmap directly into the designer's personal profile page (`/settings`).
   - Automatically identifies the logged-in team member (`Varun`, `Fazil`, `Moveena`, etc.) via their session email and profile record.

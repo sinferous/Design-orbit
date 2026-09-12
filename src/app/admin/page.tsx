@@ -39,7 +39,6 @@ import {
   ChevronRight,
   ArrowLeft,
 } from 'lucide-react';
-import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { useToast } from '@/components/ui/ToastContext';
 import {
@@ -1059,11 +1058,6 @@ export default function AdminDashboardPage() {
                   <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-purple-700" />
                 </Link>
               </div>
-            </div>
-
-            {/* Admin Private Notes & Action Items Widget */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <TodoListWidget />
             </div>
           </div>
         </div>
