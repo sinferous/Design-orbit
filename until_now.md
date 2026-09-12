@@ -367,7 +367,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Calculates 5-tier GitHub emerald heat intensity (0 tasks = neutral, 1–2 = light green, 3–4 = medium, 5–7 = deep green, 8+ = intense dark green).
   - Computes monthly metrics: `activeDaysCount` / `daysInMonth`, consistency percentage, total deliverables created, approvals, and tracked deliverable hours.
 - [x] **GitHub-Style Interactive Monthly Heatmap (`MonthlyActivityHeatmap.tsx`)**:
-  - 7-column calendar matrix (Monday to Sunday) with day numbers, task badges, and green intensity shading.
+  - 7-column calendar matrix (Monday to Sunday) with clean day numbers, task count badges, and green intensity shading without text clutter or truncated client names inside the cells.
   - Interactive day drill-down: Clicking any active day reveals a detailed panel of deliverables completed on that date (client, work type, quantity, approval, time spent).
   - Compact `MiniActivityHeatStrip` component for clean 30-day rhythm visualization in profile cards and table rows.
   - Full modal viewer (`DesignerActivityModal.tsx`) with historical month/year navigation.

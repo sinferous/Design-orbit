@@ -216,7 +216,7 @@ export function MonthlyActivityHeatmap({
           {Array.from({ length: paddingCols }).map((_, i) => (
             <div
               key={`empty-${i}`}
-              className="h-11 sm:h-13 rounded-lg bg-slate-50/40 border border-dashed border-slate-100"
+              className="h-10 sm:h-12 rounded-lg bg-slate-50/40 border border-dashed border-slate-100"
             />
           ))}
 
@@ -230,35 +230,24 @@ export function MonthlyActivityHeatmap({
                 key={day.dateStr}
                 type="button"
                 onClick={() => setSelectedDay(day)}
-                className={`h-11 sm:h-13 p-1 rounded-lg border transition-all flex flex-col justify-between text-left cursor-pointer relative group ${
+                className={`h-10 sm:h-12 px-2 py-1.5 rounded-lg border transition-all flex items-center justify-between cursor-pointer relative group ${
                   getIntensityClass(day.intensity)
                 } ${
                   isSelected
                     ? 'ring-2 ring-sky-500 ring-offset-1 scale-[1.03] z-10'
                     : ''
                 } ${
-                  isSunday && day.tasksCount === 0 ? 'opacity-50' : ''
+                  isSunday && day.tasksCount === 0 ? 'opacity-40' : ''
                 }`}
-                title={`${day.dateStr}: ${day.tasksCount} task(s) logged, ${day.quantityDone} units produced`}
+                title={`${day.dateStr}: ${day.tasksCount} task(s) logged, ${day.quantityDone} deliverables`}
               >
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-[10px] sm:text-xs font-bold">
-                    {day.dayNumber}
-                  </span>
-                  {day.tasksCount > 0 && (
-                    <span className="text-[9px] sm:text-[10px] font-extrabold px-1 py-0.2 rounded-full bg-black/10 dark:bg-white/20">
-                      {day.tasksCount}
-                    </span>
-                  )}
-                </div>
+                <span className="text-xs sm:text-sm font-bold">
+                  {day.dayNumber}
+                </span>
 
-                {day.tasksCount > 0 ? (
-                  <div className="text-[9px] font-medium truncate opacity-90 leading-tight hidden sm:block">
-                    {day.uniqueClients[0] || `${day.quantityDone} items`}
-                  </div>
-                ) : (
-                  <span className="text-[8px] opacity-40 leading-none hidden sm:block">
-                    {isSunday ? 'Sun' : '—'}
+                {day.tasksCount > 0 && (
+                  <span className="text-[10px] sm:text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/10 dark:bg-white/20">
+                    {day.tasksCount}
                   </span>
                 )}
               </button>
