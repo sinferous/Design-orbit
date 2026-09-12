@@ -342,42 +342,54 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Stat Cards - 2x2 on Mobile */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-1 sm:space-y-2">
+        {/* Quick Stat Cards - 4 Small Compact Cards (2x2 on Mobile, 4-col on Desktop) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
+          {/* Card 1: Today's Created */}
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Today's Created</span>
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-500 shrink-0" />
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">Today Created</span>
+              <Clock className="w-3.5 h-3.5 text-sky-500 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">{todayDone}</div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">{todayEntries.length} items today</p>
+            <div className="flex items-baseline space-x-1.5 mt-1.5">
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{todayDone}</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">items logged</span>
+            </div>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-1 sm:space-y-2">
+          {/* Card 2: Today's Approved */}
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Today's Approved</span>
-              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-500 shrink-0" />
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">Today Approved</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-teal-500 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-teal-700">{todayApproved}</div>
-            <p className="text-[11px] sm:text-xs text-emerald-600 font-semibold truncate">{todayApprovalRate}% approval</p>
+            <div className="flex items-baseline space-x-1.5 mt-1.5">
+              <span className="text-xl sm:text-2xl font-extrabold text-teal-700 leading-none">{todayApproved}</span>
+              <span className="text-[10px] sm:text-xs text-emerald-600 font-bold truncate">({todayApprovalRate}%)</span>
+            </div>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-1 sm:space-y-2">
+          {/* Card 3: This Week Total */}
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">This Week</span>
-              <CalendarDays className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-600 shrink-0" />
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">This Week</span>
+              <CalendarDays className="w-3.5 h-3.5 text-sky-600 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">{weekSummary.totalCreated}</div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">{weekSummary.totalApproved} approved</p>
+            <div className="flex items-baseline space-x-1.5 mt-1.5">
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{weekSummary.totalCreated}</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">({weekSummary.totalApproved} app.)</span>
+            </div>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-1 sm:space-y-2">
+          {/* Card 4: Active Clients */}
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Active Clients</span>
-              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-600 shrink-0" />
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">Active Clients</span>
+              <Building2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-sky-700">{weekSummary.activeClients}</div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Brands this week</p>
+            <div className="flex items-baseline space-x-1.5 mt-1.5">
+              <span className="text-xl sm:text-2xl font-extrabold text-sky-700 leading-none">{weekSummary.activeClients}</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">brands</span>
+            </div>
           </div>
         </div>
 

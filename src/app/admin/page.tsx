@@ -213,85 +213,85 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Top 4 KPI Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Top 4 KPI Metrics - 4 Small Compact Cards (2x2 on Mobile, 4-col on Desktop) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
           {/* Card 1: Today's Team Output */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Today's Team Output</span>
-              <span className="p-2 rounded-xl bg-sky-50 text-sky-600">
-                <Sparkles className="w-4 h-4" />
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Today Output</span>
+              <span className="p-1.5 rounded-lg bg-sky-50 text-sky-600 shrink-0">
+                <Sparkles className="w-3.5 h-3.5" />
               </span>
             </div>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-3xl font-extrabold text-slate-900">{todayCreated}</span>
-              <span className="text-xs font-semibold text-slate-500">items logged</span>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{todayCreated}</span>
+              <span className="text-[10px] sm:text-xs font-bold text-teal-700 truncate">({todayApproved} app.)</span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className="text-slate-500">Approved: <strong className="text-teal-700 font-bold">{todayApproved}</strong></span>
-              <span className="font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md">
-                {activeTodayDesignerIds.size} active today
+            <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs">
+              <span className="text-slate-400">Active</span>
+              <span className="font-bold text-sky-700">
+                {activeTodayDesignerIds.size} designers
               </span>
             </div>
           </div>
 
           {/* Card 2: Weekly Production */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Weekly Production</span>
-              <span className="p-2 rounded-xl bg-teal-50 text-teal-600">
-                <TrendingUp className="w-4 h-4" />
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Weekly Output</span>
+              <span className="p-1.5 rounded-lg bg-teal-50 text-teal-600 shrink-0">
+                <TrendingUp className="w-3.5 h-3.5" />
               </span>
             </div>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-3xl font-extrabold text-slate-900">{weekSummary.totalCreated}</span>
-              <span className="text-xs font-semibold text-teal-700 font-bold">({weekSummary.totalApproved} approved)</span>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{weekSummary.totalCreated}</span>
+              <span className="text-[10px] sm:text-xs font-bold text-teal-700 truncate">({weekSummary.totalApproved} app.)</span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className="text-slate-500">Approval Rate</span>
-              <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+            <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs">
+              <span className="text-slate-400">Approval</span>
+              <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
                 {weeklyApprovalRate}%
               </span>
             </div>
           </div>
 
           {/* Card 3: Total Deliverable Time */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Deliverable Time</span>
-              <span className="p-2 rounded-xl bg-amber-50 text-amber-600">
-                <Clock className="w-4 h-4" />
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Logged Time</span>
+              <span className="p-1.5 rounded-lg bg-amber-50 text-amber-600 shrink-0">
+                <Clock className="w-3.5 h-3.5" />
               </span>
             </div>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-3xl font-extrabold text-amber-800 font-mono">
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-xl sm:text-2xl font-extrabold text-amber-800 font-mono leading-none">
                 {formatWorkEntryDuration(todaySeconds)}
               </span>
-              <span className="text-xs font-semibold text-slate-500">logged today</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 truncate">today</span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className="text-slate-500">Weekly Total</span>
-              <span className="font-bold text-slate-700">
+            <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs">
+              <span className="text-slate-400">Week</span>
+              <span className="font-bold text-slate-700 truncate">
                 {formatWorkEntryDuration(weekSummary.totalSeconds)}
               </span>
             </div>
           </div>
 
           {/* Card 4: Active Clients */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Active Clients</span>
-              <span className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
-                <Building2 className="w-4 h-4" />
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Active Clients</span>
+              <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 shrink-0">
+                <Building2 className="w-3.5 h-3.5" />
               </span>
             </div>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-3xl font-extrabold text-slate-900">{weekSummary.activeClients}</span>
-              <span className="text-xs font-semibold text-slate-500">brands serviced</span>
+            <div className="flex items-baseline space-x-1.5 mt-1">
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{weekSummary.activeClients}</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 truncate">brands</span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-              <Link href="/clients" className="text-sky-600 hover:text-sky-800 font-semibold inline-flex items-center space-x-1">
-                <span>View Directory</span>
+            <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs">
+              <Link href="/clients" className="text-sky-600 hover:text-sky-800 font-bold inline-flex items-center space-x-0.5">
+                <span>Directory</span>
                 <ArrowUpRight className="w-3 h-3" />
               </Link>
               <span className="text-slate-400">This week</span>
