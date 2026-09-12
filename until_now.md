@@ -355,6 +355,10 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Centered Date Navigation Row**: Aligned the `< [ 📅 Date Picker ] >` row to `justify-center md:justify-end`, perfectly centering the calendar picker in the card on mobile devices.
   - **Centered Calendar Dropdown Popover**: Added `left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0` so the monthly date picker popover remains centered without horizontal viewport overflow.
   - **Side-by-Side Deliverable Stat Tiles**: Arranged `Total Quantity` and `Approved Qty` side-by-side in a 2-column grid (`grid grid-cols-2 sm:grid-cols-3`), with `Total Time Tracked` positioned as a full-width tile (`col-span-2 sm:col-span-1`) underneath.
+- [x] **Weekly Team Review Mobile Alignment & 2x2 Side-by-Side Cards (`/reports/weekly`)**:
+  - **Centered Week Navigation Controls**: Removed stretched full-width gray box in favor of a clean, cohesive, centered `< [ 📅 Date Range v ] >` controller matching `/work`.
+  - **Centered Calendar Popover**: Anchored calendar popup using `left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0` for mobile viewport safety.
+  - **2x2 Side-by-Side KPI Cards**: Grouped the 4 weekly KPI cards into 2 pairs side-by-side on mobile (`grid grid-cols-2 lg:grid-cols-4`) with balanced heights (`flex flex-col justify-between`), clean uppercase titles, and descriptive subtexts.
 
 ---
 
