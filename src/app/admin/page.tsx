@@ -41,14 +41,6 @@ import {
 } from 'lucide-react';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { useToast } from '@/components/ui/ToastContext';
-import {
-  fetchMonthlyTeamActivity,
-  fetchMonthlyDesignerActivity,
-  MonthlyTeamActivity,
-  MonthlyDesignerActivity,
-} from '@/lib/services/activity';
-import { MonthlyActivityHeatmap, MiniActivityHeatStrip } from '@/components/activity/MonthlyActivityHeatmap';
-import { RichSelect } from '@/components/ui/RichSelect';
 
 export default function AdminDashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -70,13 +62,6 @@ export default function AdminDashboardPage() {
   const [selectedApprovalEntry, setSelectedApprovalEntry] = useState<WorkEntryWithDetails | null>(null);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
-  // Monthly Activity & Consistency Matrix state
-  const [matrixYear, setMatrixYear] = useState<number>(new Date().getFullYear());
-  const [matrixMonth, setMatrixMonth] = useState<number>(new Date().getMonth() + 1);
-  const [matrixDesignerFilter, setMatrixDesignerFilter] = useState<string>('all');
-  const [teamActivity, setTeamActivity] = useState<MonthlyTeamActivity | null>(null);
-  const [singleDesignerActivity, setSingleDesignerActivity] = useState<MonthlyDesignerActivity | null>(null);
-  const [loadingMatrix, setLoadingMatrix] = useState(false);
 
   // Strict Role Guard: Check if logged-in user is an Admin
   useEffect(() => {
@@ -163,29 +148,7 @@ export default function AdminDashboardPage() {
     return () => clearInterval(pollInterval);
   }, [isAuthorized]);
 
-  const loadMatrixData = useCallback(async () => {
-    setLoadingMatrix(true);
-    try {
-      if (matrixDesignerFilter === 'all') {
-        const data = await fetchMonthlyTeamActivity(matrixYear, matrixMonth);
-        setTeamActivity(data);
-        setSingleDesignerActivity(null);
-      } else {
-        const data = await fetchMonthlyDesignerActivity(matrixYear, matrixMonth, matrixDesignerFilter);
-        setSingleDesignerActivity(data);
-      }
-    } catch (err) {
-      console.error('Failed to load activity matrix:', err);
-    } finally {
-      setLoadingMatrix(false);
-    }
-  }, [matrixYear, matrixMonth, matrixDesignerFilter]);
 
-  useEffect(() => {
-    if (isAuthorized) {
-      loadMatrixData();
-    }
-  }, [isAuthorized, loadMatrixData]);
 
   // If unauthorized or checking credentials, prevent any dashboard rendering
   if (isAuthorized !== true) {
@@ -369,13 +332,7 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={p.id}
-                  onClick={() => {
-                    setMatrixDesignerFilter(p.id);
-                    const el = document.getElementById('activity-matrix-section');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  title={`Click to load ${p.name}'s monthly activity matrix`}
-                  className={`p-3.5 rounded-xl border transition-all cursor-pointer hover:shadow-xs ${
+                  className={`p-3.5 rounded-xl border transition-all ${
                     isWorkingNow
                       ? 'bg-emerald-50/50 border-emerald-300 shadow-xs ring-1 ring-emerald-400/30'
                       : hasLoggedToday
@@ -443,260 +400,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Production Activity & Consistency Matrix (GitHub-Style Monthly Heatmap & Attendance Proxy) */}
-        <div id="activity-matrix-section" className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-2xs shrink-0">
-                <Calendar className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                  <h2 className="text-lg font-bold text-slate-900">
-                    Production Activity & Consistency Matrix
-                  </h2>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    Monthly Output Heatmap
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Automated attendance and deliverable rhythm based on daily tasks logged across the month.
-                </p>
-              </div>
-            </div>
 
-            {/* Matrix Filters: Designer Selector & Month Navigator */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              {matrixDesignerFilter !== 'all' && (
-                <button
-                  type="button"
-                  onClick={() => setMatrixDesignerFilter('all')}
-                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition-colors cursor-pointer"
-                  title="Return to entire team table"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
-                  <span>All Designers</span>
-                </button>
-              )}
-
-              {/* Designer Filter */}
-              <div className="w-60">
-                <RichSelect
-                  value={matrixDesignerFilter}
-                  onChange={val => setMatrixDesignerFilter(String(val))}
-                  options={[
-                    { value: 'all', label: 'All Designers / Entire Team' },
-                    ...profiles.map(p => ({
-                      value: p.id,
-                      label: p.name,
-                    })),
-                  ]}
-                  size="sm"
-                  icon={<Users className="w-3.5 h-3.5" />}
-                  placeholder="Filter Designer"
-                />
-              </div>
-
-              {/* Month Navigator */}
-              <div className="flex items-center space-x-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (matrixMonth === 1) {
-                      setMatrixYear(matrixYear - 1);
-                      setMatrixMonth(12);
-                    } else {
-                      setMatrixMonth(matrixMonth - 1);
-                    }
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-600 transition-colors cursor-pointer"
-                  title="Previous Month"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-
-                <span className="px-2.5 py-1 text-xs font-bold text-slate-800 min-w-[110px] text-center">
-                  {teamActivity?.monthName || new Date(matrixYear, matrixMonth - 1).toLocaleString('default', { month: 'long' })} {matrixYear}
-                </span>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (matrixMonth === 12) {
-                      setMatrixYear(matrixYear + 1);
-                      setMatrixMonth(1);
-                    } else {
-                      setMatrixMonth(matrixMonth + 1);
-                    }
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-600 transition-colors cursor-pointer"
-                  title="Next Month"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {loadingMatrix ? (
-            <div className="py-12 text-center">
-              <div className="animate-spin w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-3 text-xs text-slate-500 font-medium">Calculating monthly deliverable matrix...</p>
-            </div>
-          ) : matrixDesignerFilter !== 'all' && singleDesignerActivity ? (
-            /* Single Designer Detailed Heatmap View */
-            <MonthlyActivityHeatmap
-              activity={singleDesignerActivity}
-              onMonthChange={(y, m) => {
-                setMatrixYear(y);
-                setMatrixMonth(m);
-              }}
-            />
-          ) : teamActivity ? (
-            /* All Designers Team Overview Matrix */
-            <div className="space-y-6">
-              {/* Team Aggregate Summary Row */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">
-                    Average Active Days
-                  </div>
-                  <div className="text-2xl font-extrabold text-slate-900 mt-0.5">
-                    {teamActivity.averageActiveDays} <span className="text-xs font-semibold text-slate-500">/ {teamActivity.daysInMonth} d</span>
-                  </div>
-                  <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">
-                    Team monthly average
-                  </p>
-                </div>
-
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">
-                    Total Agency Tasks
-                  </div>
-                  <div className="text-2xl font-extrabold text-slate-900 mt-0.5">
-                    {teamActivity.totalAgencyTasks}
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5 truncate">
-                    {teamActivity.totalAgencyQuantityDone} total deliverables produced
-                  </p>
-                </div>
-
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">
-                    Agency Approvals
-                  </div>
-                  <div className="text-2xl font-extrabold text-teal-700 mt-0.5">
-                    {teamActivity.totalAgencyApproved}
-                  </div>
-                  <p className="text-[11px] text-teal-600 font-semibold mt-0.5 truncate">
-                    {teamActivity.totalAgencyQuantityDone > 0
-                      ? `${Math.round((teamActivity.totalAgencyApproved / teamActivity.totalAgencyQuantityDone) * 100)}% approved`
-                      : '0% approved'}
-                  </p>
-                </div>
-
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">
-                    Total Deliverable Time
-                  </div>
-                  <div className="text-xl font-extrabold text-amber-800 font-mono mt-0.5 truncate">
-                    {formatWorkEntryDuration(teamActivity.totalAgencySeconds)}
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5 truncate">
-                    Cumulative tracked time
-                  </p>
-                </div>
-              </div>
-
-              {/* Team Consistency Matrix Table */}
-              <div className="overflow-x-auto border border-slate-200 rounded-xl">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-wider text-[10px]">
-                      <th className="py-3 px-4">Designer</th>
-                      <th className="py-3 px-3">Active Days</th>
-                      <th className="py-3 px-3">Consistency</th>
-                      <th className="py-3 px-3">Deliverables</th>
-                      <th className="py-3 px-3 min-w-[200px]">
-                        Monthly Contribution Rhythm ({teamActivity.monthName})
-                      </th>
-                      <th className="py-3 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {teamActivity.designers.map((designer) => (
-                      <tr
-                        key={designer.profile.id}
-                        onClick={() => setMatrixDesignerFilter(designer.profile.id)}
-                        className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
-                        title={`Click to load ${designer.profile.name}'s monthly activity calendar`}
-                      >
-                        <td className="py-3 px-4">
-                          <div className="flex items-center space-x-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-xs shrink-0 group-hover:scale-105 transition-transform">
-                              {designer.profile.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                                {designer.profile.name}
-                              </div>
-                              <div className="text-[10px] text-slate-400">
-                                {designer.profile.designation || 'Designer'}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <span className="font-extrabold text-slate-900 text-sm">
-                            {designer.activeDaysCount}
-                          </span>
-                          <span className="text-slate-400 text-[10px]"> / {designer.daysInMonth}d</span>
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            designer.consistencyPercentage >= 80
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : designer.consistencyPercentage >= 60
-                              ? 'bg-sky-100 text-sky-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}>
-                            {designer.consistencyPercentage}%
-                          </span>
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <div className="font-bold text-slate-800">{designer.totalTasks} tasks</div>
-                          <div className="text-[10px] text-teal-700 font-semibold">{designer.totalQuantityApproved} approved</div>
-                        </td>
-
-                        <td className="py-3 px-3">
-                          <MiniActivityHeatStrip daysList={designer.daysList} />
-                        </td>
-
-                        <td className="py-3 px-4 text-right">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setMatrixDesignerFilter(designer.profile.id);
-                            }}
-                            className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs transition-all shadow-2xs cursor-pointer"
-                            title={`Load ${designer.profile.name}'s monthly activity matrix`}
-                          >
-                            <span>View Heatmap</span>
-                            <span>→</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : null}
-        </div>
 
         {/* Agency Pending Client Approvals Queue & Follow-up Tracker */}
         {agencyPendingEntries.length > 0 && (() => {
