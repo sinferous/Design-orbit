@@ -481,7 +481,7 @@ export default function AdminDashboardPage() {
               )}
 
               {/* Designer Filter */}
-              <div className="w-56">
+              <div className="w-60">
                 <RichSelect
                   value={matrixDesignerFilter}
                   onChange={val => setMatrixDesignerFilter(String(val))}
@@ -490,7 +490,6 @@ export default function AdminDashboardPage() {
                     ...profiles.map(p => ({
                       value: p.id,
                       label: p.name,
-                      badge: p.designation || 'Designer',
                     })),
                   ]}
                   size="sm"
