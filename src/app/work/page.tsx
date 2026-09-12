@@ -499,7 +499,7 @@ export default function MyWorkPage() {
     <div className="min-h-screen flex flex-col">
       <Navbar userName={activeProfile?.name || 'Gajesh'} />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Header & Main Actions */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -823,44 +823,44 @@ export default function MyWorkPage() {
           </div>
         </div>
 
-        {/* Daily Summary Stat Tiles */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600">
-                <CheckCircle2 className="w-5 h-5" />
+        {/* Daily Summary Stat Tiles - Compact on Mobile */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between">
+            <div className="flex items-center space-x-2.5 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600 shrink-0">
+                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Quantity</div>
-                <div className="text-2xl font-extrabold text-slate-900">{totalDone}</div>
+                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Quantity</div>
+                <div className="text-xl sm:text-2xl font-extrabold text-slate-900">{totalDone}</div>
               </div>
             </div>
-            <span className="text-xs text-slate-400 font-medium">{entries.length} work item(s)</span>
+            <span className="text-[11px] sm:text-xs text-slate-400 font-medium hidden sm:inline">{entries.length} items</span>
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
-                <Check className="w-5 h-5" />
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between">
+            <div className="flex items-center space-x-2.5 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600 shrink-0">
+                <Check className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quantity Approved</div>
-                <div className="text-2xl font-extrabold text-teal-700">{totalApproved}</div>
+                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Approved</div>
+                <div className="text-xl sm:text-2xl font-extrabold text-teal-700">{totalApproved}</div>
               </div>
             </div>
-            <span className="text-xs text-teal-600 font-semibold">
-              {totalDone > 0 ? `${Math.round((totalApproved / totalDone) * 100)}% approved` : '0%'}
+            <span className="text-[11px] sm:text-xs text-teal-600 font-semibold truncate">
+              {totalDone > 0 ? `${Math.round((totalApproved / totalDone) * 100)}%` : '0%'}
             </span>
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
-                <Clock className="w-5 h-5" />
+          <div className="col-span-2 sm:col-span-1 bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between">
+            <div className="flex items-center space-x-2.5 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Time Tracked</div>
-                <div className="text-2xl font-extrabold text-amber-900 font-mono">
+                <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Time Tracked</div>
+                <div className="text-xl sm:text-2xl font-extrabold text-amber-900 font-mono">
                   {formatWorkEntryDuration(totalTrackedSeconds)}
                 </div>
               </div>

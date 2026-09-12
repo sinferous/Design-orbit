@@ -334,6 +334,21 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Updated row `959a85ae-8b59-4343-b52a-6da5a66dd61b` in the live Supabase `work_types` table from `'Logo'` to **`'Branding'`**.
   - Updated application definitions, seed files, and report mappings to **Branding**.
 
+### Phase 13 — Mobile Layout & Alignment Optimization (Completed)
+- [x] **Designer Card Stats & Action Alignment (`/reports/weekly`)**:
+  - Replaced cramped inline text stats on mobile with dedicated, styled mini-stat tiles (`Created / Approved` & `Approval Rate`) with clean numbers.
+  - Converted the plain dangling "Inspect Entries" text into a prominent, touch-friendly styled button with clear chevron indicators, eliminating awkward multi-line text wrapping (`Inspect \n Entries`).
+- [x] **Compact 3-Column Work Type Aggregation Grid**:
+  - Upgraded the 2-column mobile grid into a compact 3-column layout (`grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9`), reducing vertical height from 5 chunky rows down to just 3 neat rows (40% height reduction).
+  - Elevated active deliverable categories (`done > 0`) with vibrant sky borders and ring highlights, while keeping empty categories muted and compact.
+- [x] **Framed Weekly Best Work Showcase**:
+  - Styled the Weekly Best Work section in an amber-tinted card banner with balanced, full-width thumb-friendly buttons on mobile.
+- [x] **Space-Saving 2x2 KPI Overview Grids Across All Reports & Dashboards**:
+  - Converted single-column vertical card stacks into 2x2 compact grids on mobile across the Weekly Report ([`/reports/weekly`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/weekly/page.tsx)), Monthly Summary ([`/reports/monthly`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/monthly/page.tsx)), Client Hours & Billing ([`/reports/billing`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/billing/page.tsx)), and Designer Dashboard ([`/dashboard`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx)), saving over 250px of vertical space before content.
+- [x] **Mobile Responsive Calendar Selector Controls & Touch Spacing**:
+  - Full-width week navigation controls with centered date pills and viewport-safe calendar dropdown positioning (`w-[calc(100vw-48px)]`).
+  - Tuned page container padding (`px-3.5 sm:px-6`) and card padding (`p-3.5 sm:p-6`) for optimal breathing room on smaller screens.
+
 ---
 
 ## 3. Current System Status

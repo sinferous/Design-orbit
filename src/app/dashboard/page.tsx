@@ -319,14 +319,14 @@ export default function DashboardPage() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-baseline flex-wrap">
-              {greeting}, <span className="font-display font-extrabold text-2xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-baseline flex-wrap">
+              {greeting}, <span className="font-display font-extrabold text-xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               {subtitle}
             </p>
           </div>
@@ -334,55 +334,55 @@ export default function DashboardPage() {
           <div className="flex items-center space-x-3">
             <Link
               href="/work/new"
-              className="inline-flex items-center space-x-2 px-5 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
             >
-              <Plus className="w-4.5 h-4.5" />
+              <Plus className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
               <span>Add Daily Work</span>
             </Link>
           </div>
         </div>
 
-        {/* Quick Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
+        {/* Quick Stat Cards - 2x2 on Mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-1 sm:space-y-2">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-xs font-semibold uppercase tracking-wider">Today's Created</span>
-              <Clock className="w-4 h-4 text-sky-500" />
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Today's Created</span>
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-500 shrink-0" />
             </div>
-            <div className="text-3xl font-extrabold text-slate-900">{todayDone}</div>
-            <p className="text-xs text-slate-500">{todayEntries.length} work items logged today</p>
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">{todayDone}</div>
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">{todayEntries.length} items today</p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-1 sm:space-y-2">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-xs font-semibold uppercase tracking-wider">Today's Approved</span>
-              <CheckCircle2 className="w-4 h-4 text-teal-500" />
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Today's Approved</span>
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-500 shrink-0" />
             </div>
-            <div className="text-3xl font-extrabold text-teal-700">{todayApproved}</div>
-            <p className="text-xs text-emerald-600 font-semibold">{todayApprovalRate}% approval rate</p>
+            <div className="text-2xl sm:text-3xl font-extrabold text-teal-700">{todayApproved}</div>
+            <p className="text-[11px] sm:text-xs text-emerald-600 font-semibold truncate">{todayApprovalRate}% approval</p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-1 sm:space-y-2">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-xs font-semibold uppercase tracking-wider">This Week Total</span>
-              <CalendarDays className="w-4 h-4 text-sky-600" />
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">This Week</span>
+              <CalendarDays className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-600 shrink-0" />
             </div>
-            <div className="text-3xl font-extrabold text-slate-900">{weekSummary.totalCreated}</div>
-            <p className="text-xs text-slate-500">{weekSummary.totalApproved} approved items</p>
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">{weekSummary.totalCreated}</div>
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">{weekSummary.totalApproved} approved</p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-1 sm:space-y-2">
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-xs font-semibold uppercase tracking-wider">Active Clients</span>
-              <Building2 className="w-4 h-4 text-teal-600" />
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Active Clients</span>
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-600 shrink-0" />
             </div>
-            <div className="text-3xl font-extrabold text-sky-700">{weekSummary.activeClients}</div>
-            <p className="text-xs text-slate-500">Client brands serviced this week</p>
+            <div className="text-2xl sm:text-3xl font-extrabold text-sky-700">{weekSummary.activeClients}</div>
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Brands this week</p>
           </div>
         </div>
 
         {/* Application Navigation Quick Launchpad */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3.5">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 sm:space-y-3.5">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div>
               <h2 className="text-sm font-bold text-slate-900">Application Quick Navigation</h2>
@@ -455,7 +455,7 @@ export default function DashboardPage() {
 
         {/* Pending Client Approvals Reminder Card */}
         {pendingApprovals.length > 0 && (
-          <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-300/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+          <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-300/80 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-200/60 pb-3.5">
               <div className="flex items-center space-x-3">
                 <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-sm ring-4 ring-amber-100">
@@ -553,7 +553,7 @@ export default function DashboardPage() {
         {/* Live Entries & To-Do List (65% / 35% Split) */}
         <div className="flex flex-col lg:flex-row gap-6 items-stretch">
           {/* Today's Work Activity (65%) */}
-          <div className="w-full lg:w-[65%] bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col">
+          <div className="w-full lg:w-[65%] bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
                 <div>

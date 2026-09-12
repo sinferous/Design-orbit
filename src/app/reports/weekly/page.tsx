@@ -289,43 +289,43 @@ export default function WeeklyReportPage() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Weekly Header Banner */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
+            <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
                 Weekly Meeting Mode
               </span>
-              <span className="text-xs text-slate-400">•</span>
+              <span className="text-xs text-slate-400 hidden sm:inline">•</span>
               <span className="text-xs font-medium text-slate-500">Auto-aggregated from Daily Entries</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mt-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
               Weekly Team Review
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               Screen-friendly layout for weekly team discussions and work explanations.
             </p>
           </div>
 
           {/* Week Navigation */}
-          <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 relative">
+          <div className="w-full md:w-auto flex items-center justify-between gap-1.5 sm:gap-2 bg-slate-50 p-1.5 sm:p-2.5 rounded-xl border border-slate-200 relative">
             <button
               onClick={() => handleWeekDelta(-1)}
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
+              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer shadow-2xs"
               title="Previous Week"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-initial">
               <button
                 type="button"
                 onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                className="flex items-center space-x-2.5 px-4 py-2 bg-white rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/20 shadow-2xs transition-all text-xs font-bold text-slate-800 cursor-pointer"
+                className="w-full flex items-center justify-center space-x-2 px-2.5 sm:px-4 py-2 bg-white rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/20 shadow-2xs transition-all text-xs font-bold text-slate-800 cursor-pointer truncate"
               >
                 <Calendar className="w-4 h-4 text-sky-600 shrink-0" />
-                <span>{getWeekRangeLabel()}</span>
+                <span className="truncate">{getWeekRangeLabel()}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-450 shrink-0" />
               </button>
 
@@ -335,7 +335,7 @@ export default function WeeklyReportPage() {
                     className="fixed inset-0 z-30"
                     onClick={() => setIsCalendarOpen(false)}
                   />
-                  <div className="absolute right-0 sm:left-0 mt-2 z-40 bg-white border border-slate-200 rounded-xl shadow-xl p-4 w-[320px] sm:w-[340px] space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 sm:left-0 mt-2 z-40 bg-white border border-slate-200 rounded-xl shadow-xl p-3.5 sm:p-4 w-[calc(100vw-48px)] sm:w-[340px] max-w-[340px] space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
                     {/* Calendar Month Header */}
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                       <button
@@ -382,7 +382,6 @@ export default function WeeklyReportPage() {
                               onMouseLeave={() => setHoveredDate(null)}
                               onClick={() => {
                                 handleSelectWeekFromDate(dayObj.date);
-                                // Optional: close on click or leave open for custom micro-adjustments
                               }}
                               className={`h-8 w-8 sm:h-9 sm:w-9 text-xs font-semibold rounded-md flex items-center justify-center transition-all cursor-pointer relative ${
                                 !dayObj.isCurrentMonth ? 'text-slate-300' : 'text-slate-700 hover:bg-slate-100'
@@ -475,7 +474,7 @@ export default function WeeklyReportPage() {
 
             <button
               onClick={() => handleWeekDelta(1)}
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
+              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer shadow-2xs"
               title="Next Week"
             >
               <ChevronRight className="w-4 h-4" />
@@ -483,36 +482,36 @@ export default function WeeklyReportPage() {
           </div>
         </div>
 
-        {/* Weekly Team Overview Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Team Total Created</div>
-            <div className="text-3xl font-extrabold text-slate-900">{grandTotalCreated}</div>
-            <p className="text-xs text-slate-500">Items produced this week</p>
+        {/* Weekly Team Overview Bar - 2x2 Grid on Mobile for Maximum Space Efficiency */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Team Created</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">{grandTotalCreated}</div>
+            <p className="text-[11px] text-slate-400 sm:text-xs sm:text-slate-500 truncate">Items this week</p>
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Team Total Approved</div>
-            <div className="text-3xl font-extrabold text-teal-700">{grandTotalApproved}</div>
-            <p className="text-xs text-emerald-600 font-medium">{grandApprovalRate}% overall approval rate</p>
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Team Approved</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-teal-700">{grandTotalApproved}</div>
+            <p className="text-[11px] text-emerald-600 font-medium sm:text-xs truncate">{grandApprovalRate}% approval rate</p>
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Time Tracked</div>
-            <div className="text-3xl font-extrabold text-amber-700 flex items-center space-x-1.5">
-              <Clock className="w-6 h-6 text-amber-600" />
-              <span>{formatReportTime(grandTotalSeconds)}</span>
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Time Tracked</div>
+            <div className="text-xl sm:text-3xl font-extrabold text-amber-700 flex items-center space-x-1 sm:space-x-1.5">
+              <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+              <span className="truncate">{formatReportTime(grandTotalSeconds)}</span>
             </div>
-            <p className="text-xs text-slate-500">Total billable deliverable time</p>
+            <p className="text-[11px] text-slate-400 sm:text-xs sm:text-slate-500 truncate">Total deliverable time</p>
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Clients</div>
-            <div className="text-3xl font-extrabold text-sky-700 flex items-center space-x-1.5">
-              <Building2 className="w-6 h-6 text-sky-600" />
+          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Active Clients</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-sky-700 flex items-center space-x-1 sm:space-x-1.5">
+              <Building2 className="w-5 h-5 text-sky-600 shrink-0" />
               <span>{totalActiveClients}</span>
             </div>
-            <p className="text-xs text-slate-500">Client brands serviced this week</p>
+            <p className="text-[11px] text-slate-400 sm:text-xs sm:text-slate-500 truncate">Brands this week</p>
           </div>
         </div>
 
@@ -523,7 +522,7 @@ export default function WeeklyReportPage() {
             <p className="mt-3 text-xs text-slate-500 font-medium">Calculating weekly report aggregations...</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {summaries.map(s => {
               const isExpanded = expandedUser === s.profile.id;
               const userBestWork = bestWorkLinks[s.profile.id] || '';
@@ -534,79 +533,94 @@ export default function WeeklyReportPage() {
                   className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden transition-all"
                 >
                   {/* Card Header */}
-                  <div className="p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-teal-500 text-white font-extrabold text-xl flex items-center justify-center shadow-sm">
+                  <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 border-b border-slate-100">
+                    <div className="flex items-center space-x-3.5 sm:space-x-4">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-sky-500 to-teal-500 text-white font-extrabold text-lg sm:text-xl flex items-center justify-center shadow-sm shrink-0">
                         {s.profile.name.charAt(0)}
                       </div>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <h2 className="text-lg font-bold text-slate-900">{s.profile.name}</h2>
-                          <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700">
+                      <div className="min-w-0">
+                        <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                          <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate">{s.profile.name}</h2>
+                          <span className="px-2 py-0.5 rounded-md text-[11px] sm:text-xs font-semibold bg-slate-100 text-slate-700">
                             {s.profile.designation || 'Team'}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-slate-500 mt-0.5 truncate">
                           {s.entries.length} daily entry record(s) logged this week
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-6 justify-between lg:justify-end">
+                    {/* Stats Summary & Expand Trigger - Cleanly Aligned for Mobile & Desktop */}
+                    <div className="flex items-center justify-between lg:justify-end gap-2.5 sm:gap-6 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+                      <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:space-x-6 flex-1 sm:flex-initial">
+                        {/* Created / Approved Mini-Tile */}
+                        <div className="bg-slate-50 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-100/80">
+                          <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Created / Approved</div>
+                          <div className="text-sm sm:text-lg font-bold text-slate-900">
+                            {s.totalCreated} <span className="text-slate-400 font-normal">/</span>{' '}
+                            <span className="text-teal-700">{s.totalApproved}</span>
+                          </div>
+                        </div>
 
-                      <div className="text-right">
-                        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Created / Approved</div>
-                        <div className="text-lg font-bold text-slate-900">
-                          {s.totalCreated} <span className="text-slate-400 font-normal">/</span>{' '}
-                          <span className="text-teal-700">{s.totalApproved}</span>
+                        {/* Approval Rate Mini-Tile */}
+                        <div className="bg-slate-50 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-100/80">
+                          <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Approval Rate</div>
+                          <div className="text-sm sm:text-lg font-bold text-sky-700">{s.approvalRate}%</div>
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approval Rate</div>
-                        <div className="text-lg font-bold text-sky-700">{s.approvalRate}%</div>
-                      </div>
-
+                      {/* Styled Action Button for Inspect Entries */}
                       <button
                         onClick={() => toggleExpand(s.profile.id)}
-                        className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors flex items-center space-x-1 text-xs font-medium"
+                        className="px-3 py-2 sm:p-2 text-xs font-semibold text-slate-700 sm:text-slate-600 hover:text-slate-900 bg-slate-100 sm:hover:bg-slate-100 rounded-lg transition-colors flex items-center space-x-1 shrink-0 cursor-pointer shadow-2xs sm:shadow-none"
+                        title={isExpanded ? 'Hide Details' : 'Inspect Daily Entries'}
                       >
-                        <span>{isExpanded ? 'Hide Details' : 'Inspect Entries'}</span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        <span className="whitespace-nowrap">{isExpanded ? 'Hide' : 'Inspect'}</span>
+                        <span className="hidden sm:inline whitespace-nowrap">{isExpanded ? 'Details' : 'Entries'}</span>
+                        {isExpanded ? <ChevronUp className="w-4 h-4 ml-0.5 text-slate-500" /> : <ChevronDown className="w-4 h-4 ml-0.5 text-slate-500" />}
                       </button>
                     </div>
                   </div>
 
-                  {/* Work Type Summary Table */}
-                  <div className="p-6 bg-slate-50/50 space-y-4">
+                  {/* Work Type Summary Table - 3 Columns on Mobile (Only 3 neat rows instead of 5 tall rows) */}
+                  <div className="p-3.5 sm:p-6 bg-slate-50/50 space-y-3 sm:space-y-4">
                     <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                       Work Type Aggregation — {s.profile.name}
                     </h3>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-1.5 sm:gap-2">
                       {Object.entries(s.workTypeBreakdown)
                         .filter(([typeName]) => typeName.trim().toLowerCase() !== 'working')
-                        .map(([typeName, data]) => (
-                        <div
-                          key={typeName}
-                          className={`p-3 rounded-lg border text-center space-y-1 ${
-                            data.done > 0
-                              ? 'bg-white border-sky-200 shadow-2xs'
-                              : 'bg-slate-50/50 border-slate-200 opacity-60'
-                          }`}
-                        >
-                          <div className="text-xs font-bold text-slate-700 truncate">{typeName}</div>
-                          <div className="text-sm font-extrabold text-slate-900">
-                            {data.done} <span className="text-xs text-teal-600 font-semibold">({data.approved})</span>
-                          </div>
-                        </div>
-                      ))}
+                        .map(([typeName, data]) => {
+                          const hasWork = data.done > 0;
+                          return (
+                            <div
+                              key={typeName}
+                              className={`p-2 sm:p-3 rounded-lg border text-center transition-all ${
+                                hasWork
+                                  ? 'bg-white border-sky-300 shadow-2xs ring-1 ring-sky-100'
+                                  : 'bg-slate-50/60 border-slate-200/60 opacity-40 hover:opacity-75'
+                              }`}
+                            >
+                              <div className={`text-[11px] sm:text-xs font-bold truncate ${hasWork ? 'text-slate-800' : 'text-slate-500'}`}>
+                                {typeName}
+                              </div>
+                              <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5">
+                                {data.done}{' '}
+                                <span className={`text-[10px] sm:text-xs font-bold ${hasWork ? 'text-teal-600' : 'text-slate-400'}`}>
+                                  ({data.approved})
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
                     </div>
 
-                    {/* Featured Weekly Best Work Feature */}
-                    <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-200">
-                      <div className="flex items-center space-x-2 text-xs font-bold text-slate-700">
-                        <Award className="w-4 h-4 text-amber-500" />
+                    {/* Featured Weekly Best Work Feature - Framed Banner with Polished Mobile Buttons */}
+                    <div className="p-3 bg-gradient-to-r from-amber-50/60 via-amber-50/30 to-slate-50/50 border border-amber-200/70 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                      <div className="flex items-center space-x-2 text-xs font-bold text-slate-800">
+                        <Award className="w-4 h-4 text-amber-500 shrink-0" />
                         <span>Featured Weekly Best Work:</span>
                       </div>
 
@@ -617,11 +631,11 @@ export default function WeeklyReportPage() {
                               href={bestWorkLinks[s.profile.id]}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-3.5 py-1.5 text-xs font-bold text-amber-900 bg-amber-50 border border-amber-300 hover:bg-amber-100 rounded-xl transition-colors flex items-center space-x-1.5 cursor-pointer shadow-2xs"
+                              className="flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-xl transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-2xs"
                               title="Open Featured Best Work Link"
                             >
-                              <Award className="w-3.5 h-3.5 text-amber-600" />
-                              <span className="truncate max-w-[200px]">View Best Work ↗</span>
+                              <Award className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                              <span className="truncate max-w-[180px]">View Best Work ↗</span>
                             </a>
 
                             <button
@@ -634,7 +648,7 @@ export default function WeeklyReportPage() {
                                   currentUrl: bestWorkLinks[s.profile.id],
                                 });
                               }}
-                              className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors flex items-center space-x-1 cursor-pointer"
+                              className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer shrink-0"
                               title="Edit or Remove Best Work Link"
                             >
                               <Edit2 className="w-3.5 h-3.5 text-slate-500" />
@@ -652,7 +666,7 @@ export default function WeeklyReportPage() {
                                 currentUrl: '',
                               });
                             }}
-                            className="px-3.5 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-xl shadow-2xs transition-transform active:scale-95 flex items-center space-x-1.5 shrink-0 cursor-pointer"
+                            className="w-full sm:w-auto px-3.5 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-xl shadow-2xs transition-transform active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer"
                           >
                             <Plus className="w-3.5 h-3.5" />
                             <span>Add Best Work</span>
@@ -664,12 +678,12 @@ export default function WeeklyReportPage() {
 
                   {/* Expandable Daily Entries Drill-down Grouped Client-Wise */}
                   {isExpanded && (
-                    <div className="p-6 border-t border-slate-200 space-y-4 bg-white">
+                    <div className="p-3.5 sm:p-6 border-t border-slate-200 space-y-3 sm:space-y-4 bg-white">
                       <div className="flex items-center justify-between">
                         <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                           Client-Wise Work Entries ({s.entries.length} Total Items)
                         </h4>
-                        <span className="text-[11px] text-slate-500 font-medium">
+                        <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
                           Organized by Client Name (A-Z)
                         </span>
                       </div>
@@ -689,7 +703,7 @@ export default function WeeklyReportPage() {
                           const sortedClients = Object.keys(clientMap).sort((a, b) => a.localeCompare(b));
 
                           return (
-                            <div className="space-y-4">
+                            <div className="space-y-3 sm:space-y-4">
                               {sortedClients.map(clientName => {
                                 const items = clientMap[clientName];
                                 return (
@@ -698,14 +712,14 @@ export default function WeeklyReportPage() {
                                     className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50 shadow-2xs"
                                   >
                                     {/* Client Header */}
-                                    <div className="px-4 py-2 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between">
-                                      <div className="flex items-center space-x-2">
-                                        <Building2 className="w-3.5 h-3.5 text-sky-600" />
-                                        <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                                    <div className="px-3 sm:px-4 py-2 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between">
+                                      <div className="flex items-center space-x-2 truncate">
+                                        <Building2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                                        <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider truncate">
                                           {clientName}
                                         </span>
                                       </div>
-                                      <div className="flex items-center space-x-2">
+                                      <div className="flex items-center space-x-2 shrink-0">
                                         <span className="text-[11px] font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
                                           {items.length} item(s)
                                         </span>
@@ -713,26 +727,26 @@ export default function WeeklyReportPage() {
                                     </div>
 
                                     {/* Entries for this Client */}
-                                    <div className="p-3 space-y-2 bg-white">
+                                    <div className="p-2 sm:p-3 space-y-2 bg-white">
                                       {items.map(entry => (
                                         <div
                                           key={entry.id}
-                                          className="p-3 bg-slate-50/80 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:bg-slate-100/60 transition-colors"
+                                          className="p-2.5 sm:p-3 bg-slate-50/80 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:bg-slate-100/60 transition-colors"
                                         >
-                                          <div className="flex flex-wrap items-center gap-2">
-                                            <span className="font-bold text-slate-800 bg-slate-200/80 px-2 py-0.5 rounded text-[11px]">
+                                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
+                                            <span className="font-bold text-slate-800 bg-slate-200/80 px-2 py-0.5 rounded text-[10px] sm:text-[11px] shrink-0">
                                               {entry.work_date}
                                             </span>
-                                            <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-semibold text-[11px]">
+                                            <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-semibold text-[10px] sm:text-[11px] shrink-0">
                                               {entry.work_type?.name || 'Work'}
                                             </span>
-                                            <span className="text-slate-900 font-medium">{entry.description}</span>
+                                            <span className="text-slate-900 font-medium break-words">{entry.description}</span>
                                             {(entry.project_url || entry.best_work_url) && (
                                               <a
                                                 href={entry.project_url || entry.best_work_url!}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center space-x-1 text-sky-600 hover:text-sky-800 font-semibold underline"
+                                                className="inline-flex items-center space-x-1 text-sky-600 hover:text-sky-800 font-semibold underline shrink-0"
                                                 title="Open Project URL"
                                               >
                                                 <ExternalLink className="w-3 h-3" />
@@ -741,7 +755,7 @@ export default function WeeklyReportPage() {
                                             )}
                                           </div>
 
-                                          <div className="flex items-center space-x-4 shrink-0 text-slate-600">
+                                          <div className="flex items-center space-x-3 sm:space-x-4 shrink-0 text-slate-600 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 justify-between sm:justify-end">
                                             <span>
                                               Done: <strong className="text-slate-900">{entry.quantity_done}</strong>
                                             </span>

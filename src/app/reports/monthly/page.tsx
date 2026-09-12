@@ -149,19 +149,19 @@ export default function MonthlyReportPage() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Header & Controls */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Monthly Performance Report</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Monthly Performance Report</h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               Aggregated monthly totals and work type distribution calculated from daily entries.
             </p>
           </div>
         </div>
 
         {/* Month / Year & Filters Bar */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Month
@@ -242,41 +242,41 @@ export default function MonthlyReportPage() {
           </div>
         </div>
 
-        {/* Monthly Summary Statistics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              {months.find(m => m.value === selectedMonth)?.name} Total Created
+        {/* Monthly Summary Statistics - 2x2 Grid on Mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+              {months.find(m => m.value === selectedMonth)?.name} Created
             </div>
-            <div className="text-3xl font-extrabold text-slate-900">{reportData.totalDoneAll}</div>
-            <p className="text-xs text-slate-500">Deliverables produced this month</p>
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">{reportData.totalDoneAll}</div>
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Items this month</p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              {months.find(m => m.value === selectedMonth)?.name} Total Approved
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+              {months.find(m => m.value === selectedMonth)?.name} Approved
             </div>
-            <div className="text-3xl font-extrabold text-teal-700">{reportData.totalApprovedAll}</div>
-            <p className="text-xs text-emerald-600 font-medium">{reportData.overallApprovalRate}% approved</p>
+            <div className="text-2xl sm:text-3xl font-extrabold text-teal-700">{reportData.totalApprovedAll}</div>
+            <p className="text-[11px] sm:text-xs text-emerald-600 font-medium truncate">{reportData.overallApprovalRate}% approved</p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Time Logged</div>
-            <div className="text-3xl font-extrabold text-amber-700 flex items-center space-x-1.5">
-              <Clock className="w-6 h-6 text-amber-600" />
-              <span>{formatReportTime(reportData.totalTimeSecondsAll || 0)}</span>
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Time Logged</div>
+            <div className="text-xl sm:text-3xl font-extrabold text-amber-700 flex items-center space-x-1 sm:space-x-1.5">
+              <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+              <span className="truncate">{formatReportTime(reportData.totalTimeSecondsAll || 0)}</span>
             </div>
-            <p className="text-xs text-slate-500">
-              {((reportData.totalTimeSecondsAll || 0) / 3600).toFixed(1)} billable decimal hours
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">
+              {((reportData.totalTimeSecondsAll || 0) / 3600).toFixed(1)} decimal hrs
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Work Types Active</div>
-            <div className="text-3xl font-extrabold text-sky-700">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Active Categories</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-sky-700">
               {reportData.summaries.filter(s => s.totalDone > 0).length} / {reportData.summaries.length}
             </div>
-            <p className="text-xs text-slate-500">Active deliverable categories</p>
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Work types active</p>
           </div>
         </div>
 

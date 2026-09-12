@@ -402,9 +402,9 @@ export default function ClientTimeTrackingReportPage() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Header Banner with Rich Date Range Picker */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-sky-50 text-sky-700 rounded-full border border-sky-200">
@@ -714,62 +714,62 @@ export default function ClientTimeTrackingReportPage() {
           </div>
         </div>
 
-        {/* Time & Deliverables KPI Overview Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
+        {/* Time & Deliverables KPI Overview Cards - 2x2 on Mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Total Time Tracked
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+                Total Time
               </div>
-              <Clock className="w-4 h-4 text-sky-600" />
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-600 shrink-0" />
             </div>
-            <div className="text-3xl font-extrabold text-slate-900">
+            <div className="text-xl sm:text-3xl font-extrabold text-slate-900 truncate">
               {formatReportTime(reportData.totalTimeSecondsAll)}
             </div>
-            <p className="text-xs text-sky-700 font-semibold">
-              {reportData.totalDecimalHoursAll} decimal hours
+            <p className="text-[11px] sm:text-xs text-sky-700 font-semibold truncate">
+              {reportData.totalDecimalHoursAll} decimal hrs
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Active Clients Tracked
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+                Active Clients
               </div>
-              <Building2 className="w-4 h-4 text-indigo-600" />
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 shrink-0" />
             </div>
-            <div className="text-3xl font-extrabold text-indigo-700">
-              {activeClientsCount} <span className="text-sm font-normal text-slate-400">/ {reportData.clientSummaries.length}</span>
+            <div className="text-2xl sm:text-3xl font-extrabold text-indigo-700">
+              {activeClientsCount} <span className="text-xs font-normal text-slate-400">/ {reportData.clientSummaries.length}</span>
             </div>
-            <p className="text-xs text-slate-500">Clients with logged deliverables or time</p>
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Clients with activity</p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Total Deliverables
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+                Deliverables
               </div>
-              <Layers className="w-4 h-4 text-teal-600" />
+              <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-600 shrink-0" />
             </div>
-            <div className="text-3xl font-extrabold text-teal-700">
+            <div className="text-2xl sm:text-3xl font-extrabold text-teal-700">
               {reportData.totalDoneAll}
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">
               {reportData.totalApprovedAll} approved items
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Average Time / Item
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+                Avg Time / Item
               </div>
-              <Clock className="w-4 h-4 text-amber-600" />
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 shrink-0" />
             </div>
-            <div className="text-3xl font-extrabold text-amber-700">
-              {avgMinutesPerItem > 0 ? `${avgMinutesPerItem}m` : '0m'}
+            <div className="text-2xl sm:text-3xl font-extrabold text-amber-700">
+              {avgMinutesPerItem} <span className="text-xs font-normal text-slate-500">min</span>
             </div>
-            <p className="text-xs text-slate-500">Average duration per deliverable</p>
+            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Per completed item</p>
           </div>
         </div>
 

@@ -93,21 +93,21 @@ export default function OverallReportPage() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Overall / All-Time Analytics</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Overall / All-Time Analytics</h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               Long-term aggregated performance and deliverable breakdown.
             </p>
           </div>
 
           {/* Grouping Switcher Buttons */}
-          <div className="flex items-center space-x-2 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
+          <div className="flex items-center space-x-1 sm:space-x-2 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs overflow-x-auto w-full sm:w-auto">
             <button
               onClick={() => setGroupBy('person')}
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
                 groupBy === 'person'
                   ? 'bg-sky-600 text-white shadow-2xs'
                   : 'text-slate-600 hover:bg-slate-100'
@@ -119,7 +119,7 @@ export default function OverallReportPage() {
 
             <button
               onClick={() => setGroupBy('work_type')}
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
                 groupBy === 'work_type'
                   ? 'bg-sky-600 text-white shadow-2xs'
                   : 'text-slate-600 hover:bg-slate-100'
@@ -131,7 +131,7 @@ export default function OverallReportPage() {
 
             <button
               onClick={() => setGroupBy('client')}
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors ${
                 groupBy === 'client'
                   ? 'bg-sky-600 text-white shadow-2xs'
                   : 'text-slate-600 hover:bg-slate-100'
@@ -144,7 +144,7 @@ export default function OverallReportPage() {
         </div>
 
         {/* Visual Progress Bar Chart Cards */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-base font-bold text-slate-900">
