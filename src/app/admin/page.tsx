@@ -37,6 +37,7 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  ArrowLeft,
 } from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
@@ -48,7 +49,6 @@ import {
   MonthlyDesignerActivity,
 } from '@/lib/services/activity';
 import { MonthlyActivityHeatmap, MiniActivityHeatStrip } from '@/components/activity/MonthlyActivityHeatmap';
-import { DesignerActivityModal } from '@/components/activity/DesignerActivityModal';
 import { RichSelect } from '@/components/ui/RichSelect';
 
 export default function AdminDashboardPage() {
@@ -75,7 +75,6 @@ export default function AdminDashboardPage() {
   const [matrixYear, setMatrixYear] = useState<number>(new Date().getFullYear());
   const [matrixMonth, setMatrixMonth] = useState<number>(new Date().getMonth() + 1);
   const [matrixDesignerFilter, setMatrixDesignerFilter] = useState<string>('all');
-  const [selectedModalDesignerId, setSelectedModalDesignerId] = useState<string | null>(null);
   const [teamActivity, setTeamActivity] = useState<MonthlyTeamActivity | null>(null);
   const [singleDesignerActivity, setSingleDesignerActivity] = useState<MonthlyDesignerActivity | null>(null);
   const [loadingMatrix, setLoadingMatrix] = useState(false);
@@ -371,7 +370,13 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={p.id}
-                  className={`p-3.5 rounded-xl border transition-all ${
+                  onClick={() => {
+                    setMatrixDesignerFilter(p.id);
+                    const el = document.getElementById('activity-matrix-section');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  title={`Click to load ${p.name}'s monthly activity matrix`}
+                  className={`p-3.5 rounded-xl border transition-all cursor-pointer hover:shadow-xs ${
                     isWorkingNow
                       ? 'bg-emerald-50/50 border-emerald-300 shadow-xs ring-1 ring-emerald-400/30'
                       : hasLoggedToday
@@ -440,7 +445,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Production Activity & Consistency Matrix (GitHub-Style Monthly Heatmap & Attendance Proxy) */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <div id="activity-matrix-section" className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div className="flex items-center space-x-3">
               <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-2xs shrink-0">
@@ -463,6 +468,18 @@ export default function AdminDashboardPage() {
 
             {/* Matrix Filters: Designer Selector & Month Navigator */}
             <div className="flex flex-wrap items-center gap-2.5">
+              {matrixDesignerFilter !== 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setMatrixDesignerFilter('all')}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                  title="Return to entire team table"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                  <span>All Designers</span>
+                </button>
+              )}
+
               {/* Designer Filter */}
               <div className="w-56">
                 <RichSelect
@@ -612,9 +629,9 @@ export default function AdminDashboardPage() {
                     {teamActivity.designers.map((designer) => (
                       <tr
                         key={designer.profile.id}
-                        onClick={() => setSelectedModalDesignerId(designer.profile.id)}
+                        onClick={() => setMatrixDesignerFilter(designer.profile.id)}
                         className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
-                        title={`Click to open ${designer.profile.name}'s monthly activity calendar`}
+                        title={`Click to load ${designer.profile.name}'s monthly activity calendar`}
                       >
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2.5">
@@ -665,12 +682,13 @@ export default function AdminDashboardPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedModalDesignerId(designer.profile.id);
+                              setMatrixDesignerFilter(designer.profile.id);
                             }}
                             className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs transition-all shadow-2xs cursor-pointer"
+                            title={`Load ${designer.profile.name}'s monthly activity matrix`}
                           >
-                            <span>Open Matrix</span>
-                            <span>↗</span>
+                            <span>View Heatmap</span>
+                            <span>→</span>
                           </button>
                         </td>
                       </tr>
@@ -680,17 +698,6 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           ) : null}
-
-          {/* Designer Activity Calendar Popup Modal */}
-          {selectedModalDesignerId && (
-            <DesignerActivityModal
-              isOpen={Boolean(selectedModalDesignerId)}
-              onClose={() => setSelectedModalDesignerId(null)}
-              userId={selectedModalDesignerId}
-              initialYear={matrixYear}
-              initialMonth={matrixMonth}
-            />
-          )}
         </div>
 
         {/* Agency Pending Client Approvals Queue & Follow-up Tracker */}

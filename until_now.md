@@ -376,7 +376,8 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Added direct **`Calendar Heatmap →`** trigger to view their full interactive monthly matrix.
 - [x] **Admin Executive Dashboard Category (`/admin`)**:
   - Added dedicated **Production Activity & Consistency Matrix** section with Month Navigator and **Designer Filter** (`All Designers / Entire Team` vs specific team members).
-  - **All Designers View**: Displays agency monthly averages and a comprehensive Team Consistency Table comparing each designer's active days, consistency score, deliverables, and mini heat strip side by side. Clicking any designer row or the **Open Matrix ↗** button immediately pops up their individual monthly calendar heatmap modal without leaving the table.
+  - **All Designers View**: Displays agency monthly averages and a comprehensive Team Consistency Table comparing each designer's active days, consistency score, deliverables, and mini heat strip side by side.
+  - **Inline Designer Matrix (Zero Popups)**: Clicking any designer row in the table, clicking the **View Heatmap →** button, or clicking a designer card in the Workload section immediately switches the view and loads that designer's complete monthly activity heatmap & daily deliverables inspector **directly inline on the page**, with a quick `← All Designers` return toggle. Completely eliminated modal popouts.
   - **Individual Designer View**: Renders the complete 7-column calendar heatmap with day-by-day deliverables inspector.
 - [x] **Individual Profile Page Heatmap & Daily Inspector (`/settings`)**:
   - Embedded the full profile-specific monthly activity heatmap directly into the designer's personal profile page (`/settings`).
