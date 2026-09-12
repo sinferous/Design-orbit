@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { fetchProfiles, createProfileRecord, deleteProfileRecord } from '@/lib/services/work-entry';
+import { fetchMonthlyTeamActivity, MonthlyTeamActivity } from '@/lib/services/activity';
+import { MiniActivityHeatStrip } from '@/components/activity/MonthlyActivityHeatmap';
+import { DesignerActivityModal } from '@/components/activity/DesignerActivityModal';
 import { Profile } from '@/types';
-import { Users, Mail, Sparkles, Plus, Trash2, UserPlus, X } from 'lucide-react';
+import { Users, Mail, Sparkles, Plus, Trash2, UserPlus, X, Calendar, Activity } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
 
@@ -20,15 +23,22 @@ export default function TeamPage() {
   const [email, setEmail] = useState('');
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [teamActivity, setTeamActivity] = useState<MonthlyTeamActivity | null>(null);
+  const [selectedModalUserId, setSelectedModalUserId] = useState<string | null>(null);
 
   const { showToast, confirmDialog } = useToast();
 
   async function loadTeam() {
     setLoading(true);
     try {
-      const data = await fetchProfiles();
+      const now = new Date();
+      const [data, activityData] = await Promise.all([
+        fetchProfiles(),
+        fetchMonthlyTeamActivity(now.getFullYear(), now.getMonth() + 1),
+      ]);
       const creativeMembers = data.filter(p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator'));
       setProfiles(creativeMembers);
+      setTeamActivity(activityData);
     } catch (err) {
       console.error('Failed to load team profiles:', err);
     } finally {
@@ -233,47 +243,90 @@ export default function TeamPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {profiles.map((profile) => (
-              <div
-                key={profile.id}
-                className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 hover:border-sky-300 transition-all group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-500 to-teal-600 text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
-                      {profile.name.charAt(0).toUpperCase()}
+            {profiles.map((profile) => {
+              const designerActivity = teamActivity?.designers.find(d => d.profile.id === profile.id);
+
+              return (
+                <div
+                  key={profile.id}
+                  className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 hover:border-sky-300 transition-all group"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-500 to-teal-600 text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
+                        {profile.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-extrabold text-slate-900 group-hover:text-sky-600 transition-colors">
+                          {profile.name}
+                        </h3>
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 mt-0.5">
+                          {profile.designation || 'Graphic Designer'}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-extrabold text-slate-900 group-hover:text-sky-600 transition-colors">
-                        {profile.name}
-                      </h3>
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 mt-0.5">
-                        {profile.designation || 'Graphic Designer'}
-                      </span>
-                    </div>
+
+                    <button
+                      onClick={() => handleDeleteMember(profile.id, profile.name)}
+                      disabled={deletingId === profile.id}
+                      className="p-1.5 text-slate-300 hover:text-red-600 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+                      title={`Remove "${profile.name}"`}
+                    >
+                      <Trash2 className="w-4.5 h-4.5" />
+                    </button>
                   </div>
 
-                  <button
-                    onClick={() => handleDeleteMember(profile.id, profile.name)}
-                    disabled={deletingId === profile.id}
-                    className="p-1.5 text-slate-300 hover:text-red-600 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
-                    title={`Remove "${profile.name}"`}
-                  >
-                    <Trash2 className="w-4.5 h-4.5" />
-                  </button>
-                </div>
+                  {/* Monthly Output & Activity Strip (GitHub-Style) */}
+                  {designerActivity && (
+                    <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-100 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                          {teamActivity?.monthName} Activity
+                        </span>
+                        <span className="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          {designerActivity.activeDaysCount} Active Days
+                        </span>
+                      </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <div className="flex items-center space-x-1.5">
-                    <Mail className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="font-medium text-slate-600">{profile.email || `${profile.name.toLowerCase().replace(/\s+/g, '')}@webtreeonline.com`}</span>
+                      <MiniActivityHeatStrip daysList={designerActivity.daysList} />
+
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
+                        <span className="text-slate-500 font-medium">
+                          {designerActivity.totalTasks} deliverables logged
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedModalUserId(profile.id)}
+                          className="text-sky-600 hover:text-sky-800 font-bold inline-flex items-center space-x-1 cursor-pointer"
+                        >
+                          <span>Calendar Heatmap</span>
+                          <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <div className="flex items-center space-x-1.5">
+                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="font-medium text-slate-600">{profile.email || `${profile.name.toLowerCase().replace(/\s+/g, '')}@webtreeonline.com`}</span>
+                    </div>
+
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-xs" title="Active Account" />
                   </div>
-
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-xs" title="Active Account" />
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+        )}
+
+        {/* Designer Activity Calendar Modal */}
+        {selectedModalUserId && (
+          <DesignerActivityModal
+            isOpen={Boolean(selectedModalUserId)}
+            onClose={() => setSelectedModalUserId(null)}
+            userId={selectedModalUserId}
+          />
         )}
       </main>
     </div>

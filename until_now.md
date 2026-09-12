@@ -360,6 +360,25 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Centered Calendar Popover**: Anchored calendar popup using `left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0` for mobile viewport safety.
   - **2x2 Side-by-Side KPI Cards**: Grouped the 4 weekly KPI cards into 2 pairs side-by-side on mobile (`grid grid-cols-2 lg:grid-cols-4`) with balanced heights (`flex flex-col justify-between`), clean uppercase titles, and descriptive subtexts.
 
+### Phase 14 — Monthly Deliverable Activity & Consistency Matrix (GitHub-Style Attendance Proxy)
+- [x] **Automated Attendance & Output Matrix Service (`activity.ts`)**:
+  - Built high-performance month-range data aggregation for Supabase PostgreSQL and offline fallback.
+  - Implicitly tracks designer attendance via daily deliverable submissions without rigid "attendance" labeling.
+  - Calculates 5-tier GitHub emerald heat intensity (0 tasks = neutral, 1–2 = light green, 3–4 = medium, 5–7 = deep green, 8+ = intense dark green).
+  - Computes monthly metrics: `activeDaysCount` / `daysInMonth`, consistency percentage, total deliverables created, approvals, and tracked deliverable hours.
+- [x] **GitHub-Style Interactive Monthly Heatmap (`MonthlyActivityHeatmap.tsx`)**:
+  - 7-column calendar matrix (Monday to Sunday) with day numbers, task badges, and green intensity shading.
+  - Interactive day drill-down: Clicking any active day reveals a detailed panel of deliverables completed on that date (client, work type, quantity, approval, time spent).
+  - Compact `MiniActivityHeatStrip` component for clean 30-day rhythm visualization in profile cards and table rows.
+  - Full modal viewer (`DesignerActivityModal.tsx`) with historical month/year navigation.
+- [x] **Creative Team Directory Integration (`/team`)**:
+  - Embedded the monthly activity heat strip directly onto every creative designer's profile card with their active days counter (e.g. `22 Active Days this month`).
+  - Added direct **`Calendar Heatmap →`** trigger to view their full interactive monthly matrix.
+- [x] **Admin Executive Dashboard Category (`/admin`)**:
+  - Added dedicated **Production Activity & Consistency Matrix** section with Month Navigator and **Designer Filter** (`All Designers / Entire Team` vs specific team members).
+  - **All Designers View**: Displays agency monthly averages and a comprehensive Team Consistency Table comparing each designer's active days, consistency score, deliverables, and mini heat strip side by side.
+  - **Individual Designer View**: Renders the complete 7-column calendar heatmap with day-by-day deliverables inspector.
+
 ---
 
 ## 3. Current System Status
