@@ -827,17 +827,6 @@ export default function AdminDashboardPage() {
                   );
                 })}
               </div>
-
-              {agencyPendingEntries.length > 4 && (
-                <div className="pt-1 text-center">
-                  <Link
-                    href="/work?view=pending"
-                    className="text-xs font-bold text-amber-900 hover:text-amber-950 underline inline-flex items-center space-x-1"
-                  >
-                    <span>+ {agencyPendingEntries.length - 4} more pending deliverables across agency. View full queue with real-time search →</span>
-                  </Link>
-                </div>
-              )}
             </div>
           );
         })()}

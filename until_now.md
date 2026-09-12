@@ -348,8 +348,8 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Mobile Responsive Calendar Selector Controls & Touch Spacing**:
   - Full-width week navigation controls with centered date pills and viewport-safe calendar dropdown positioning (`w-[calc(100vw-48px)]`).
   - Tuned page container padding (`px-3.5 sm:px-6`) and card padding (`p-3.5 sm:p-6`) for optimal breathing room on smaller screens.
-- [x] **Removed Redundant Pending Queue Link on Dashboard**:
-  - Removed duplicate bottom hyperlink (`+ X more deliverables waiting for client approval`) since the dedicated `View Full Pending Queue` button is already present in the card header on both PC and mobile.
+- [x] **Removed Redundant Pending Queue Links on Dashboard & Admin**:
+  - Removed duplicate bottom hyperlinks (`+ X more deliverables waiting for client approval...`) from both the designer [`/dashboard`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/dashboard/page.tsx) and the executive [`/admin`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/admin/page.tsx) page, keeping the cards clean since the dedicated `Open Full Agency Queue` button is already present in the card header.
 - [x] **Daily Work Log Mobile Alignment & Sizing Improvements (`/work`)**:
   - **Equal 50%/50% Width View Mode Buttons**: Upgraded the `Daily Log (By Date)` and `Pending Approvals Queue` switcher to a 2-column mobile grid (`grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto`) with fixed `h-11` heights, ensuring both buttons are equal 50% width on mobile screens instead of uneven flex widths.
   - **Centered Date Navigation Row**: Aligned the `< [ 📅 Date Picker ] >` row to `justify-center md:justify-end`, perfectly centering the calendar picker in the card on mobile devices.
