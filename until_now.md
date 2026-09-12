@@ -348,6 +348,8 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Mobile Responsive Calendar Selector Controls & Touch Spacing**:
   - Full-width week navigation controls with centered date pills and viewport-safe calendar dropdown positioning (`w-[calc(100vw-48px)]`).
   - Tuned page container padding (`px-3.5 sm:px-6`) and card padding (`p-3.5 sm:p-6`) for optimal breathing room on smaller screens.
+- [x] **Removed Redundant Pending Queue Link on Dashboard**:
+  - Removed duplicate bottom hyperlink (`+ X more deliverables waiting for client approval`) since the dedicated `View Full Pending Queue` button is already present in the card header on both PC and mobile.
 
 ---
 

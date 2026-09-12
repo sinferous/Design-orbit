@@ -548,17 +548,6 @@ export default function DashboardPage() {
                 );
               })}
             </div>
-
-            {pendingApprovals.length > 3 && (
-              <div className="pt-1 text-center">
-                <Link
-                  href="/work?view=pending"
-                  className="text-xs font-bold text-amber-900 hover:text-amber-950 underline inline-flex items-center space-x-1"
-                >
-                  <span>+ {pendingApprovals.length - 3} more deliverables waiting for client approval. Click to open full queue →</span>
-                </Link>
-              </div>
-            )}
           </div>
         )}
 
