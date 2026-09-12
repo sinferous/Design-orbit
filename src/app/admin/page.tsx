@@ -48,6 +48,7 @@ import {
   MonthlyDesignerActivity,
 } from '@/lib/services/activity';
 import { MonthlyActivityHeatmap, MiniActivityHeatStrip } from '@/components/activity/MonthlyActivityHeatmap';
+import { DesignerActivityModal } from '@/components/activity/DesignerActivityModal';
 import { RichSelect } from '@/components/ui/RichSelect';
 
 export default function AdminDashboardPage() {
@@ -74,6 +75,7 @@ export default function AdminDashboardPage() {
   const [matrixYear, setMatrixYear] = useState<number>(new Date().getFullYear());
   const [matrixMonth, setMatrixMonth] = useState<number>(new Date().getMonth() + 1);
   const [matrixDesignerFilter, setMatrixDesignerFilter] = useState<string>('all');
+  const [selectedModalDesignerId, setSelectedModalDesignerId] = useState<string | null>(null);
   const [teamActivity, setTeamActivity] = useState<MonthlyTeamActivity | null>(null);
   const [singleDesignerActivity, setSingleDesignerActivity] = useState<MonthlyDesignerActivity | null>(null);
   const [loadingMatrix, setLoadingMatrix] = useState(false);
@@ -608,15 +610,24 @@ export default function AdminDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {teamActivity.designers.map((designer) => (
-                      <tr key={designer.profile.id} className="hover:bg-slate-50/60 transition-colors">
+                      <tr
+                        key={designer.profile.id}
+                        onClick={() => setSelectedModalDesignerId(designer.profile.id)}
+                        className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                        title={`Click to open ${designer.profile.name}'s monthly activity calendar`}
+                      >
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-xs shrink-0">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-xs shrink-0 group-hover:scale-105 transition-transform">
                               {designer.profile.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <div className="font-bold text-slate-900">{designer.profile.name}</div>
-                              <div className="text-[10px] text-slate-400">{designer.profile.designation || 'Designer'}</div>
+                              <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                                {designer.profile.name}
+                              </div>
+                              <div className="text-[10px] text-slate-400">
+                                {designer.profile.designation || 'Designer'}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -652,11 +663,14 @@ export default function AdminDashboardPage() {
                         <td className="py-3 px-4 text-right">
                           <button
                             type="button"
-                            onClick={() => setMatrixDesignerFilter(designer.profile.id)}
-                            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 text-slate-700 font-bold text-[11px] transition-all cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedModalDesignerId(designer.profile.id);
+                            }}
+                            className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs transition-all shadow-2xs cursor-pointer"
                           >
-                            <span>Inspect Calendar</span>
-                            <span>→</span>
+                            <span>Open Matrix</span>
+                            <span>↗</span>
                           </button>
                         </td>
                       </tr>
@@ -666,6 +680,17 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           ) : null}
+
+          {/* Designer Activity Calendar Popup Modal */}
+          {selectedModalDesignerId && (
+            <DesignerActivityModal
+              isOpen={Boolean(selectedModalDesignerId)}
+              onClose={() => setSelectedModalDesignerId(null)}
+              userId={selectedModalDesignerId}
+              initialYear={matrixYear}
+              initialMonth={matrixMonth}
+            />
+          )}
         </div>
 
         {/* Agency Pending Client Approvals Queue & Follow-up Tracker */}
