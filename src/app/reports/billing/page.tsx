@@ -688,7 +688,6 @@ export default function ClientTimeTrackingReportPage() {
                   ...profiles.map(p => ({
                     value: p.id,
                     label: p.name,
-                    badge: p.designation || 'Team',
                   })),
                 ]}
                 size="sm"

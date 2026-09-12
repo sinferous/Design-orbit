@@ -616,7 +616,6 @@ export default function MyWorkPage() {
                     ...profiles.filter(p => !isAdminUser(p)).map(p => ({
                       value: p.id,
                       label: p.name,
-                      badge: p.designation || 'Team',
                     })),
                   ]}
                   size="sm"
@@ -662,7 +661,6 @@ export default function MyWorkPage() {
                     ...profiles.map(p => ({
                       value: p.id,
                       label: p.name,
-                      badge: p.designation || 'Team',
                     })),
                   ]}
                   size="sm"
@@ -1244,7 +1242,6 @@ export default function MyWorkPage() {
                         ...profiles.filter(p => !isAdminUser(p)).map(p => ({
                           value: p.id,
                           label: p.name,
-                          badge: p.designation || 'Team',
                         })),
                       ]}
                       size="sm"

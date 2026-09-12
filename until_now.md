@@ -387,6 +387,15 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Includes the interactive daily inspector ("with individual entries wla thing"): clicking any day opens the deliverables inspector showing each task created, client, quantity, approval state, and duration logged on that date.
   - Positioned seamlessly between the profile identification card and the Change Password card.
   - **Clean Header Without Duplicate Profile Badge**: Hid the redundant `[V] Varun Graphic Designer` badge from the heatmap card on the personal profile page (`showProfileHeader={false}`), displaying a sleek `Monthly Activity Heatmap` title with month navigation (`< Month Year >`) instead since the user profile card is already shown above.
+- [x] **Global Removal of Designation Badges from All Dropdowns**:
+  - Removed designation badges and tags (`Graphic Designer`, `UI/UX Designer`, `Design Team Lead`, etc.) from all dropdown selectors across the entire application:
+    - Daily Work Log designer filter (`/work`)
+    - Pending Approvals Queue designer filter (`/work?view=pending`)
+    - Monthly Report team member filter (`/reports/monthly`)
+    - Client Hours & Billing team member filter (`/reports/billing`)
+    - Admin Production Activity designer selector (`/admin`)
+    - Login account selector dropdown (`/login`)
+  - Ensures clean, un-truncated designer names without clutter across desktop and mobile screens.
 
 ---
 

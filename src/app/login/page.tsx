@@ -42,7 +42,7 @@ export default function LoginPage() {
           const sorted = [...dbProfiles]
             .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
             .map(p => ({
-              name: p.designation ? `${p.name} (${p.designation})` : p.name,
+              name: p.name,
               email: p.email || '',
             }));
           setAccountOptions([

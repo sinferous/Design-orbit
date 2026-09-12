@@ -200,7 +200,6 @@ export default function MonthlyReportPage() {
                 ...profiles.map(p => ({
                   value: p.id,
                   label: p.name,
-                  badge: p.designation || 'Team',
                 })),
               ]}
               size="sm"
