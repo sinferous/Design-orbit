@@ -25,6 +25,7 @@ interface MonthlyActivityHeatmapProps {
   activity: MonthlyDesignerActivity;
   onMonthChange?: (year: number, month: number) => void;
   showDetailsModal?: boolean;
+  showProfileHeader?: boolean;
   className?: string;
 }
 
@@ -50,6 +51,7 @@ export function getIntensityClass(intensity: 0 | 1 | 2 | 3 | 4): string {
 export function MonthlyActivityHeatmap({
   activity,
   onMonthChange,
+  showProfileHeader = true,
   className = '',
 }: MonthlyActivityHeatmapProps) {
   const [selectedDay, setSelectedDay] = useState<DayActivity | null>(null);
@@ -83,26 +85,42 @@ export function MonthlyActivityHeatmap({
 
   return (
     <div className={`bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 space-y-5 ${className}`}>
-      {/* Header: Title, Designer Badge, Month Navigator */}
+      {/* Header: Title, Designer Badge (Optional), Month Navigator */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold flex items-center justify-center text-base shadow-sm shrink-0">
-            {activity.profile.name.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                {activity.profile.name}
-              </h3>
-              <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-semibold bg-slate-100 text-slate-700">
-                {activity.profile.designation || 'Designer'}
-              </span>
+        {showProfileHeader ? (
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold flex items-center justify-center text-base shadow-sm shrink-0">
+              {activity.profile.name.charAt(0).toUpperCase()}
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Deliverable Activity & Production Consistency Matrix
-            </p>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                  {activity.profile.name}
+                </h3>
+                <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-semibold bg-slate-100 text-slate-700">
+                  {activity.profile.designation || 'Designer'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Deliverable Activity & Production Consistency Matrix
+              </p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center space-x-2.5">
+            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-2xs">
+              <Calendar className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 leading-tight">
+                Monthly Activity Heatmap
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Daily deliverable rhythm & production output
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Month Selector Controls */}
         <div className="flex items-center space-x-2 self-start sm:self-auto">

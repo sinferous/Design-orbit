@@ -200,6 +200,7 @@ export default function SettingsPage() {
         ) : activity ? (
           <MonthlyActivityHeatmap
             activity={activity}
+            showProfileHeader={false}
             onMonthChange={(y, m) => {
               setActivityYear(y);
               setActivityMonth(m);
