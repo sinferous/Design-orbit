@@ -385,6 +385,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Loads their personalized monthly deliverable data with historical month navigation (`<` and `>`).
   - Includes the interactive daily inspector ("with individual entries wla thing"): clicking any day opens the deliverables inspector showing each task created, client, quantity, approval state, and duration logged on that date.
   - Positioned seamlessly between the profile identification card and the Change Password card.
+  - **Clean Header Without Duplicate Profile Badge**: Hid the redundant `[V] Varun Graphic Designer` badge from the heatmap card on the personal profile page (`showProfileHeader={false}`), displaying a sleek `Monthly Activity Heatmap` title with month navigation (`< Month Year >`) instead since the user profile card is already shown above.
 
 ---
 
