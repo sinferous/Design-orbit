@@ -395,6 +395,20 @@ This document provides a comprehensive summary of all progress, architecture, an
     - Login account selector dropdown (`/login`)
   - Ensures clean, un-truncated designer names without clutter across desktop and mobile screens.
 
+### Phase 15 — Picture-in-Picture (PiP) Window Launch & Persistence Fix (Completed)
+- [x] **Guaranteed Window Launch**:
+  - Replaced silent return failures with active window launching for both Document Picture-in-Picture API and standalone desktop popup fallback.
+  - Eliminated overly-restrictive ownership blocking in `openPipWindow`: any deliverable with an active timer selected by the user launches into PiP immediately.
+- [x] **Premature Auto-Close Prevention**:
+  - Fixed background polling in `refreshTimers`: PiP windows no longer randomly close after 10 seconds or when Supabase background queries are in-flight.
+  - Ensured that active tasks explicitly opened in PiP remain active and interactive until explicitly stopped (`handleStop`), docked, or closed by the user.
+- [x] **Portal Render Hierarchy Fix**:
+  - Placed the React cross-window Portal render before the docked widget's null check in [`FloatingPipTimer.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/timer/FloatingPipTimer.tsx), guaranteeing the portal always mounts and renders the PiP window's UI without blank/black screens.
+  - Added an idle state card inside the PiP window in case entries are temporarily syncing.
+- [x] **Interactive User Feedback & Permanent Window Manager**:
+  - Made the "Float PiP" button async with clear user toast alerts (`Floating desktop timer opened (Always on Top)` on success, or popup permission advice if blocked by browser settings).
+  - Attached `window.designOrbitPipManager` permanently to prevent any lifecycle garbage-collection gaps.
+
 ---
 
 ## 3. Current System Status
