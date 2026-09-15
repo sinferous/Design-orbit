@@ -1125,9 +1125,16 @@ export default function MyWorkPage() {
                                         </button>
                                         <button
                                           type="button"
-                                          onClick={() => {
+                                          onClick={async () => {
                                             if (typeof window !== 'undefined') {
-                                              window.designOrbitPipManager?.openPip(entry);
+                                              try {
+                                                const opened = await window.designOrbitPipManager?.openPip(entry);
+                                                if (!opened) {
+                                                  showToast('Unable to open floating timer. Ensure popups are allowed.', 'error');
+                                                }
+                                              } catch (err: any) {
+                                                showToast(err.message || 'Could not launch floating timer', 'error');
+                                              }
                                             }
                                           }}
                                           className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs"

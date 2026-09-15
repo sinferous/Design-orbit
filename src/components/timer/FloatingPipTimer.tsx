@@ -419,50 +419,34 @@ export function FloatingPipTimer() {
 
     try {
       const active = await getActiveRunningWorkEntries(targetId || undefined);
-      // Strictly enforce user ownership: filter out any tasks not belonging to the logged-in user
       const userActive = active.filter(item => isEntryForUser(item, targetId, targetName));
-      const now = Date.now();
 
       setEntries(prev => {
         const activeIds = new Set(userActive.map(a => a.id));
 
-        // Keep items from prev ONLY IF they belong to the current user
-        const pausedOrOptimistic = prev.filter(p => {
-          if (!isEntryForUser(p, targetId, targetName)) return false;
-          if (activeIds.has(p.id)) return false; // Handled by active list
-          if (!p.timer_started_at) return true; // Paused in PiP for this user
-
-          const lastStarted = recentlyStartedRef.current.get(p.id) || 0;
-          if (now - lastStarted < 10000) return true;
-
-          const startedAtMs = p.timer_started_at ? new Date(p.timer_started_at).getTime() : 0;
-          if (now - startedAtMs < 10000) return true;
-
-          try {
-            if (localStorage.getItem(`work_timer_started_${p.id}`)) return true;
-          } catch (e) {}
-
-          return false;
+        // Keep items from prev that are active in PiP or recently started
+        const keptFromPrev = prev.filter(p => {
+          if (activeIds.has(p.id)) return false;
+          // Keep paused tasks or recently active tasks in PiP
+          return Boolean(p.timer_started_at) || Boolean(recentlyStartedRef.current.get(p.id)) || !p.timer_started_at;
         });
 
-        const merged = [...userActive, ...pausedOrOptimistic];
-        if (merged.length === 0 && pipWindowRef.current && !pipWindowRef.current.closed) {
-          closePipWindow();
-        }
+        const merged = [...userActive, ...keptFromPrev];
+        entriesRef.current = merged;
         return merged;
       });
     } catch (err) {
       console.warn('FloatingPipTimer refresh error:', err);
     }
-  }, [closePipWindow, isLoginPage]);
+  }, [isLoginPage]);
 
   // Precise dynamic height calculation matching the compact styling and OS window frame
-  const computeTargetHeight = (taskCount: number) => {
+  const computeTargetHeight = useCallback((taskCount: number) => {
     const count = Math.max(1, taskCount);
     // Titlebar chrome ~42px + body padding/header ~46px + count * (card ~60px + gap 6px)
     const calculated = 88 + count * 66;
     return Math.min(460, Math.max(154, calculated));
-  };
+  }, []);
 
   // Safely inject styles into PiP window
   const injectStylesIntoWindow = (targetWin: Window) => {
@@ -480,7 +464,7 @@ export function FloatingPipTimer() {
         } catch (e) {}
       });
 
-      targetWin.document.title = 'Design Orbit';
+      targetWin.document.title = 'Design Orbit — Floating Timer';
     } catch (err) {
       console.warn('Could not inject styles into PiP window:', err);
     }
@@ -492,43 +476,46 @@ export function FloatingPipTimer() {
 
     const user = getLoggedInUser();
     if (!user || !user.name) {
+      showToast('Please sign in to use the floating timer', 'error');
       return false;
     }
 
-    const targetId = currentProfileIdRef.current || user.profileId;
-    const targetName = currentUserNameRef.current || user.name;
-
     if (initialEntry) {
-      // Strictly enforce: do NOT open PiP for another user's task
-      if (!isEntryForUser(initialEntry, targetId, targetName)) {
-        return false;
-      }
+      const activeInitial: WorkEntryWithDetails = {
+        ...initialEntry,
+        timer_started_at: initialEntry.timer_started_at || new Date().toISOString(),
+      };
 
-      recentlyStartedRef.current.set(initialEntry.id, Date.now());
+      recentlyStartedRef.current.set(activeInitial.id, Date.now());
+      try {
+        localStorage.setItem(`work_timer_started_${activeInitial.id}`, activeInitial.timer_started_at!);
+      } catch (e) {}
+
       setEntries(prev => {
-        const exists = prev.some(item => item.id === initialEntry.id);
-        if (exists) {
-          return prev.map(item => (item.id === initialEntry.id ? { ...item, ...initialEntry } : item));
-        }
-        return [initialEntry, ...prev];
+        const exists = prev.some(item => item.id === activeInitial.id);
+        const next = exists
+          ? prev.map(item => (item.id === activeInitial.id ? { ...item, ...activeInitial } : item))
+          : [activeInitial, ...prev];
+        entriesRef.current = next;
+        return next;
       });
     } else {
-      // If called with no entry, ensure we actually have running tasks for this user
-      const hasMyActive = entriesRef.current.some(e => isEntryForUser(e, targetId, targetName) && Boolean(e.timer_started_at));
-      if (!hasMyActive && entriesRef.current.length === 0) {
+      if (entriesRef.current.length === 0) {
+        showToast('No active timer running to float. Start a deliverable timer first!');
         return false;
       }
     }
 
     const currentCount = Math.max(1, entriesRef.current.length, initialEntry ? 1 : 0);
     const targetHeight = computeTargetHeight(currentCount);
-    const targetWidth = 320;
+    const targetWidth = 330;
 
     if (pipWindowRef.current && !pipWindowRef.current.closed) {
-      pipWindowRef.current.focus();
       try {
+        pipWindowRef.current.focus();
         pipWindowRef.current.resizeTo(targetWidth, targetHeight);
       } catch (e) {}
+      showToast('Floating desktop timer focused', 'success');
       return true;
     }
 
@@ -537,7 +524,7 @@ export function FloatingPipTimer() {
     pipOpenedAtRef.current = Date.now();
 
     try {
-      // Try Document Picture-in-Picture API first (Chrome 116+, Edge 116+)
+      // 1. Try Document Picture-in-Picture API first (Chrome 116+, Edge 116+)
       if ('documentPictureInPicture' in window && (window as any).documentPictureInPicture?.requestWindow) {
         try {
           const pip = await (window as any).documentPictureInPicture.requestWindow({
@@ -551,57 +538,83 @@ export function FloatingPipTimer() {
           container.id = 'pip-portal-root';
           pip.document.body.appendChild(container);
 
-          pip.addEventListener('pagehide', () => {
+          const handlePipClose = () => {
             setPipWindow(null);
             pipWindowRef.current = null;
             pipContainerRef.current = null;
-          });
+          };
+
+          pip.addEventListener('pagehide', handlePipClose);
 
           pipContainerRef.current = container;
-          setPipWindow(pip);
           pipWindowRef.current = pip;
+          setPipWindow(pip);
+          showToast('Desktop timer popped out (Always on Top)', 'success');
           return true;
         } catch (pipErr: any) {
-          console.warn('Document Picture-in-Picture request rejected or failed:', pipErr);
+          console.warn('Document Picture-in-Picture request failed, trying popup fallback:', pipErr);
         }
       }
 
-      // Fallback: lightweight popup window
+      // 2. Fallback: lightweight standalone desktop popup window
       try {
-        const left = Math.max(0, window.screen.availWidth - targetWidth - 20);
-        const top = Math.max(0, window.screen.availHeight - targetHeight - 40);
+        const left = Math.max(0, window.screen.availWidth - targetWidth - 24);
+        const top = Math.max(0, window.screen.availHeight - targetHeight - 48);
         const popup = window.open(
-          '',
+          'about:blank',
           'design_orbit_floating_timer',
           `width=${targetWidth},height=${targetHeight},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`
         );
 
         if (popup) {
-          injectStylesIntoWindow(popup);
-          const container = popup.document.createElement('div');
-          container.id = 'pip-portal-root';
-          popup.document.body.appendChild(container);
+          try {
+            popup.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Design Orbit — Floating Timer</title><style>${PIP_EMBEDDED_STYLES}</style></head><body><div id="pip-portal-root"></div></body></html>`);
+            popup.document.close();
+          } catch (e) {
+            injectStylesIntoWindow(popup);
+          }
 
-          popup.addEventListener('pagehide', () => {
+          let container = popup.document.getElementById('pip-portal-root') as HTMLDivElement | null;
+          if (!container) {
+            container = popup.document.createElement('div');
+            container.id = 'pip-portal-root';
+            popup.document.body.appendChild(container);
+          }
+
+          const handlePopupClose = () => {
             setPipWindow(null);
             pipWindowRef.current = null;
             pipContainerRef.current = null;
-          });
+          };
+
+          popup.addEventListener('pagehide', handlePopupClose);
+          popup.addEventListener('beforeunload', handlePopupClose);
+
+          const closeCheckInterval = setInterval(() => {
+            if (!popup || popup.closed) {
+              clearInterval(closeCheckInterval);
+              handlePopupClose();
+            }
+          }, 1000);
 
           pipContainerRef.current = container;
-          setPipWindow(popup);
           pipWindowRef.current = popup;
+          setPipWindow(popup);
+          showToast('Floating desktop timer opened', 'success');
           return true;
+        } else {
+          showToast('Popup blocked by browser. Please allow popups for Design Orbit in your address bar.', 'error');
+          return false;
         }
       } catch (popupErr: any) {
         console.warn('Popup window fallback failed:', popupErr);
+        showToast('Could not open floating timer. Please check browser popup permissions.', 'error');
+        return false;
       }
-
-      return false;
     } finally {
       isOpeningPipRef.current = false;
     }
-  }, []);
+  }, [computeTargetHeight, isLoginPage, showToast]);
 
   // Dynamically adjust PiP window size as tasks change
   useEffect(() => {
@@ -613,16 +626,20 @@ export function FloatingPipTimer() {
     }
   }, [entries.length, pipWindow]);
 
-  // Expose manager globally to window
-  useEffect(() => {
+  // Expose manager globally to window permanently
+  if (typeof window !== 'undefined') {
     window.designOrbitPipManager = {
       openPip: openPipWindow,
       closePip: closePipWindow,
       isPipOpen: () => Boolean(pipWindowRef.current && !pipWindowRef.current.closed),
     };
+  }
 
-    return () => {
-      delete window.designOrbitPipManager;
+  useEffect(() => {
+    window.designOrbitPipManager = {
+      openPip: openPipWindow,
+      closePip: closePipWindow,
+      isPipOpen: () => Boolean(pipWindowRef.current && !pipWindowRef.current.closed),
     };
   }, [openPipWindow, closePipWindow]);
 
@@ -985,15 +1002,38 @@ export function FloatingPipTimer() {
     }
   };
 
-  if (isLoginPage || !currentUser || entries.length === 0) {
-    return null;
-  }
-
   const runningCount = entries.filter(e => Boolean(e.timer_started_at)).length;
 
   // Ultra-compact render for floating PiP and corner widget
   const renderContent = (isInsidePip: boolean) => {
     if (isInsidePip) {
+      if (entries.length === 0) {
+        return (
+          <div className="pip-container">
+            <div className="pip-header">
+              <div className="pip-brand">
+                <div className="pip-dot paused" />
+                <span className="pip-logo-text">DESIGN ORBIT</span>
+                <span className="pip-count-badge">Idle</span>
+              </div>
+              <button
+                type="button"
+                onClick={closePipWindow}
+                className="pip-dock-btn"
+                title="Dock to browser window"
+              >
+                <Minimize2 style={{ width: 10, height: 10 }} />
+                <span>Dock</span>
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 10px', textAlign: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 600, color: '#94a3b8' }}>No active timers in PiP</span>
+              <span style={{ fontSize: '9px', color: '#64748b' }}>Start a timer on your work log to track</span>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="pip-container">
           {/* Header */}
@@ -1231,7 +1271,11 @@ export function FloatingPipTimer() {
     return createPortal(renderContent(true), pipContainerRef.current);
   }
 
-  // Otherwise, render docked in-page floating widget pinned to bottom right corner
+  // Otherwise, render docked in-page floating widget pinned to bottom right corner only if active
+  if (isLoginPage || !currentUser || entries.length === 0) {
+    return null;
+  }
+
   return (
     <aside
       aria-label="Live Floating Timers"
