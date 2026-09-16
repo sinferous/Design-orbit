@@ -9,7 +9,8 @@ import {
   updateProfilePasswordInDB,
   fetchProfileByEmail,
   fetchProfiles,
-  getUserPasswordFromDB
+  getUserPasswordFromDB,
+  isAdminUser
 } from '@/lib/services/work-entry';
 import {
   fetchMonthlyDesignerActivity,
@@ -87,11 +88,15 @@ export default function SettingsPage() {
     loadUserData();
   }, []);
 
+  const isAdmin = isAdminUser(currentUser) || isAdminUser(profile);
+
   useEffect(() => {
-    if (profile?.id) {
+    if (profile?.id && !isAdmin) {
       loadActivity(profile.id, activityYear, activityMonth);
+    } else if (isAdmin) {
+      setLoadingActivity(false);
     }
-  }, [profile?.id, activityYear, activityMonth, loadActivity]);
+  }, [profile?.id, isAdmin, activityYear, activityMonth, loadActivity]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,16 +160,18 @@ export default function SettingsPage() {
               Profile & Account Settings
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Review your monthly deliverable heatmap, daily work entries, and manage your security credentials.
+              {isAdmin
+                ? 'Manage your administrative security credentials and account settings.'
+                : 'Review your monthly deliverable heatmap, daily work entries, and manage your security credentials.'}
             </p>
           </div>
 
           <Link
-            href="/dashboard"
+            href={isAdmin ? '/admin' : '/dashboard'}
             className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Dashboard</span>
+            <span>{isAdmin ? 'Back to Admin Dashboard' : 'Back to Dashboard'}</span>
           </Link>
         </div>
 
@@ -191,22 +198,24 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Profile-Specific Monthly Heatmap & Daily Deliverables Inspector */}
-        {loadingActivity ? (
-          <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
-            <div className="animate-spin w-7 h-7 border-2 border-emerald-600 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-3 text-xs text-slate-500 font-medium">Loading your deliverable heatmap & activity matrix...</p>
-          </div>
-        ) : activity ? (
-          <MonthlyActivityHeatmap
-            activity={activity}
-            showProfileHeader={false}
-            onMonthChange={(y, m) => {
-              setActivityYear(y);
-              setActivityMonth(m);
-            }}
-          />
-        ) : null}
+        {/* Profile-Specific Monthly Heatmap & Daily Deliverables Inspector (Exempt for Admin) */}
+        {!isAdmin && (
+          loadingActivity ? (
+            <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
+              <div className="animate-spin w-7 h-7 border-2 border-emerald-600 border-t-transparent rounded-full mx-auto" />
+              <p className="mt-3 text-xs text-slate-500 font-medium">Loading your deliverable heatmap & activity matrix...</p>
+            </div>
+          ) : activity ? (
+            <MonthlyActivityHeatmap
+              activity={activity}
+              showProfileHeader={false}
+              onMonthChange={(y, m) => {
+                setActivityYear(y);
+                setActivityMonth(m);
+              }}
+            />
+          ) : null
+        )}
 
         {/* Change Password Card */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
