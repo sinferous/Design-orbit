@@ -407,7 +407,9 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Added an idle state card inside the PiP window in case entries are temporarily syncing.
 - [x] **Interactive User Feedback & Permanent Window Manager**:
   - Made the "Float PiP" button async with clear user toast alerts (`Floating desktop timer opened (Always on Top)` on success, or popup permission advice if blocked by browser settings).
-  - Attached `window.designOrbitPipManager` permanently to prevent any lifecycle garbage-collection gaps.
+- [x] **Strict Default "Not Approved" on New Work Entries (`WorkEntryForm.tsx`)**:
+  - Re-aligned initial form state in [`WorkEntryForm.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx) (`loadFormOptions` and `addAnotherClient`) so newly created deliverables strictly default to **`quantity_approved: 0`**, **`is_approved: false`**, and **`status: 'Submitted'`** (instead of auto-approving).
+  - Newly created tasks now immediately appear in the Pending Approvals Queue and require the designer/admin to mark them approved when client sign-off is received.
 
 ---
 
