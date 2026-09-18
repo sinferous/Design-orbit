@@ -412,11 +412,25 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Re-aligned initial form state in [`WorkEntryForm.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx) (`loadFormOptions` and `addAnotherClient`) so newly created deliverables strictly default to **`quantity_approved: 0`**, **`is_approved: false`**, and **`status: 'Submitted'`** (instead of auto-approving).
   - Newly created tasks now immediately appear in the Pending Approvals Queue and require the designer/admin to mark them approved when client sign-off is received.
 
+### Phase 16 — System-Wide Stable Snapshot & Multi-Layer Backup (Completed)
+- [x] **Git Remote & Local Branch/Tag**:
+  - Created backup branch: `backup-stable-pre-experiments`.
+  - Created git tag: `backup-stable-pre-experiments` at stable commit `0a0a94a`.
+  - Pushed both branch and tag refs to GitHub remote (`https://github.com/sinferous/Design-orbit.git`).
+- [x] **Local Filesystem Mirror**:
+  - Full mirror directory created at `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18` preserving all source code, Supabase migrations, configurations, `.env.local` credentials, and `.git` repository (excluding disposable `node_modules` and `.next`).
+- [x] **Compressed Standalone ZIP Archive**:
+  - Created standalone ZIP backup archive at `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18.zip` for instant archiving and recovery.
+
 ---
 
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
+- **System Backups**:
+  - **Git Branch & Tag**: `backup-stable-pre-experiments` (synced locally and on GitHub)
+  - **Local Mirror Folder**: `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18`
+  - **Compressed ZIP Archive**: `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18.zip`
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: Production ready, compiled successfully with **0 errors across all 16 routes**.
