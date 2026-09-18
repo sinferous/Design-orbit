@@ -412,15 +412,39 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Re-aligned initial form state in [`WorkEntryForm.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx) (`loadFormOptions` and `addAnotherClient`) so newly created deliverables strictly default to **`quantity_approved: 0`**, **`is_approved: false`**, and **`status: 'Submitted'`** (instead of auto-approving).
   - Newly created tasks now immediately appear in the Pending Approvals Queue and require the designer/admin to mark them approved when client sign-off is received.
 
-### Phase 16 — System-Wide Stable Snapshot & Multi-Layer Backup (Completed)
-- [x] **Git Remote & Local Branch/Tag**:
-  - Created backup branch: `backup-stable-pre-experiments`.
-  - Created git tag: `backup-stable-pre-experiments` at stable commit `0a0a94a`.
-  - Pushed both branch and tag refs to GitHub remote (`https://github.com/sinferous/Design-orbit.git`).
-- [x] **Local Filesystem Mirror**:
-  - Full mirror directory created at `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18` preserving all source code, Supabase migrations, configurations, `.env.local` credentials, and `.git` repository (excluding disposable `node_modules` and `.next`).
-- [x] **Compressed Standalone ZIP Archive**:
-  - Created standalone ZIP backup archive at `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18.zip` for instant archiving and recovery.
+### Phase 17 — Full-Stack Dark Theme Transformation (Completed)
+- [x] **Global Dark Canvas & Studio Design System**:
+  - Configured high-contrast, modern dark aesthetic across [`src/app/globals.css`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/globals.css) with `#090d16` base canvas, elevated `#0b0f19` / `slate-900` card surfaces, subtle `slate-800` borders, sleek dark custom scrollbars, and ambient blue/teal glow accents.
+  - Replaced vector logo with pure white typography variant [`public/logo/webtree-logo-white.svg`](file:///j:/Work/Webtree%20Online/Design%20orbit/public/logo/webtree-logo-white.svg) for crystal-clear readability against dark headers.
+  - Converted [`CreativeBackground.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/CreativeBackground.tsx) to render crisp slate-800/slate-700 vector grid and creative paths at low opacity.
+- [x] **Universal Navigation, Inputs & Component Conversion**:
+  - [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx): Dark slate-900 navigation bar, active navigation indicator pills, user session tag, and mobile hamburger drawer.
+  - [`RichSelect.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/RichSelect.tsx): Elevated slate-900 trigger button, slate-800 borders, search inputs, active selection highlights, and custom dark scrollable popover menus.
+  - [`RichDatePicker.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/RichDatePicker.tsx): Dark calendar matrix with high-contrast active dates, hover ranges, month navigators, and presets.
+  - [`ConfirmModal.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/ConfirmModal.tsx) & [`ToastAlert.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/ToastAlert.tsx): Glassmorphic dark notification toasts and deletion confirmation dialogs.
+- [x] **Core Modals & Interactive Widgets**:
+  - [`TodoListWidget.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/dashboard/TodoListWidget.tsx): Drag-and-drop to-do widget styled with deep slate cards, priority badges, and subtle drag glow effects.
+  - [`QuickApprovalModal.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/QuickApprovalModal.tsx): Interactive one-click approval modal styled with deep slate containers, contrast inputs, and custom status pills.
+  - [`EmailDayLogModal.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/EmailDayLogModal.tsx): Format switcher and modal frame converted to dark theme, while preserving white background inside the isolated email preview box for accurate mail client representation.
+  - [`WeeklyBestWorkModal.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/reports/WeeklyBestWorkModal.tsx): Dark input modals and preview badges.
+  - [`MonthlyActivityHeatmap.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/activity/MonthlyActivityHeatmap.tsx): Dark calendar grid with emerald intensity gradients, day inspector modals, and deliverable rows.
+  - [`DesignerActivityModal.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/activity/DesignerActivityModal.tsx): Detailed modal inspection dialog with dark metric tiles.
+- [x] **All 16 Application Routes Converted**:
+  - `/login`: Sleek dark login card with branded gradient header, dark select dropdowns, and high-contrast inputs.
+  - `/dashboard`: Dark stat tiles, pending approvals banner, live task feed, and drag-and-drop to-do widget.
+  - `/admin`: Executive administration console with dark workload indicators, agency leaderboard, and activity feed.
+  - `/work`: Personal & team daily work log, client section cards, and pending approval queue cards.
+  - `/work/new`: Multi-client deliverable submission form with dark inputs, repeaters, and status toggles.
+  - `/work/[id]`: Edit deliverable screen with dark form inputs.
+  - `/clients`: Client directory with inline edit/update cards and search filter.
+  - `/team`: Creative team member directory with permission badges and add-member modal.
+  - `/reports/weekly`: Weekly meeting review with dark week range picker, stats bar, and client deliverable drilldowns.
+  - `/reports/monthly`: Monthly summary report with dark filters, KPI summary tiles, and breakdown table.
+  - `/reports/overall`: All-time analytics with dark grouping switcher and dual-color progress bars.
+  - `/reports/billing`: Client hourly time tracking report with rich dark date range picker and client audit cards.
+  - `/settings`: Personal profile and password management with dark credential cards.
+- [x] **Zero Regressions & Production Build Validation**:
+  - Ran `npm run build` with Next.js 16 App Router compiler: **16/16 routes compiled successfully with 0 TypeScript/JSX errors**.
 
 ---
 
@@ -431,6 +455,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Git Branch & Tag**: `backup-stable-pre-experiments` (synced locally and on GitHub)
   - **Local Mirror Folder**: `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18`
   - **Compressed ZIP Archive**: `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18.zip`
+- **UI Theme**: **Clean, Minimal Studio Dark Theme** (`#090d16` canvas, `#0b0f19`/`slate-900` elevated surfaces, `slate-800` borders, high-contrast typography, and cyan/teal accents).
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: Production ready, compiled successfully with **0 errors across all 16 routes**.

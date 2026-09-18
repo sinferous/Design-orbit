@@ -321,12 +321,12 @@ export default function DashboardPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-baseline flex-wrap">
-              {greeting}, <span className="font-display font-extrabold text-xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-100 flex items-baseline flex-wrap">
+              {greeting}, <span className="font-display font-extrabold text-xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
               {subtitle}
             </p>
           </div>
@@ -345,144 +345,144 @@ export default function DashboardPage() {
         {/* Quick Stat Cards - 4 Small Compact Cards (2x2 on Mobile, 4-col on Desktop) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
           {/* Card 1: Today's Created */}
-          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">Today Created</span>
-              <Clock className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Today Created</span>
+              <Clock className="w-3.5 h-3.5 text-sky-400 shrink-0" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{todayDone}</span>
-              <span className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">items logged</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{todayDone}</span>
+              <span className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">items logged</span>
             </div>
           </div>
 
           {/* Card 2: Today's Approved */}
-          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">Today Approved</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Today Approved</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-teal-700 leading-none">{todayApproved}</span>
-              <span className="text-[10px] sm:text-xs text-emerald-600 font-bold truncate">({todayApprovalRate}%)</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-teal-400 leading-none">{todayApproved}</span>
+              <span className="text-[10px] sm:text-xs text-emerald-400 font-bold truncate">({todayApprovalRate}%)</span>
             </div>
           </div>
 
           {/* Card 3: This Week Total */}
-          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">This Week</span>
-              <CalendarDays className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">This Week</span>
+              <CalendarDays className="w-3.5 h-3.5 text-sky-400 shrink-0" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{weekSummary.totalCreated}</span>
-              <span className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">({weekSummary.totalApproved} app.)</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{weekSummary.totalCreated}</span>
+              <span className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">({weekSummary.totalApproved} app.)</span>
             </div>
           </div>
 
           {/* Card 4: Active Clients */}
-          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">Active Clients</span>
-              <Building2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-400">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Active Clients</span>
+              <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-sky-700 leading-none">{weekSummary.activeClients}</span>
-              <span className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">brands</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-sky-400 leading-none">{weekSummary.activeClients}</span>
+              <span className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">brands</span>
             </div>
           </div>
         </div>
 
         {/* Application Navigation Quick Launchpad */}
-        <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 sm:space-y-3.5">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+        <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-sm space-y-3 sm:space-y-3.5">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Application Quick Navigation</h2>
-              <p className="text-xs text-slate-500">Fast access to key work tracking & reporting modules</p>
+              <h2 className="text-sm font-bold text-slate-100">Application Quick Navigation</h2>
+              <p className="text-xs text-slate-400">Fast access to key work tracking & reporting modules</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <Link
               href="/work/new"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-sky-500/50 hover:bg-slate-800/80 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <Plus className="w-4 h-4 text-sky-600" />
-                <span className="text-xs font-bold text-slate-800">Add Daily Work</span>
+                <Plus className="w-4 h-4 text-sky-400" />
+                <span className="text-xs font-bold text-slate-200">Add Daily Work</span>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-sky-400" />
             </Link>
 
             <Link
               href="/work"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/50 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-sky-500/50 hover:bg-slate-800/80 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <CalendarDays className="w-4 h-4 text-sky-600" />
-                <span className="text-xs font-bold text-slate-800">My Daily Log</span>
+                <CalendarDays className="w-4 h-4 text-sky-400" />
+                <span className="text-xs font-bold text-slate-200">My Daily Log</span>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-sky-400" />
             </Link>
 
             <Link
               href="/work?view=pending"
-              className="flex items-center justify-between p-3 rounded-lg border border-amber-200 bg-amber-50/40 hover:border-amber-400 hover:bg-amber-50 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-amber-500/30 bg-amber-950/20 hover:border-amber-500/60 hover:bg-amber-950/40 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <Hourglass className="w-4 h-4 text-amber-600" />
+                <Hourglass className="w-4 h-4 text-amber-400" />
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-slate-800">Pending Queue</span>
+                  <span className="text-xs font-bold text-slate-200">Pending Queue</span>
                   {pendingApprovals.length > 0 && (
-                    <span className="text-[10px] font-extrabold text-amber-700">{pendingApprovals.length} waiting</span>
+                    <span className="text-[10px] font-extrabold text-amber-400">{pendingApprovals.length} waiting</span>
                   )}
                 </div>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400" />
             </Link>
 
             <Link
               href="/reports/weekly"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-teal-500/50 hover:bg-slate-800/80 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <BarChart2 className="w-4 h-4 text-teal-600" />
-                <span className="text-xs font-bold text-slate-800">Weekly Report</span>
+                <BarChart2 className="w-4 h-4 text-teal-400" />
+                <span className="text-xs font-bold text-slate-200">Weekly Report</span>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-teal-400" />
             </Link>
 
             <Link
               href="/reports/monthly"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-teal-500/50 hover:bg-slate-800/80 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <PieChart className="w-4 h-4 text-teal-600" />
-                <span className="text-xs font-bold text-slate-800">Monthly Stats</span>
+                <PieChart className="w-4 h-4 text-teal-400" />
+                <span className="text-xs font-bold text-slate-200">Monthly Stats</span>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-teal-400" />
             </Link>
           </div>
         </div>
 
         {/* Pending Client Approvals Reminder Card */}
         {pendingApprovals.length > 0 && (
-          <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-300/80 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-200/60 pb-3.5">
+          <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/30 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3.5">
               <div className="flex items-center space-x-3">
-                <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-sm ring-4 ring-amber-100">
+                <div className="p-2.5 rounded-xl bg-amber-500 text-slate-950 shadow-sm ring-4 ring-amber-950/50">
                   <Hourglass className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h2 className="text-base font-bold text-slate-900">
+                    <h2 className="text-base font-bold text-slate-100">
                       Pending Client Approvals
                     </h2>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-950 border border-amber-300">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-900/60 text-amber-300 border border-amber-700/60">
                       {pendingApprovals.length} {pendingApprovals.length === 1 ? 'item' : 'items'}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <p className="text-xs text-slate-300 mt-0.5">
                     Deliverables awaiting client sign-off from past dates. Once client approves, sign off here directly without calendar hunting!
                   </p>
                 </div>
@@ -490,7 +490,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/work?view=pending"
-                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-xl transition-all shadow-2xs shrink-0 self-start sm:self-auto"
+                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold text-amber-300 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-700/60 rounded-xl transition-all shadow-2xs shrink-0 self-start sm:self-auto"
               >
                 <span>View Full Pending Queue</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -510,11 +510,11 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={entry.id}
-                    className="bg-white/95 backdrop-blur-xs p-3.5 rounded-xl border border-amber-200/80 hover:border-amber-400 shadow-2xs transition-all flex flex-col justify-between space-y-2.5"
+                    className="bg-slate-900/90 backdrop-blur-xs p-3.5 rounded-xl border border-slate-800 hover:border-amber-500/50 shadow-2xs transition-all flex flex-col justify-between space-y-2.5"
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between gap-1">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[11px] font-bold truncate max-w-[120px]">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-200 text-[11px] font-bold truncate max-w-[120px]">
                           {entry.client?.name || 'Client'}
                         </span>
                         <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${urgency.bg} ${urgency.text} ${urgency.border}`}>
@@ -523,24 +523,24 @@ export default function DashboardPage() {
                         </span>
                       </div>
 
-                      <p className="text-xs font-semibold text-slate-900 line-clamp-2" title={entry.description}>
+                      <p className="text-xs font-semibold text-slate-200 line-clamp-2" title={entry.description}>
                         {entry.description}
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                      <div className="text-[11px] text-slate-500">
-                        <span className="font-medium text-slate-700">📅 {formattedDate}</span>
-                        <span className="mx-1.5 text-slate-300">•</span>
-                        <span className="font-bold text-amber-800">{unapproved} pending</span>
+                    <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                      <div className="text-[11px] text-slate-400">
+                        <span className="font-medium text-slate-300">📅 {formattedDate}</span>
+                        <span className="mx-1.5 text-slate-600">•</span>
+                        <span className="font-bold text-amber-400">{unapproved} pending</span>
                       </div>
 
                       <button
                         type="button"
                         onClick={() => setSelectedApprovalEntry(entry)}
-                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-300 rounded-lg shadow-2xs transition-all cursor-pointer"
+                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-teal-300 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/60 rounded-lg shadow-2xs transition-all cursor-pointer"
                       >
-                        <CheckCheck className="w-3 h-3 text-teal-600" />
+                        <CheckCheck className="w-3 h-3 text-teal-400" />
                         <span>Approve</span>
                       </button>
                     </div>
@@ -554,25 +554,25 @@ export default function DashboardPage() {
         {/* Live Entries & To-Do List (65% / 35% Split) */}
         <div className="flex flex-col lg:flex-row gap-6 items-stretch">
           {/* Today's Work Activity (65%) */}
-          <div className="w-full lg:w-[65%] bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="w-full lg:w-[65%] bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm space-y-4 flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center space-x-2">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h2 className="text-base font-bold text-slate-900">Today's Work Log</h2>
+                    <h2 className="text-base font-bold text-slate-100">Today's Work Log</h2>
                     {todayEntries.filter(e => Boolean(e.timer_started_at)).length > 0 && (
-                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
                         <span>{todayEntries.filter(e => Boolean(e.timer_started_at)).length} live</span>
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500">Deliverables created and approved today</p>
+                  <p className="text-xs text-slate-400">Deliverables created and approved today</p>
                 </div>
               </div>
               <Link
                 href="/work"
-                className="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center space-x-1"
+                className="text-xs font-bold text-sky-400 hover:text-sky-300 flex items-center space-x-1"
               >
                 <span>View Full Daily Log</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -581,12 +581,12 @@ export default function DashboardPage() {
 
             {loading ? (
               <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                <div className="animate-spin w-5 h-5 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
+                <div className="animate-spin w-5 h-5 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
                 <p className="mt-2 text-xs text-slate-400">Loading today's activity...</p>
               </div>
             ) : todayEntries.length === 0 ? (
-              <div className="p-8 text-center space-y-3 bg-slate-50/50 rounded-lg border border-slate-100 flex-1 flex flex-col items-center justify-center">
-                <p className="text-xs text-slate-500 font-medium">No work logged yet for today.</p>
+              <div className="p-8 text-center space-y-3 bg-slate-950/50 rounded-lg border border-slate-800/80 flex-1 flex flex-col items-center justify-center">
+                <p className="text-xs text-slate-400 font-medium">No work logged yet for today.</p>
                 <Link
                   href="/work/new"
                   className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-lg"
@@ -610,61 +610,61 @@ export default function DashboardPage() {
                       className={`p-3.5 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-all ${
                         isTimerRunning
                           ? isMyEntry
-                            ? 'bg-amber-50/50 border-amber-300 ring-1 ring-amber-200/80 shadow-2xs'
-                            : 'bg-emerald-50/40 border-emerald-300 shadow-2xs'
-                          : 'bg-slate-50 border-slate-200 hover:border-sky-300'
+                            ? 'bg-amber-950/30 border-amber-600/50 ring-1 ring-amber-500/30 shadow-2xs'
+                            : 'bg-emerald-950/30 border-emerald-600/50 shadow-2xs'
+                          : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
                       }`}
                     >
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {entry.profile && (
-                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200 shadow-2xs">
-                            <User className="w-3 h-3 text-teal-600" />
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-950/70 text-teal-300 border border-teal-800/60 shadow-2xs">
+                            <User className="w-3 h-3 text-teal-400" />
                             <span>By {entry.profile.name}</span>
                           </span>
                         )}
 
                         {isTimerRunning && isMyEntry && (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
                             <span>Timer Active</span>
                           </span>
                         )}
 
-                        <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
+                        <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-sky-950/70 text-sky-300 border border-sky-800/60">
                           {entry.work_type?.name || 'Work'}
                         </span>
 
                         {entry.client && (
-                          <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-200 text-slate-700">
+                          <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
                             {entry.client.name}
                           </span>
                         )}
 
-                        <span className="font-semibold text-slate-900">{entry.description}</span>
+                        <span className="font-semibold text-slate-200">{entry.description}</span>
                       </div>
 
-                      <div className="flex flex-wrap items-center space-x-3 sm:space-x-4 shrink-0 text-slate-700">
+                      <div className="flex flex-wrap items-center space-x-3 sm:space-x-4 shrink-0 text-slate-300">
                         {isInProgressEntry(entry) ? (
                           <div className="flex items-center">
-                            <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
+                            <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
                               <span>⏳ Working</span>
-                              <span className="text-[10px] text-amber-700 font-semibold">(0 qty • Time logged)</span>
+                              <span className="text-[10px] text-amber-400 font-semibold">(0 qty • Time logged)</span>
                             </span>
                           </div>
                         ) : (
                           <>
-                            <span>Qty: <strong>{entry.quantity_done}</strong></span>
-                            <span>Approved: <strong className="text-teal-700">{entry.quantity_approved}</strong></span>
+                            <span>Qty: <strong className="text-slate-100">{entry.quantity_done}</strong></span>
+                            <span>Approved: <strong className="text-teal-400">{entry.quantity_approved}</strong></span>
                             {isMyEntry ? (
                               <button
                                 type="button"
                                 onClick={() => setSelectedApprovalEntry(entry)}
                                 className={`px-2.5 py-0.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 flex items-center space-x-1 ${
                                   entry.quantity_approved === entry.quantity_done
-                                    ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-300'
+                                    ? 'bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border-emerald-800/60'
                                     : entry.quantity_approved > 0
-                                    ? 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-300'
-                                    : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-300'
+                                    ? 'bg-sky-950/70 hover:bg-sky-900/80 text-sky-300 border-sky-800/60'
+                                    : 'bg-amber-950/70 hover:bg-amber-900/80 text-amber-300 border-amber-800/60'
                                 }`}
                                 title="Click to update approved deliverables"
                               >
@@ -681,8 +681,8 @@ export default function DashboardPage() {
                               <span
                                 className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
                                   entry.quantity_approved > 0
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                                    ? 'bg-emerald-950/70 text-emerald-300 border-emerald-800/60'
+                                    : 'bg-amber-950/70 text-amber-300 border-amber-800/60'
                                 }`}
                               >
                                 {entry.quantity_approved > 0 ? `Approved (${entry.quantity_approved})` : 'Not Approved'}
@@ -696,8 +696,8 @@ export default function DashboardPage() {
                           <div className="flex items-center space-x-1.5 shrink-0">
                             {isTimerRunning ? (
                               <div className="flex items-center space-x-1">
-                                <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded font-mono text-[11px] font-bold shadow-2xs">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                                <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-amber-950/80 text-amber-300 border border-amber-700/60 rounded font-mono text-[11px] font-bold shadow-2xs">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
                                   <span>{formatWorkEntryStopwatch(liveSeconds)}</span>
                                 </span>
                                 <button
@@ -724,10 +724,10 @@ export default function DashboardPage() {
                                       }
                                     }
                                   }}
-                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
+                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
                                   title="Float timer outside browser (Picture-in-Picture)"
                                 >
-                                  <ExternalLink className="w-2.5 h-2.5 text-slate-600" />
+                                  <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
                                   <span className="hidden sm:inline">Float PiP</span>
                                 </button>
                               </div>
@@ -736,9 +736,9 @@ export default function DashboardPage() {
                                 {liveSeconds > 0 && (
                                   <span
                                     title={`Time tracked: ${formatWorkEntryDuration(liveSeconds)}`}
-                                    className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded text-[10px] font-mono font-bold"
+                                    className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-800 text-slate-300 border border-slate-700 rounded text-[10px] font-mono font-bold"
                                   >
-                                    <Clock className="w-2.5 h-2.5 text-slate-500" />
+                                    <Clock className="w-2.5 h-2.5 text-slate-400" />
                                     <span>{formatWorkEntryDuration(liveSeconds)}</span>
                                   </span>
                                 )}
@@ -746,10 +746,10 @@ export default function DashboardPage() {
                                   type="button"
                                   onClick={() => handleStartTimer(entry)}
                                   disabled={timerLoadingId === entry.id}
-                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 hover:border-sky-300 rounded text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-sky-950/60 hover:bg-sky-900/80 text-sky-300 border border-sky-800/60 hover:border-sky-600 rounded text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
                                   title="Start timer for this task"
                                 >
-                                  <Play className="w-2.5 h-2.5 fill-sky-600" />
+                                  <Play className="w-2.5 h-2.5 fill-sky-400 text-sky-400" />
                                   <span>Start</span>
                                 </button>
                               </div>
@@ -761,20 +761,20 @@ export default function DashboardPage() {
                             {isTimerRunning ? (
                               <span
                                 title={`${entry.profile?.name || 'Teammate'} is actively working on this right now`}
-                                className="inline-flex items-center space-x-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded font-mono text-[11px] font-bold shadow-2xs"
+                                className="inline-flex items-center space-x-1.5 px-2 py-0.5 bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded font-mono text-[11px] font-bold shadow-2xs"
                               >
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
-                                <Clock className="w-3 h-3 text-emerald-600" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                                <Clock className="w-3 h-3 text-emerald-400" />
                                 <span>{formatWorkEntryStopwatch(liveSeconds)}</span>
-                                <span className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider bg-emerald-100 px-1 py-0.2 rounded">Live</span>
+                                <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider bg-emerald-900/60 px-1 py-0.2 rounded border border-emerald-700/50">Live</span>
                               </span>
                             ) : (
                               liveSeconds > 0 && (
                                 <span
                                   title={`Time spent: ${formatWorkEntryDuration(liveSeconds)}`}
-                                  className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-mono font-medium"
+                                  className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-800 text-slate-400 border border-slate-700 rounded text-[10px] font-mono font-medium"
                                 >
-                                  <Clock className="w-2.5 h-2.5 text-slate-400" />
+                                  <Clock className="w-2.5 h-2.5 text-slate-500" />
                                   <span>{formatWorkEntryDuration(liveSeconds)}</span>
                                 </span>
                               )

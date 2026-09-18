@@ -58,13 +58,13 @@ export function WeeklyBestWorkModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 space-y-6 animate-in zoom-in-95 duration-200 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl shadow-black/80 max-w-lg w-full p-6 space-y-6 animate-in zoom-in-95 duration-200 relative">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           title="Close dialog"
         >
           <X className="w-5 h-5" />
@@ -72,15 +72,15 @@ export function WeeklyBestWorkModal({
 
         {/* Header */}
         <div className="flex items-start space-x-3.5">
-          <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200">
+          <div className="w-11 h-11 rounded-xl bg-amber-950/70 text-amber-400 flex items-center justify-center shrink-0 border border-amber-800/60">
             <Award className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-extrabold text-slate-900 leading-tight">
+            <h3 className="text-lg font-extrabold text-slate-100 leading-tight">
               Featured Best Work
             </h3>
-            <p className="text-xs font-semibold text-slate-500 mt-0.5">
-              Designer: <strong className="text-slate-800">{designerName}</strong> • Week of {weekStartDate}
+            <p className="text-xs font-semibold text-slate-400 mt-0.5">
+              Designer: <strong className="text-slate-200">{designerName}</strong> • Week of {weekStartDate}
             </p>
           </div>
         </div>
@@ -88,11 +88,11 @@ export function WeeklyBestWorkModal({
         {/* Form */}
         <form onSubmit={handleSave} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700">
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-300">
               Best Work URL (Featured for Meeting)
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                 <Link2 className="w-4 h-4" />
               </div>
               <input
@@ -101,7 +101,7 @@ export function WeeklyBestWorkModal({
                 placeholder="https://figma.com/file/... or https://behance.net/..."
                 value={url}
                 onChange={e => setUrl(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all"
+                className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-400 transition-all placeholder:text-slate-500"
               />
             </div>
             <p className="text-[11px] text-slate-500 italic">
@@ -110,16 +110,16 @@ export function WeeklyBestWorkModal({
           </div>
 
           {currentUrl && (
-            <div className="p-3 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-between">
+            <div className="p-3 rounded-xl bg-sky-950/60 border border-sky-800/60 flex items-center justify-between">
               <div className="flex items-center space-x-2 truncate mr-2">
-                <ExternalLink className="w-4 h-4 text-sky-600 shrink-0" />
-                <span className="text-xs font-bold text-sky-900 truncate">{currentUrl}</span>
+                <ExternalLink className="w-4 h-4 text-sky-400 shrink-0" />
+                <span className="text-xs font-bold text-sky-300 truncate">{currentUrl}</span>
               </div>
               <a
                 href={currentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-2.5 py-1 text-[11px] font-extrabold text-sky-700 hover:text-sky-900 bg-white rounded-lg border border-sky-300 shrink-0 transition-colors"
+                className="px-2.5 py-1 text-[11px] font-extrabold text-sky-300 hover:text-white bg-slate-900 rounded-lg border border-sky-700 shrink-0 transition-colors"
               >
                 Test Link ↗
               </a>
@@ -127,14 +127,14 @@ export function WeeklyBestWorkModal({
           )}
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-between pt-3 border-t border-slate-800">
             <div>
               {currentUrl ? (
                 <button
                   type="button"
                   onClick={handleDelete}
                   disabled={deleting || saving}
-                  className="px-3.5 py-2 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer"
+                  className="px-3.5 py-2 text-xs font-bold text-red-400 hover:text-red-300 bg-red-950/50 hover:bg-red-900/50 border border-red-800/60 rounded-xl transition-colors disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>{deleting ? 'Removing...' : 'Remove Link'}</span>
@@ -143,7 +143,7 @@ export function WeeklyBestWorkModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -155,7 +155,7 @@ export function WeeklyBestWorkModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>

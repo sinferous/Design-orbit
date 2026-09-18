@@ -56,19 +56,19 @@ export default function EditWorkEntryPage({ params }: EditWorkEntryPageProps) {
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Edit Work Entry</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-100">Edit Work Entry</h1>
+          <p className="text-sm text-slate-400 mt-1">
             Update descriptions, quantities, links, or notes for this work item.
           </p>
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-3 text-xs text-slate-500 font-medium">Loading entry details...</p>
+          <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
+            <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
+            <p className="mt-3 text-xs text-slate-400 font-medium">Loading entry details...</p>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-red-600 font-medium">
+          <div className="bg-slate-900 rounded-xl border border-red-900/50 p-8 text-center text-red-400 font-medium">
             {error}
           </div>
         ) : (

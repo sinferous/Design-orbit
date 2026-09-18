@@ -111,27 +111,27 @@ export default function TeamPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 flex items-center space-x-1">
-                <Sparkles className="w-3 h-3 text-sky-600" />
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-950/70 text-sky-300 border border-sky-800/60 flex items-center space-x-1">
+                <Sparkles className="w-3 h-3 text-sky-400" />
                 <span>Webtree Creative Department</span>
               </span>
-              <span className="text-xs text-slate-400">•</span>
-              <span className="text-xs font-semibold text-slate-500">{profiles.length} Active Designers</span>
+              <span className="text-xs text-slate-600">•</span>
+              <span className="text-xs font-semibold text-slate-400">{profiles.length} Active Designers</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mt-1">
+            <h1 className="text-2xl font-bold text-slate-100 mt-1">
               Creative Team Directory
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-400 mt-0.5">
               Graphic Designers, UI/UX Specialists, and Design Leads reporting daily work.
             </p>
           </div>
 
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="inline-flex items-center space-x-2 px-4 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-sm"
+            className="inline-flex items-center space-x-2 px-4 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-sm cursor-pointer"
           >
             {showAddForm ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
             <span>{showAddForm ? 'Close Form' : 'Add Team Member'}</span>
@@ -140,10 +140,10 @@ export default function TeamPage() {
 
         {/* Add Team Member Card Form */}
         {showAddForm && (
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-                <UserPlus className="w-5 h-5 text-sky-600" />
+          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h2 className="text-base font-bold text-slate-100 flex items-center space-x-2">
+                <UserPlus className="w-5 h-5 text-sky-400" />
                 <span>New Creative Team Profile</span>
               </h2>
             </div>
@@ -151,7 +151,7 @@ export default function TeamPage() {
             <form onSubmit={handleAddMember} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                     Full Name *
                   </label>
                   <input
@@ -160,12 +160,12 @@ export default function TeamPage() {
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Alex Rivera"
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                    className="w-full px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-slate-950"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                     Work Email *
                   </label>
                   <input
@@ -174,12 +174,12 @@ export default function TeamPage() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="name@webtreeonline.com"
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                    className="w-full px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-slate-950"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                     Designation
                   </label>
                   <RichSelect
@@ -200,7 +200,7 @@ export default function TeamPage() {
 
               {designation === 'Other' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                     Specify Custom Designation
                   </label>
                   <input
@@ -209,7 +209,7 @@ export default function TeamPage() {
                     value={customDesignation}
                     onChange={e => setCustomDesignation(e.target.value)}
                     placeholder="e.g. 3D Animator / Motion Designer"
-                    className="w-full md:w-1/3 px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full md:w-1/3 px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               )}
@@ -218,14 +218,14 @@ export default function TeamPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddForm(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg"
+                  className="px-4 py-2 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={adding}
-                  className="inline-flex items-center space-x-2 px-5 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50"
+                  className="inline-flex items-center space-x-2 px-5 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>{adding ? 'Creating...' : 'Save Profile'}</span>
@@ -238,8 +238,8 @@ export default function TeamPage() {
         {/* Team Grid */}
         {loading ? (
           <div className="p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-3 text-xs text-slate-500 font-semibold">Loading team profiles...</p>
+            <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
+            <p className="mt-3 text-xs text-slate-400 font-semibold">Loading team profiles...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -249,7 +249,7 @@ export default function TeamPage() {
               return (
                 <div
                   key={profile.id}
-                  className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 hover:border-sky-300 transition-all group"
+                  className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col justify-between space-y-4 hover:border-slate-700 transition-all group"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
@@ -257,10 +257,10 @@ export default function TeamPage() {
                         {profile.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="text-base font-extrabold text-slate-900 group-hover:text-sky-600 transition-colors">
+                        <h3 className="text-base font-extrabold text-slate-100 group-hover:text-sky-400 transition-colors">
                           {profile.name}
                         </h3>
-                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 mt-0.5">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700 mt-0.5">
                           {profile.designation || 'Graphic Designer'}
                         </span>
                       </div>
@@ -269,7 +269,7 @@ export default function TeamPage() {
                     <button
                       onClick={() => handleDeleteMember(profile.id, profile.name)}
                       disabled={deletingId === profile.id}
-                      className="p-1.5 text-slate-300 hover:text-red-600 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+                      className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
                       title={`Remove "${profile.name}"`}
                     >
                       <Trash2 className="w-4.5 h-4.5" />
@@ -278,26 +278,26 @@ export default function TeamPage() {
 
                   {/* Monthly Output & Activity Strip (GitHub-Style) */}
                   {designerActivity && (
-                    <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-100 space-y-2">
+                    <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                        <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
                           {teamActivity?.monthName} Activity
                         </span>
-                        <span className="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        <span className="text-[11px] font-extrabold text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-800/60">
                           {designerActivity.activeDaysCount} Active Days
                         </span>
                       </div>
 
                       <MiniActivityHeatStrip daysList={designerActivity.daysList} />
 
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
-                        <span className="text-slate-500 font-medium">
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-800 text-[11px]">
+                        <span className="text-slate-400 font-medium">
                           {designerActivity.totalTasks} deliverables logged
                         </span>
                         <button
                           type="button"
                           onClick={() => setSelectedModalUserId(profile.id)}
-                          className="text-sky-600 hover:text-sky-800 font-bold inline-flex items-center space-x-1 cursor-pointer"
+                          className="text-sky-400 hover:text-sky-300 font-bold inline-flex items-center space-x-1 cursor-pointer"
                         >
                           <span>Calendar Heatmap</span>
                           <span>→</span>
@@ -306,10 +306,10 @@ export default function TeamPage() {
                     </div>
                   )}
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
                     <div className="flex items-center space-x-1.5">
-                      <Mail className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="font-medium text-slate-600">{profile.email || `${profile.name.toLowerCase().replace(/\s+/g, '')}@webtreeonline.com`}</span>
+                      <Mail className="w-3.5 h-3.5 text-slate-500" />
+                      <span className="font-medium text-slate-300">{profile.email || `${profile.name.toLowerCase().replace(/\s+/g, '')}@webtreeonline.com`}</span>
                     </div>
 
                     <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-xs" title="Active Account" />

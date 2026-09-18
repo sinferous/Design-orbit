@@ -109,30 +109,30 @@ export default function MonthlyReportPage() {
       <Navbar userName="Gajesh" />
 
       {/* Sub-Navigation for Reports */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-slate-900 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex space-x-4 sm:space-x-6 min-w-max">
             <Link
               href="/reports/weekly"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
             >
               Weekly Meeting Report
             </Link>
             <Link
               href="/reports/monthly"
-              className="py-3 text-xs sm:text-sm font-bold text-sky-600 border-b-2 border-sky-600 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-bold text-sky-400 border-b-2 border-sky-400 whitespace-nowrap"
             >
               Monthly Summary
             </Link>
             <Link
               href="/reports/overall"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
             >
               Overall / All-Time
             </Link>
             <Link
               href="/reports/billing"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
             >
               Client Time Tracking
             </Link>
@@ -140,9 +140,9 @@ export default function MonthlyReportPage() {
 
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
           >
-            <Download className="w-4 h-4 text-slate-500" />
+            <Download className="w-4 h-4 text-slate-400" />
             <span className="hidden sm:inline">Export CSV</span>
             <span className="sm:hidden">CSV</span>
           </button>
@@ -153,17 +153,17 @@ export default function MonthlyReportPage() {
         {/* Header & Controls */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Monthly Performance Report</h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-100">Monthly Performance Report</h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
               Aggregated monthly totals and work type distribution calculated from daily entries.
             </p>
           </div>
         </div>
 
         {/* Month / Year & Filters Bar */}
-        <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="bg-slate-900 p-3.5 sm:p-4 rounded-xl border border-slate-800 shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
               Month
             </label>
             <RichSelect
@@ -175,7 +175,7 @@ export default function MonthlyReportPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
               Year
             </label>
             <RichSelect
@@ -189,7 +189,7 @@ export default function MonthlyReportPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
               Team Member
             </label>
             <RichSelect
@@ -208,7 +208,7 @@ export default function MonthlyReportPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
               Work Type
             </label>
             <RichSelect
@@ -224,7 +224,7 @@ export default function MonthlyReportPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
               Client
             </label>
             <RichSelect
@@ -243,60 +243,60 @@ export default function MonthlyReportPage() {
 
         {/* Monthly Summary Statistics - 2x2 Grid on Mobile */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
               {months.find(m => m.value === selectedMonth)?.name} Created
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">{reportData.totalDoneAll}</div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Items this month</p>
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-100">{reportData.totalDoneAll}</div>
+            <p className="text-[11px] sm:text-xs text-slate-400 truncate">Items this month</p>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
               {months.find(m => m.value === selectedMonth)?.name} Approved
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-teal-700">{reportData.totalApprovedAll}</div>
-            <p className="text-[11px] sm:text-xs text-emerald-600 font-medium truncate">{reportData.overallApprovalRate}% approved</p>
+            <div className="text-2xl sm:text-3xl font-extrabold text-teal-400">{reportData.totalApprovedAll}</div>
+            <p className="text-[11px] sm:text-xs text-emerald-400 font-medium truncate">{reportData.overallApprovalRate}% approved</p>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Time Logged</div>
-            <div className="text-xl sm:text-3xl font-extrabold text-amber-700 flex items-center space-x-1 sm:space-x-1.5">
-              <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Time Logged</div>
+            <div className="text-xl sm:text-3xl font-extrabold text-amber-400 flex items-center space-x-1 sm:space-x-1.5">
+              <Clock className="w-5 h-5 text-amber-400 shrink-0" />
               <span className="truncate">{formatReportTime(reportData.totalTimeSecondsAll || 0)}</span>
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">
+            <p className="text-[11px] sm:text-xs text-slate-400 truncate">
               {((reportData.totalTimeSecondsAll || 0) / 3600).toFixed(1)} decimal hrs
             </p>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Active Categories</div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-sky-700">
+          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
+            <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Active Categories</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-sky-400">
               {reportData.summaries.filter(s => s.totalDone > 0).length} / {reportData.summaries.length}
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Work types active</p>
+            <p className="text-[11px] sm:text-xs text-slate-400 truncate">Work types active</p>
           </div>
         </div>
 
         {/* Breakdown Table */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900">Work Type Breakdown Table</h2>
-            <span className="text-xs text-slate-500">
+        <div className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm overflow-hidden">
+          <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+            <h2 className="text-base font-bold text-slate-100">Work Type Breakdown Table</h2>
+            <span className="text-xs text-slate-400">
               {months.find(m => m.value === selectedMonth)?.name} {selectedYear}
             </span>
           </div>
 
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin w-6 h-6 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-3 text-xs text-slate-500 font-medium">Loading monthly report...</p>
+              <div className="animate-spin w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full mx-auto" />
+              <p className="mt-3 text-xs text-slate-400 font-medium">Loading monthly report...</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-slate-700">
-                <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+              <table className="w-full text-left text-sm text-slate-300">
+                <thead className="bg-slate-950/80 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
                   <tr>
                     <th className="px-6 py-3.5">Work Type</th>
                     <th className="px-6 py-3.5 text-right">Created Quantity</th>
@@ -305,24 +305,24 @@ export default function MonthlyReportPage() {
                     <th className="px-6 py-3.5 text-right">Time Spent</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 bg-white">
+                <tbody className="divide-y divide-slate-800 bg-slate-900">
                   {reportData.summaries.map(s => (
-                    <tr key={s.workType.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 font-bold text-slate-900">{s.workType.name}</td>
-                      <td className="px-6 py-4 text-right font-extrabold text-slate-900">{s.totalDone}</td>
-                      <td className="px-6 py-4 text-right font-extrabold text-teal-700">{s.totalApproved}</td>
-                      <td className="px-6 py-4 text-right font-bold text-sky-700">{s.approvalRate}%</td>
-                      <td className="px-6 py-4 text-right font-mono font-bold text-amber-800">
+                    <tr key={s.workType.id} className="hover:bg-slate-800/60 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-200">{s.workType.name}</td>
+                      <td className="px-6 py-4 text-right font-extrabold text-slate-100">{s.totalDone}</td>
+                      <td className="px-6 py-4 text-right font-extrabold text-teal-400">{s.totalApproved}</td>
+                      <td className="px-6 py-4 text-right font-bold text-sky-400">{s.approvalRate}%</td>
+                      <td className="px-6 py-4 text-right font-mono font-bold text-amber-400">
                         {formatReportTime(s.totalTimeSeconds || 0)}
                       </td>
                     </tr>
                   ))}
-                  <tr className="bg-slate-100 font-extrabold text-slate-900">
+                  <tr className="bg-slate-950/90 font-extrabold text-slate-100 border-t-2 border-slate-700">
                     <td className="px-6 py-4 uppercase">Total</td>
-                    <td className="px-6 py-4 text-right text-slate-900">{reportData.totalDoneAll}</td>
-                    <td className="px-6 py-4 text-right text-teal-700">{reportData.totalApprovedAll}</td>
-                    <td className="px-6 py-4 text-right text-sky-700">{reportData.overallApprovalRate}%</td>
-                    <td className="px-6 py-4 text-right font-mono font-bold text-amber-800">
+                    <td className="px-6 py-4 text-right text-slate-100">{reportData.totalDoneAll}</td>
+                    <td className="px-6 py-4 text-right text-teal-400">{reportData.totalApprovedAll}</td>
+                    <td className="px-6 py-4 text-right text-sky-400">{reportData.overallApprovalRate}%</td>
+                    <td className="px-6 py-4 text-right font-mono font-bold text-amber-400">
                       {formatReportTime(reportData.totalTimeSecondsAll || 0)}
                     </td>
                   </tr>

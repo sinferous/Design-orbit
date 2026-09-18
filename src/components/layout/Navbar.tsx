@@ -47,20 +47,20 @@ export function Navbar({ userName }: NavbarProps) {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
+    <header className="sticky top-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md border-b border-slate-800/80 shadow-sm">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
           <div className="flex items-center space-x-4 md:space-x-8">
             <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center space-x-2.5 sm:space-x-3.5 group">
               <img
-                src="/logo/webtree-logo.svg"
+                src="/logo/webtree-logo-white.svg"
                 alt="Webtree Logo"
                 className="h-6 sm:h-7 w-auto object-contain group-hover:opacity-90 transition-opacity"
               />
-              <div className="h-4 sm:h-5 w-px bg-slate-300" />
-              <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight flex items-baseline">
-                Design <span className="font-display font-extrabold text-base sm:text-lg ml-1.5 inline-block bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent tracking-tight">Orbit</span>
+              <div className="h-4 sm:h-5 w-px bg-slate-700" />
+              <span className="font-extrabold text-slate-100 text-base sm:text-lg tracking-tight flex items-baseline">
+                Design <span className="font-display font-extrabold text-base sm:text-lg ml-1.5 inline-block bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent tracking-tight">Orbit</span>
               </span>
             </Link>
 
@@ -78,11 +78,11 @@ export function Navbar({ userName }: NavbarProps) {
                     className={cn(
                       'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                       isActive
-                        ? 'bg-sky-50 text-sky-700 font-semibold'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        ? 'bg-sky-950/60 text-sky-300 font-semibold border border-sky-800/40'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
                     )}
                   >
-                    <Icon className={cn('w-4 h-4', isActive ? 'text-sky-600' : 'text-slate-400')} />
+                    <Icon className={cn('w-4 h-4', isActive ? 'text-sky-400' : 'text-slate-400')} />
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -103,7 +103,7 @@ export function Navbar({ userName }: NavbarProps) {
               </Link>
             )}
 
-            <div className="hidden sm:block h-6 w-px bg-slate-200" />
+            <div className="hidden sm:block h-6 w-px bg-slate-800" />
 
             <div className="hidden sm:flex items-center space-x-3">
               <Link
@@ -111,10 +111,10 @@ export function Navbar({ userName }: NavbarProps) {
                 title="Account Settings & Password"
                 className="flex items-center space-x-2 group/user"
               >
-                <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-700 group-hover/user:border-sky-300">
+                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-200 group-hover/user:border-sky-500">
                   {currentUser.charAt(0).toUpperCase()}
                 </div>
-                <span className="text-sm font-bold text-slate-700 group-hover/user:text-sky-600">
+                <span className="text-sm font-bold text-slate-200 group-hover/user:text-sky-400">
                   {currentUser}
                 </span>
               </Link>
@@ -122,7 +122,7 @@ export function Navbar({ userName }: NavbarProps) {
               <Link
                 href="/settings"
                 title="Change Password"
-                className="text-slate-400 hover:text-sky-600 p-1 rounded-md transition-colors"
+                className="text-slate-400 hover:text-sky-400 p-1 rounded-md transition-colors"
               >
                 <KeyRound className="w-4 h-4" />
               </Link>
@@ -131,7 +131,7 @@ export function Navbar({ userName }: NavbarProps) {
                 type="button"
                 onClick={handleLogout}
                 title="Sign out"
-                className="text-slate-400 hover:text-red-600 p-1 rounded-md transition-colors cursor-pointer"
+                className="text-slate-400 hover:text-red-400 p-1 rounded-md transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -141,35 +141,35 @@ export function Navbar({ userName }: NavbarProps) {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+              className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors"
               aria-label="Toggle navigation menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-slate-800" /> : <Menu className="w-6 h-6 text-slate-800" />}
+              {mobileMenuOpen ? <X className="w-6 h-6 text-slate-200" /> : <Menu className="w-6 h-6 text-slate-200" />}
             </button>
           </div>
         </div>
 
         {/* Collapsible Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 py-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150">
-            <div className="px-3 py-2 mb-2 bg-slate-50 rounded-lg flex items-center justify-between border border-slate-200">
+          <div className="md:hidden border-t border-slate-800 py-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="px-3 py-2 mb-2 bg-slate-900 rounded-lg flex items-center justify-between border border-slate-800">
               <div className="flex items-center space-x-2">
-                <div className="w-7 h-7 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center text-xs font-bold text-sky-700">
+                <div className="w-7 h-7 rounded-full bg-sky-950 border border-sky-800 flex items-center justify-center text-xs font-bold text-sky-400">
                   {currentUser.charAt(0).toUpperCase()}
                 </div>
-                <span className="text-xs font-bold text-slate-800">{currentUser}</span>
+                <span className="text-xs font-bold text-slate-200">{currentUser}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Link
                   href="/settings"
-                  className="text-xs font-semibold text-sky-600 hover:underline px-2 py-1 bg-white rounded border border-slate-200"
+                  className="text-xs font-semibold text-sky-400 hover:underline px-2.5 py-1 bg-slate-800 rounded border border-slate-700"
                 >
                   Settings
                 </Link>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-xs font-semibold text-red-600 hover:underline px-2 py-1 bg-white rounded border border-slate-200 cursor-pointer"
+                  className="text-xs font-semibold text-red-400 hover:underline px-2.5 py-1 bg-slate-800 rounded border border-slate-700 cursor-pointer"
                 >
                   Logout
                 </button>
@@ -188,11 +188,11 @@ export function Navbar({ userName }: NavbarProps) {
                   className={cn(
                     'flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors',
                     isActive
-                      ? 'bg-sky-50 text-sky-700 border border-sky-200'
-                      : 'text-slate-700 hover:bg-slate-100'
+                      ? 'bg-sky-950/60 text-sky-300 border border-sky-800/40'
+                      : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
                   )}
                 >
-                  <Icon className={cn('w-5 h-5', isActive ? 'text-sky-600' : 'text-slate-500')} />
+                  <Icon className={cn('w-5 h-5', isActive ? 'text-sky-400' : 'text-slate-400')} />
                   <span>{item.label}</span>
                 </Link>
               );

@@ -153,10 +153,10 @@ export default function AdminDashboardPage() {
   // If unauthorized or checking credentials, prevent any dashboard rendering
   if (isAuthorized !== true) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center space-y-3 p-8 bg-white rounded-2xl border border-slate-200 shadow-sm max-w-sm mx-auto">
-          <div className="w-10 h-10 border-3 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-bold text-slate-800">Verifying Administrator Authorization...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#090d16]">
+        <div className="text-center space-y-3 p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-sm max-w-sm mx-auto">
+          <div className="w-10 h-10 border-3 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm font-bold text-slate-100">Verifying Administrator Authorization...</p>
           <p className="text-xs text-slate-400">Restricted executive area. Validating access credentials.</p>
         </div>
       </div>
@@ -180,27 +180,27 @@ export default function AdminDashboardPage() {
     : 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Executive Header Banner */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-950/70 text-sky-300 border border-sky-800/60 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
                 <span>Executive Admin Dashboard</span>
               </span>
-              <span className="text-xs text-slate-300">•</span>
-              <span className="text-xs font-semibold text-slate-500">
+              <span className="text-xs text-slate-600">•</span>
+              <span className="text-xs font-semibold text-slate-400">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-100 mt-2">
               Agency Operations & Deliverables Overview
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-slate-400 mt-1">
               Live oversight of agency creative production, active team workload, and client deliverable velocity.
             </p>
           </div>
@@ -209,10 +209,10 @@ export default function AdminDashboardPage() {
             <button
               onClick={() => loadData(true)}
               disabled={refreshing}
-              className="inline-flex items-center space-x-2 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center space-x-2 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
               title="Refresh agency metrics"
             >
-              <RefreshCw className={`w-4 h-4 text-slate-500 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-slate-400 ${refreshing ? 'animate-spin' : ''}`} />
               <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
           </div>
@@ -221,103 +221,103 @@ export default function AdminDashboardPage() {
         {/* Top 4 KPI Metrics - 4 Small Compact Cards (2x2 on Mobile, 4-col on Desktop) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
           {/* Card 1: Today's Team Output */}
-          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500">
+          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Today Output</span>
-              <span className="p-1.5 rounded-lg bg-sky-50 text-sky-600 shrink-0">
+              <span className="p-1.5 rounded-lg bg-sky-950/70 text-sky-400 border border-sky-800/60 shrink-0">
                 <Sparkles className="w-3.5 h-3.5" />
               </span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{todayCreated}</span>
-              <span className="text-[10px] sm:text-xs font-bold text-teal-700 truncate">({todayApproved} app.)</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{todayCreated}</span>
+              <span className="text-[10px] sm:text-xs font-bold text-teal-400 truncate">({todayApproved} app.)</span>
             </div>
-            <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs">
-              <span className="text-slate-400">Active</span>
-              <span className="font-bold text-sky-700">
+            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
+              <span className="text-slate-500">Active</span>
+              <span className="font-bold text-sky-400">
                 {activeTodayDesignerIds.size} designers
               </span>
             </div>
           </div>
 
           {/* Card 2: Weekly Production */}
-          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500">
+          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Weekly Output</span>
-              <span className="p-1.5 rounded-lg bg-teal-50 text-teal-600 shrink-0">
+              <span className="p-1.5 rounded-lg bg-teal-950/70 text-teal-400 border border-teal-800/60 shrink-0">
                 <TrendingUp className="w-3.5 h-3.5" />
               </span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{weekSummary.totalCreated}</span>
-              <span className="text-[10px] sm:text-xs font-bold text-teal-700 truncate">({weekSummary.totalApproved} app.)</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{weekSummary.totalCreated}</span>
+              <span className="text-[10px] sm:text-xs font-bold text-teal-400 truncate">({weekSummary.totalApproved} app.)</span>
             </div>
-            <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs">
-              <span className="text-slate-400">Approval</span>
-              <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
+              <span className="text-slate-500">Approval</span>
+              <span className="font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-800/60 px-1.5 py-0.5 rounded">
                 {weeklyApprovalRate}%
               </span>
             </div>
           </div>
 
           {/* Card 3: Total Deliverable Time */}
-          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500">
+          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Logged Time</span>
-              <span className="p-1.5 rounded-lg bg-amber-50 text-amber-600 shrink-0">
+              <span className="p-1.5 rounded-lg bg-amber-950/70 text-amber-400 border border-amber-800/60 shrink-0">
                 <Clock className="w-3.5 h-3.5" />
               </span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
-              <span className="text-xl sm:text-2xl font-extrabold text-amber-800 font-mono leading-none">
+              <span className="text-xl sm:text-2xl font-extrabold text-amber-400 font-mono leading-none">
                 {formatWorkEntryDuration(todaySeconds)}
               </span>
-              <span className="text-[10px] sm:text-xs text-slate-400 truncate">today</span>
+              <span className="text-[10px] sm:text-xs text-slate-500 truncate">today</span>
             </div>
-            <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs">
-              <span className="text-slate-400">Week</span>
-              <span className="font-bold text-slate-700 truncate">
+            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
+              <span className="text-slate-500">Week</span>
+              <span className="font-bold text-slate-300 truncate">
                 {formatWorkEntryDuration(weekSummary.totalSeconds)}
               </span>
             </div>
           </div>
 
           {/* Card 4: Active Clients */}
-          <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500">
+          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Active Clients</span>
-              <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 shrink-0">
+              <span className="p-1.5 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/60 shrink-0">
                 <Building2 className="w-3.5 h-3.5" />
               </span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">{weekSummary.activeClients}</span>
-              <span className="text-[10px] sm:text-xs text-slate-400 truncate">brands</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{weekSummary.activeClients}</span>
+              <span className="text-[10px] sm:text-xs text-slate-500 truncate">brands</span>
             </div>
-            <div className="pt-1.5 mt-1 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs">
-              <Link href="/clients" className="text-sky-600 hover:text-sky-800 font-bold inline-flex items-center space-x-0.5">
+            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
+              <Link href="/clients" className="text-sky-400 hover:text-sky-300 font-bold inline-flex items-center space-x-0.5">
                 <span>Directory</span>
                 <ArrowUpRight className="w-3 h-3" />
               </Link>
-              <span className="text-slate-400">This week</span>
+              <span className="text-slate-500">This week</span>
             </div>
           </div>
         </div>
 
         {/* Live Team Workload Status Bar */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Users className="w-5 h-5 text-sky-600" />
-              <h2 className="text-lg font-bold text-slate-900">Creative Team Workload & Live Status</h2>
+              <Users className="w-5 h-5 text-sky-400" />
+              <h2 className="text-lg font-bold text-slate-100">Creative Team Workload & Live Status</h2>
             </div>
             <div className="flex items-center space-x-3 text-xs">
-              <span className="flex items-center space-x-1.5 text-emerald-700 font-bold">
+              <span className="flex items-center space-x-1.5 text-emerald-400 font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>{activeNowDesignerIds.size} live working now</span>
               </span>
-              <span className="text-slate-300">•</span>
-              <span className="text-slate-500">{profiles.length} total team designers</span>
+              <span className="text-slate-600">•</span>
+              <span className="text-slate-400">{profiles.length} total team designers</span>
             </div>
           </div>
 
@@ -334,10 +334,10 @@ export default function AdminDashboardPage() {
                   key={p.id}
                   className={`p-3.5 rounded-xl border transition-all ${
                     isWorkingNow
-                      ? 'bg-emerald-50/50 border-emerald-300 shadow-xs ring-1 ring-emerald-400/30'
+                      ? 'bg-emerald-950/30 border-emerald-600/50 shadow-xs ring-1 ring-emerald-500/30'
                       : hasLoggedToday
-                      ? 'bg-slate-50/80 border-slate-200 hover:border-slate-300'
-                      : 'bg-white border-slate-200/80 opacity-75'
+                      ? 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                      : 'bg-slate-950/40 border-slate-800/60 opacity-60'
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -346,52 +346,52 @@ export default function AdminDashboardPage() {
                         isWorkingNow
                           ? 'bg-emerald-600 text-white shadow-2xs'
                           : hasLoggedToday
-                          ? 'bg-sky-100 text-sky-800'
-                          : 'bg-slate-100 text-slate-600'
+                          ? 'bg-sky-950/80 text-sky-300 border border-sky-800/50'
+                          : 'bg-slate-800 text-slate-400'
                       }`}>
                         {p.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-slate-900 leading-tight">{p.name}</h3>
-                        <p className="text-[11px] text-slate-500 leading-tight">{p.designation || 'Designer'}</p>
+                        <h3 className="text-sm font-bold text-slate-100 leading-tight">{p.name}</h3>
+                        <p className="text-[11px] text-slate-400 leading-tight">{p.designation || 'Designer'}</p>
                       </div>
                     </div>
 
                     {isWorkingNow ? (
-                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         <span>LIVE</span>
                       </span>
                     ) : hasLoggedToday ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-950/70 text-sky-300 border border-sky-800/60">
                         Active
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-400 border border-slate-700">
                         Idle
                       </span>
                     )}
                   </div>
 
                   {/* Active Task or Daily Stats */}
-                  <div className="mt-3 pt-2.5 border-t border-slate-200/60 text-xs">
+                  <div className="mt-3 pt-2.5 border-t border-slate-800 text-xs">
                     {isWorkingNow && activeTask ? (
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between text-emerald-900 font-medium">
+                        <div className="flex items-center justify-between text-emerald-300 font-medium">
                           <span className="truncate max-w-[140px]">{activeTask.client?.name || 'Task'}</span>
                           <span className="font-mono font-bold">
                             {formatWorkEntryStopwatch(calculateWorkEntrySeconds(activeTask, nowMs))}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-600 truncate">{activeTask.description}</p>
+                        <p className="text-[11px] text-slate-400 truncate">{activeTask.description}</p>
                       </div>
                     ) : hasLoggedToday ? (
-                      <div className="flex items-center justify-between text-slate-600 text-[11px]">
-                        <span>Today: <strong>{designerTodayCount} done</strong></span>
-                        <span className="text-teal-700 font-bold">{designerApprovedCount} approved</span>
+                      <div className="flex items-center justify-between text-slate-300 text-[11px]">
+                        <span>Today: <strong className="text-slate-100">{designerTodayCount} done</strong></span>
+                        <span className="text-teal-400 font-bold">{designerApprovedCount} approved</span>
                       </div>
                     ) : (
-                      <p className="text-[11px] text-slate-400 italic">No tasks logged yet today</p>
+                      <p className="text-[11px] text-slate-500 italic">No tasks logged yet today</p>
                     )}
                   </div>
                 </div>
@@ -424,22 +424,22 @@ export default function AdminDashboardPage() {
           });
 
           return (
-            <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-300/80 rounded-2xl p-6 shadow-sm space-y-4">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-200/60 pb-4">
+            <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/30 rounded-2xl p-6 shadow-sm space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-500/20 pb-4">
                 <div className="flex items-center space-x-3.5">
-                  <div className="p-3 rounded-xl bg-amber-500 text-white shadow-sm ring-4 ring-amber-100">
+                  <div className="p-3 rounded-xl bg-amber-500 text-slate-950 shadow-sm ring-4 ring-amber-950/50">
                     <Hourglass className="w-6 h-6" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2.5">
-                      <h2 className="text-lg font-bold text-slate-900">
+                      <h2 className="text-lg font-bold text-slate-100">
                         Agency Pending Client Approvals Queue
                       </h2>
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-950 border border-amber-300">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-900/60 text-amber-300 border border-amber-700/60">
                         {totalUnapproved} deliverables ({agencyPendingEntries.length} tasks)
                       </span>
                     </div>
-                    <p className="text-xs text-slate-600 mt-0.5">
+                    <p className="text-xs text-slate-300 mt-0.5">
                       Deliverables awaiting client sign-off across {uniqueClients} {uniqueClients === 1 ? 'client' : 'clients'}. When client confirms, approve in 1-click without searching historical dates.
                     </p>
                   </div>
@@ -448,7 +448,7 @@ export default function AdminDashboardPage() {
                 <div className="flex items-center space-x-2 shrink-0">
                   <Link
                     href="/work?view=pending"
-                    className="inline-flex items-center space-x-2 px-4 py-2 text-xs font-bold text-amber-950 bg-amber-200 hover:bg-amber-300 border border-amber-300 rounded-xl transition-all shadow-2xs"
+                    className="inline-flex items-center space-x-2 px-4 py-2 text-xs font-bold text-amber-300 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-700/60 rounded-xl transition-all shadow-2xs"
                   >
                     <span>Open Full Agency Queue</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -458,16 +458,16 @@ export default function AdminDashboardPage() {
 
               {/* Urgency Status Indicators */}
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-slate-500 font-medium">Breakdown:</span>
-                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-[11px]">
+                <span className="text-slate-400 font-medium">Breakdown:</span>
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 font-semibold text-[11px]">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   <span>Fresh (≤4d): {freshCount}</span>
                 </span>
-                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-semibold text-[11px]">
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60 font-semibold text-[11px]">
                   <span className="w-2 h-2 rounded-full bg-amber-500" />
                   <span>Follow-up (5-7d): {followupCount}</span>
                 </span>
-                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 font-semibold text-[11px]">
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60 font-semibold text-[11px]">
                   <span className="w-2 h-2 rounded-full bg-rose-500" />
                   <span>Overdue (&gt;7d): {overdueCount}</span>
                 </span>
@@ -487,11 +487,11 @@ export default function AdminDashboardPage() {
                   return (
                     <div
                       key={entry.id}
-                      className="bg-white/95 backdrop-blur-xs p-3.5 rounded-xl border border-amber-200/80 hover:border-amber-400 shadow-2xs transition-all flex flex-col justify-between space-y-2.5"
+                      className="bg-slate-900/90 backdrop-blur-xs p-3.5 rounded-xl border border-slate-800 hover:border-amber-500/50 shadow-2xs transition-all flex flex-col justify-between space-y-2.5"
                     >
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between gap-1">
-                          <span className="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 text-[10px] font-bold truncate max-w-[120px]">
+                          <span className="px-2 py-0.5 rounded-md bg-teal-950/70 text-teal-300 border border-teal-800/60 text-[10px] font-bold truncate max-w-[120px]">
                             By {entry.profile?.name || 'Designer'}
                           </span>
                           <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${urgency.bg} ${urgency.text} ${urgency.border}`}>
@@ -500,29 +500,29 @@ export default function AdminDashboardPage() {
                           </span>
                         </div>
 
-                        <div className="flex items-center space-x-1 text-[11px] font-bold text-slate-800 truncate">
-                          <Building2 className="w-3 h-3 text-sky-600 shrink-0" />
+                        <div className="flex items-center space-x-1 text-[11px] font-bold text-slate-300 truncate">
+                          <Building2 className="w-3 h-3 text-sky-400 shrink-0" />
                           <span className="truncate">{entry.client?.name || 'Client'}</span>
                         </div>
 
-                        <p className="text-xs font-semibold text-slate-900 line-clamp-2" title={entry.description}>
+                        <p className="text-xs font-semibold text-slate-200 line-clamp-2" title={entry.description}>
                           {entry.description}
                         </p>
                       </div>
 
-                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                        <div className="text-[11px] text-slate-500">
-                          <span className="font-medium text-slate-700">📅 {formattedDate}</span>
-                          <span className="mx-1 text-slate-300">•</span>
-                          <span className="font-bold text-amber-800">{unapproved} left</span>
+                      <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                        <div className="text-[11px] text-slate-400">
+                          <span className="font-medium text-slate-300">📅 {formattedDate}</span>
+                          <span className="mx-1 text-slate-600">•</span>
+                          <span className="font-bold text-amber-400">{unapproved} left</span>
                         </div>
 
                         <button
                           type="button"
                           onClick={() => setSelectedApprovalEntry(entry)}
-                          className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-300 rounded-lg shadow-2xs transition-all cursor-pointer"
+                          className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-teal-300 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/60 rounded-lg shadow-2xs transition-all cursor-pointer"
                         >
-                          <CheckCheck className="w-3 h-3 text-teal-600" />
+                          <CheckCheck className="w-3 h-3 text-teal-400" />
                           <span>Approve</span>
                         </button>
                       </div>
@@ -537,17 +537,17 @@ export default function AdminDashboardPage() {
         {/* 2-Column Main Section: Today's Deliverables Feed (65%) + Admin Launchpad & Notes (35%) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left: Agency Today's Deliverables Stream (8 Cols) */}
-          <div className="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="lg:col-span-8 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Today's Agency Deliverables Feed</h2>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <h2 className="text-lg font-bold text-slate-100">Today's Agency Deliverables Feed</h2>
+                <p className="text-xs text-slate-400 mt-0.5">
                   Live feed of all design deliverables produced across the agency today.
                 </p>
               </div>
               <Link
                 href="/work"
-                className="text-xs font-bold text-sky-600 hover:text-sky-800 inline-flex items-center space-x-1"
+                className="text-xs font-bold text-sky-400 hover:text-sky-300 inline-flex items-center space-x-1"
               >
                 <span>View Full Team Log</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -559,10 +559,10 @@ export default function AdminDashboardPage() {
                 Loading today's agency deliverables...
               </div>
             ) : todayEntries.length === 0 ? (
-              <div className="py-12 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <CheckCircle2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-slate-600">No deliverables recorded yet today</p>
-                <p className="text-xs text-slate-400 mt-1">
+              <div className="py-12 text-center bg-slate-950/40 rounded-xl border border-dashed border-slate-800">
+                <CheckCircle2 className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-slate-400">No deliverables recorded yet today</p>
+                <p className="text-xs text-slate-500 mt-1">
                   Team members' logged items will stream here live as they work.
                 </p>
               </div>
@@ -577,39 +577,39 @@ export default function AdminDashboardPage() {
                       key={entry.id}
                       className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
                         entry.timer_started_at
-                          ? 'bg-emerald-50/40 border-l-4 border-l-emerald-500 border-slate-200'
-                          : 'bg-white border-slate-200 hover:bg-slate-50/60'
+                          ? 'bg-emerald-950/30 border-l-4 border-l-emerald-500 border-slate-800'
+                          : 'bg-slate-950/60 border-slate-800 hover:bg-slate-800/50'
                       }`}
                     >
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold text-[11px]">
+                          <span className="px-2 py-0.5 rounded-md bg-teal-950/70 text-teal-300 border border-teal-800/60 font-bold text-[11px]">
                             By {entry.profile?.name || 'Designer'}
                           </span>
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200 font-extrabold text-[11px]">
-                            <Building2 className="w-3 h-3 text-sky-600" />
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-sky-950/70 text-sky-300 border border-sky-800/60 font-extrabold text-[11px]">
+                            <Building2 className="w-3 h-3 text-sky-400" />
                             <span>{entry.client?.name || 'Client'}</span>
                           </span>
-                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">
+                          <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold text-[11px]">
                             {entry.work_type?.name || 'Work'}
                           </span>
 
                           {entry.timer_started_at && (
-                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                            <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                               <span className="font-mono">{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
                             </span>
                           )}
                         </div>
 
-                        <p className="text-slate-900 font-medium text-xs sm:text-sm">{entry.description}</p>
+                        <p className="text-slate-200 font-medium text-xs sm:text-sm">{entry.description}</p>
 
                         {(entry.project_url || entry.best_work_url) && (
                           <a
                             href={entry.project_url || entry.best_work_url!}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center space-x-1 text-sky-600 hover:text-sky-800 font-semibold underline text-[11px]"
+                            className="inline-flex items-center space-x-1 text-sky-400 hover:text-sky-300 font-semibold underline text-[11px]"
                           >
                             <ExternalLink className="w-3 h-3" />
                             <span>Project URL</span>
@@ -618,13 +618,13 @@ export default function AdminDashboardPage() {
                       </div>
 
                       {/* Right: Quantities & Quick Approval Stepper Trigger */}
-                      <div className="flex items-center space-x-4 shrink-0 justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
+                      <div className="flex items-center space-x-4 shrink-0 justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
                         <div className="text-right text-xs">
-                          <div className="text-slate-500">
-                            Done: <strong className="text-slate-900">{entry.quantity_done}</strong>
+                          <div className="text-slate-400">
+                            Done: <strong className="text-slate-100">{entry.quantity_done}</strong>
                           </div>
-                          <div className="text-slate-500">
-                            Approved: <strong className="text-teal-700">{entry.quantity_approved}</strong>
+                          <div className="text-slate-400">
+                            Approved: <strong className="text-teal-400">{entry.quantity_approved}</strong>
                           </div>
                         </div>
 
@@ -633,10 +633,10 @@ export default function AdminDashboardPage() {
                           onClick={() => setSelectedApprovalEntry(entry)}
                           className={`px-2.5 py-1 rounded-lg font-bold text-[11px] border transition-all cursor-pointer shadow-2xs ${
                             isApproved
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                              ? 'bg-emerald-950/70 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/80'
                               : hasPartial
-                              ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
-                              : 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100'
+                              ? 'bg-amber-950/70 text-amber-300 border-amber-800/60 hover:bg-amber-900/80'
+                              : 'bg-rose-950/70 text-rose-300 border-rose-800/60 hover:bg-rose-900/80'
                           }`}
                           title="Click to adjust approval count"
                         >
@@ -653,113 +653,113 @@ export default function AdminDashboardPage() {
           {/* Right: Executive Operations Launchpad & Private Notes (4 Cols) */}
           <div className="lg:col-span-4 space-y-6">
             {/* Executive Quick Launchpad */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-700">
+            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
+              <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-300">
                 Executive Agency Controls
               </h2>
 
               <div className="space-y-2">
                 <Link
                   href="/work?view=pending"
-                  className="flex items-center justify-between p-3 rounded-xl border border-amber-200 bg-amber-50/50 hover:border-amber-400 hover:bg-amber-100/60 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-xl border border-amber-500/30 bg-amber-950/20 hover:border-amber-500/60 hover:bg-amber-950/40 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-amber-100 text-amber-800 group-hover:bg-amber-200">
+                    <div className="p-2 rounded-lg bg-amber-900/60 text-amber-300 group-hover:bg-amber-800/60">
                       <Hourglass className="w-4 h-4" />
                     </div>
                     <div>
                       <div className="flex items-center space-x-1.5">
-                        <h3 className="text-xs font-bold text-slate-900 leading-tight">Pending Client Approvals</h3>
+                        <h3 className="text-xs font-bold text-slate-200 leading-tight">Pending Client Approvals</h3>
                         {agencyPendingEntries.length > 0 && (
-                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-200 text-amber-950">
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-900/80 text-amber-300 border border-amber-700/60">
                             {agencyPendingEntries.length}
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500">Zero-date-hunting approval queue</p>
+                      <p className="text-[11px] text-slate-400">Zero-date-hunting approval queue</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-700" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-amber-400" />
                 </Link>
 
                 <Link
                   href="/reports/billing"
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50/40 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-amber-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-amber-50 text-amber-700 group-hover:bg-amber-100">
+                    <div className="p-2 rounded-lg bg-amber-950/70 text-amber-400 border border-amber-800/50 group-hover:bg-amber-900/60">
                       <Clock className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold text-slate-900 leading-tight">Client Time & Invoicing</h3>
-                      <p className="text-[11px] text-slate-500">Audit billable client hours</p>
+                      <h3 className="text-xs font-bold text-slate-200 leading-tight">Client Time & Invoicing</h3>
+                      <p className="text-[11px] text-slate-400">Audit billable client hours</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-700" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-amber-400" />
                 </Link>
 
                 <Link
                   href="/reports/weekly"
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-sky-300 hover:bg-sky-50/40 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-sky-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-sky-50 text-sky-700 group-hover:bg-sky-100">
+                    <div className="p-2 rounded-lg bg-sky-950/70 text-sky-400 border border-sky-800/50 group-hover:bg-sky-900/60">
                       <BarChart3 className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold text-slate-900 leading-tight">Weekly Team Review</h3>
-                      <p className="text-[11px] text-slate-500">Weekly meeting deliverables</p>
+                      <h3 className="text-xs font-bold text-slate-200 leading-tight">Weekly Team Review</h3>
+                      <p className="text-[11px] text-slate-400">Weekly meeting deliverables</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-sky-700" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-sky-400" />
                 </Link>
 
                 <Link
                   href="/reports/monthly"
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-teal-300 hover:bg-teal-50/40 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-teal-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-teal-50 text-teal-700 group-hover:bg-teal-100">
+                    <div className="p-2 rounded-lg bg-teal-950/70 text-teal-400 border border-teal-800/50 group-hover:bg-teal-900/60">
                       <PieChart className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold text-slate-900 leading-tight">Monthly Summary</h3>
-                      <p className="text-[11px] text-slate-500">Agency output per month</p>
+                      <h3 className="text-xs font-bold text-slate-200 leading-tight">Monthly Summary</h3>
+                      <p className="text-[11px] text-slate-400">Agency output per month</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-teal-700" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-teal-400" />
                 </Link>
 
                 <Link
                   href="/clients"
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/40 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-indigo-50 text-indigo-700 group-hover:bg-indigo-100">
+                    <div className="p-2 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/50 group-hover:bg-indigo-900/60">
                       <Building2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold text-slate-900 leading-tight">Clients Directory</h3>
-                      <p className="text-[11px] text-slate-500">Manage brand accounts</p>
+                      <h3 className="text-xs font-bold text-slate-200 leading-tight">Clients Directory</h3>
+                      <p className="text-[11px] text-slate-400">Manage brand accounts</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-700" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400" />
                 </Link>
 
                 <Link
                   href="/team"
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-purple-300 hover:bg-purple-50/40 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-purple-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-purple-50 text-purple-700 group-hover:bg-purple-100">
+                    <div className="p-2 rounded-lg bg-purple-950/70 text-purple-400 border border-purple-800/50 group-hover:bg-purple-900/60">
                       <Users className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold text-slate-900 leading-tight">Team Management</h3>
-                      <p className="text-[11px] text-slate-500">Roster & role designations</p>
+                      <h3 className="text-xs font-bold text-slate-200 leading-tight">Team Management</h3>
+                      <p className="text-[11px] text-slate-400">Roster & role designations</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-purple-700" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-purple-400" />
                 </Link>
               </div>
             </div>

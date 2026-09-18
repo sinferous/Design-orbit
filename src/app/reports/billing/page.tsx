@@ -358,34 +358,34 @@ export default function ClientTimeTrackingReportPage() {
       : 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50">
+    <div className="min-h-screen flex flex-col">
       <Navbar userName="Gajesh" />
 
       {/* Sub-Navigation for Reports */}
-      <div className="bg-white border-b border-slate-200 sticky top-16 z-20 shadow-2xs">
+      <div className="bg-slate-900 border-b border-slate-800 sticky top-16 z-20 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex space-x-4 sm:space-x-6 min-w-max">
             <Link
               href="/reports/weekly"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
             >
               Weekly Meeting Report
             </Link>
             <Link
               href="/reports/monthly"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
             >
               Monthly Summary
             </Link>
             <Link
               href="/reports/overall"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
             >
               Overall / All-Time
             </Link>
             <Link
               href="/reports/billing"
-              className="py-3 text-xs sm:text-sm font-bold text-sky-600 border-b-2 border-sky-600 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-bold text-sky-400 border-b-2 border-sky-400 whitespace-nowrap"
             >
               Client Time Tracking
             </Link>
@@ -393,9 +393,9 @@ export default function ClientTimeTrackingReportPage() {
 
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
+            className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
           >
-            <Download className="w-4 h-4 text-slate-500" />
+            <Download className="w-4 h-4 text-slate-400" />
             <span className="hidden sm:inline">Export Time CSV</span>
             <span className="sm:hidden">CSV</span>
           </button>
@@ -404,26 +404,26 @@ export default function ClientTimeTrackingReportPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Header Banner with Rich Date Range Picker */}
-        <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-sky-50 text-sky-700 rounded-full border border-sky-200">
+              <span className="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-sky-950/60 text-sky-400 rounded-full border border-sky-800/60">
                 Time Spent & Deliverables
               </span>
-              <span className="text-xs text-slate-400">•</span>
-              <span className="text-xs font-medium text-slate-500">Auto-aggregated from task timers</span>
+              <span className="text-xs text-slate-600">•</span>
+              <span className="text-xs font-medium text-slate-400">Auto-aggregated from task timers</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mt-1">Client Time Tracking Report</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <h1 className="text-2xl font-bold text-slate-100 mt-1">Client Time Tracking Report</h1>
+            <p className="text-sm text-slate-400 mt-0.5">
               Review exact time spent by team members across clients and deliverables.
             </p>
           </div>
 
           {/* Rich Calendar Dropdown Control */}
-          <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 relative">
+          <div className="flex flex-wrap items-center gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800 relative">
             <button
               onClick={() => handleRangeDelta(-7)}
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer shadow-2xs"
+              className="p-2 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shrink-0 cursor-pointer shadow-2xs"
               title="Previous 7 Days"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -433,9 +433,9 @@ export default function ClientTimeTrackingReportPage() {
               <button
                 type="button"
                 onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                className="flex items-center space-x-2.5 px-4 py-2 bg-white rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50/20 shadow-2xs transition-all text-xs font-bold text-slate-800 cursor-pointer"
+                className="flex items-center space-x-2.5 px-4 py-2 bg-slate-800/80 rounded-lg border border-slate-700 hover:border-sky-500/50 hover:bg-slate-700/60 shadow-2xs transition-all text-xs font-bold text-slate-200 cursor-pointer"
               >
-                <Calendar className="w-4 h-4 text-sky-600 shrink-0" />
+                <Calendar className="w-4 h-4 text-sky-400 shrink-0" />
                 <span>{getWeekRangeLabel()}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               </button>
@@ -446,23 +446,23 @@ export default function ClientTimeTrackingReportPage() {
                     className="fixed inset-0 z-30"
                     onClick={() => setIsCalendarOpen(false)}
                   />
-                  <div className="absolute right-0 sm:left-0 mt-2 z-40 bg-white border border-slate-200 rounded-xl shadow-2xl p-4 w-[320px] sm:w-[350px] space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 sm:left-0 mt-2 z-40 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl shadow-black/50 p-4 w-[320px] sm:w-[350px] space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
                     {/* Calendar Month Header */}
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                       <button
                         type="button"
                         onClick={() => handleMonthDelta(-1)}
-                        className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors cursor-pointer"
+                        className="p-1 rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors cursor-pointer"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
-                      <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider">
+                      <span className="text-[11px] font-extrabold text-slate-200 uppercase tracking-wider">
                         {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleMonthDelta(1)}
-                        className="p-1 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors cursor-pointer"
+                        className="p-1 rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors cursor-pointer"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
@@ -495,22 +495,22 @@ export default function ClientTimeTrackingReportPage() {
                                 handleSelectWeekFromDate(dayObj.date);
                               }}
                               className={`h-8 w-8 sm:h-9 sm:w-9 text-xs font-semibold rounded-md flex items-center justify-center transition-all cursor-pointer relative ${
-                                !dayObj.isCurrentMonth ? 'text-slate-300' : 'text-slate-700 hover:bg-slate-100'
+                                !dayObj.isCurrentMonth ? 'text-slate-600' : 'text-slate-300 hover:bg-slate-800'
                               } ${
                                 active
-                                  ? 'bg-sky-50 text-sky-800 font-bold border border-sky-200'
+                                  ? 'bg-sky-950/80 text-sky-300 font-bold border border-sky-700'
                                   : hoverActive
-                                  ? 'bg-slate-50 border border-dashed border-slate-300'
+                                  ? 'bg-slate-800/60 border border-dashed border-slate-600'
                                   : ''
                               } ${
-                                start ? '!bg-sky-600 !text-white !border-sky-700 shadow-xs' : ''
+                                start ? '!bg-sky-600 !text-white !border-sky-500 shadow-xs' : ''
                               } ${
-                                end ? '!bg-sky-600 !text-white !border-sky-700 shadow-xs' : ''
+                                end ? '!bg-sky-600 !text-white !border-sky-500 shadow-xs' : ''
                               }`}
                             >
                               {dayObj.date.getDate()}
                               {isToday && !active && (
-                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-sky-600 rounded-full" />
+                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-sky-400 rounded-full" />
                               )}
                             </button>
                           );
@@ -519,7 +519,7 @@ export default function ClientTimeTrackingReportPage() {
                     </div>
 
                     {/* Manual Range inputs */}
-                    <div className="border-t border-slate-100 pt-3 space-y-3">
+                    <div className="border-t border-slate-800 pt-3 space-y-3">
                       <div className="grid grid-cols-2 gap-2">
                         <div className="flex flex-col">
                           <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">
@@ -529,7 +529,7 @@ export default function ClientTimeTrackingReportPage() {
                             type="date"
                             value={startDate}
                             onChange={e => setStartDate(e.target.value)}
-                            className="font-bold text-slate-900 focus:outline-none bg-slate-50 px-2 py-1 rounded border border-slate-200 text-xs w-full"
+                            className="font-bold text-slate-200 focus:outline-none bg-slate-950 px-2 py-1 rounded border border-slate-700 text-xs w-full"
                           />
                         </div>
                         <div className="flex flex-col">
@@ -540,18 +540,18 @@ export default function ClientTimeTrackingReportPage() {
                             type="date"
                             value={endDate}
                             onChange={e => setEndDate(e.target.value)}
-                            className="font-bold text-slate-900 focus:outline-none bg-slate-50 px-2 py-1 rounded border border-slate-200 text-xs w-full"
+                            className="font-bold text-slate-200 focus:outline-none bg-slate-950 px-2 py-1 rounded border border-slate-700 text-xs w-full"
                           />
                         </div>
                       </div>
 
                       {/* Presets & Actions inside popup */}
-                      <div className="flex flex-wrap items-center justify-between text-[11px] font-bold border-t border-slate-50 pt-2 gap-1">
+                      <div className="flex flex-wrap items-center justify-between text-[11px] font-bold border-t border-slate-800 pt-2 gap-1">
                         <button
                           type="button"
                           onClick={() => applyPreset('this_week')}
                           className={`cursor-pointer transition-colors ${
-                            isPresetActive('this_week') ? 'text-sky-700 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                            isPresetActive('this_week') ? 'text-sky-400 font-extrabold' : 'text-slate-400 hover:text-slate-200'
                           }`}
                         >
                           This Week
@@ -560,7 +560,7 @@ export default function ClientTimeTrackingReportPage() {
                           type="button"
                           onClick={() => applyPreset('this_month')}
                           className={`cursor-pointer transition-colors ${
-                            isPresetActive('this_month') ? 'text-sky-700 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                            isPresetActive('this_month') ? 'text-sky-400 font-extrabold' : 'text-slate-400 hover:text-slate-200'
                           }`}
                         >
                           This Month
@@ -569,7 +569,7 @@ export default function ClientTimeTrackingReportPage() {
                           type="button"
                           onClick={() => applyPreset('last_30')}
                           className={`cursor-pointer transition-colors ${
-                            isPresetActive('last_30') ? 'text-sky-700 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                            isPresetActive('last_30') ? 'text-sky-400 font-extrabold' : 'text-slate-400 hover:text-slate-200'
                           }`}
                         >
                           30 Days
@@ -577,7 +577,7 @@ export default function ClientTimeTrackingReportPage() {
                         <button
                           type="button"
                           onClick={() => setIsCalendarOpen(false)}
-                          className="px-3 py-1 bg-sky-600 hover:bg-sky-700 text-white rounded-md cursor-pointer transition-colors shadow-2xs"
+                          className="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-md cursor-pointer transition-colors shadow-2xs font-semibold"
                         >
                           Apply
                         </button>
@@ -590,7 +590,7 @@ export default function ClientTimeTrackingReportPage() {
 
             <button
               onClick={() => handleRangeDelta(7)}
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors shrink-0 cursor-pointer shadow-2xs"
+              className="p-2 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shrink-0 cursor-pointer shadow-2xs"
               title="Next 7 Days"
             >
               <ChevronRight className="w-4 h-4" />
@@ -599,9 +599,9 @@ export default function ClientTimeTrackingReportPage() {
         </div>
 
         {/* Filter Controls & Presets Bar */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-sm space-y-4">
           {/* Quick Presets Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
             <div className="flex items-center space-x-1.5 overflow-x-auto text-xs font-semibold">
               <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider mr-1">
                 Quick Ranges:
@@ -611,8 +611,8 @@ export default function ClientTimeTrackingReportPage() {
                 onClick={() => applyPreset('today')}
                 className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                   isPresetActive('today')
-                    ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-2xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    ? 'bg-sky-950/80 text-sky-400 border border-sky-800 font-bold shadow-2xs'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                 }`}
               >
                 Today
@@ -622,8 +622,8 @@ export default function ClientTimeTrackingReportPage() {
                 onClick={() => applyPreset('this_week')}
                 className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                   isPresetActive('this_week')
-                    ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-2xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    ? 'bg-sky-950/80 text-sky-400 border border-sky-800 font-bold shadow-2xs'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                 }`}
               >
                 This Week (Tue-Mon)
@@ -633,8 +633,8 @@ export default function ClientTimeTrackingReportPage() {
                 onClick={() => applyPreset('this_month')}
                 className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                   isPresetActive('this_month')
-                    ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-2xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    ? 'bg-sky-950/80 text-sky-400 border border-sky-800 font-bold shadow-2xs'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                 }`}
               >
                 This Month
@@ -644,23 +644,23 @@ export default function ClientTimeTrackingReportPage() {
                 onClick={() => applyPreset('last_30')}
                 className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                   isPresetActive('last_30')
-                    ? 'bg-sky-50 text-sky-700 border border-sky-200 font-bold shadow-2xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    ? 'bg-sky-950/80 text-sky-400 border border-sky-800 font-bold shadow-2xs'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                 }`}
               >
                 Last 30 Days
               </button>
             </div>
 
-            <div className="text-xs text-slate-500 font-medium">
-              Active Range: <strong className="text-slate-800">{getWeekRangeLabel()}</strong>
+            <div className="text-xs text-slate-400 font-medium">
+              Active Range: <strong className="text-slate-200">{getWeekRangeLabel()}</strong>
             </div>
           </div>
 
           {/* Filter Dropdowns Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
                 Filter Client
               </label>
               <RichSelect
@@ -677,7 +677,7 @@ export default function ClientTimeTrackingReportPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
                 Filter Team Member
               </label>
               <RichSelect
@@ -696,7 +696,7 @@ export default function ClientTimeTrackingReportPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
                 Filter Work Type
               </label>
               <RichSelect
@@ -715,84 +715,84 @@ export default function ClientTimeTrackingReportPage() {
 
         {/* Time & Deliverables KPI Overview Cards - 2x2 on Mobile */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
                 Total Time
               </div>
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-600 shrink-0" />
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400 shrink-0" />
             </div>
-            <div className="text-xl sm:text-3xl font-extrabold text-slate-900 truncate">
+            <div className="text-xl sm:text-3xl font-extrabold text-slate-100 truncate">
               {formatReportTime(reportData.totalTimeSecondsAll)}
             </div>
-            <p className="text-[11px] sm:text-xs text-sky-700 font-semibold truncate">
+            <p className="text-[11px] sm:text-xs text-sky-400 font-semibold truncate">
               {reportData.totalDecimalHoursAll} decimal hrs
             </p>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
                 Active Clients
               </div>
-              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 shrink-0" />
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-indigo-700">
+            <div className="text-2xl sm:text-3xl font-extrabold text-indigo-400">
               {activeClientsCount} <span className="text-xs font-normal text-slate-400">/ {reportData.clientSummaries.length}</span>
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Clients with activity</p>
+            <p className="text-[11px] sm:text-xs text-slate-400 truncate">Clients with activity</p>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
                 Deliverables
               </div>
-              <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-600 shrink-0" />
+              <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-400 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-teal-700">
+            <div className="text-2xl sm:text-3xl font-extrabold text-teal-400">
               {reportData.totalDoneAll}
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">
+            <p className="text-[11px] sm:text-xs text-slate-400 truncate">
               {reportData.totalApprovedAll} approved items
             </p>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-5 rounded-xl border border-slate-200 shadow-2xs space-y-0.5 sm:space-y-1">
+          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
                 Avg Time / Item
               </div>
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 shrink-0" />
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-amber-700">
-              {avgMinutesPerItem} <span className="text-xs font-normal text-slate-500">min</span>
+            <div className="text-2xl sm:text-3xl font-extrabold text-amber-400">
+              {avgMinutesPerItem} <span className="text-xs font-normal text-slate-400">min</span>
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 sm:text-slate-500 truncate">Per completed item</p>
+            <p className="text-[11px] sm:text-xs text-slate-400 truncate">Per completed item</p>
           </div>
         </div>
 
         {/* Client-by-Client Time Cards */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-              <Building2 className="w-4 h-4 text-sky-600" />
+            <h2 className="text-base font-bold text-slate-100 flex items-center space-x-2">
+              <Building2 className="w-4 h-4 text-sky-400" />
               <span>Client-Wise Time Breakdown</span>
             </h2>
-            <span className="text-xs text-slate-500 font-medium">
+            <span className="text-xs text-slate-400 font-medium">
               Click any client card to inspect individual tasks and time spent
             </span>
           </div>
 
           {loading ? (
-            <div className="bg-white p-12 rounded-xl border border-slate-200 text-center">
-              <div className="animate-spin w-6 h-6 border-2 border-sky-600 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-3 text-xs text-slate-500 font-medium">Calculating client time spent...</p>
+            <div className="bg-slate-900 p-12 rounded-xl border border-slate-800 text-center">
+              <div className="animate-spin w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full mx-auto" />
+              <p className="mt-3 text-xs text-slate-400 font-medium">Calculating client time spent...</p>
             </div>
           ) : reportData.clientSummaries.length === 0 ? (
-            <div className="bg-white p-12 rounded-xl border border-slate-200 text-center text-slate-500">
-              <p className="text-sm font-semibold text-slate-700">No client records found for this date range.</p>
-              <p className="text-xs text-slate-400 mt-1">Try expanding the date filter or resetting your filters.</p>
+            <div className="bg-slate-900 p-12 rounded-xl border border-slate-800 text-center text-slate-400">
+              <p className="text-sm font-semibold text-slate-200">No client records found for this date range.</p>
+              <p className="text-xs text-slate-500 mt-1">Try expanding the date filter or resetting your filters.</p>
             </div>
           ) : (
             reportData.clientSummaries.map(client => {
@@ -801,7 +801,7 @@ export default function ClientTimeTrackingReportPage() {
               return (
                 <div
                   key={client.clientId}
-                  className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden transition-all hover:border-slate-300"
+                  className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm overflow-hidden transition-all hover:border-slate-700"
                 >
                   {/* Client Summary Header Bar */}
                   <div className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -812,11 +812,11 @@ export default function ClientTimeTrackingReportPage() {
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center space-x-2">
-                          <h3 className="text-lg font-bold text-slate-900 truncate">
+                          <h3 className="text-lg font-bold text-slate-100 truncate">
                             {client.clientName}
                           </h3>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-slate-400 mt-0.5">
                           {client.totalDone} deliverable(s) done &bull; {client.totalApproved} approved
                         </p>
                       </div>
@@ -829,11 +829,11 @@ export default function ClientTimeTrackingReportPage() {
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                           Time Spent
                         </div>
-                        <div className="text-base font-extrabold text-slate-900 flex items-center justify-end space-x-1">
-                          <Clock className="w-4 h-4 text-amber-600" />
+                        <div className="text-base font-extrabold text-slate-100 flex items-center justify-end space-x-1">
+                          <Clock className="w-4 h-4 text-amber-400" />
                           <span>{formatReportTime(client.totalTimeSeconds)}</span>
                         </div>
-                        <div className="text-[11px] text-slate-500 font-medium">
+                        <div className="text-[11px] text-slate-400 font-medium">
                           {client.decimalHours} hrs
                         </div>
                       </div>
@@ -842,7 +842,7 @@ export default function ClientTimeTrackingReportPage() {
                       <button
                         type="button"
                         onClick={() => toggleClientExpand(client.clientId)}
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center space-x-1 transition-colors cursor-pointer shrink-0"
+                        className="px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 flex items-center space-x-1 transition-colors cursor-pointer shrink-0"
                       >
                         <span>{isExpanded ? 'Hide Tasks' : 'Inspect Tasks'}</span>
                         {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -851,8 +851,8 @@ export default function ClientTimeTrackingReportPage() {
                   </div>
 
                   {/* Work Type Badges Row */}
-                  <div className="px-6 py-3 bg-slate-50/70 border-t border-slate-100 flex flex-wrap items-center gap-2">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">
+                  <div className="px-6 py-3 bg-slate-950/60 border-t border-slate-800 flex flex-wrap items-center gap-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
                       Deliverables:
                     </span>
                     {Object.entries(client.workTypeBreakdown)
@@ -860,12 +860,12 @@ export default function ClientTimeTrackingReportPage() {
                       .map(([wtName, data]) => (
                         <div
                           key={wtName}
-                          className="px-2.5 py-1 bg-white rounded-md border border-slate-200 text-xs text-slate-700 flex items-center space-x-1.5 shadow-2xs"
+                          className="px-2.5 py-1 bg-slate-900 rounded-md border border-slate-800 text-xs text-slate-300 flex items-center space-x-1.5 shadow-2xs"
                         >
-                          <span className="font-bold text-slate-900">{wtName}:</span>
-                          <span className="font-semibold text-sky-700">{data.count} items</span>
+                          <span className="font-bold text-slate-100">{wtName}:</span>
+                          <span className="font-semibold text-sky-400">{data.count} items</span>
                           {data.timeSeconds > 0 && (
-                            <span className="text-[11px] text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded font-mono font-bold">
+                            <span className="text-[11px] text-amber-300 bg-amber-950/60 border border-amber-800/60 px-1.5 py-0.5 rounded font-mono font-bold">
                               ⏱ {formatReportTime(data.timeSeconds)}
                             </span>
                           )}
@@ -874,15 +874,15 @@ export default function ClientTimeTrackingReportPage() {
                     {Object.values(client.workTypeBreakdown).every(
                       data => data.count === 0 && data.timeSeconds === 0
                     ) && (
-                      <span className="text-xs text-slate-400 italic">No deliverable breakdown recorded</span>
+                      <span className="text-xs text-slate-500 italic">No deliverable breakdown recorded</span>
                     )}
                   </div>
 
                   {/* Detailed Drilldown of Deliverables */}
                   {isExpanded && (
-                    <div className="p-5 sm:p-6 border-t border-slate-200 bg-white space-y-3">
+                    <div className="p-5 sm:p-6 border-t border-slate-800 bg-slate-950/40 space-y-3">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                           Logged Deliverables & Tasks ({client.entries.length} items)
                         </h4>
                         <span className="text-xs text-slate-400">
@@ -891,13 +891,13 @@ export default function ClientTimeTrackingReportPage() {
                       </div>
 
                       {client.entries.length === 0 ? (
-                        <p className="text-xs text-slate-400 italic p-4 text-center bg-slate-50 rounded-lg">
+                        <p className="text-xs text-slate-400 italic p-4 text-center bg-slate-900 rounded-lg border border-slate-800">
                           No deliverables logged under this client for the selected date range.
                         </p>
                       ) : (
                         <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs text-slate-700">
-                            <thead className="bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                          <table className="w-full text-left text-xs text-slate-300">
+                            <thead className="bg-slate-900 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
                               <tr>
                                 <th className="px-3 py-2.5">Date</th>
                                 <th className="px-3 py-2.5">Designer</th>
@@ -910,44 +910,44 @@ export default function ClientTimeTrackingReportPage() {
                                 <th className="px-3 py-2.5 text-center">Link</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-800/80">
                               {client.entries.map(entry => {
                                 const entrySecs = entry.time_spent_seconds || 0;
                                 const decHrs = formatReportHoursDecimal(entrySecs);
                                 const url = entry.project_url || entry.best_work_url;
 
                                 return (
-                                  <tr key={entry.id} className="hover:bg-slate-50/80 transition-colors">
-                                    <td className="px-3 py-2.5 font-bold text-slate-900 whitespace-nowrap">
+                                  <tr key={entry.id} className="hover:bg-slate-850 transition-colors">
+                                    <td className="px-3 py-2.5 font-bold text-slate-200 whitespace-nowrap">
                                       {entry.work_date}
                                     </td>
-                                    <td className="px-3 py-2.5 font-semibold text-slate-800 whitespace-nowrap">
+                                    <td className="px-3 py-2.5 font-semibold text-slate-300 whitespace-nowrap">
                                       {entry.profile?.name || 'Designer'}
                                     </td>
                                     <td className="px-3 py-2.5">
-                                      <span className="px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200 font-semibold text-[11px] whitespace-nowrap">
+                                      <span className="px-2 py-0.5 rounded bg-sky-950/80 text-sky-300 border border-sky-800/60 font-semibold text-[11px] whitespace-nowrap">
                                         {entry.work_type?.name || 'Task'}
                                       </span>
                                     </td>
-                                    <td className="px-3 py-2.5 text-slate-600 max-w-xs break-words">
+                                    <td className="px-3 py-2.5 text-slate-400 max-w-xs break-words">
                                       {entry.description || '-'}
                                     </td>
-                                    <td className="px-3 py-2.5 text-center font-bold text-slate-900">
+                                    <td className="px-3 py-2.5 text-center font-bold text-slate-100">
                                       {entry.quantity_done}
                                     </td>
-                                    <td className="px-3 py-2.5 text-center font-bold text-teal-700">
+                                    <td className="px-3 py-2.5 text-center font-bold text-teal-400">
                                       {entry.quantity_approved}
                                     </td>
-                                    <td className="px-3 py-2.5 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                                    <td className="px-3 py-2.5 text-right font-mono font-bold text-slate-100 whitespace-nowrap">
                                       {entrySecs > 0 ? (
-                                        <span className="text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                        <span className="text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/60">
                                           ⏱ {formatReportTime(entrySecs)}
                                         </span>
                                       ) : (
-                                        <span className="text-slate-400">&mdash;</span>
+                                        <span className="text-slate-500">&mdash;</span>
                                       )}
                                     </td>
-                                    <td className="px-3 py-2.5 text-right font-mono text-slate-600 whitespace-nowrap">
+                                    <td className="px-3 py-2.5 text-right font-mono text-slate-400 whitespace-nowrap">
                                       {decHrs > 0 ? `${decHrs}h` : '0.00h'}
                                     </td>
                                     <td className="px-3 py-2.5 text-center whitespace-nowrap">
@@ -956,13 +956,13 @@ export default function ClientTimeTrackingReportPage() {
                                           href={url}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="text-sky-600 hover:text-sky-800 inline-flex items-center"
+                                          className="text-sky-400 hover:text-sky-300 inline-flex items-center"
                                           title="View Deliverable"
                                         >
                                           <ExternalLink className="w-3.5 h-3.5" />
                                         </a>
                                       ) : (
-                                        <span className="text-slate-300">&mdash;</span>
+                                        <span className="text-slate-600">&mdash;</span>
                                       )}
                                     </td>
                                   </tr>

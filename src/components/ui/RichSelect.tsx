@@ -173,11 +173,11 @@ export function RichSelect<T extends string | number = string | number>({
           }
         }}
         className={cn(
-          'w-full flex items-center justify-between border bg-white text-slate-900 transition-all duration-150 cursor-pointer select-none',
-          'border-slate-300 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 shadow-2xs',
+          'w-full flex items-center justify-between border bg-slate-900 text-slate-100 transition-all duration-150 cursor-pointer select-none',
+          'border-slate-700 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 shadow-sm',
           sizeClasses[size],
-          isOpen && 'border-sky-500 ring-2 ring-sky-500/20',
-          disabled && 'opacity-60 bg-slate-100 cursor-not-allowed border-slate-200',
+          isOpen && 'border-sky-500 ring-2 ring-sky-500/30',
+          disabled && 'opacity-60 bg-slate-950 cursor-not-allowed border-slate-800 text-slate-500',
           triggerClassName
         )}
       >
@@ -196,7 +196,7 @@ export function RichSelect<T extends string | number = string | number>({
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.badge && (
-            <span className="shrink-0 ml-1.5 px-1.5 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-600 rounded">
+            <span className="shrink-0 ml-1.5 px-1.5 py-0.5 text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700 rounded">
               {selectedOption.badge}
             </span>
           )}
@@ -205,7 +205,7 @@ export function RichSelect<T extends string | number = string | number>({
         <ChevronDown
           className={cn(
             'w-4 h-4 shrink-0 text-slate-400 transition-transform duration-200',
-            isOpen && 'rotate-180 text-sky-600'
+            isOpen && 'rotate-180 text-sky-400'
           )}
         />
       </button>
@@ -214,13 +214,13 @@ export function RichSelect<T extends string | number = string | number>({
       {isOpen && (
         <div
           className={cn(
-            'absolute left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150',
+            'absolute left-0 right-0 mt-1.5 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/80 z-50 overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150',
             menuClassName
           )}
         >
           {/* Search bar inside dropdown for quick filtering */}
           {isSearchable && (
-            <div className="p-2 border-b border-slate-100 bg-slate-50/50">
+            <div className="p-2 border-b border-slate-800 bg-slate-950/60">
               <div className="relative flex items-center">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 text-slate-400 pointer-events-none" />
                 <input
@@ -229,7 +229,7 @@ export function RichSelect<T extends string | number = string | number>({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search options..."
-                  className="w-full pl-8 pr-7 py-1.5 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                  className="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
                 />
                 {searchQuery && (
                   <button
@@ -238,7 +238,7 @@ export function RichSelect<T extends string | number = string | number>({
                       setSearchQuery('');
                       searchInputRef.current?.focus();
                     }}
-                    className="absolute right-2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                    className="absolute right-2 text-slate-400 hover:text-slate-200 p-0.5 cursor-pointer"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -252,10 +252,10 @@ export function RichSelect<T extends string | number = string | number>({
             ref={listboxRef}
             role="listbox"
             tabIndex={-1}
-            className="max-h-60 overflow-y-auto py-1.5 focus:outline-none scrollbar-thin divide-y divide-slate-50"
+            className="max-h-60 overflow-y-auto py-1.5 focus:outline-none scrollbar-thin divide-y divide-slate-800/40"
           >
             {filteredOptions.length === 0 ? (
-              <li className="px-4 py-3 text-center text-xs text-slate-400 italic">
+              <li className="px-4 py-3 text-center text-xs text-slate-500 italic">
                 No matching options found
               </li>
             ) : (
@@ -273,10 +273,10 @@ export function RichSelect<T extends string | number = string | number>({
                     className={cn(
                       'px-3 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors select-none',
                       isSelected
-                        ? 'bg-sky-50 text-sky-800 font-bold'
+                        ? 'bg-sky-950/80 text-sky-300 font-bold'
                         : isHighlighted
-                        ? 'bg-slate-50 text-slate-900'
-                        : 'text-slate-700 hover:bg-slate-50',
+                        ? 'bg-slate-800 text-white'
+                        : 'text-slate-200 hover:bg-slate-800/80 hover:text-white',
                       opt.disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent'
                     )}
                   >
@@ -291,14 +291,14 @@ export function RichSelect<T extends string | number = string | number>({
                         )}
                       </div>
                       {opt.badge && (
-                        <span className="shrink-0 ml-1 px-1.5 py-0.5 text-[9px] font-semibold bg-slate-100 text-slate-600 rounded">
+                        <span className="shrink-0 ml-1 px-1.5 py-0.5 text-[9px] font-semibold bg-slate-800 text-slate-300 border border-slate-700 rounded">
                           {opt.badge}
                         </span>
                       )}
                     </div>
 
                     {isSelected && (
-                      <Check className="w-3.5 h-3.5 shrink-0 text-sky-600 ml-2" />
+                      <Check className="w-3.5 h-3.5 shrink-0 text-sky-400 ml-2" />
                     )}
                   </li>
                 );

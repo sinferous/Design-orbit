@@ -147,25 +147,25 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <img
-            src="/logo/webtree-logo.svg"
+            src="/logo/webtree-logo-white.svg"
             alt="Webtree Logo"
             className="h-12 w-auto object-contain"
           />
         </div>
-        <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-slate-900">
+        <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white">
           Design Orbit Work Tracker
         </h2>
-        <p className="mt-1 text-center text-sm text-slate-500">
+        <p className="mt-1 text-center text-sm text-slate-400">
           Internal reporting platform for the Webtree Creative Team
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white py-8 px-6 shadow-sm border border-slate-200 rounded-2xl sm:px-10 space-y-6">
+        <div className="bg-slate-900 py-8 px-6 shadow-2xl shadow-black/80 border border-slate-800 rounded-2xl sm:px-10 space-y-6 text-slate-100">
           {/* Quick Select Preset Member Account */}
-          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5">
-            <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 flex items-center space-x-1">
-              <UserCheck className="w-3.5 h-3.5 text-sky-600" />
+          <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+            <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-300 flex items-center space-x-1">
+              <UserCheck className="w-3.5 h-3.5 text-sky-400" />
               <span>Select Member Account</span>
             </label>
             <RichSelect
@@ -182,12 +182,12 @@ export default function LoginPage() {
 
           <form className="space-y-4" onSubmit={handleLogin}>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
                 Work Email
               </label>
-              <div className="mt-1.5 relative rounded-md shadow-2xs">
+              <div className="mt-1.5 relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-slate-400" />
+                  <Mail className="h-4 w-4 text-slate-500" />
                 </div>
                 <input
                   type="email"
@@ -195,18 +195,18 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@webtreeonline.com"
-                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-900 bg-white"
+                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-400 text-slate-100 bg-slate-950 placeholder:text-slate-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
                 Password
               </label>
-              <div className="mt-1.5 relative rounded-md shadow-2xs">
+              <div className="mt-1.5 relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-slate-400" />
+                  <Lock className="h-4 w-4 text-slate-500" />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -214,12 +214,12 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-slate-900 bg-white"
+                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-400 text-slate-100 bg-slate-950 placeholder:text-slate-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 focus:outline-none cursor-pointer"
                   title={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -235,7 +235,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center items-center space-x-2 py-2.5 px-4 text-sm font-bold rounded-xl text-white webtree-gradient-btn shadow-sm disabled:opacity-50"
+                className="w-full flex justify-center items-center space-x-2 py-2.5 px-4 text-sm font-bold rounded-xl text-white webtree-gradient-btn shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 <span>{loading ? 'Authenticating...' : 'Sign In'}</span>
                 <ArrowRight className="w-4 h-4" />
