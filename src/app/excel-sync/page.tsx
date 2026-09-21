@@ -389,12 +389,24 @@ export default function ExcelSyncPage() {
     setWeeklyHasCustomEdits(false);
   }, [generatedWeeklyRows]);
 
+  // Flexible 7-Day Range calculator (any arbitrary start date through start + 6 days)
+  const get7DayRange = (startDate: Date) => {
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 12, 0, 0);
+    const end = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 6, 12, 0, 0);
+
+    return {
+      startDate: formatLocalDate(start),
+      endDate: formatLocalDate(end),
+      label: `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+    };
+  };
+
   // Weekly Navigation Steppers
   const handleWeekStep = (deltaWeeks: number) => {
     const [sy, sm, sd] = weekStartDate.split('-').map(Number);
     const start = new Date(sy, sm - 1, sd, 12, 0, 0);
     start.setDate(start.getDate() + deltaWeeks * 7);
-    const range = getWeekRange(start);
+    const range = get7DayRange(start);
     setWeekStartDate(range.startDate);
     setWeekEndDate(range.endDate);
     setWeekLabel(range.label);
@@ -419,7 +431,7 @@ export default function ExcelSyncPage() {
   };
 
   const handleSelectWeekFromDate = (date: Date) => {
-    const range = getWeekRange(date);
+    const range = get7DayRange(date);
     setWeekStartDate(range.startDate);
     setWeekEndDate(range.endDate);
     setWeekLabel(range.label);
@@ -434,13 +446,11 @@ export default function ExcelSyncPage() {
   const isStartOfWeek = (d: Date) => formatLocalDate(d) === weekStartDate;
   const isEndOfWeek = (d: Date) => formatLocalDate(d) === weekEndDate;
 
-  const isInHoverWeek = (d: Date) => {
-    if (!hoveredWeekDate) return false;
+  const hoverRange = useMemo(() => {
+    if (!hoveredWeekDate) return null;
     const target = parseLocalDate(hoveredWeekDate);
-    const range = getWeekRange(target);
-    const dStr = formatLocalDate(d);
-    return dStr >= range.startDate && dStr <= range.endDate;
-  };
+    return get7DayRange(target);
+  }, [hoveredWeekDate]);
 
   const generateWeekCalendarDays = (vDate: Date) => {
     const year = vDate.getFullYear();
@@ -951,6 +961,13 @@ export default function ExcelSyncPage() {
                           </button>
                         </div>
 
+                        {/* Preview / Helper Bar */}
+                        <div className="flex items-center justify-between text-[11px] px-1 py-0.5 rounded bg-slate-950/40 border border-slate-800/80">
+                          <span className="font-semibold text-emerald-400 truncate">
+                            {hoverRange ? `${hoverRange.label} (7 days)` : 'Select any start date (7 days)'}
+                          </span>
+                        </div>
+
                         {/* Weekday Column Headers (Mo to Su) */}
                         <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider pb-0.5">
                           <span>Mo</span>
@@ -962,12 +979,14 @@ export default function ExcelSyncPage() {
                           <span>Su</span>
                         </div>
 
-                        {/* 42-Day Grid with Full Week Range Highlight */}
+                        {/* 42-Day Grid with Full 7-Day Range Highlight */}
                         <div className="grid grid-cols-7 gap-0.5">
                           {generateWeekCalendarDays(viewMonthDate).map((dayObj) => {
                             const dStr = formatLocalDate(dayObj.date);
                             const active = isSelectedWeekDay(dayObj.date);
-                            const hoverActive = isInHoverWeek(dayObj.date);
+                            const hoverActive = hoverRange ? (dStr >= hoverRange.startDate && dStr <= hoverRange.endDate) : false;
+                            const isHoverStart = hoverRange ? dStr === hoverRange.startDate : false;
+                            const isHoverEnd = hoverRange ? dStr === hoverRange.endDate : false;
                             const start = isStartOfWeek(dayObj.date);
                             const end = isEndOfWeek(dayObj.date);
                             const isToday = dStr === todayStr;
@@ -985,7 +1004,9 @@ export default function ExcelSyncPage() {
                                     ? 'text-slate-600'
                                     : 'text-slate-300 hover:bg-slate-800',
                                   active && 'bg-emerald-950/90 text-emerald-300 font-bold border border-emerald-700/60',
-                                  hoverActive && !active && 'bg-slate-800/80 border border-dashed border-slate-600 text-emerald-200',
+                                  hoverActive && !active && 'bg-emerald-950/40 border border-dashed border-emerald-600/70 text-emerald-200',
+                                  isHoverStart && !active && '!bg-emerald-600/80 !text-white !border-emerald-500 font-bold shadow-sm',
+                                  isHoverEnd && !active && '!bg-teal-600/80 !text-white !border-teal-500 font-bold shadow-sm',
                                   start && '!bg-gradient-to-r !from-emerald-500 !to-teal-600 !text-white !border-emerald-500 shadow-sm font-bold',
                                   end && '!bg-gradient-to-r !from-teal-600 !to-emerald-500 !text-white !border-teal-500 shadow-sm font-bold'
                                 )}
