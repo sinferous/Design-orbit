@@ -369,14 +369,6 @@ export default function ExcelSyncPage() {
               </button>
             )}
           </div>
-
-          {/* User Status Tag */}
-          <div className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-            <span>Profile:</span>
-            <span className="font-semibold text-slate-200 px-2 py-0.5 bg-slate-900 border border-slate-800 rounded">
-              {activeProfile?.name || 'My Work'}
-            </span>
-          </div>
         </div>
 
         {/* Quick Action Bar: Copy for Excel & Download */}
