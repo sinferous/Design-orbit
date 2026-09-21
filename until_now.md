@@ -448,6 +448,34 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 ---
 
+### Phase 18 — Excel Sync (Company 2-Column Daily Sheet Generator) (Completed)
+- [x] **Excel Sync Navigation Tab (`Navbar.tsx`)**:
+  - Added dedicated **`Excel Sync`** tab with `FileSpreadsheet` icon placed directly next to `Reports` in both desktop navigation and mobile drawer menu.
+- [x] **Company Excel Format Generator (`/excel-sync`)**:
+  - Matched the company's required **2-column Excel structure**:
+    - **Column 1 (`Client`)**: Client name (e.g. `2am idea`, `Webtree`, `GHUMPA`, `Suzuki`).
+    - **Column 2 (`Type`)**: Category or description with quantity prefix `x{qty}` (e.g. `Static x3`, `Static x6`, `Video edits x2`, `Design content research`).
+  - Single items (`qty = 1`) display cleanly as `Static`, `Video` without clutter (with optional checkbox to append `x1` if desired).
+  - In-progress sessions (`qty = 0`) display clear `[Working]` badges.
+- [x] **Smart Type Formatting Switcher**:
+  - **Smart Auto (Recommended)**: Detects specific descriptions (e.g. `Carousal edits`, `Design content research`) and formats them with `x{qty}` when appropriate, or defaults to Category + `x{qty}`.
+  - **Category Only**: Strict category format (`Static x3`, `Video`).
+  - **Description Only**: Scope description with `x{qty}` (`Carousal edits x2`).
+  - **Category + Description**: Detailed composite format (`Static - Carousal edits x3`).
+- [x] **Interactive Spreadsheet Preview & Inline Cell Editing**:
+  - Excel-style grid preview with row numbers (1, 2, 3...) and column coordinates (A & B).
+  - **Inline Editable Cells**: Users can click and directly edit any client name or type text before copying.
+  - Custom row creation (`+ Add Custom Row`), row deletion, and 1-click **Reset to Default** action.
+- [x] **Universal 1-Click Clipboard Copy (`Ctrl + V`)**:
+  - Generates standard **Tab-Separated Values (TSV)** and formatted **HTML Table** written simultaneously to clipboard via `copyToClipboardWithHtml`.
+  - Pressing `Ctrl + V` anywhere in Excel, Google Sheets, or Numbers instantly maps each value into Column A and Column B with zero manual cell shifting.
+  - Checkbox toggle: `[✓] Include Headers (Client | Type)` or data rows only.
+  - Secondary fallback: `📥 Download CSV` button.
+- [x] **Production Build Validation**:
+  - `npm run build` compiled **17/17 routes with 0 errors**.
+
+---
+
 ## 3. Current System Status
 
 - **GitHub Repository**: **[https://github.com/sinferous/Design-orbit](https://github.com/sinferous/Design-orbit)** (Branch: `main`)
@@ -458,12 +486,13 @@ This document provides a comprehensive summary of all progress, architecture, an
 - **UI Theme**: **Clean, Minimal Studio Dark Theme** (`#090d16` canvas, `#0b0f19`/`slate-900` elevated surfaces, `slate-800` borders, high-contrast typography, and cyan/teal accents).
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
-- **Build Status**: Production ready, compiled successfully with **0 errors across all 16 routes**.
+- **Build Status**: Production ready, compiled successfully with **0 errors across all 17 routes**.
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`) with alphabetical A-Z member account selector
   - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO personal daily logs)
   - `/dashboard` → Production overview, live metrics, pending approvals reminder card, today's log (65%), private to-do list (35%), & clean 5-item quick navigation launchpad
   - `/clients` → Client Directory Management module with inline edit & update
+  - `/excel-sync` → Excel Sync Daily & Weekly Report generator with 1-click `Ctrl + V` spreadsheet copy
   - `/login` → Authentication with Eye password toggles, preset account choices in A-Z order, & profile ID binding
   - `/settings` → Change Password & Account Settings with Eye password toggles
   - `/work` → Streamlined Personal & Team Daily Work Log, plus full **Pending Approvals Queue (`?view=pending`)** with search, age filters, strict ownership controls, & dismiss button

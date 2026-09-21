@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Calendar, BarChart3, PlusCircle, LogOut, Building2, KeyRound, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Calendar, BarChart3, PlusCircle, LogOut, Building2, KeyRound, Menu, X, FileSpreadsheet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getLoggedInUser, logoutUser, isAdminUser } from '@/lib/services/work-entry';
 
@@ -44,6 +44,7 @@ export function Navbar({ userName }: NavbarProps) {
     { label: isAdmin ? 'Team Log' : 'My Work', href: '/work', icon: Calendar },
     { label: 'Clients', href: '/clients', icon: Building2 },
     { label: 'Reports', href: '/reports/weekly', icon: BarChart3 },
+    { label: 'Excel Sync', href: '/excel-sync', icon: FileSpreadsheet },
   ];
 
   return (
