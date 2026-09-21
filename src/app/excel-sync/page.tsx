@@ -13,11 +13,13 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   RotateCcw,
   Plus,
   Trash2,
   Table as TableIcon,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   fetchProfiles,
   fetchWorkEntriesByDate,
@@ -403,6 +405,80 @@ export default function ExcelSyncPage() {
     setWeekStartDate(range.startDate);
     setWeekEndDate(range.endDate);
     setWeekLabel(range.label);
+  };
+
+  // Week Calendar Popover State & Helpers
+  const [isWeekCalendarOpen, setIsWeekCalendarOpen] = useState(false);
+  const [viewMonthDate, setViewMonthDate] = useState<Date>(() => new Date());
+  const [hoveredWeekDate, setHoveredWeekDate] = useState<string | null>(null);
+
+  const handleMonthDelta = (months: number) => {
+    const next = new Date(viewMonthDate);
+    next.setMonth(next.getMonth() + months);
+    setViewMonthDate(next);
+  };
+
+  const handleSelectWeekFromDate = (date: Date) => {
+    const range = getWeekRange(date);
+    setWeekStartDate(range.startDate);
+    setWeekEndDate(range.endDate);
+    setWeekLabel(range.label);
+    setIsWeekCalendarOpen(false);
+  };
+
+  const isSelectedWeekDay = (d: Date) => {
+    const dStr = formatLocalDate(d);
+    return dStr >= weekStartDate && dStr <= weekEndDate;
+  };
+
+  const isStartOfWeek = (d: Date) => formatLocalDate(d) === weekStartDate;
+  const isEndOfWeek = (d: Date) => formatLocalDate(d) === weekEndDate;
+
+  const isInHoverWeek = (d: Date) => {
+    if (!hoveredWeekDate) return false;
+    const target = parseLocalDate(hoveredWeekDate);
+    const range = getWeekRange(target);
+    const dStr = formatLocalDate(d);
+    return dStr >= range.startDate && dStr <= range.endDate;
+  };
+
+  const generateWeekCalendarDays = (vDate: Date) => {
+    const year = vDate.getFullYear();
+    const month = vDate.getMonth();
+    const firstDayIndex = (new Date(year, month, 1, 12, 0, 0).getDay() + 6) % 7;
+    const totalDays = new Date(year, month + 1, 0, 12, 0, 0).getDate();
+    const prevMonthTotalDays = new Date(year, month, 0, 12, 0, 0).getDate();
+    const daysArr: { date: Date; isCurrentMonth: boolean; key: string }[] = [];
+
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const d = new Date(year, month - 1, prevMonthTotalDays - i, 12, 0, 0);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: false,
+        key: `prev-${prevMonthTotalDays - i}`,
+      });
+    }
+
+    for (let i = 1; i <= totalDays; i++) {
+      const d = new Date(year, month, i, 12, 0, 0);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: true,
+        key: `curr-${i}`,
+      });
+    }
+
+    const remaining = 42 - daysArr.length;
+    for (let i = 1; i <= remaining; i++) {
+      const d = new Date(year, month + 1, i, 12, 0, 0);
+      daysArr.push({
+        date: d,
+        isCurrentMonth: false,
+        key: `next-${i}`,
+      });
+    }
+
+    return daysArr;
   };
 
   const handleWeeklyRowChange = (id: string, field: keyof WeeklyExcelRow, value: string) => {
@@ -824,10 +900,145 @@ export default function ExcelSyncPage() {
                   <ChevronLeft className="w-4 h-4" />
                 </button>
 
-                {/* Week Label Pill */}
-                <div className="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-100 shadow-sm flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{weekLabel}</span>
+                {/* Interactive Week Calendar Button & Popover */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setViewMonthDate(parseLocalDate(weekStartDate));
+                      setIsWeekCalendarOpen(!isWeekCalendarOpen);
+                    }}
+                    className="flex items-center space-x-2 px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-emerald-500 rounded-lg text-xs font-bold text-slate-100 shadow-sm transition-all cursor-pointer group select-none"
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0 group-hover:scale-105 transition-transform" />
+                    <span>{weekLabel}</span>
+                    <ChevronDown
+                      className={cn(
+                        'w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200',
+                        isWeekCalendarOpen && 'rotate-180 text-emerald-400'
+                      )}
+                    />
+                  </button>
+
+                  {/* Week Picker Popover */}
+                  {isWeekCalendarOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-30"
+                        onClick={() => setIsWeekCalendarOpen(false)}
+                      />
+                      <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 z-40 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/80 p-3.5 sm:p-4 w-[300px] sm:w-[320px] space-y-3 animate-in fade-in zoom-in-95 duration-150">
+                        {/* Month Steppers Header */}
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                          <button
+                            type="button"
+                            onClick={() => handleMonthDelta(-1)}
+                            className="p-1 rounded-lg border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+                            title="Previous Month"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          <span className="text-xs font-bold text-slate-100 tracking-wide">
+                            {viewMonthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleMonthDelta(1)}
+                            className="p-1 rounded-lg border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+                            title="Next Month"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Weekday Column Headers (Mo to Su) */}
+                        <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider pb-0.5">
+                          <span>Mo</span>
+                          <span>Tu</span>
+                          <span>We</span>
+                          <span>Th</span>
+                          <span>Fr</span>
+                          <span>Sa</span>
+                          <span>Su</span>
+                        </div>
+
+                        {/* 42-Day Grid with Full Week Range Highlight */}
+                        <div className="grid grid-cols-7 gap-0.5">
+                          {generateWeekCalendarDays(viewMonthDate).map((dayObj) => {
+                            const dStr = formatLocalDate(dayObj.date);
+                            const active = isSelectedWeekDay(dayObj.date);
+                            const hoverActive = isInHoverWeek(dayObj.date);
+                            const start = isStartOfWeek(dayObj.date);
+                            const end = isEndOfWeek(dayObj.date);
+                            const isToday = dStr === todayStr;
+
+                            return (
+                              <button
+                                key={dayObj.key}
+                                type="button"
+                                onMouseEnter={() => setHoveredWeekDate(dStr)}
+                                onMouseLeave={() => setHoveredWeekDate(null)}
+                                onClick={() => handleSelectWeekFromDate(dayObj.date)}
+                                className={cn(
+                                  'h-8 w-8 sm:h-8.5 sm:w-8.5 text-xs font-semibold rounded flex items-center justify-center transition-all cursor-pointer relative',
+                                  !dayObj.isCurrentMonth
+                                    ? 'text-slate-600'
+                                    : 'text-slate-300 hover:bg-slate-800',
+                                  active && 'bg-emerald-950/90 text-emerald-300 font-bold border border-emerald-700/60',
+                                  hoverActive && !active && 'bg-slate-800/80 border border-dashed border-slate-600 text-emerald-200',
+                                  start && '!bg-gradient-to-r !from-emerald-500 !to-teal-600 !text-white !border-emerald-500 shadow-sm font-bold',
+                                  end && '!bg-gradient-to-r !from-teal-600 !to-emerald-500 !text-white !border-teal-500 shadow-sm font-bold'
+                                )}
+                              >
+                                {dayObj.date.getDate()}
+                                {isToday && !active && (
+                                  <span className="absolute bottom-1 w-1 h-1 bg-sky-400 rounded-full" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Footer Presets */}
+                        <div className="border-t border-slate-800 pt-2.5 flex items-center justify-between text-xs">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleThisWeek();
+                              setViewMonthDate(new Date());
+                              setIsWeekCalendarOpen(false);
+                            }}
+                            className="text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
+                          >
+                            This Week
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const lastWeek = new Date();
+                              lastWeek.setDate(lastWeek.getDate() - 7);
+                              const range = getWeekRange(lastWeek);
+                              setWeekStartDate(range.startDate);
+                              setWeekEndDate(range.endDate);
+                              setWeekLabel(range.label);
+                              setViewMonthDate(lastWeek);
+                              setIsWeekCalendarOpen(false);
+                            }}
+                            className="text-slate-400 hover:text-slate-200 font-medium cursor-pointer"
+                          >
+                            Last Week
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsWeekCalendarOpen(false)}
+                            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded font-semibold transition-colors cursor-pointer border border-slate-700 text-[11px]"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <button
