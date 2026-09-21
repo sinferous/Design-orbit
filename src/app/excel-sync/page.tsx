@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { CreativeBackground } from '@/components/ui/CreativeBackground';
 import { RichDatePicker } from '@/components/ui/RichDatePicker';
-import { RichSelect } from '@/components/ui/RichSelect';
 import { useToast } from '@/components/ui/ToastContext';
 import {
   FileSpreadsheet,
@@ -14,27 +13,19 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  SlidersHorizontal,
   RotateCcw,
   Plus,
   Trash2,
-  Info,
-  Layers,
-  Building2,
-  Table as TableIcon
+  Table as TableIcon,
 } from 'lucide-react';
 import {
   fetchProfiles,
   fetchWorkEntriesByDate,
   getLoggedInUser,
-  isAdminUser,
   isInProgressEntry,
 } from '@/lib/services/work-entry';
 import { copyToClipboardWithHtml } from '@/lib/services/email-formatter';
 import { Profile, WorkEntryWithDetails } from '@/types';
-
-type FormatStyle = 'smart' | 'category_qty' | 'desc_qty' | 'category_desc';
 
 interface ExcelRow {
   id: string;
@@ -63,22 +54,15 @@ export default function ExcelSyncPage() {
   const todayStr = formatLocalDate(new Date());
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
 
-  // User & Profiles state
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  // User & Profile state (strictly for current logged in profile)
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [selectedUserFilter, setSelectedUserFilter] = useState<string>('my_work');
 
   // Work entries data
   const [entries, setEntries] = useState<WorkEntryWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Excel Format Controls
+  // View mode tab
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly'>('daily');
-  const [formatStyle, setFormatStyle] = useState<FormatStyle>('smart');
-  const [includeHeaders, setIncludeHeaders] = useState<boolean>(true);
-  const [showX1, setShowX1] = useState<boolean>(false);
-  const [groupByClient, setGroupByClient] = useState<boolean>(true);
 
   // Editable Spreadsheet rows
   const [editableRows, setEditableRows] = useState<ExcelRow[]>([]);
@@ -87,35 +71,22 @@ export default function ExcelSyncPage() {
 
   // Load profiles and authenticated user
   useEffect(() => {
-    async function initUserAndProfiles() {
+    async function initUserAndProfile() {
       const pData = await fetchProfiles();
-      setProfiles(pData);
       const user = getLoggedInUser();
-      const admin = isAdminUser(user);
-      setIsAdmin(admin);
-
-      if (admin) {
-        setSelectedUserFilter('all');
-      }
-
       const current = user
         ? pData.find((p) => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0]
         : pData[0];
       if (current) setActiveProfile(current);
     }
-    initUserAndProfiles();
+    initUserAndProfile();
   }, []);
 
-  // Fetch daily work entries
+  // Fetch daily work entries strictly for current profile
   const loadEntries = useCallback(async () => {
     setLoading(true);
     try {
-      const isMyWork = !isAdmin && selectedUserFilter === 'my_work';
-      const userIdToFetch = isMyWork
-        ? activeProfile?.id || 'p1'
-        : selectedUserFilter === 'all'
-        ? undefined
-        : selectedUserFilter;
+      const userIdToFetch = activeProfile?.id || 'p1';
       const data = await fetchWorkEntriesByDate(selectedDate, userIdToFetch);
       setEntries(data);
     } catch (err) {
@@ -124,25 +95,22 @@ export default function ExcelSyncPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedDate, selectedUserFilter, activeProfile, isAdmin, showToast]);
+  }, [selectedDate, activeProfile, showToast]);
 
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
 
-  // Compute standard Excel Rows from entries based on user format settings
+  // Compute standard Excel Rows from entries using Smart Auto formatting
   const generatedRows = useMemo<ExcelRow[]>(() => {
     if (!entries.length) return [];
 
-    let sortedEntries = [...entries];
-
-    if (groupByClient) {
-      sortedEntries.sort((a, b) => {
-        const clientA = (a.client?.name || 'General').toLowerCase();
-        const clientB = (b.client?.name || 'General').toLowerCase();
-        return clientA.localeCompare(clientB);
-      });
-    }
+    // Sort entries grouped by client alphabetically A-Z
+    const sortedEntries = [...entries].sort((a, b) => {
+      const clientA = (a.client?.name || 'General').toLowerCase();
+      const clientB = (b.client?.name || 'General').toLowerCase();
+      return clientA.localeCompare(clientB);
+    });
 
     return sortedEntries.map((entry, idx) => {
       const client = entry.client?.name || 'General';
@@ -153,48 +121,24 @@ export default function ExcelSyncPage() {
 
       // Determine 'x' quantity suffix:
       // If qty > 1 -> ' x{qty}' (e.g. ' x3', ' x6')
-      // If qty == 1 and showX1 -> ' x1'
-      // If qty == 1 and !showX1 -> ''
+      // If qty == 1 -> '' (clean without x1)
       // If working/qty == 0 -> ' [Working]'
       let qtySuffix = '';
       if (isWorking) {
         qtySuffix = ' [Working]';
       } else if (qty > 1) {
         qtySuffix = ` x${qty}`;
-      } else if (qty === 1 && showX1) {
-        qtySuffix = ' x1';
       }
 
+      // Smart format logic:
+      // If description is specific & different from category, use description + suffix
+      // Otherwise use category + suffix
       let typeCol = '';
-
-      switch (formatStyle) {
-        case 'category_qty':
-          // Strict Category + Qty: e.g. "Static x3", "Video"
-          typeCol = `${category}${qtySuffix}`;
-          break;
-
-        case 'desc_qty':
-          // Description (fallback to category) + Qty: e.g. "Carousal edits x2"
-          typeCol = `${desc || category}${qtySuffix}`;
-          break;
-
-        case 'category_desc':
-          // Category - Description + Qty: e.g. "Static - Carousal edits x3"
-          typeCol = desc ? `${category} - ${desc}${qtySuffix}` : `${category}${qtySuffix}`;
-          break;
-
-        case 'smart':
-        default:
-          // If description is specific & different from category, use description + suffix
-          // Otherwise use category + suffix
-          if (desc && desc.toLowerCase() !== category.toLowerCase()) {
-            // If the user already typed 'x2' or 'x3' manually in the description, don't duplicate it
-            const hasManualX = /\bx\s*\d+\b/i.test(desc);
-            typeCol = hasManualX ? desc : `${desc}${qtySuffix}`;
-          } else {
-            typeCol = `${category}${qtySuffix}`;
-          }
-          break;
+      if (desc && desc.toLowerCase() !== category.toLowerCase()) {
+        const hasManualX = /\bx\s*\d+\b/i.test(desc);
+        typeCol = hasManualX ? desc : `${desc}${qtySuffix}`;
+      } else {
+        typeCol = `${category}${qtySuffix}`;
       }
 
       return {
@@ -205,9 +149,9 @@ export default function ExcelSyncPage() {
         quantity: qty,
       };
     });
-  }, [entries, groupByClient, formatStyle, showX1]);
+  }, [entries]);
 
-  // Sync generated rows into editableRows whenever raw data or format settings change
+  // Sync generated rows into editableRows whenever raw data changes
   useEffect(() => {
     setEditableRows(generatedRows);
     setHasCustomEdits(false);
@@ -256,13 +200,8 @@ export default function ExcelSyncPage() {
       return;
     }
 
-    // 1. Generate Plain Text Tab-Separated Values (TSV)
-    // In TSV, columns are separated by tabs '\t' and rows by '\r\n'
-    // This is the universal standard format Excel parses natively when pasting!
-    const tsvLines: string[] = [];
-    if (includeHeaders) {
-      tsvLines.push('Client\tType');
-    }
+    // 1. Generate Plain Text Tab-Separated Values (TSV) with Header Row
+    const tsvLines: string[] = ['Client\tType'];
     editableRows.forEach((row) => {
       tsvLines.push(`${row.client.trim()}\t${row.type.trim()}`);
     });
@@ -271,14 +210,12 @@ export default function ExcelSyncPage() {
     // 2. Generate Clean HTML Table as secondary MIME type
     const htmlContent = `
       <table style="border-collapse: collapse; font-family: Calibri, Arial, sans-serif; font-size: 11pt;">
-        ${
-          includeHeaders
-            ? `<thead><tr>
-                <th style="border: 1px solid #000; padding: 4px 8px; font-weight: bold; background-color: #f2f2f2;">Client</th>
-                <th style="border: 1px solid #000; padding: 4px 8px; font-weight: bold; background-color: #f2f2f2;">Type</th>
-              </tr></thead>`
-            : ''
-        }
+        <thead>
+          <tr>
+            <th style="border: 1px solid #000; padding: 4px 8px; font-weight: bold; background-color: #f2f2f2;">Client</th>
+            <th style="border: 1px solid #000; padding: 4px 8px; font-weight: bold; background-color: #f2f2f2;">Type</th>
+          </tr>
+        </thead>
         <tbody>
           ${editableRows
             .map(
@@ -296,7 +233,7 @@ export default function ExcelSyncPage() {
     const success = await copyToClipboardWithHtml(htmlContent, tsvContent);
     if (success) {
       setIsCopied(true);
-      showToast(`Copied ${editableRows.length} rows! Paste into Excel (Ctrl + V)`, 'success');
+      showToast(`Copied ${editableRows.length} rows to clipboard!`, 'success');
       setTimeout(() => setIsCopied(false), 2500);
     } else {
       showToast('Failed to copy to clipboard', 'error');
@@ -317,10 +254,7 @@ export default function ExcelSyncPage() {
       return str;
     };
 
-    const csvLines: string[] = [];
-    if (includeHeaders) {
-      csvLines.push('Client,Type');
-    }
+    const csvLines: string[] = ['Client,Type'];
     editableRows.forEach((r) => {
       csvLines.push(`${escapeCsv(r.client)},${escapeCsv(r.type)}`);
     });
@@ -363,7 +297,7 @@ export default function ExcelSyncPage() {
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
-              Format your daily work into your company's exact 2-column Excel structure (<code className="text-emerald-300 font-mono text-xs">Client</code> | <code className="text-emerald-300 font-mono text-xs">Type</code>). Copy here, press <kbd className="px-1.5 py-0.5 text-[11px] font-semibold bg-slate-800 border border-slate-700 rounded text-slate-200">Ctrl + V</kbd> in Excel!
+              Format your daily work into your company's exact 2-column Excel structure (<code className="text-emerald-300 font-mono text-xs">Client</code> | <code className="text-emerald-300 font-mono text-xs">Type</code>). Copy here, paste in Excel!
             </p>
           </div>
 
@@ -375,7 +309,7 @@ export default function ExcelSyncPage() {
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 activeTab === 'daily'
                   ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-400 hover:text-slate-200 cursor-pointer'
               }`}
             >
               <Calendar className="w-3.5 h-3.5" />
@@ -386,7 +320,7 @@ export default function ExcelSyncPage() {
               onClick={() => {
                 showToast('Weekly Excel Sync is coming next! Daily report is ready below.', 'success');
               }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-400 hover:text-slate-200`}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-400 hover:text-slate-200 cursor-pointer"
             >
               <TableIcon className="w-3.5 h-3.5" />
               <span>Weekly Report</span>
@@ -397,158 +331,51 @@ export default function ExcelSyncPage() {
           </div>
         </div>
 
-        {/* Date & Member Filter Controls Bar */}
-        <div className="bg-[#0b0f19] border border-slate-800/90 rounded-xl p-4 mb-5 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-800/70">
-            {/* Date Navigation */}
-            <div className="flex items-center gap-2">
+        {/* Streamlined Controls Bar: Date Navigation (Without Gaps) */}
+        <div className="bg-[#0b0f19] border border-slate-800/90 rounded-xl p-3.5 sm:p-4 mb-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Date Navigation - Snug without extra gap */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => handleDateStep(-1)}
+              className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
+              title="Previous Day"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <RichDatePicker
+              value={selectedDate}
+              onChange={(val) => setSelectedDate(val)}
+              label=""
+            />
+
+            <button
+              type="button"
+              onClick={() => handleDateStep(1)}
+              className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
+              title="Next Day"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {selectedDate !== todayStr && (
               <button
                 type="button"
-                onClick={() => handleDateStep(-1)}
-                className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors"
-                title="Previous Day"
+                onClick={() => setSelectedDate(todayStr)}
+                className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition-colors cursor-pointer ml-1"
               >
-                <ChevronLeft className="w-4 h-4" />
+                Today
               </button>
-
-              <div className="min-w-[170px] sm:min-w-[190px]">
-                <RichDatePicker
-                  value={selectedDate}
-                  onChange={(val) => setSelectedDate(val)}
-                  label=""
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleDateStep(1)}
-                className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors"
-                title="Next Day"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-
-              {selectedDate !== todayStr && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedDate(todayStr)}
-                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition-colors"
-                >
-                  Today
-                </button>
-              )}
-            </div>
-
-            {/* Team Member Selector */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-slate-400">Designer:</span>
-              <div className="w-44 sm:w-52">
-                <RichSelect
-                  options={[
-                    ...(!isAdmin ? [{ label: 'My Work', value: 'my_work' }] : []),
-                    { label: 'Entire Team', value: 'all' },
-                    ...profiles
-                      .filter((p) => p.name.toLowerCase() !== 'admin')
-                      .map((p) => ({ label: p.name, value: p.id })),
-                  ]}
-                  value={selectedUserFilter}
-                  onChange={(val) => setSelectedUserFilter(val)}
-                />
-              </div>
-            </div>
+            )}
           </div>
 
-          {/* Format Controls: Type Column Style & Options */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-400" />
-                Type Format:
-              </span>
-              <div className="inline-flex p-0.5 bg-slate-900 border border-slate-800 rounded-lg text-xs">
-                <button
-                  type="button"
-                  onClick={() => setFormatStyle('smart')}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                    formatStyle === 'smart'
-                      ? 'bg-emerald-600 text-white font-semibold'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Uses custom description if detailed, otherwise Category + x{qty}"
-                >
-                  Smart Auto (Recommended)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormatStyle('category_qty')}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                    formatStyle === 'category_qty'
-                      ? 'bg-emerald-600 text-white font-semibold'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Category only with x{qty}, e.g. Static x3"
-                >
-                  Category Only
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormatStyle('desc_qty')}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                    formatStyle === 'desc_qty'
-                      ? 'bg-emerald-600 text-white font-semibold'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Description with x{qty}, e.g. Carousal edits x2"
-                >
-                  Description Only
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormatStyle('category_desc')}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                    formatStyle === 'category_desc'
-                      ? 'bg-emerald-600 text-white font-semibold'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Category - Description x{qty}"
-                >
-                  Category + Desc
-                </button>
-              </div>
-            </div>
-
-            {/* Checkbox Toggles */}
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300">
-              <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={includeHeaders}
-                  onChange={(e) => setIncludeHeaders(e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500/20 w-3.5 h-3.5"
-                />
-                <span>Include Headers (Client | Type)</span>
-              </label>
-
-              <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={showX1}
-                  onChange={(e) => setShowX1(e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500/20 w-3.5 h-3.5"
-                />
-                <span>Show "x1" for single items</span>
-              </label>
-
-              <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={groupByClient}
-                  onChange={(e) => setGroupByClient(e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500/20 w-3.5 h-3.5"
-                />
-                <span>Group by Client A-Z</span>
-              </label>
-            </div>
+          {/* User Status Tag */}
+          <div className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+            <span>Profile:</span>
+            <span className="font-semibold text-slate-200 px-2 py-0.5 bg-slate-900 border border-slate-800 rounded">
+              {activeProfile?.name || 'My Work'}
+            </span>
           </div>
         </div>
 
@@ -572,7 +399,7 @@ export default function ExcelSyncPage() {
               <button
                 type="button"
                 onClick={handleResetToDefault}
-                className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors flex items-center gap-1.5"
+                className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
                 title="Reset edits to original logged entries"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -584,7 +411,7 @@ export default function ExcelSyncPage() {
               type="button"
               onClick={handleDownloadCsv}
               disabled={!editableRows.length}
-              className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="w-3.5 h-3.5 text-slate-400" />
               <span>Download CSV</span>
@@ -594,21 +421,21 @@ export default function ExcelSyncPage() {
               type="button"
               onClick={handleCopyForExcel}
               disabled={!editableRows.length}
-              className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm ${
+              className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
                 isCopied
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white cursor-pointer active:scale-95'
+                  : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white active:scale-95'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {isCopied ? (
                 <>
                   <Check className="w-4 h-4 text-white" />
-                  <span>Copied for Excel!</span>
+                  <span>Copied!</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4 text-white" />
-                  <span>Copy for Excel (Ctrl + V)</span>
+                  <span>Copy for Excel</span>
                 </>
               )}
             </button>
@@ -622,7 +449,7 @@ export default function ExcelSyncPage() {
             <div className="flex items-center gap-2">
               <span className="font-mono text-emerald-400 font-bold">EXCEL_SYNC_PREVIEW</span>
               <span>&bull;</span>
-              <span>Directly click any cell to edit wording before copying</span>
+              <span>Click any cell to edit wording before copying</span>
             </div>
             <button
               type="button"
@@ -646,12 +473,12 @@ export default function ExcelSyncPage() {
               </div>
               <h3 className="text-sm font-semibold text-slate-200 mb-1">No Deliverables Logged on this Date</h3>
               <p className="text-xs text-slate-500 max-w-sm mb-4">
-                No daily work entries were found for {formattedDateTitle}. Try choosing another date or add custom rows manually.
+                No daily work entries were found for {formattedDateTitle}. Choose another date or add custom rows manually.
               </p>
               <button
                 type="button"
                 onClick={handleAddRow}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Row Manually</span>
@@ -736,18 +563,11 @@ export default function ExcelSyncPage() {
             </div>
           )}
 
-          {/* Table Footer Summary & Instructions */}
+          {/* Table Footer: Clean Row Count */}
           {editableRows.length > 0 && (
-            <div className="px-4 py-3 bg-slate-950/80 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
-              <div className="flex items-center gap-2">
-                <Info className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                <span>
-                  Paste destination: Click cell <strong>A1</strong> in Excel, then press <kbd className="px-1 py-0.5 text-[10px] bg-slate-800 border border-slate-700 rounded text-slate-200">Ctrl + V</kbd>.
-                </span>
-              </div>
-              <div className="text-slate-500 text-[11px]">
-                {editableRows.length} data rows &bull; 2 columns
-              </div>
+            <div className="px-4 py-2.5 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-medium">
+              <span>{editableRows.length} data rows &bull; 2 columns</span>
+              <span className="text-[11px] text-slate-600">Excel &amp; Google Sheets ready</span>
             </div>
           )}
         </div>
