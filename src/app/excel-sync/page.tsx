@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { CreativeBackground } from '@/components/ui/CreativeBackground';
 import { RichDatePicker } from '@/components/ui/RichDatePicker';
@@ -25,6 +26,7 @@ import {
   fetchWorkEntriesByDate,
   getLoggedInUser,
   isInProgressEntry,
+  isAdminUser,
 } from '@/lib/services/work-entry';
 import { getWeekRange } from '@/lib/services/reports';
 import { copyToClipboardWithHtml } from '@/lib/services/email-formatter';
@@ -52,6 +54,7 @@ interface WeeklyExcelRow {
 }
 
 export default function ExcelSyncPage() {
+  const router = useRouter();
   const { showToast } = useToast();
 
   // Date formatting helpers
@@ -101,15 +104,21 @@ export default function ExcelSyncPage() {
   // Load profiles and authenticated user
   useEffect(() => {
     async function initUserAndProfile() {
-      const pData = await fetchProfiles();
       const user = getLoggedInUser();
-      const current = user
-        ? pData.find((p) => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0]
-        : pData[0];
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      if (isAdminUser(user)) {
+        router.push('/admin');
+        return;
+      }
+      const pData = await fetchProfiles();
+      const current = pData.find((p) => p.name.toLowerCase() === user.name.toLowerCase()) || pData[0];
       if (current) setActiveProfile(current);
     }
     initUserAndProfile();
-  }, []);
+  }, [router]);
 
   // ----------------------------------------------------
   // 1. DAILY DATA FETCHING & ROW GENERATION
