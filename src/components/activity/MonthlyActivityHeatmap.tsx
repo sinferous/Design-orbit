@@ -252,17 +252,17 @@ export function MonthlyActivityHeatmap({
                     ? 'ring-2 ring-sky-400 ring-offset-1 ring-offset-slate-900 scale-[1.03] z-10'
                     : ''
                 } ${
-                  isSunday && day.tasksCount === 0 ? 'opacity-40' : ''
+                  isSunday && day.quantityDone === 0 && day.tasksCount === 0 ? 'opacity-40' : ''
                 }`}
-                title={`${day.dateStr}: ${day.tasksCount} task(s) logged, ${day.quantityDone} deliverables`}
+                title={`${day.dateStr}: ${day.quantityDone} work(s) done (${day.tasksCount} task entries)`}
               >
                 <span className="text-xs sm:text-sm font-bold">
                   {day.dayNumber}
                 </span>
 
-                {day.tasksCount > 0 && (
+                {(day.quantityDone > 0 || day.tasksCount > 0) && (
                   <span className="text-[10px] sm:text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/40 text-white">
-                    {day.tasksCount}
+                    {day.quantityDone}
                   </span>
                 )}
               </button>
@@ -277,11 +277,11 @@ export function MonthlyActivityHeatmap({
           <span>Production Activity:</span>
           <span className="text-[11px] text-slate-500">Less</span>
           <div className="flex items-center space-x-1">
-            <span className="w-3.5 h-3.5 rounded-xs bg-slate-800/70 border border-slate-700/60" title="0 tasks (Off/Idle)" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-950/80 border border-emerald-800/80" title="1-2 tasks" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-800/80 border border-emerald-600/80" title="3-4 tasks" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-600 border border-emerald-500" title="5-7 tasks" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-500 border border-emerald-400" title="8+ tasks" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-slate-800/70 border border-slate-700/60" title="0 works done (Off/Idle)" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-950/80 border border-emerald-800/80" title="1-4 works done" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-800/80 border border-emerald-600/80" title="5-9 works done" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-600 border border-emerald-500" title="10-15 works done" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-500 border border-emerald-400" title="16+ works done" />
           </div>
           <span className="text-[11px] text-slate-500">More</span>
         </div>
@@ -301,7 +301,7 @@ export function MonthlyActivityHeatmap({
                 Deliverables Logged on {selectedDay.dateStr}
               </h4>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-950 text-sky-300 border border-sky-800">
-                {selectedDay.tasksCount} item{selectedDay.tasksCount === 1 ? '' : 's'}
+                {selectedDay.quantityDone} work{selectedDay.quantityDone === 1 ? '' : 's'} ({selectedDay.tasksCount} {selectedDay.tasksCount === 1 ? 'task' : 'tasks'})
               </span>
             </div>
 

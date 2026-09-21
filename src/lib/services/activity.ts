@@ -73,13 +73,14 @@ export interface MonthlyTeamActivity {
 }
 
 /**
- * Calculates GitHub-style 0-4 intensity tier based on task count
+ * Calculates GitHub-style 0-4 intensity tier based on amount of work done (quantity of deliverables)
+ * Higher work done gives a lighter/brighter green color
  */
-export function calculateHeatIntensity(tasksCount: number): 0 | 1 | 2 | 3 | 4 {
-  if (tasksCount <= 0) return 0;
-  if (tasksCount <= 2) return 1;
-  if (tasksCount <= 4) return 2;
-  if (tasksCount <= 7) return 3;
+export function calculateHeatIntensity(workDone: number, tasksCount: number = 0): 0 | 1 | 2 | 3 | 4 {
+  if (workDone <= 0 && tasksCount <= 0) return 0;
+  if (workDone <= 4) return 1;
+  if (workDone <= 9) return 2;
+  if (workDone <= 15) return 3;
   return 4;
 }
 
@@ -216,7 +217,7 @@ export function buildDesignerActivity(
       totalSeconds: sec,
       uniqueClients: Array.from(clientSet),
       entries: dayEntries,
-      intensity: calculateHeatIntensity(tasksCount),
+      intensity: calculateHeatIntensity(qDone, tasksCount),
     };
 
     daysMap[dateStr] = dayActivity;
@@ -328,12 +329,12 @@ export async function fetchMonthlyTeamActivity(
     });
   });
 
-  // Calculate intensity for agency totals based on team active count
+  // Calculate intensity for agency totals based on team deliverables produced (quantityDone)
   Object.values(agencyDailyTotals).forEach(day => {
-    if (day.tasksCount === 0) day.intensity = 0;
-    else if (day.tasksCount <= 4) day.intensity = 1;
-    else if (day.tasksCount <= 9) day.intensity = 2;
-    else if (day.tasksCount <= 15) day.intensity = 3;
+    if (day.quantityDone === 0 && day.tasksCount === 0) day.intensity = 0;
+    else if (day.quantityDone <= 8) day.intensity = 1;
+    else if (day.quantityDone <= 18) day.intensity = 2;
+    else if (day.quantityDone <= 30) day.intensity = 3;
     else day.intensity = 4;
   });
 
