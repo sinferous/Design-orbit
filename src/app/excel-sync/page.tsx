@@ -24,15 +24,29 @@ import {
   getLoggedInUser,
   isInProgressEntry,
 } from '@/lib/services/work-entry';
+import { getWeekRange } from '@/lib/services/reports';
 import { copyToClipboardWithHtml } from '@/lib/services/email-formatter';
 import { Profile, WorkEntryWithDetails } from '@/types';
 
-interface ExcelRow {
+// Daily 2-Column Row Interface
+interface DailyExcelRow {
   id: string;
   client: string;
   type: string;
   originalEntryId?: string;
   quantity: number;
+}
+
+// Weekly 6-Column Row Interface (Serial No., Company Name, Description, Work Type, Done, Approved)
+interface WeeklyExcelRow {
+  id: string;
+  serialNo: string;
+  companyName: string;
+  description: string;
+  workType: string;
+  done: string;
+  approved: string;
+  originalEntryId?: string;
 }
 
 export default function ExcelSyncPage() {
@@ -52,22 +66,35 @@ export default function ExcelSyncPage() {
   };
 
   const todayStr = formatLocalDate(new Date());
+
+  // ----------------------------------------------------
+  // DAILY STATE
+  // ----------------------------------------------------
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+  const [dailyEntries, setDailyEntries] = useState<WorkEntryWithDetails[]>([]);
+  const [dailyLoading, setDailyLoading] = useState(true);
+  const [editableDailyRows, setEditableDailyRows] = useState<DailyExcelRow[]>([]);
+  const [dailyHasCustomEdits, setDailyHasCustomEdits] = useState(false);
+  const [isDailyCopied, setIsDailyCopied] = useState(false);
 
-  // User & Profile state (strictly for current logged in profile)
-  const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
+  // ----------------------------------------------------
+  // WEEKLY STATE
+  // ----------------------------------------------------
+  const initialWeek = useMemo(() => getWeekRange(new Date()), []);
+  const [weekStartDate, setWeekStartDate] = useState<string>(initialWeek.startDate);
+  const [weekEndDate, setWeekEndDate] = useState<string>(initialWeek.endDate);
+  const [weekLabel, setWeekLabel] = useState<string>(initialWeek.label);
+  const [weeklyEntries, setWeeklyEntries] = useState<WorkEntryWithDetails[]>([]);
+  const [weeklyLoading, setWeeklyLoading] = useState(true);
+  const [editableWeeklyRows, setEditableWeeklyRows] = useState<WeeklyExcelRow[]>([]);
+  const [weeklyHasCustomEdits, setWeeklyHasCustomEdits] = useState(false);
+  const [isWeeklyCopied, setIsWeeklyCopied] = useState(false);
 
-  // Work entries data
-  const [entries, setEntries] = useState<WorkEntryWithDetails[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // View mode tab
+  // Active view tab: 'daily' vs 'weekly'
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly'>('daily');
 
-  // Editable Spreadsheet rows
-  const [editableRows, setEditableRows] = useState<ExcelRow[]>([]);
-  const [hasCustomEdits, setHasCustomEdits] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
+  // User & Profile state (strictly current profile)
+  const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
 
   // Load profiles and authenticated user
   useEffect(() => {
@@ -82,47 +109,46 @@ export default function ExcelSyncPage() {
     initUserAndProfile();
   }, []);
 
-  // Fetch daily work entries strictly for current profile
-  const loadEntries = useCallback(async () => {
-    setLoading(true);
+  // ----------------------------------------------------
+  // 1. DAILY DATA FETCHING & ROW GENERATION
+  // ----------------------------------------------------
+  const loadDailyEntries = useCallback(async () => {
+    setDailyLoading(true);
     try {
       const userIdToFetch = activeProfile?.id || 'p1';
       const data = await fetchWorkEntriesByDate(selectedDate, userIdToFetch);
-      setEntries(data);
+      setDailyEntries(data);
     } catch (err) {
-      console.error('Failed to load work entries for Excel Sync:', err);
+      console.error('Failed to load daily entries for Excel Sync:', err);
       showToast('Error loading work entries for this date', 'error');
     } finally {
-      setLoading(false);
+      setDailyLoading(false);
     }
   }, [selectedDate, activeProfile, showToast]);
 
   useEffect(() => {
-    loadEntries();
-  }, [loadEntries]);
+    if (activeTab === 'daily') {
+      loadDailyEntries();
+    }
+  }, [activeTab, loadDailyEntries]);
 
-  // Compute standard Excel Rows from entries using Smart Auto formatting
-  const generatedRows = useMemo<ExcelRow[]>(() => {
-    if (!entries.length) return [];
+  // Generate Daily 2-Column Rows (Client | Type)
+  const generatedDailyRows = useMemo<DailyExcelRow[]>(() => {
+    if (!dailyEntries.length) return [];
 
-    // Sort entries grouped by client alphabetically A-Z
-    const sortedEntries = [...entries].sort((a, b) => {
+    const sorted = [...dailyEntries].sort((a, b) => {
       const clientA = (a.client?.name || 'General').toLowerCase();
       const clientB = (b.client?.name || 'General').toLowerCase();
       return clientA.localeCompare(clientB);
     });
 
-    return sortedEntries.map((entry, idx) => {
+    return sorted.map((entry, idx) => {
       const client = entry.client?.name || 'General';
       const category = entry.work_type?.name || 'Deliverable';
       const desc = entry.description ? entry.description.trim() : '';
       const qty = entry.quantity_done || 0;
       const isWorking = isInProgressEntry(entry) || qty === 0;
 
-      // Determine 'x' quantity suffix:
-      // If qty > 1 -> ' x{qty}' (e.g. ' x3', ' x6')
-      // If qty == 1 -> '' (clean without x1)
-      // If working/qty == 0 -> ' [Working]'
       let qtySuffix = '';
       if (isWorking) {
         qtySuffix = ' [Working]';
@@ -130,9 +156,6 @@ export default function ExcelSyncPage() {
         qtySuffix = ` x${qty}`;
       }
 
-      // Smart format logic:
-      // If description is specific & different from category, use description + suffix
-      // Otherwise use category + suffix
       let typeCol = '';
       if (desc && desc.toLowerCase() !== category.toLowerCase()) {
         const hasManualX = /\bx\s*\d+\b/i.test(desc);
@@ -149,65 +172,62 @@ export default function ExcelSyncPage() {
         quantity: qty,
       };
     });
-  }, [entries]);
+  }, [dailyEntries]);
 
-  // Sync generated rows into editableRows whenever raw data changes
   useEffect(() => {
-    setEditableRows(generatedRows);
-    setHasCustomEdits(false);
-  }, [generatedRows]);
+    setEditableDailyRows(generatedDailyRows);
+    setDailyHasCustomEdits(false);
+  }, [generatedDailyRows]);
 
-  // Day navigation steppers
+  // Daily Date Navigation Steppers
   const handleDateStep = (days: number) => {
     const d = parseLocalDate(selectedDate);
     d.setDate(d.getDate() + days);
     setSelectedDate(formatLocalDate(d));
   };
 
-  const handleRowChange = (id: string, field: 'client' | 'type', value: string) => {
-    setEditableRows((prev) =>
+  const handleDailyRowChange = (id: string, field: 'client' | 'type', value: string) => {
+    setEditableDailyRows((prev) =>
       prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
     );
-    setHasCustomEdits(true);
+    setDailyHasCustomEdits(true);
   };
 
-  const handleAddRow = () => {
-    const newRow: ExcelRow = {
-      id: `custom-${Date.now()}`,
+  const handleAddDailyRow = () => {
+    const newRow: DailyExcelRow = {
+      id: `custom-daily-${Date.now()}`,
       client: '',
       type: '',
       quantity: 1,
     };
-    setEditableRows((prev) => [...prev, newRow]);
-    setHasCustomEdits(true);
+    setEditableDailyRows((prev) => [...prev, newRow]);
+    setDailyHasCustomEdits(true);
   };
 
-  const handleDeleteRow = (id: string) => {
-    setEditableRows((prev) => prev.filter((r) => r.id !== id));
-    setHasCustomEdits(true);
+  const handleDeleteDailyRow = (id: string) => {
+    setEditableDailyRows((prev) => prev.filter((r) => r.id !== id));
+    setDailyHasCustomEdits(true);
   };
 
-  const handleResetToDefault = () => {
-    setEditableRows(generatedRows);
-    setHasCustomEdits(false);
+  const handleResetDaily = () => {
+    setEditableDailyRows(generatedDailyRows);
+    setDailyHasCustomEdits(false);
     showToast('Reset table to default data', 'success');
   };
 
-  // 1-Click Copy to Clipboard for Excel / Google Sheets
-  const handleCopyForExcel = async () => {
-    if (!editableRows.length) {
+  // 1-Click Copy for Daily (Copies Content with Header)
+  const handleCopyDaily = async () => {
+    if (!editableDailyRows.length) {
       showToast('No rows to copy', 'error');
       return;
     }
 
-    // 1. Generate Plain Text Tab-Separated Values (TSV) with Header Row
     const tsvLines: string[] = ['Client\tType'];
-    editableRows.forEach((row) => {
+    editableDailyRows.forEach((row) => {
       tsvLines.push(`${row.client.trim()}\t${row.type.trim()}`);
     });
     const tsvContent = tsvLines.join('\r\n');
 
-    // 2. Generate Clean HTML Table as secondary MIME type
     const htmlContent = `
       <table style="border-collapse: collapse; font-family: Calibri, Arial, sans-serif; font-size: 11pt;">
         <thead>
@@ -217,7 +237,7 @@ export default function ExcelSyncPage() {
           </tr>
         </thead>
         <tbody>
-          ${editableRows
+          ${editableDailyRows
             .map(
               (r) => `
             <tr>
@@ -232,17 +252,16 @@ export default function ExcelSyncPage() {
 
     const success = await copyToClipboardWithHtml(htmlContent, tsvContent);
     if (success) {
-      setIsCopied(true);
-      showToast(`Copied ${editableRows.length} rows to clipboard!`, 'success');
-      setTimeout(() => setIsCopied(false), 2500);
+      setIsDailyCopied(true);
+      showToast(`Copied ${editableDailyRows.length} rows to clipboard!`, 'success');
+      setTimeout(() => setIsDailyCopied(false), 2500);
     } else {
       showToast('Failed to copy to clipboard', 'error');
     }
   };
 
-  // Download .CSV backup
-  const handleDownloadCsv = () => {
-    if (!editableRows.length) {
+  const handleDownloadDailyCsv = () => {
+    if (!editableDailyRows.length) {
       showToast('No rows to download', 'error');
       return;
     }
@@ -255,7 +274,7 @@ export default function ExcelSyncPage() {
     };
 
     const csvLines: string[] = ['Client,Type'];
-    editableRows.forEach((r) => {
+    editableDailyRows.forEach((r) => {
       csvLines.push(`${escapeCsv(r.client)},${escapeCsv(r.type)}`);
     });
 
@@ -263,18 +282,246 @@ export default function ExcelSyncPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `excel_daily_sync_${selectedDate}.csv`;
+    a.download = `excel_daily_${selectedDate}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('Downloaded CSV spreadsheet', 'success');
   };
 
-  const formattedDateTitle = parseLocalDate(selectedDate).toLocaleDateString('en-US', {
+  // ----------------------------------------------------
+  // 2. WEEKLY DATA FETCHING & ROW GENERATION
+  // ----------------------------------------------------
+  const loadWeeklyEntries = useCallback(async () => {
+    if (!weekStartDate || !weekEndDate) return;
+    setWeeklyLoading(true);
+    try {
+      const userIdToFetch = activeProfile?.id || 'p1';
+      const [sy, sm, sd] = weekStartDate.split('-').map(Number);
+      const [ey, em, ed] = weekEndDate.split('-').map(Number);
+      const start = new Date(sy, sm - 1, sd, 12, 0, 0);
+      const end = new Date(ey, em - 1, ed, 12, 0, 0);
+
+      const dates: string[] = [];
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        dates.push(formatLocalDate(d));
+      }
+
+      const dayResults = await Promise.all(
+        dates.map((dStr) => fetchWorkEntriesByDate(dStr, userIdToFetch))
+      );
+      setWeeklyEntries(dayResults.flat());
+    } catch (err) {
+      console.error('Failed to load weekly entries for Excel Sync:', err);
+      showToast('Error loading weekly work entries', 'error');
+    } finally {
+      setWeeklyLoading(false);
+    }
+  }, [weekStartDate, weekEndDate, activeProfile, showToast]);
+
+  useEffect(() => {
+    if (activeTab === 'weekly') {
+      loadWeeklyEntries();
+    }
+  }, [activeTab, loadWeeklyEntries]);
+
+  // Generate Weekly 6-Column Rows:
+  // Serial No. | Company Name | Description | Work Type | Done | Approved
+  // Rule: Company Name & Serial No. appear on first row for each client; subsequent client items have empty serial & company name!
+  const generatedWeeklyRows = useMemo<WeeklyExcelRow[]>(() => {
+    if (!weeklyEntries.length) return [];
+
+    // Group entries by client name
+    const clientGroups: Record<string, WorkEntryWithDetails[]> = {};
+    weeklyEntries.forEach((entry) => {
+      const clientName = entry.client?.name || 'General';
+      if (!clientGroups[clientName]) {
+        clientGroups[clientName] = [];
+      }
+      clientGroups[clientName].push(entry);
+    });
+
+    // Sort clients alphabetically A-Z
+    const sortedClients = Object.keys(clientGroups).sort((a, b) => a.localeCompare(b));
+
+    const rows: WeeklyExcelRow[] = [];
+    let serialCounter = 1;
+
+    sortedClients.forEach((clientName) => {
+      const groupEntries = clientGroups[clientName];
+
+      groupEntries.forEach((entry, entryIdx) => {
+        const isFirst = entryIdx === 0;
+        const serialNo = isFirst ? String(serialCounter) : '';
+        const companyName = isFirst ? clientName : '';
+
+        const isWorking = isInProgressEntry(entry) || (entry.quantity_done || 0) === 0;
+        const category = isWorking ? 'Working' : entry.work_type?.name || 'Other';
+        const desc = entry.description ? entry.description.trim() : (entry.work_type?.name || 'Deliverable');
+
+        // Done: blank if working or 0; otherwise number string
+        const doneVal = isWorking || !entry.quantity_done ? '' : String(entry.quantity_done);
+
+        // Approved: blank if working or 0; otherwise number string
+        const approvedVal = isWorking || !entry.quantity_approved || entry.quantity_approved === 0 ? '' : String(entry.quantity_approved);
+
+        rows.push({
+          id: entry.id || `week-row-${serialCounter}-${entryIdx}`,
+          serialNo,
+          companyName,
+          description: desc,
+          workType: category,
+          done: doneVal,
+          approved: approvedVal,
+          originalEntryId: entry.id,
+        });
+      });
+
+      serialCounter++;
+    });
+
+    return rows;
+  }, [weeklyEntries]);
+
+  useEffect(() => {
+    setEditableWeeklyRows(generatedWeeklyRows);
+    setWeeklyHasCustomEdits(false);
+  }, [generatedWeeklyRows]);
+
+  // Weekly Navigation Steppers
+  const handleWeekStep = (deltaWeeks: number) => {
+    const [sy, sm, sd] = weekStartDate.split('-').map(Number);
+    const start = new Date(sy, sm - 1, sd, 12, 0, 0);
+    start.setDate(start.getDate() + deltaWeeks * 7);
+    const range = getWeekRange(start);
+    setWeekStartDate(range.startDate);
+    setWeekEndDate(range.endDate);
+    setWeekLabel(range.label);
+  };
+
+  const handleThisWeek = () => {
+    const range = getWeekRange(new Date());
+    setWeekStartDate(range.startDate);
+    setWeekEndDate(range.endDate);
+    setWeekLabel(range.label);
+  };
+
+  const handleWeeklyRowChange = (id: string, field: keyof WeeklyExcelRow, value: string) => {
+    setEditableWeeklyRows((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
+    );
+    setWeeklyHasCustomEdits(true);
+  };
+
+  const handleAddWeeklyRow = () => {
+    const newRow: WeeklyExcelRow = {
+      id: `custom-weekly-${Date.now()}`,
+      serialNo: '',
+      companyName: '',
+      description: '',
+      workType: 'Static',
+      done: '1',
+      approved: '1',
+    };
+    setEditableWeeklyRows((prev) => [...prev, newRow]);
+    setWeeklyHasCustomEdits(true);
+  };
+
+  const handleDeleteWeeklyRow = (id: string) => {
+    setEditableWeeklyRows((prev) => prev.filter((r) => r.id !== id));
+    setWeeklyHasCustomEdits(true);
+  };
+
+  const handleResetWeekly = () => {
+    setEditableWeeklyRows(generatedWeeklyRows);
+    setWeeklyHasCustomEdits(false);
+    showToast('Reset weekly table to default data', 'success');
+  };
+
+  // 1-Click Copy for Weekly: STRICTLY DATA CONTENT ONLY (NO Week title, NO headers!)
+  const handleCopyWeekly = async () => {
+    if (!editableWeeklyRows.length) {
+      showToast('No rows to copy', 'error');
+      return;
+    }
+
+    // 1. TSV content without headers or week titles (cell-for-cell match)
+    const tsvLines = editableWeeklyRows.map(
+      (r) =>
+        `${r.serialNo.trim()}\t${r.companyName.trim()}\t${r.description.trim()}\t${r.workType.trim()}\t${r.done.trim()}\t${r.approved.trim()}`
+    );
+    const tsvContent = tsvLines.join('\r\n');
+
+    // 2. HTML table without <thead> (pure content rows for Excel paste)
+    const htmlContent = `
+      <table style="border-collapse: collapse; font-family: Calibri, Arial, sans-serif; font-size: 11pt;">
+        <tbody>
+          ${editableWeeklyRows
+            .map(
+              (r) => `
+            <tr>
+              <td style="border: 1px solid #d9d9d9; padding: 4px 8px; text-align: center;">${r.serialNo.trim()}</td>
+              <td style="border: 1px solid #d9d9d9; padding: 4px 8px;">${r.companyName.trim()}</td>
+              <td style="border: 1px solid #d9d9d9; padding: 4px 8px;">${r.description.trim()}</td>
+              <td style="border: 1px solid #d9d9d9; padding: 4px 8px;">${r.workType.trim()}</td>
+              <td style="border: 1px solid #d9d9d9; padding: 4px 8px; text-align: center;">${r.done.trim()}</td>
+              <td style="border: 1px solid #d9d9d9; padding: 4px 8px; text-align: center;">${r.approved.trim()}</td>
+            </tr>`
+            )
+            .join('')}
+        </tbody>
+      </table>
+    `;
+
+    const success = await copyToClipboardWithHtml(htmlContent, tsvContent);
+    if (success) {
+      setIsWeeklyCopied(true);
+      showToast(`Copied ${editableWeeklyRows.length} rows! (Content only, no headers)`, 'success');
+      setTimeout(() => setIsWeeklyCopied(false), 2500);
+    } else {
+      showToast('Failed to copy to clipboard', 'error');
+    }
+  };
+
+  const handleDownloadWeeklyCsv = () => {
+    if (!editableWeeklyRows.length) {
+      showToast('No rows to download', 'error');
+      return;
+    }
+
+    const escapeCsv = (str: string) => {
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const csvLines: string[] = [
+      'Serial No.,Company Name,Description,Work Type,Done,Approved',
+    ];
+    editableWeeklyRows.forEach((r) => {
+      csvLines.push(
+        `${escapeCsv(r.serialNo)},${escapeCsv(r.companyName)},${escapeCsv(r.description)},${escapeCsv(r.workType)},${escapeCsv(r.done)},${escapeCsv(r.approved)}`
+      );
+    });
+
+    const blob = new Blob([csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `excel_weekly_${weekStartDate}_to_${weekEndDate}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded Weekly CSV spreadsheet', 'success');
+  };
+
+  const formattedDailyTitle = parseLocalDate(selectedDate).toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
+
+  const isCurrentWeek = weekStartDate === initialWeek.startDate;
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col relative">
@@ -297,7 +544,9 @@ export default function ExcelSyncPage() {
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
-              Format your daily work into your company's exact 2-column Excel structure (<code className="text-emerald-300 font-mono text-xs">Client</code> | <code className="text-emerald-300 font-mono text-xs">Type</code>). Copy here, paste in Excel!
+              {activeTab === 'daily'
+                ? "Format your daily work into your company's exact 2-column structure (Client | Type). Copy here, paste in Excel!"
+                : "Format your weekly deliverables into your company's 6-column sheet (Serial No. | Company Name | Description | Work Type | Done | Approved). Copies content only!"}
             </p>
           </div>
 
@@ -306,10 +555,10 @@ export default function ExcelSyncPage() {
             <button
               type="button"
               onClick={() => setActiveTab('daily')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'daily'
                   ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 cursor-pointer'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Calendar className="w-3.5 h-3.5" />
@@ -317,110 +566,113 @@ export default function ExcelSyncPage() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                showToast('Weekly Excel Sync is coming next! Daily report is ready below.', 'success');
-              }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-400 hover:text-slate-200 cursor-pointer"
+              onClick={() => setActiveTab('weekly')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'weekly'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
             >
               <TableIcon className="w-3.5 h-3.5" />
               <span>Weekly Report</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 bg-slate-800 text-sky-400 rounded-full border border-sky-800/40">
-                Next
-              </span>
             </button>
           </div>
         </div>
 
-        {/* Streamlined Controls Bar: Date Navigation (Without Gaps) */}
-        <div className="bg-[#0b0f19] border border-slate-800/90 rounded-xl p-3.5 sm:p-4 mb-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          {/* Date Navigation - Snug without extra gap */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <button
-              type="button"
-              onClick={() => handleDateStep(-1)}
-              className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
-              title="Previous Day"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
+        {/* ---------------------------------------------------- */}
+        {/* VIEW 1: DAILY REPORT                                 */}
+        {/* ---------------------------------------------------- */}
+        {activeTab === 'daily' && (
+          <>
+            {/* Streamlined Controls Bar: Date Navigation (Without Gaps) */}
+            <div className="bg-[#0b0f19] border border-slate-800/90 rounded-xl p-3.5 sm:p-4 mb-4 shadow-sm flex items-center justify-between">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDateStep(-1)}
+                  className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
+                  title="Previous Day"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
 
-            <RichDatePicker
-              value={selectedDate}
-              onChange={(val) => setSelectedDate(val)}
-              label=""
-            />
+                <RichDatePicker
+                  value={selectedDate}
+                  onChange={(val) => setSelectedDate(val)}
+                  label=""
+                />
 
-            <button
-              type="button"
-              onClick={() => handleDateStep(1)}
-              className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
-              title="Next Day"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+                <button
+                  type="button"
+                  onClick={() => handleDateStep(1)}
+                  className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
+                  title="Next Day"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
 
-            {selectedDate !== todayStr && (
-              <button
-                type="button"
-                onClick={() => setSelectedDate(todayStr)}
-                className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition-colors cursor-pointer ml-1"
-              >
-                Today
-              </button>
-            )}
-          </div>
-        </div>
+                {selectedDate !== todayStr && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDate(todayStr)}
+                    className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition-colors cursor-pointer ml-1"
+                  >
+                    Today
+                  </button>
+                )}
+              </div>
+            </div>
 
-        {/* Quick Action Bar: Copy for Excel & Download */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 bg-emerald-950/20 border border-emerald-800/40 rounded-xl p-3.5">
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs sm:text-sm font-semibold text-slate-200">
-              {formattedDateTitle} &bull;{' '}
-              <span className="text-emerald-400 font-bold">{editableRows.length} rows ready</span>
-            </span>
-            {hasCustomEdits && (
-              <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
-                Custom Edited
-              </span>
-            )}
-          </div>
+            {/* Action Bar: Copy for Excel & Download */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 bg-emerald-950/20 border border-emerald-800/40 rounded-xl p-3.5">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-200">
+                  {formattedDailyTitle} &bull;{' '}
+                  <span className="text-emerald-400 font-bold">{editableDailyRows.length} rows ready</span>
+                </span>
+                {dailyHasCustomEdits && (
+                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
+                    Custom Edited
+                  </span>
+                )}
+              </div>
 
-          <div className="flex items-center gap-2">
-            {hasCustomEdits && (
-              <button
-                type="button"
-                onClick={handleResetToDefault}
-                className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
-                title="Reset edits to original logged entries"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset</span>
-              </button>
-            )}
+              <div className="flex items-center gap-2">
+                {dailyHasCustomEdits && (
+                  <button
+                    type="button"
+                    onClick={handleResetDaily}
+                    className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    title="Reset edits to original logged entries"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset</span>
+                  </button>
+                )}
 
-            <button
-              type="button"
-              onClick={handleDownloadCsv}
-              disabled={!editableRows.length}
-              className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Download className="w-3.5 h-3.5 text-slate-400" />
-              <span>Download CSV</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadDailyCsv}
+                  disabled={!editableDailyRows.length}
+                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Download CSV</span>
+                </button>
 
-            <button
-              type="button"
-              onClick={handleCopyForExcel}
-              disabled={!editableRows.length}
-              className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
-                isCopied
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white active:scale-95'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {isCopied ? (
-                <>
+                <button
+                  type="button"
+                  onClick={handleCopyDaily}
+                  disabled={!editableDailyRows.length}
+                  className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
+                    isDailyCopied
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white active:scale-95'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {isDailyCopied ? (
+                    <>
                   <Check className="w-4 h-4 text-white" />
                   <span>Copied!</span>
                 </>
@@ -430,139 +682,435 @@ export default function ExcelSyncPage() {
                   <span>Copy for Excel</span>
                 </>
               )}
-            </button>
-          </div>
-        </div>
-
-        {/* Excel Spreadsheet Table Preview Card */}
-        <div className="bg-[#0b0f19] border border-slate-800 rounded-xl overflow-hidden shadow-md">
-          {/* Spreadsheet Header Accent */}
-          <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-emerald-400 font-bold">EXCEL_SYNC_PREVIEW</span>
-              <span>&bull;</span>
-              <span>Click any cell to edit wording before copying</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleAddRow}
-              className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 hover:underline cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Custom Row</span>
-            </button>
-          </div>
-
-          {loading ? (
-            <div className="py-16 text-center text-slate-400 flex flex-col items-center justify-center">
-              <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
-              <p className="text-xs sm:text-sm">Fetching deliverables for {selectedDate}...</p>
-            </div>
-          ) : editableRows.length === 0 ? (
-            <div className="py-16 px-4 text-center text-slate-400 flex flex-col items-center justify-center">
-              <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 mb-3">
-                <FileSpreadsheet className="w-6 h-6" />
+                </button>
               </div>
-              <h3 className="text-sm font-semibold text-slate-200 mb-1">No Deliverables Logged on this Date</h3>
-              <p className="text-xs text-slate-500 max-w-sm mb-4">
-                No daily work entries were found for {formattedDateTitle}. Choose another date or add custom rows manually.
-              </p>
-              <button
-                type="button"
-                onClick={handleAddRow}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Row Manually</span>
-              </button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
-                <thead>
-                  {/* Excel Column Coordinates (A & B) */}
-                  <tr className="bg-slate-950/80 text-[10px] font-mono text-slate-500 border-b border-slate-800/80">
-                    <th className="w-12 py-1 px-3 text-center border-r border-slate-800/80">#</th>
-                    <th className="w-1/2 py-1 px-4 border-r border-slate-800/80">A</th>
-                    <th className="w-1/2 py-1 px-4">B</th>
-                    <th className="w-10 py-1 px-2 text-center"></th>
-                  </tr>
-                  {/* Actual Excel Table Header */}
-                  <tr className="bg-slate-900/90 text-slate-200 font-bold border-b border-slate-800">
-                    <th className="py-2.5 px-3 text-center border-r border-slate-800 text-slate-500 text-xs">
-                      1
-                    </th>
-                    <th className="py-2.5 px-4 border-r border-slate-800 text-white font-extrabold tracking-wide">
-                      Client
-                    </th>
-                    <th className="py-2.5 px-4 text-white font-extrabold tracking-wide">
-                      Type
-                    </th>
-                    <th className="py-2.5 px-2 text-center"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
-                  {editableRows.map((row, index) => {
-                    const rowNumber = index + 2; // Excel row number (1 is header)
-                    return (
-                      <tr
-                        key={row.id}
-                        className="hover:bg-slate-800/30 transition-colors group"
-                      >
-                        {/* Excel Row Number */}
-                        <td className="py-2 px-3 text-center text-xs font-mono text-slate-500 bg-slate-950/40 border-r border-slate-800 select-none">
-                          {rowNumber}
-                        </td>
 
-                        {/* Column A: Client */}
-                        <td className="py-1.5 px-2 border-r border-slate-800">
-                          <input
-                            type="text"
-                            value={row.client}
-                            onChange={(e) => handleRowChange(row.id, 'client', e.target.value)}
-                            placeholder="Client name"
-                            className="w-full bg-transparent px-2.5 py-1.5 rounded text-slate-100 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
-                          />
-                        </td>
+            {/* Daily Spreadsheet Preview Table */}
+            <div className="bg-[#0b0f19] border border-slate-800 rounded-xl overflow-hidden shadow-md">
+              <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-emerald-400 font-bold">DAILY_EXCEL_PREVIEW</span>
+                  <span>&bull;</span>
+                  <span>Click any cell to edit wording before copying</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddDailyRow}
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 hover:underline cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Custom Row</span>
+                </button>
+              </div>
 
-                        {/* Column B: Type (Category + Qty) */}
-                        <td className="py-1.5 px-2">
-                          <input
-                            type="text"
-                            value={row.type}
-                            onChange={(e) => handleRowChange(row.id, 'type', e.target.value)}
-                            placeholder="Type (e.g. Static x3)"
-                            className="w-full bg-transparent px-2.5 py-1.5 rounded text-emerald-300 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
-                          />
-                        </td>
-
-                        {/* Row Action: Delete row */}
-                        <td className="py-1.5 px-2 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteRow(row.id)}
-                            title="Remove row from export"
-                            className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition-all cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
+              {dailyLoading ? (
+                <div className="py-16 text-center text-slate-400 flex flex-col items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
+                  <p className="text-xs sm:text-sm">Fetching daily deliverables for {selectedDate}...</p>
+                </div>
+              ) : editableDailyRows.length === 0 ? (
+                <div className="py-16 px-4 text-center text-slate-400 flex flex-col items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 mb-3">
+                    <FileSpreadsheet className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-slate-200 mb-1">No Deliverables Logged on this Date</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mb-4">
+                    No daily work entries were found for {formattedDailyTitle}. Choose another date or add custom rows manually.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleAddDailyRow}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Row Manually</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
+                    <thead>
+                      <tr className="bg-slate-950/80 text-[10px] font-mono text-slate-500 border-b border-slate-800/80">
+                        <th className="w-12 py-1 px-3 text-center border-r border-slate-800/80">#</th>
+                        <th className="w-1/2 py-1 px-4 border-r border-slate-800/80">A</th>
+                        <th className="w-1/2 py-1 px-4">B</th>
+                        <th className="w-10 py-1 px-2 text-center"></th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                      <tr className="bg-slate-900/90 text-slate-200 font-bold border-b border-slate-800">
+                        <th className="py-2.5 px-3 text-center border-r border-slate-800 text-slate-500 text-xs">
+                          1
+                        </th>
+                        <th className="py-2.5 px-4 border-r border-slate-800 text-white font-extrabold tracking-wide">
+                          Client
+                        </th>
+                        <th className="py-2.5 px-4 text-white font-extrabold tracking-wide">
+                          Type
+                        </th>
+                        <th className="py-2.5 px-2 text-center"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-medium">
+                      {editableDailyRows.map((row, index) => {
+                        const rowNumber = index + 2;
+                        return (
+                          <tr
+                            key={row.id}
+                            className="hover:bg-slate-800/30 transition-colors group"
+                          >
+                            <td className="py-2 px-3 text-center text-xs font-mono text-slate-500 bg-slate-950/40 border-r border-slate-800 select-none">
+                              {rowNumber}
+                            </td>
+                            <td className="py-1.5 px-2 border-r border-slate-800">
+                              <input
+                                type="text"
+                                value={row.client}
+                                onChange={(e) => handleDailyRowChange(row.id, 'client', e.target.value)}
+                                placeholder="Client name"
+                                className="w-full bg-transparent px-2.5 py-1.5 rounded text-slate-100 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                              />
+                            </td>
+                            <td className="py-1.5 px-2">
+                              <input
+                                type="text"
+                                value={row.type}
+                                onChange={(e) => handleDailyRowChange(row.id, 'type', e.target.value)}
+                                placeholder="Type (e.g. Static x3)"
+                                className="w-full bg-transparent px-2.5 py-1.5 rounded text-emerald-300 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                              />
+                            </td>
+                            <td className="py-1.5 px-2 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteDailyRow(row.id)}
+                                title="Remove row from export"
+                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition-all cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
-          {/* Table Footer: Clean Row Count */}
-          {editableRows.length > 0 && (
-            <div className="px-4 py-2.5 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span>{editableRows.length} data rows &bull; 2 columns</span>
-              <span className="text-[11px] text-slate-600">Excel &amp; Google Sheets ready</span>
+              {editableDailyRows.length > 0 && (
+                <div className="px-4 py-2.5 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-medium">
+                  <span>{editableDailyRows.length} data rows &bull; 2 columns</span>
+                  <span className="text-[11px] text-slate-600">Excel &amp; Google Sheets ready</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
+
+        {/* ---------------------------------------------------- */}
+        {/* VIEW 2: WEEKLY REPORT                                */}
+        {/* ---------------------------------------------------- */}
+        {activeTab === 'weekly' && (
+          <>
+            {/* Streamlined Controls Bar: Week Navigation */}
+            <div className="bg-[#0b0f19] border border-slate-800/90 rounded-xl p-3.5 sm:p-4 mb-4 shadow-sm flex items-center justify-between">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleWeekStep(-1)}
+                  className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
+                  title="Previous Week"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {/* Week Label Pill */}
+                <div className="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-100 shadow-sm flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{weekLabel}</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleWeekStep(1)}
+                  className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
+                  title="Next Week"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {!isCurrentWeek && (
+                  <button
+                    type="button"
+                    onClick={handleThisWeek}
+                    className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition-colors cursor-pointer ml-1"
+                  >
+                    This Week
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Action Bar: Copy for Excel & Download */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 bg-emerald-950/20 border border-emerald-800/40 rounded-xl p-3.5">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-200">
+                  {weekLabel} &bull;{' '}
+                  <span className="text-emerald-400 font-bold">{editableWeeklyRows.length} deliverables ready</span>
+                </span>
+                {weeklyHasCustomEdits && (
+                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
+                    Custom Edited
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {weeklyHasCustomEdits && (
+                  <button
+                    type="button"
+                    onClick={handleResetWeekly}
+                    className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    title="Reset edits to original logged entries"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleDownloadWeeklyCsv}
+                  disabled={!editableWeeklyRows.length}
+                  className="px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Download CSV</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyWeekly}
+                  disabled={!editableWeeklyRows.length}
+                  className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
+                    isWeeklyCopied
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white active:scale-95'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {isWeeklyCopied ? (
+                    <>
+                      <Check className="w-4 h-4 text-white" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 text-white" />
+                      <span>Copy for Excel</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Weekly Spreadsheet Preview Table (6 Columns: Serial No. | Company Name | Description | Work Type | Done | Approved) */}
+            <div className="bg-[#0b0f19] border border-slate-800 rounded-xl overflow-hidden shadow-md">
+              <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-emerald-400 font-bold">WEEKLY_EXCEL_PREVIEW</span>
+                  <span>&bull;</span>
+                  <span className="text-slate-300">Copies <strong>content only</strong> (No headers or Week title)</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddWeeklyRow}
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 hover:underline cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Custom Row</span>
+                </button>
+              </div>
+
+              {weeklyLoading ? (
+                <div className="py-16 text-center text-slate-400 flex flex-col items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
+                  <p className="text-xs sm:text-sm">Fetching weekly deliverables for {weekLabel}...</p>
+                </div>
+              ) : editableWeeklyRows.length === 0 ? (
+                <div className="py-16 px-4 text-center text-slate-400 flex flex-col items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 mb-3">
+                    <TableIcon className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-slate-200 mb-1">No Deliverables Logged for this Week</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mb-4">
+                    No work entries were found for {weekLabel}. Choose another week or add custom rows manually.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleAddWeeklyRow}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Row Manually</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
+                    <thead>
+                      {/* Excel Column Coordinates (A to F) */}
+                      <tr className="bg-slate-950/80 text-[10px] font-mono text-slate-500 border-b border-slate-800/80">
+                        <th className="w-10 py-1 px-2 text-center border-r border-slate-800/80">#</th>
+                        <th className="w-20 py-1 px-3 text-center border-r border-slate-800/80">A</th>
+                        <th className="w-40 py-1 px-3 border-r border-slate-800/80">B</th>
+                        <th className="py-1 px-3 border-r border-slate-800/80">C</th>
+                        <th className="w-28 py-1 px-3 border-r border-slate-800/80">D</th>
+                        <th className="w-20 py-1 px-2 text-center border-r border-slate-800/80">E</th>
+                        <th className="w-24 py-1 px-2 text-center border-r border-slate-800/80">F</th>
+                        <th className="w-8 py-1 px-1 text-center"></th>
+                      </tr>
+                      {/* Visual Header matching Excel */}
+                      <tr className="bg-slate-900/90 text-slate-200 font-bold border-b border-slate-800">
+                        <th className="py-2 px-2 text-center border-r border-slate-800 text-slate-500 text-xs">
+                          1
+                        </th>
+                        <th className="py-2 px-3 text-center border-r border-slate-800 text-white font-extrabold text-xs">
+                          Serial No.
+                        </th>
+                        <th className="py-2 px-3 border-r border-slate-800 text-white font-extrabold text-xs">
+                          Company Name
+                        </th>
+                        <th className="py-2 px-3 border-r border-slate-800 text-white font-extrabold text-xs">
+                          Description
+                        </th>
+                        <th className="py-2 px-3 border-r border-slate-800 text-white font-extrabold text-xs">
+                          Work Type
+                        </th>
+                        <th className="py-2 px-2 text-center border-r border-slate-800 text-white font-extrabold text-xs">
+                          Done
+                        </th>
+                        <th className="py-2 px-2 text-center border-r border-slate-800 text-white font-extrabold text-xs">
+                          Approved
+                        </th>
+                        <th className="py-2 px-1 text-center"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-medium">
+                      {editableWeeklyRows.map((row, index) => {
+                        const rowNumber = index + 2;
+                        const isClientHeaderRow = Boolean(row.companyName);
+
+                        return (
+                          <tr
+                            key={row.id}
+                            className={`transition-colors group ${
+                              isClientHeaderRow ? 'bg-slate-900/30 hover:bg-slate-800/40' : 'hover:bg-slate-800/20'
+                            }`}
+                          >
+                            {/* Row Index */}
+                            <td className="py-1.5 px-2 text-center text-xs font-mono text-slate-500 bg-slate-950/40 border-r border-slate-800 select-none">
+                              {rowNumber}
+                            </td>
+
+                            {/* Column A: Serial No. */}
+                            <td className="py-1 px-2 border-r border-slate-800 text-center">
+                              <input
+                                type="text"
+                                value={row.serialNo}
+                                onChange={(e) => handleWeeklyRowChange(row.id, 'serialNo', e.target.value)}
+                                placeholder=""
+                                className="w-full bg-transparent px-1 py-1 text-center rounded text-slate-100 font-bold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                              />
+                            </td>
+
+                            {/* Column B: Company Name */}
+                            <td className="py-1 px-2 border-r border-slate-800">
+                              <input
+                                type="text"
+                                value={row.companyName}
+                                onChange={(e) => handleWeeklyRowChange(row.id, 'companyName', e.target.value)}
+                                placeholder=""
+                                className={`w-full bg-transparent px-2 py-1 rounded font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600 ${
+                                  row.companyName ? 'text-white font-bold' : 'text-slate-500'
+                                }`}
+                              />
+                            </td>
+
+                            {/* Column C: Description */}
+                            <td className="py-1 px-2 border-r border-slate-800">
+                              <input
+                                type="text"
+                                value={row.description}
+                                onChange={(e) => handleWeeklyRowChange(row.id, 'description', e.target.value)}
+                                placeholder="Description"
+                                className="w-full bg-transparent px-2 py-1 rounded text-slate-200 focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                              />
+                            </td>
+
+                            {/* Column D: Work Type */}
+                            <td className="py-1 px-2 border-r border-slate-800">
+                              <input
+                                type="text"
+                                value={row.workType}
+                                onChange={(e) => handleWeeklyRowChange(row.id, 'workType', e.target.value)}
+                                placeholder="Category"
+                                className={`w-full bg-transparent px-2 py-1 rounded font-medium focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all ${
+                                  row.workType === 'Working' ? 'text-amber-400 font-bold' : 'text-emerald-300'
+                                }`}
+                              />
+                            </td>
+
+                            {/* Column E: Done */}
+                            <td className="py-1 px-2 border-r border-slate-800 text-center">
+                              <input
+                                type="text"
+                                value={row.done}
+                                onChange={(e) => handleWeeklyRowChange(row.id, 'done', e.target.value)}
+                                placeholder=""
+                                className="w-full bg-transparent px-1 py-1 text-center rounded text-slate-100 font-bold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                              />
+                            </td>
+
+                            {/* Column F: Approved */}
+                            <td className="py-1 px-2 border-r border-slate-800 text-center">
+                              <input
+                                type="text"
+                                value={row.approved}
+                                onChange={(e) => handleWeeklyRowChange(row.id, 'approved', e.target.value)}
+                                placeholder=""
+                                className="w-full bg-transparent px-1 py-1 text-center rounded text-teal-300 font-bold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                              />
+                            </td>
+
+                            {/* Row Action: Delete row */}
+                            <td className="py-1 px-1 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteWeeklyRow(row.id)}
+                                title="Remove row from export"
+                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition-all cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {editableWeeklyRows.length > 0 && (
+                <div className="px-4 py-2.5 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-medium">
+                  <span>{editableWeeklyRows.length} rows &bull; 6 columns (Serial No. | Company Name | Description | Work Type | Done | Approved)</span>
+                  <span className="text-[11px] text-emerald-400 font-semibold">Copies content only (Direct paste under Excel header)</span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </main>
     </div>
   );
