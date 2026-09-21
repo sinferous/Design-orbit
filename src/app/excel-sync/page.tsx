@@ -620,22 +620,21 @@ export default function ExcelSyncPage() {
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
-              {activeTab === 'daily'
-                ? "Format your daily work into your company's exact 2-column structure (Client | Type). Copy here, paste in Excel!"
-                : "Format your weekly deliverables into your company's 6-column sheet (Serial No. | Company Name | Description | Work Type | Done | Approved). Copies content only!"}
+              Format your daily and weekly work into your company's exact Excel structure. Copy here, paste in Excel!
             </p>
           </div>
 
-          {/* Mode Tabs (Daily vs Weekly) */}
-          <div className="inline-flex p-1 bg-slate-900 border border-slate-800 rounded-xl self-start sm:self-auto">
+          {/* Mode Tabs (Daily vs Weekly) - Exactly Same Dimensions & Alignment */}
+          <div className="inline-flex p-1 bg-slate-900 border border-slate-800 rounded-xl self-start sm:self-auto shrink-0 shadow-xs">
             <button
               type="button"
               onClick={() => setActiveTab('daily')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={cn(
+                'w-32 sm:w-36 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer select-none',
                 activeTab === 'daily'
                   ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              )}
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Daily Report</span>
@@ -643,11 +642,12 @@ export default function ExcelSyncPage() {
             <button
               type="button"
               onClick={() => setActiveTab('weekly')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={cn(
+                'w-32 sm:w-36 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer select-none',
                 activeTab === 'weekly'
                   ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              )}
             >
               <TableIcon className="w-3.5 h-3.5" />
               <span>Weekly Report</span>
