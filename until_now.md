@@ -448,31 +448,50 @@ This document provides a comprehensive summary of all progress, architecture, an
 
 ---
 
-### Phase 18 — Excel Sync (Company 2-Column Daily Sheet Generator) (Completed)
+### Phase 18 — Excel Sync (Company Daily & Weekly Sheet Generator) (Completed)
 - [x] **Excel Sync Navigation Tab (`Navbar.tsx`)**:
   - Added dedicated **`Excel Sync`** tab with `FileSpreadsheet` icon placed directly next to `Reports` in both desktop navigation and mobile drawer menu.
+  - Role-based visibility: hidden for `admin` accounts since administrators do not log design work.
 - [x] **Company Excel Format Generator (`/excel-sync`)**:
-  - Matched the company's required **2-column Excel structure**:
+  - Matched the company's required **2-column Daily Excel structure**:
     - **Column 1 (`Client`)**: Client name (e.g. `2am idea`, `Webtree`, `GHUMPA`, `Suzuki`).
     - **Column 2 (`Type`)**: Category or description with quantity prefix `x{qty}` (e.g. `Static x3`, `Static x6`, `Video edits x2`, `Design content research`).
   - Single items (`qty = 1`) display cleanly as `Static`, `Video` without clutter (with optional checkbox to append `x1` if desired).
   - In-progress sessions (`qty = 0`) display clear `[Working]` badges.
+- [x] **Weekly Report Generator (Company 6-Column Format)**:
+  - Added full **Weekly Report** tab matching company weekly tracker spreadsheets:
+    - **Col 1 (`Date`)**: Work date in `DD-MM-YYYY` format (e.g. `16-09-2026`).
+    - **Col 2 (`Day`)**: Full weekday name (e.g. `Wednesday`).
+    - **Col 3 (`Client`)**: Client brand name.
+    - **Col 4 (`Type`)**: Category / scope formatted with quantity multiplier (e.g. `Static x3`, `Video x2`).
+    - **Col 5 (`URL`)**: Project deliverables link, or fallback hyphen `-` if empty.
+    - **Col 6 (`Status`)**: Client approval state (`Approved`, `Not Approved`, `Working`).
+  - **Flexible 7-Day Week Range Selection**:
+    - Choose any start date (e.g. Tuesday, Wednesday) with automatic forward 7-day calculation.
+    - Interactive calendar popover with week date range highlights and `< >` 7-day navigation steppers.
 - [x] **Smart Type Formatting Switcher**:
   - **Smart Auto (Recommended)**: Detects specific descriptions (e.g. `Carousal edits`, `Design content research`) and formats them with `x{qty}` when appropriate, or defaults to Category + `x{qty}`.
   - **Category Only**: Strict category format (`Static x3`, `Video`).
   - **Description Only**: Scope description with `x{qty}` (`Carousal edits x2`).
   - **Category + Description**: Detailed composite format (`Static - Carousal edits x3`).
 - [x] **Interactive Spreadsheet Preview & Inline Cell Editing**:
-  - Excel-style grid preview with row numbers (1, 2, 3...) and column coordinates (A & B).
-  - **Inline Editable Cells**: Users can click and directly edit any client name or type text before copying.
+  - Excel-style grid preview with row numbers (1, 2, 3...) and column coordinates (A & B for daily, A to F for weekly).
+  - **Inline Editable Cells**: Users can click and directly edit any cell before copying.
   - Custom row creation (`+ Add Custom Row`), row deletion, and 1-click **Reset to Default** action.
 - [x] **Universal 1-Click Clipboard Copy (`Ctrl + V`)**:
   - Generates standard **Tab-Separated Values (TSV)** and formatted **HTML Table** written simultaneously to clipboard via `copyToClipboardWithHtml`.
-  - Pressing `Ctrl + V` anywhere in Excel, Google Sheets, or Numbers instantly maps each value into Column A and Column B with zero manual cell shifting.
-  - Checkbox toggle: `[✓] Include Headers (Client | Type)` or data rows only.
+  - Pressing `Ctrl + V` anywhere in Excel, Google Sheets, or Numbers instantly maps each value into spreadsheet columns with zero manual cell shifting.
+  - Content-Only copy: copies clean data rows without headers for direct insertion into existing company spreadsheets.
   - Secondary fallback: `📥 Download CSV` button.
-- [x] **Production Build Validation**:
-  - `npm run build` compiled **17/17 routes with 0 errors**.
+
+### Phase 19 — UI Polish & Activity Heatmap Output Calibration (Completed)
+- [x] **Navbar & Header Polish**:
+  - Removed key icon next to the profile button in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx) for a cleaner, modern look.
+  - Removed redundant user name from profile settings header in [`src/app/settings/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx).
+- [x] **Activity Heatmap Work Done (`quantity_done`) Metric Base**:
+  - Refactored [`activity.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/activity.ts) and [`MonthlyActivityHeatmap.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/activity/MonthlyActivityHeatmap.tsx) to calculate daily activity badges and emerald heat intensity colors based on **Work Done (`quantity_done`)** rather than raw database row count.
+  - Correctly reflects multi-item deliverable quantities (e.g. 1 entry of 5 statics now counts as 5 deliverables done, elevating cell intensity).
+  - In-progress sessions (`quantity_done === 0`) remain clearly marked without distorting completed production heat.
 
 ---
 
@@ -492,9 +511,9 @@ This document provides a comprehensive summary of all progress, architecture, an
   - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO personal daily logs)
   - `/dashboard` → Production overview, live metrics, pending approvals reminder card, today's log (65%), private to-do list (35%), & clean 5-item quick navigation launchpad
   - `/clients` → Client Directory Management module with inline edit & update
-  - `/excel-sync` → Excel Sync Daily & Weekly Report generator with 1-click `Ctrl + V` spreadsheet copy
+  - `/excel-sync` → Excel Sync Daily (2-column) & Weekly (6-column) Report generator with 1-click `Ctrl + V` spreadsheet copy
   - `/login` → Authentication with Eye password toggles, preset account choices in A-Z order, & profile ID binding
-  - `/settings` → Change Password & Account Settings with Eye password toggles
+  - `/settings` → Change Password & Account Settings with embedded Monthly Activity Heatmap and deliverables inspector
   - `/work` → Streamlined Personal & Team Daily Work Log, plus full **Pending Approvals Queue (`?view=pending`)** with search, age filters, strict ownership controls, & dismiss button
   - `/work/new` → Multi-item client work entry form with simple `Completed` vs `Working` status toggle
   - `/work/[id]` → Edit existing work entry with strict ownership authorization guard
@@ -503,5 +522,6 @@ This document provides a comprehensive summary of all progress, architecture, an
   - `/reports/monthly` → Monthly Summary report & breakdown tables
   - `/reports/overall` → All-time analytics & visual distribution charts
   - `/team` → Creative team directory with Add Team Member capability
+
 
 
