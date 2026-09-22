@@ -489,6 +489,7 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Navbar & Header Polish**:
   - Removed key icon next to the profile button in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx) for a cleaner, modern look.
   - Removed redundant user name from profile settings header in [`src/app/settings/page.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx).
+  - Removed the corporate Webtree logo and vertical divider pipe from the Navbar brand header in [`Navbar.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/layout/Navbar.tsx), leaving the standalone **Design Orbit** typography with its cyan-to-emerald gradient accent.
 - [x] **Activity Heatmap Work Done (`quantity_done`) Metric Base**:
   - Refactored [`activity.ts`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/lib/services/activity.ts) and [`MonthlyActivityHeatmap.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/activity/MonthlyActivityHeatmap.tsx) to calculate daily activity badges and emerald heat intensity colors based on **Work Done (`quantity_done`)** rather than raw database row count.
   - Correctly reflects multi-item deliverable quantities (e.g. 1 entry of 5 statics now counts as 5 deliverables done, elevating cell intensity).

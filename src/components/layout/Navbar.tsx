@@ -53,13 +53,7 @@ export function Navbar({ userName }: NavbarProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
           <div className="flex items-center space-x-4 md:space-x-8">
-            <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center space-x-2.5 sm:space-x-3.5 group">
-              <img
-                src="/logo/webtree-logo-white.svg"
-                alt="Webtree Logo"
-                className="h-6 sm:h-7 w-auto object-contain group-hover:opacity-90 transition-opacity"
-              />
-              <div className="h-4 sm:h-5 w-px bg-slate-700" />
+            <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center group">
               <span className="font-extrabold text-slate-100 text-base sm:text-lg tracking-tight flex items-baseline">
                 Design <span className="font-display font-extrabold text-base sm:text-lg ml-1.5 inline-block bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent tracking-tight">Orbit</span>
               </span>
