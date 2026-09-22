@@ -104,12 +104,83 @@ body {
   }
 }
 
+/* 3D Gyroscopic Orbit Keyframes */
+@keyframes orbitRing1 {
+  0% {
+    transform: rotateX(68deg) rotateY(15deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(68deg) rotateY(15deg) rotateZ(360deg);
+  }
+}
+
+@keyframes orbitRing2 {
+  0% {
+    transform: rotateX(68deg) rotateY(-25deg) rotateZ(360deg);
+  }
+  100% {
+    transform: rotateX(68deg) rotateY(-25deg) rotateZ(0deg);
+  }
+}
+
+@keyframes orbitRing3 {
+  0% {
+    transform: rotateX(45deg) rotateY(45deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(45deg) rotateY(45deg) rotateZ(360deg);
+  }
+}
+
+@keyframes orbitCorePulse {
+  0%, 100% {
+    transform: scale(0.9);
+    filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.5)) drop-shadow(0 0 24px rgba(45, 212, 191, 0.3));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.8)) drop-shadow(0 0 40px rgba(45, 212, 191, 0.5));
+  }
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-150%);
+  }
+  100% {
+    transform: translateX(150%);
+  }
+}
+
 .animate-float {
   animation: float 7s ease-in-out infinite;
 }
 
 .animate-spin-slow {
   animation: spinSlow 60s linear infinite;
+}
+
+.animate-orbit-ring-1 {
+  animation: orbitRing1 3.5s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.animate-orbit-ring-2 {
+  animation: orbitRing2 4.8s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.animate-orbit-ring-3 {
+  animation: orbitRing3 6.2s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.animate-orbit-core {
+  animation: orbitCorePulse 2.4s ease-in-out infinite;
+}
+
+.animate-shimmer-sweep {
+  animation: shimmerSweep 1.8s ease-in-out infinite;
 }
 
 .font-display {

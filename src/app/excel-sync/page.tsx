@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { CreativeBackground } from '@/components/ui/CreativeBackground';
 import { RichDatePicker } from '@/components/ui/RichDatePicker';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 import { useToast } from '@/components/ui/ToastContext';
 import {
   FileSpreadsheet,
@@ -338,12 +339,24 @@ export default function ExcelSyncPage() {
   // Generate Weekly 6-Column Rows:
   // Serial No. | Company Name | Description | Work Type | Done | Approved
   // Rule: Company Name & Serial No. appear on first row for each client; subsequent client items have empty serial & company name!
+  // Working events (in-progress / 0 quantity) are excluded from the weekly report.
   const generatedWeeklyRows = useMemo<WeeklyExcelRow[]>(() => {
     if (!weeklyEntries.length) return [];
 
+    // Filter out working / in-progress events for weekly excel format
+    const validWeeklyEntries = weeklyEntries.filter(
+      (entry) =>
+        !isInProgressEntry(entry) &&
+        (entry.quantity_done || 0) > 0 &&
+        entry.work_type?.name?.toLowerCase() !== 'working' &&
+        entry.status !== 'Draft'
+    );
+
+    if (!validWeeklyEntries.length) return [];
+
     // Group entries by client name
     const clientGroups: Record<string, WorkEntryWithDetails[]> = {};
-    weeklyEntries.forEach((entry) => {
+    validWeeklyEntries.forEach((entry) => {
       const clientName = entry.client?.name || 'General';
       if (!clientGroups[clientName]) {
         clientGroups[clientName] = [];
@@ -365,15 +378,14 @@ export default function ExcelSyncPage() {
         const serialNo = isFirst ? String(serialCounter) : '';
         const companyName = isFirst ? clientName : '';
 
-        const isWorking = isInProgressEntry(entry) || (entry.quantity_done || 0) === 0;
-        const category = isWorking ? 'Working' : entry.work_type?.name || 'Other';
+        const category = entry.work_type?.name || 'Other';
         const desc = entry.description ? entry.description.trim() : (entry.work_type?.name || 'Deliverable');
 
-        // Done: blank if working or 0; otherwise number string
-        const doneVal = isWorking || !entry.quantity_done ? '' : String(entry.quantity_done);
+        // Done: blank if 0; otherwise number string
+        const doneVal = !entry.quantity_done ? '' : String(entry.quantity_done);
 
-        // Approved: blank if working or 0; otherwise number string
-        const approvedVal = isWorking || !entry.quantity_approved || entry.quantity_approved === 0 ? '' : String(entry.quantity_approved);
+        // Approved: blank if 0 or undefined; otherwise number string
+        const approvedVal = !entry.quantity_approved || entry.quantity_approved === 0 ? '' : String(entry.quantity_approved);
 
         rows.push({
           id: entry.id || `week-row-${serialCounter}-${entryIdx}`,
@@ -801,8 +813,11 @@ export default function ExcelSyncPage() {
 
               {dailyLoading ? (
                 <div className="py-16 text-center text-slate-400 flex flex-col items-center justify-center">
-                  <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
-                  <p className="text-xs sm:text-sm">Fetching daily deliverables for {selectedDate}...</p>
+                  <OrbitLoader
+                    size="md"
+                    text={`Fetching daily deliverables for ${selectedDate}...`}
+                    subtitle="Syncing with Supabase database"
+                  />
                 </div>
               ) : editableDailyRows.length === 0 ? (
                 <div className="py-16 px-4 text-center text-slate-400 flex flex-col items-center justify-center">
@@ -1175,8 +1190,12 @@ export default function ExcelSyncPage() {
 
               {weeklyLoading ? (
                 <div className="py-16 text-center text-slate-400 flex flex-col items-center justify-center">
-                  <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
-                  <p className="text-xs sm:text-sm">Fetching weekly deliverables for {weekLabel}...</p>
+                  <OrbitLoader
+                    size="md"
+                    text={`Fetching weekly deliverables for ${weekLabel}...`}
+                    subtitle="Compiling company 6-column sheet"
+                    showCyclingText
+                  />
                 </div>
               ) : editableWeeklyRows.length === 0 ? (
                 <div className="py-16 px-4 text-center text-slate-400 flex flex-col items-center justify-center">

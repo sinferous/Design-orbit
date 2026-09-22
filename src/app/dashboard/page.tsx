@@ -46,6 +46,7 @@ import {
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { useToast } from '@/components/ui/ToastContext';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -581,8 +582,10 @@ export default function DashboardPage() {
 
             {loading ? (
               <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                <div className="animate-spin w-5 h-5 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
-                <p className="mt-2 text-xs text-slate-400">Loading today's activity...</p>
+                <OrbitLoader
+                  size="md"
+                  text="Loading today's activity..."
+                />
               </div>
             ) : todayEntries.length === 0 ? (
               <div className="p-8 text-center space-y-3 bg-slate-950/50 rounded-lg border border-slate-800/80 flex-1 flex flex-col items-center justify-center">

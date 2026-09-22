@@ -40,6 +40,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 import { useToast } from '@/components/ui/ToastContext';
 
 export default function AdminDashboardPage() {
@@ -153,11 +154,13 @@ export default function AdminDashboardPage() {
   // If unauthorized or checking credentials, prevent any dashboard rendering
   if (isAuthorized !== true) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#090d16]">
-        <div className="text-center space-y-3 p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-sm max-w-sm mx-auto">
-          <div className="w-10 h-10 border-3 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-bold text-slate-100">Verifying Administrator Authorization...</p>
-          <p className="text-xs text-slate-400">Restricted executive area. Validating access credentials.</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#090d16] p-4">
+        <div className="text-center p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-w-sm mx-auto">
+          <OrbitLoader
+            size="lg"
+            text="Verifying Administrator Authorization..."
+            subtitle="Restricted executive area. Validating access credentials."
+          />
         </div>
       </div>
     );

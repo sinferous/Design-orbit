@@ -50,6 +50,7 @@ import { useToast } from '@/components/ui/ToastContext';
 import { EmailDayLogModal } from '@/components/work/EmailDayLogModal';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { RichSelect } from '@/components/ui/RichSelect';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 import { generateEmailTableHtml, generateCleanPlainText, copyToClipboardWithHtml } from '@/lib/services/email-formatter';
 
 export default function MyWorkPage() {
@@ -879,8 +880,11 @@ export default function MyWorkPage() {
         {/* Work Entries Content */}
         {loading ? (
           <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-3 text-xs text-slate-400 font-medium">Loading work entries...</p>
+            <OrbitLoader
+              size="md"
+              text="Loading daily work log..."
+              subtitle="Synchronizing deliverables from Supabase"
+            />
           </div>
         ) : entries.length === 0 ? (
           <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center space-y-3">
@@ -1359,8 +1363,11 @@ export default function MyWorkPage() {
             {/* Pending Approvals Deliverables List */}
             {pendingLoading ? (
               <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
-                <div className="animate-spin w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full mx-auto" />
-                <p className="mt-3 text-xs text-slate-400 font-medium">Scanning for pending client approvals...</p>
+                <OrbitLoader
+                  size="md"
+                  text="Scanning for pending client approvals..."
+                  subtitle="Checking past deliverables needing sign-off"
+                />
               </div>
             ) : filteredPendingEntries.length === 0 ? (
               <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center space-y-3">

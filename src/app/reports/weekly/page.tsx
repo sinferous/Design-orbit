@@ -8,6 +8,7 @@ import { fetchWeeklyBestWorkRecords, saveWeeklyBestWorkLinkRecord } from '@/lib/
 import { ChevronLeft, ChevronRight, Calendar, Download, ChevronDown, ChevronUp, Link as LinkIcon, Award, Sparkles, ExternalLink, Building2, Plus, Edit2, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { WeeklyBestWorkModal } from '@/components/reports/WeeklyBestWorkModal';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function WeeklyReportPage() {
   const [startDate, setStartDate] = useState<string>('');
@@ -506,8 +507,12 @@ export default function WeeklyReportPage() {
         {/* Team Member Cards */}
         {loading ? (
           <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-3 text-xs text-slate-400 font-medium">Calculating weekly report aggregations...</p>
+            <OrbitLoader
+              size="lg"
+              text="Aggregating weekly creative review..."
+              subtitle="Calculating deliverables and approval ratios across the team"
+              showCyclingText
+            />
           </div>
         ) : (
           <div className="space-y-4 sm:space-y-6">

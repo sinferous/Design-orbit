@@ -483,6 +483,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Pressing `Ctrl + V` anywhere in Excel, Google Sheets, or Numbers instantly maps each value into spreadsheet columns with zero manual cell shifting.
   - Content-Only copy: copies clean data rows without headers for direct insertion into existing company spreadsheets.
   - Secondary fallback: `📥 Download CSV` button.
+  - **Exclusion of In-Progress / Working Events from Weekly Report**: Working sessions (`quantity_done === 0` or in-progress status) are strictly filtered out from the Weekly Excel generator, ensuring the 6-column weekly table and exports only contain finalized, completed client deliverables.
 
 ### Phase 19 — UI Polish & Activity Heatmap Output Calibration (Completed)
 - [x] **Navbar & Header Polish**:
@@ -501,7 +502,26 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Apple Touch Icon (`src/app/apple-icon.png`, `public/apple-icon.png`, `public/icon.png`)**: High-resolution 256x256 PNG for mobile home screens and bookmark bars.
 - [x] **Next.js 16 Metadata Integration (`src/app/layout.tsx`)**:
   - Configured explicit `icons` metadata linking SVG, ICO, and Apple Touch Icon with verified production build passing all 19 metadata routes.
-### Phase 21 (Upcoming / In Planning) — Creative Loyalty Program & Name Badge Customization ("Equipped Flex Badges")
+
+### Phase 21 — 3D Gyroscopic Orbit Loader & Studio Loading System (Completed)
+- [x] **Universal Gyroscopic Orbit Loader Component (`OrbitLoader.tsx`)**:
+  - Built a custom 3D CSS gyroscopic orbit animation system ([`src/components/ui/OrbitLoader.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/OrbitLoader.tsx)) perfectly tailored to the **Design Orbit** brand and dark studio aesthetic.
+  - **Luminous Core Nucleus**: Pulsing cyan-to-emerald core orb (`animate-orbit-core`) with ambient radial backdrop glow.
+  - **Concentric 3D Orbital Rings**: Staggered, tilted elliptical tracks (`rotateX(68deg) rotateY(15deg)`) with counter-rotating emerald and cyan orbiting satellite nodes.
+  - **Scale Presets**: Responsive presets (`sm`, `md`, `lg`, and `fullscreen` backdrop).
+  - **Creative Agency Status Messaging**: Smoothly cycles through inspiring status copy (*"Aligning creative vectors..."*, *"Syncing agency deliverables..."*, *"Harmonizing team momentum..."*).
+  - **Aurora Glass Shimmer Matrix**: Companion `ShimmerSkeleton` and `TableShimmerSkeleton` utilities for instant perceived performance.
+- [x] **App-Wide Loading State Upgrade**:
+  - Replaced legacy generic browser spinners across:
+    - **Excel Sync (`/excel-sync`)**: Daily and Weekly table generation loaders.
+    - **Daily Work Log (`/work`)**: Work entries loader and Pending Approvals scanner.
+    - **Dashboard (`/dashboard`)**: Today's Work Log activity loader.
+    - **Weekly Meeting Report (`/reports/weekly`)**: Weekly review aggregation loader.
+    - **Executive Admin Console (`/admin`)**: Administrator authorization verification curtain.
+- [x] **Production Verification**:
+  - Built cleanly with `npm run build` passing all 19 routes with 0 errors.
+
+### Phase 22 (Upcoming / In Planning) — Creative Loyalty Program & Name Badge Customization ("Equipped Flex Badges")
 - [ ] **Architectural Concept & Purpose**:
   - Transform internal work tracking into an engaging, pride-driven progression and identity system tailored for the Webtree creative team.
   - Release collectible, craft-focused achievement badges that designers can unlock and equip to flex their identity beside their name across the app.
