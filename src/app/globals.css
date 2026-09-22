@@ -8,18 +8,18 @@
     --card-foreground: #f8fafc;
     --popover: #0f172a;
     --popover-foreground: #f8fafc;
-    --primary: #38bdf8;
-    --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+    --primary: #a855f7;
+    --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
     --primary-foreground: #ffffff;
     --secondary: #1e293b;
     --secondary-foreground: #f8fafc;
     --muted: #1e293b;
     --muted-foreground: #94a3b8;
-    --accent: #132e27;
-    --accent-foreground: #34d399;
+    --accent: #2e1065;
+    --accent-foreground: #c084fc;
     --border: #1e293b;
     --input: #1e293b;
-    --ring: #38bdf8;
+    --ring: #a855f7;
     --radius: 0.5rem;
     color-scheme: dark;
   }
@@ -52,21 +52,21 @@ body {
   background: #334155;
 }
 
-/* Webtree Gradient Accent Utilities */
+/* Electric Violet Gradient Accent Utilities */
 .webtree-gradient-text {
-  background: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 100%);
+  background: linear-gradient(135deg, #c084fc 0%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .webtree-gradient-btn {
-  background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #a855f7 100%);
   transition: opacity 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
 
 .webtree-gradient-btn:hover {
   opacity: 0.94;
-  box-shadow: 0 0 16px rgba(14, 165, 233, 0.35);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
 }
 
 .webtree-gradient-btn:active {
@@ -74,7 +74,7 @@ body {
 }
 
 .webtree-gradient-border {
-  border-image: linear-gradient(135deg, #0284c7 0%, #0d9488 100%) 1;
+  border-image: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) 1;
 }
 
 .webtree-card-shadow {
@@ -82,7 +82,7 @@ body {
 }
 
 .webtree-card-glow {
-  box-shadow: 0 0 25px -5px rgba(2, 132, 199, 0.18);
+  box-shadow: 0 0 25px -5px rgba(147, 51, 234, 0.25);
 }
 
 /* Floating Creative Animations */
@@ -192,7 +192,7 @@ body {
   font-family: var(--font-display), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   letter-spacing: -0.025em;
   font-weight: 800;
-  background: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 100%);
+  background: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -202,7 +202,7 @@ body {
   font-family: var(--font-display), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   letter-spacing: -0.025em;
   font-weight: 800;
-  background: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 100%);
+  background: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-style: normal;

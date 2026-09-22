@@ -6,8 +6,8 @@ export function CreativeBackground() {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none aria-hidden">
       {/* Very Faint Ambient Dark Mode Glows */}
-      <div className="absolute -top-32 -left-32 w-[38rem] h-[38rem] bg-sky-900/15 rounded-full blur-3xl" />
-      <div className="absolute -bottom-32 -right-32 w-[38rem] h-[38rem] bg-teal-900/15 rounded-full blur-3xl" />
+      <div className="absolute -top-32 -left-32 w-[38rem] h-[38rem] bg-violet-900/15 rounded-full blur-3xl" />
+      <div className="absolute -bottom-32 -right-32 w-[38rem] h-[38rem] bg-indigo-900/15 rounded-full blur-3xl" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45rem] h-[45rem] bg-slate-900/30 rounded-full blur-3xl" />
 
       {/* Subtle Dot Grid Pattern */}

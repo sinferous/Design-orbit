@@ -57,7 +57,7 @@ export function Navbar({ userName }: NavbarProps) {
               <span className="font-bold text-slate-200 text-base sm:text-lg tracking-tight">
                 Design
               </span>
-              <span className="font-display font-black text-base sm:text-lg ml-1.5 tracking-tight bg-gradient-to-r from-sky-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(56,189,248,0.45)] group-hover:drop-shadow-[0_0_20px_rgba(56,189,248,0.7)] transition-all">
+              <span className="font-display font-black text-base sm:text-lg ml-1.5 tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(168,85,247,0.45)] group-hover:drop-shadow-[0_0_20px_rgba(168,85,247,0.7)] transition-all">
                 Orbit
               </span>
             </Link>
@@ -76,11 +76,11 @@ export function Navbar({ userName }: NavbarProps) {
                     className={cn(
                       'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                       isActive
-                        ? 'bg-sky-950/60 text-sky-300 font-semibold border border-sky-800/40'
+                        ? 'bg-violet-950/60 text-violet-300 font-semibold border border-violet-800/40'
                         : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
                     )}
                   >
-                    <Icon className={cn('w-4 h-4', isActive ? 'text-sky-400' : 'text-slate-400')} />
+                    <Icon className={cn('w-4 h-4', isActive ? 'text-violet-400' : 'text-slate-400')} />
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -109,10 +109,10 @@ export function Navbar({ userName }: NavbarProps) {
                 title="Account Settings & Password"
                 className="flex items-center space-x-2 group/user"
               >
-                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-200 group-hover/user:border-sky-500">
+                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-200 group-hover/user:border-violet-500">
                   {currentUser.charAt(0).toUpperCase()}
                 </div>
-                <span className="text-sm font-bold text-slate-200 group-hover/user:text-sky-400">
+                <span className="text-sm font-bold text-slate-200 group-hover/user:text-violet-400">
                   {currentUser}
                 </span>
               </Link>
@@ -145,7 +145,7 @@ export function Navbar({ userName }: NavbarProps) {
           <div className="md:hidden border-t border-slate-800 py-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="px-3 py-2 mb-2 bg-slate-900 rounded-lg flex items-center justify-between border border-slate-800">
               <div className="flex items-center space-x-2">
-                <div className="w-7 h-7 rounded-full bg-sky-950 border border-sky-800 flex items-center justify-center text-xs font-bold text-sky-400">
+                <div className="w-7 h-7 rounded-full bg-violet-950 border border-violet-800 flex items-center justify-center text-xs font-bold text-violet-400">
                   {currentUser.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-xs font-bold text-slate-200">{currentUser}</span>
@@ -153,7 +153,7 @@ export function Navbar({ userName }: NavbarProps) {
               <div className="flex items-center space-x-2">
                 <Link
                   href="/settings"
-                  className="text-xs font-semibold text-sky-400 hover:underline px-2.5 py-1 bg-slate-800 rounded border border-slate-700"
+                  className="text-xs font-semibold text-violet-400 hover:underline px-2.5 py-1 bg-slate-800 rounded border border-slate-700"
                 >
                   Settings
                 </Link>
@@ -179,11 +179,11 @@ export function Navbar({ userName }: NavbarProps) {
                   className={cn(
                     'flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors',
                     isActive
-                      ? 'bg-sky-950/60 text-sky-300 border border-sky-800/40'
+                      ? 'bg-violet-950/60 text-violet-300 border border-violet-800/40'
                       : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
                   )}
                 >
-                  <Icon className={cn('w-5 h-5', isActive ? 'text-sky-400' : 'text-slate-400')} />
+                  <Icon className={cn('w-5 h-5', isActive ? 'text-violet-400' : 'text-slate-400')} />
                   <span>{item.label}</span>
                 </Link>
               );

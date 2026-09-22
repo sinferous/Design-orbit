@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full bg-[#090d16] dark">
-      <body className={`${inter.className} ${plusJakarta.variable} min-h-full flex flex-col bg-[#090d16] text-slate-100 antialiased relative selection:bg-sky-900 selection:text-sky-200`}>
+      <body className={`${inter.className} ${plusJakarta.variable} min-h-full flex flex-col bg-[#090d16] text-slate-100 antialiased relative selection:bg-violet-900 selection:text-violet-200`}>
         <ToastProvider>
           <CreativeBackground />
           <div className="relative z-10 flex-1 flex flex-col">

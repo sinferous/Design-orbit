@@ -77,8 +77,8 @@ export function OrbitLoader({
         >
           <defs>
             <linearGradient id={`orbit-center-grad-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#38bdf8" />
-              <stop offset="100%" stopColor="#2dd4bf" />
+              <stop offset="0%" stopColor="#c084fc" />
+              <stop offset="100%" stopColor="#818cf8" />
             </linearGradient>
           </defs>
 
@@ -89,7 +89,7 @@ export function OrbitLoader({
             r={config.centerR}
             fill={`url(#orbit-center-grad-${size})`}
             style={{
-              filter: 'drop-shadow(0 0 6px rgba(56, 189, 248, 0.6))',
+              filter: 'drop-shadow(0 0 6px rgba(192, 132, 252, 0.6))',
             }}
           />
 
@@ -114,25 +114,25 @@ export function OrbitLoader({
               transformOrigin: `${center}px ${center}px`,
             }}
           >
-            {/* Circle 1 (Cyan / Sky Blue - Top of orbit) */}
+            {/* Circle 1 (Electric Violet - Top of orbit) */}
             <circle
               cx={center}
               cy={center - config.r}
               r={config.dotR}
-              fill="#38bdf8"
+              fill="#c084fc"
               style={{
-                filter: 'drop-shadow(0 0 4px rgba(56, 189, 248, 0.7))',
+                filter: 'drop-shadow(0 0 4px rgba(192, 132, 252, 0.8))',
               }}
             />
 
-            {/* Circle 2 (Emerald Green - Bottom of orbit, 180° opposite) */}
+            {/* Circle 2 (Indigo Lavender - Bottom of orbit, 180° opposite) */}
             <circle
               cx={center}
               cy={center + config.r}
               r={config.dotR}
-              fill="#34d399"
+              fill="#818cf8"
               style={{
-                filter: 'drop-shadow(0 0 4px rgba(52, 211, 153, 0.7))',
+                filter: 'drop-shadow(0 0 4px rgba(129, 140, 248, 0.8))',
               }}
             />
           </g>
@@ -186,7 +186,7 @@ export function ShimmerSkeleton({
         className
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-400/10 via-teal-400/10 to-transparent animate-shimmer-sweep pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-400/15 via-fuchsia-400/15 to-transparent animate-shimmer-sweep pointer-events-none" />
     </div>
   );
 }
