@@ -22,12 +22,13 @@ export function OrbitLoader({
   subtitle,
   className,
 }: OrbitLoaderProps) {
-  // Scaling configuration for the dotted orbit and 2 orbiting circles
+  // Scaling configuration for the dotted orbit, 2 orbiting circles, and center circle
   const config = {
     sm: {
       svgSize: 32,
       r: 10.5,
       dotR: 2.2,
+      centerR: 3.2,
       strokeWidth: 1.5,
       dashArray: '2.5 3.5',
     },
@@ -35,6 +36,7 @@ export function OrbitLoader({
       svgSize: 46,
       r: 16,
       dotR: 3.2,
+      centerR: 4.8,
       strokeWidth: 1.75,
       dashArray: '3 4',
     },
@@ -42,6 +44,7 @@ export function OrbitLoader({
       svgSize: 62,
       r: 22,
       dotR: 4,
+      centerR: 6.5,
       strokeWidth: 2,
       dashArray: '3.5 5',
     },
@@ -49,6 +52,7 @@ export function OrbitLoader({
       svgSize: 76,
       r: 28,
       dotR: 5,
+      centerR: 8.5,
       strokeWidth: 2.2,
       dashArray: '4 6',
     },
@@ -71,13 +75,22 @@ export function OrbitLoader({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Subtle central node anchor */}
+          <defs>
+            <linearGradient id={`orbit-center-grad-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#2dd4bf" />
+            </linearGradient>
+          </defs>
+
+          {/* Prominent Center Circle / Orbital Core */}
           <circle
             cx={center}
             cy={center}
-            r={config.dotR * 0.5}
-            fill="#475569"
-            opacity={0.4}
+            r={config.centerR}
+            fill={`url(#orbit-center-grad-${size})`}
+            style={{
+              filter: 'drop-shadow(0 0 6px rgba(56, 189, 248, 0.6))',
+            }}
           />
 
           {/* Dotted Circle Orbit Track */}
