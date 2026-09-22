@@ -501,6 +501,29 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Apple Touch Icon (`src/app/apple-icon.png`, `public/apple-icon.png`, `public/icon.png`)**: High-resolution 256x256 PNG for mobile home screens and bookmark bars.
 - [x] **Next.js 16 Metadata Integration (`src/app/layout.tsx`)**:
   - Configured explicit `icons` metadata linking SVG, ICO, and Apple Touch Icon with verified production build passing all 19 metadata routes.
+### Phase 21 (Upcoming / In Planning) — Creative Loyalty Program & Name Badge Customization ("Equipped Flex Badges")
+- [ ] **Architectural Concept & Purpose**:
+  - Transform internal work tracking into an engaging, pride-driven progression and identity system tailored for the Webtree creative team.
+  - Release collectible, craft-focused achievement badges that designers can unlock and equip to flex their identity beside their name across the app.
+- [ ] **Equipped Flex Badge Mechanics**:
+  - **"Equipped Slot" Concept**: Rather than cluttering the interface with dozens of stickers, each designer can select **1 primary featured badge** to represent their persona.
+  - **Profile Badge Showcase & Picker**: Embedded in personal settings ([`/settings`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx)), allowing designers to browse unlocked achievements and equip/switch their active badge with 1 click.
+  - **Planned Badge Catalog**:
+    - `🎯 Pixel Perfect` — 100% client approval rate across a week
+    - `🔥 Streak Master` — 15+ consecutive working days logged on time
+    - `🏆 Showstopper` — Deliverable selected as Weekly Best Work
+    - `⏱️ Deep Work Ace` — 20+ hours of focused creative deliverable time logged
+    - `🚀 Speed Demon` — Daily logs submitted early with zero delays
+    - `🌌 Orbit Pioneer` — Original launch team member distinction
+- [ ] **High-Visibility Display Touchpoints**:
+  - **Navbar Profile Pill**: Positioned directly next to the user avatar (`[V] Varun • 🎯 Pixel Perfect`).
+  - **Daily Team Work Log (`/work`)**: On individual deliverable cards (`By Varun [🎯 Pixel Perfect]`).
+  - **Weekly Meeting Review (`/reports/weekly`)**: Displayed under designer showcase cards during agency reviews.
+  - **Creative Team Directory (`/team`)**: Pinned to the designer's profile card alongside their consistency heat strip.
+  - **Admin Executive Console (`/admin`)**: Visible in the live workload and activity roster.
+- [ ] **Deployment Protocol (Local-First Sandbox)**:
+  - Strict mandate: All development, testing, and UI tuning will run 100% locally (`localhost:3000`) with mock/sandboxed data.
+  - Live deployment to GitHub/Vercel will only be triggered after manual review and explicit user command.
 
 ---
 
