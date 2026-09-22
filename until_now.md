@@ -544,6 +544,9 @@ This document provides a comprehensive summary of all progress, architecture, an
     - Added an animated auto-dismiss countdown progress bar along the bottom with smooth Electric Violet / Rose gradients.
     - Added smart hover-pause: hovering over any toast pauses the dismiss timer to give ample reading time.
     - Fixed stacking geometry: multiple toasts stack in a dynamic vertical queue in the top-right corner.
+  - **Login Page Brand Polish (`/login`)**:
+    - Removed the legacy Webtree corporate logo image and replaced with cohesive "Design Orbit" gradient typography.
+    - Updated subtitle from "Internal reporting platform for the Webtree Creative Team" to "Internal reporting platform for the Creative Team".
   - Preserved semantic warning indicators (amber for pending deadlines) and success indicators (emerald for completed checklists and Excel spreadsheets).
 - [x] **Production Verification**:
   - Ran `npm run build` with Turbopack — all 19 routes compiled successfully with 0 errors.

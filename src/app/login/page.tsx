@@ -144,19 +144,17 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <img
-            src="/logo/webtree-logo-white.svg"
-            alt="Webtree Logo"
-            className="h-12 w-auto object-contain"
-          />
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div className="flex items-center justify-center">
+          <span className="font-bold text-slate-100 text-3xl sm:text-4xl tracking-tight">
+            Design
+          </span>
+          <span className="font-display font-black text-3xl sm:text-4xl ml-2 tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_16px_rgba(168,85,247,0.45)]">
+            Orbit
+          </span>
         </div>
-        <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white">
-          Design Orbit Work Tracker
-        </h2>
-        <p className="mt-1 text-center text-sm text-slate-400">
-          Internal reporting platform for the Webtree Creative Team
+        <p className="mt-2 text-center text-sm text-slate-400">
+          Internal reporting platform for the Creative Team
         </p>
       </div>
 
