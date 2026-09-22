@@ -54,8 +54,23 @@ export function Navbar({ userName }: NavbarProps) {
           {/* Logo & Brand */}
           <div className="flex items-center space-x-4 md:space-x-8">
             <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center group">
-              <span className="font-extrabold text-slate-100 text-base sm:text-lg tracking-tight flex items-baseline">
-                Design <span className="font-display font-extrabold text-base sm:text-lg ml-1.5 inline-block bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent tracking-tight">Orbit</span>
+              <span className="font-extrabold text-slate-100 text-base sm:text-lg tracking-tight flex items-center">
+                Design
+                <span className="inline-flex items-center justify-center ml-1.5 mr-[0.5px] relative -top-[0.5px]">
+                  <svg
+                    viewBox="0 0 1072.74 1072.74"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-[17px] h-[17px] sm:w-[19px] sm:h-[19px] rounded-full shadow-sm group-hover:scale-105 transition-transform"
+                  >
+                    <circle cx="536.37" cy="536.37" r="536.37" fill="#020202" />
+                    <path
+                      d="M152.76,654.71c15.04,77.61,113.24,77.57,187.09,67.07,122.66-17.43,261.52-74.83,353.66-158.03,28.46-25.7,53.21-54.58,64.96-91.12,9.91-30.81.23-62.52-28.91-78.21-76.08-40.95-216.63-8.42-300.06,23.14l-57.67,21.81c108.07-65.7,226.8-110.19,351.48-128.68,47.97-7.11,93.1-9.12,138.92,4.4,25.25,7.45,51.03,22.31,61.54,47.31,10.31,24.51,3.7,53.65-8.14,77.25-46.26,92.21-153.18,162.61-243.76,212.48-89.85,49.47-184.23,85.39-285.17,104.36-68.11,12.8-157.49,22.26-212.17-17.28-27.17-19.65-36.4-53.47-21.77-84.51Z"
+                      fill="#ffffff"
+                    />
+                  </svg>
+                </span>
+                rbit
               </span>
             </Link>
 
