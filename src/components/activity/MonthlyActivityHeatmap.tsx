@@ -86,7 +86,7 @@ export function MonthlyActivityHeatmap({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
         {showProfileHeader ? (
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold flex items-center justify-center text-base shadow-sm shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-bold flex items-center justify-center text-base shadow-sm shrink-0">
               {activity.profile.name.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -180,10 +180,10 @@ export function MonthlyActivityHeatmap({
           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
             Deliverables Approved
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-teal-400 mt-0.5">
+          <div className="text-xl sm:text-2xl font-extrabold text-violet-400 mt-0.5">
             {activity.totalQuantityApproved}
           </div>
-          <span className="text-[11px] text-teal-300 font-semibold">
+          <span className="text-[11px] text-violet-300 font-semibold">
             {activity.totalQuantityDone > 0
               ? `${Math.round((activity.totalQuantityApproved / activity.totalQuantityDone) * 100)}% approval`
               : '0% approval'}
@@ -249,7 +249,7 @@ export function MonthlyActivityHeatmap({
                   getIntensityClass(day.intensity)
                 } ${
                   isSelected
-                    ? 'ring-2 ring-sky-400 ring-offset-1 ring-offset-slate-900 scale-[1.03] z-10'
+                    ? 'ring-2 ring-violet-400 ring-offset-1 ring-offset-slate-900 scale-[1.03] z-10'
                     : ''
                 } ${
                   isSunday && day.quantityDone === 0 && day.tasksCount === 0 ? 'opacity-40' : ''
@@ -296,11 +296,11 @@ export function MonthlyActivityHeatmap({
         <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-sky-400" />
+              <Calendar className="w-4 h-4 text-violet-400" />
               <h4 className="text-xs sm:text-sm font-bold text-slate-100">
                 Deliverables Logged on {selectedDay.dateStr}
               </h4>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-950 text-sky-300 border border-sky-800">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-950 text-violet-300 border border-violet-800">
                 {selectedDay.quantityDone} work{selectedDay.quantityDone === 1 ? '' : 's'} ({selectedDay.tasksCount} {selectedDay.tasksCount === 1 ? 'task' : 'tasks'})
               </span>
             </div>
@@ -346,7 +346,7 @@ export function MonthlyActivityHeatmap({
 
                   <div className="flex items-center space-x-3 shrink-0 text-right">
                     <div>
-                      <div className="font-bold text-teal-400">
+                      <div className="font-bold text-violet-400">
                         {entry.quantity_approved} app.
                       </div>
                       <div className="text-[10px] text-slate-400 font-mono">

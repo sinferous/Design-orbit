@@ -181,13 +181,13 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
       <div className="space-y-3 pb-3 border-b border-slate-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-sky-950 text-sky-400 flex items-center justify-center border border-sky-800 shadow-sm shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-violet-950 text-violet-400 flex items-center justify-center border border-violet-800 shadow-sm shrink-0">
               <CheckSquare className="w-4 h-4" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
                 <h2 className="text-sm font-bold text-slate-100 leading-tight truncate">My To-Do List</h2>
-                <span title="Private to your account" className="inline-flex items-center text-slate-400 hover:text-sky-400">
+                <span title="Private to your account" className="inline-flex items-center text-slate-400 hover:text-violet-400">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 </span>
               </div>
@@ -216,7 +216,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
             onClick={() => setActiveTab('all')}
             className={`flex-1 py-1 text-center rounded-md font-bold transition-all cursor-pointer ${
               activeTab === 'all'
-                ? 'bg-slate-800 text-sky-300 shadow-xs border border-slate-700'
+                ? 'bg-slate-800 text-violet-300 shadow-xs border border-slate-700'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -227,7 +227,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
             onClick={() => setActiveTab('pending')}
             className={`flex-1 py-1 text-center rounded-md font-bold transition-all cursor-pointer ${
               activeTab === 'pending'
-                ? 'bg-slate-800 text-sky-300 shadow-xs border border-slate-700'
+                ? 'bg-slate-800 text-violet-300 shadow-xs border border-slate-700'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -238,7 +238,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
             onClick={() => setActiveTab('completed')}
             className={`flex-1 py-1 text-center rounded-md font-bold transition-all cursor-pointer ${
               activeTab === 'completed'
-                ? 'bg-slate-800 text-sky-300 shadow-xs border border-slate-700'
+                ? 'bg-slate-800 text-violet-300 shadow-xs border border-slate-700'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -252,11 +252,11 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
         <div className="space-y-1 px-0.5">
           <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium">
             <span>{completedCount} of {todos.length} completed</span>
-            <span className="font-bold text-sky-400">{progressPercent}%</span>
+            <span className="font-bold text-violet-400">{progressPercent}%</span>
           </div>
           <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
             <div
-              className="h-full bg-gradient-to-r from-sky-500 to-teal-500 transition-all duration-300 rounded-full"
+              className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-300 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -270,7 +270,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
           value={newTaskText}
           onChange={e => setNewTaskText(e.target.value)}
           placeholder="Add a private task... (Press Enter)"
-          className="w-full pl-3.5 pr-20 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-400 transition-all font-medium shadow-xs"
+          className="w-full pl-3.5 pr-20 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-all font-medium shadow-xs"
         />
         <button
           type="submit"
@@ -286,7 +286,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
       <div className="flex-1 overflow-y-auto max-h-[380px] space-y-2 pr-1">
         {loading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin w-5 h-5 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
+            <div className="animate-spin w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
             <p className="mt-2 text-xs text-slate-400 font-medium">Loading your private tasks...</p>
           </div>
         ) : filteredTodos.length === 0 ? (
@@ -323,9 +323,9 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
                 }}
                 className={`group p-2.5 sm:p-3 rounded-lg border transition-all flex items-center justify-between gap-2.5 cursor-move select-none ${
                   isBeingDragged
-                    ? 'opacity-40 border-dashed border-sky-500 bg-sky-950/50 scale-[0.98]'
+                    ? 'opacity-40 border-dashed border-violet-500 bg-violet-950/50 scale-[0.98]'
                     : isTargeted
-                    ? 'border-sky-500 ring-2 ring-sky-400/50 bg-sky-950/40'
+                    ? 'border-violet-500 ring-2 ring-violet-400/50 bg-violet-950/40'
                     : todo.is_completed
                     ? 'bg-slate-950/40 border-slate-850 text-slate-500'
                     : 'bg-slate-950/80 border-slate-800 hover:border-slate-700 hover:bg-slate-850 text-slate-200'
@@ -346,7 +346,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
                     className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 cursor-pointer ${
                       todo.is_completed
                         ? 'bg-emerald-500 border-emerald-500 text-slate-950 shadow-xs'
-                        : 'border-slate-600 bg-slate-900 group-hover:border-sky-400'
+                        : 'border-slate-600 bg-slate-900 group-hover:border-violet-400'
                     }`}
                   >
                     {todo.is_completed && <Check className="w-2.5 h-2.5 stroke-[3]" />}

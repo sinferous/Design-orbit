@@ -106,7 +106,7 @@ export function QuickApprovalModal({
         {/* Header */}
         <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 text-white flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400">
+            <div className="w-8 h-8 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-violet-400">
               <Check className="w-4 h-4" />
             </div>
             <div>
@@ -129,10 +129,10 @@ export function QuickApprovalModal({
           <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center space-x-1.5 font-bold text-slate-200">
-                <Building2 className="w-3.5 h-3.5 text-sky-400" />
+                <Building2 className="w-3.5 h-3.5 text-violet-400" />
                 <span>{entry.client?.name || 'Client Work'}</span>
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-950 text-sky-300 border border-sky-800">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-950 text-violet-300 border border-violet-800">
                 {entry.work_type?.name || 'Deliverable'}
               </span>
             </div>
@@ -187,8 +187,8 @@ export function QuickApprovalModal({
                 </span>
               )}
               {isPartiallyApproved && (
-                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-950/70 text-sky-300 border border-sky-800/60">
-                  <Layers className="w-3.5 h-3.5 text-sky-400" />
+                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60">
+                  <Layers className="w-3.5 h-3.5 text-violet-400" />
                   <span>Partially Approved ({approvedQty} of {maxQty})</span>
                 </span>
               )}

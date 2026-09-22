@@ -433,10 +433,10 @@ export function getPendingUrgency(daysAgo: number): {
   dot: string;
 } {
   if (daysAgo <= 1) {
-    const badgeBg = 'bg-emerald-50';
-    const badgeText = 'text-emerald-800';
-    const badgeBorder = 'border-emerald-200';
-    const dotColor = 'bg-emerald-500';
+    const badgeBg = 'bg-emerald-950/70';
+    const badgeText = 'text-emerald-300';
+    const badgeBorder = 'border-emerald-800/60';
+    const dotColor = 'bg-emerald-400';
     return {
       badgeBg,
       badgeText,
@@ -450,10 +450,10 @@ export function getPendingUrgency(daysAgo: number): {
     };
   }
   if (daysAgo <= 4) {
-    const badgeBg = 'bg-sky-50';
-    const badgeText = 'text-sky-800';
-    const badgeBorder = 'border-sky-200';
-    const dotColor = 'bg-sky-500';
+    const badgeBg = 'bg-violet-950/70';
+    const badgeText = 'text-violet-300';
+    const badgeBorder = 'border-violet-800/60';
+    const dotColor = 'bg-violet-400';
     return {
       badgeBg,
       badgeText,
@@ -467,10 +467,10 @@ export function getPendingUrgency(daysAgo: number): {
     };
   }
   if (daysAgo <= 7) {
-    const badgeBg = 'bg-amber-50';
-    const badgeText = 'text-amber-800';
-    const badgeBorder = 'border-amber-300';
-    const dotColor = 'bg-amber-500';
+    const badgeBg = 'bg-amber-950/70';
+    const badgeText = 'text-amber-300';
+    const badgeBorder = 'border-amber-800/60';
+    const dotColor = 'bg-amber-400';
     return {
       badgeBg,
       badgeText,
@@ -483,10 +483,10 @@ export function getPendingUrgency(daysAgo: number): {
       dot: dotColor,
     };
   }
-  const badgeBg = 'bg-rose-50';
-  const badgeText = 'text-rose-800';
-  const badgeBorder = 'border-rose-300';
-  const dotColor = 'bg-rose-500';
+  const badgeBg = 'bg-rose-950/70';
+  const badgeText = 'text-rose-300';
+  const badgeBorder = 'border-rose-800/60';
+  const dotColor = 'bg-rose-400';
   return {
     badgeBg,
     badgeText,

@@ -663,7 +663,7 @@ export default function ExcelSyncPage() {
               className={cn(
                 'w-32 sm:w-36 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer select-none',
                 activeTab === 'daily'
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
               )}
             >
@@ -676,7 +676,7 @@ export default function ExcelSyncPage() {
               className={cn(
                 'w-32 sm:w-36 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer select-none',
                 activeTab === 'weekly'
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
               )}
             >
@@ -722,7 +722,7 @@ export default function ExcelSyncPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedDate(todayStr)}
-                    className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition-colors cursor-pointer ml-1"
+                    className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-violet-400 border border-slate-700 transition-colors cursor-pointer ml-1"
                   >
                     Today
                   </button>
@@ -775,7 +775,7 @@ export default function ExcelSyncPage() {
                   className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
                     isDailyCopied
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white active:scale-95'
+                      : 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white active:scale-95'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isDailyCopied ? (
@@ -1030,14 +1030,14 @@ export default function ExcelSyncPage() {
                                   active && 'bg-emerald-950/90 text-emerald-300 font-bold border border-emerald-700/60',
                                   hoverActive && !active && 'bg-emerald-950/40 border border-dashed border-emerald-600/70 text-emerald-200',
                                   isHoverStart && !active && '!bg-emerald-600/80 !text-white !border-emerald-500 font-bold shadow-sm',
-                                  isHoverEnd && !active && '!bg-teal-600/80 !text-white !border-teal-500 font-bold shadow-sm',
-                                  start && '!bg-gradient-to-r !from-emerald-500 !to-teal-600 !text-white !border-emerald-500 shadow-sm font-bold',
-                                  end && '!bg-gradient-to-r !from-teal-600 !to-emerald-500 !text-white !border-teal-500 shadow-sm font-bold'
+                                  isHoverEnd && !active && '!bg-emerald-600/80 !text-white !border-emerald-500 font-bold shadow-sm',
+                                  start && '!bg-gradient-to-r !from-emerald-600 !to-emerald-500 !text-white !border-emerald-500 shadow-sm font-bold',
+                                  end && '!bg-gradient-to-r !from-emerald-500 !to-emerald-600 !text-white !border-emerald-500 shadow-sm font-bold'
                                 )}
                               >
                                 {dayObj.date.getDate()}
                                 {isToday && !active && (
-                                  <span className="absolute bottom-1 w-1 h-1 bg-sky-400 rounded-full" />
+                                  <span className="absolute bottom-1 w-1 h-1 bg-violet-400 rounded-full" />
                                 )}
                               </button>
                             );
@@ -1099,7 +1099,7 @@ export default function ExcelSyncPage() {
                   <button
                     type="button"
                     onClick={handleThisWeek}
-                    className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition-colors cursor-pointer ml-1"
+                    className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-violet-400 border border-slate-700 transition-colors cursor-pointer ml-1"
                   >
                     This Week
                   </button>
@@ -1152,7 +1152,7 @@ export default function ExcelSyncPage() {
                   className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
                     isWeeklyCopied
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white active:scale-95'
+                      : 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white active:scale-95'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isWeeklyCopied ? (
@@ -1339,7 +1339,7 @@ export default function ExcelSyncPage() {
                                 value={row.approved}
                                 onChange={(e) => handleWeeklyRowChange(row.id, 'approved', e.target.value)}
                                 placeholder=""
-                                className="w-full bg-transparent px-1 py-1 text-center rounded text-teal-300 font-bold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full bg-transparent px-1 py-1 text-center rounded text-emerald-300 font-bold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
                               />
                             </td>
 

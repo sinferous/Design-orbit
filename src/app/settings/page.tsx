@@ -150,7 +150,7 @@ export default function SettingsPage() {
         <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-950/60 text-sky-400 border border-sky-800/60">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/60 text-violet-400 border border-violet-800/60">
                 Personal Profile
               </span>
             </div>
@@ -176,13 +176,13 @@ export default function SettingsPage() {
         {/* User Card */}
         <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-teal-600 text-white font-extrabold flex items-center justify-center text-xl shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-extrabold flex items-center justify-center text-xl shadow-sm">
               {currentUser.name.charAt(0).toUpperCase()}
             </div>
             <div>
               <div className="flex items-center space-x-2">
                 <div className="px-3 py-1 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-bold text-slate-200 flex items-center space-x-2 w-fit">
-                  <User className="w-3.5 h-3.5 text-sky-400" />
+                  <User className="w-3.5 h-3.5 text-violet-400" />
                   <span>{currentUser.name}</span>
                 </div>
                 {profile?.designation && (
@@ -200,7 +200,7 @@ export default function SettingsPage() {
         {!isAdmin && (
           loadingActivity ? (
             <div className="bg-slate-900 p-12 rounded-2xl border border-slate-800 shadow-sm text-center">
-              <div className="animate-spin w-7 h-7 border-2 border-emerald-400 border-t-transparent rounded-full mx-auto" />
+              <div className="animate-spin w-7 h-7 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
               <p className="mt-3 text-xs text-slate-400 font-medium">Loading your deliverable heatmap & activity matrix...</p>
             </div>
           ) : activity ? (
@@ -219,7 +219,7 @@ export default function SettingsPage() {
         <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm space-y-6">
           <div className="border-b border-slate-800 pb-4">
             <h2 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-              <KeyRound className="w-5 h-5 text-sky-400" />
+              <KeyRound className="w-5 h-5 text-violet-400" />
               <span>Change Password</span>
             </h2>
             <p className="text-xs text-slate-400 mt-1">
@@ -241,7 +241,7 @@ export default function SettingsPage() {
                   required
                   value={currentPassword}
                   onChange={e => setCurrentPassword(e.target.value)}
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-100 bg-slate-950/90"
+                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 text-slate-100 bg-slate-950/90"
                 />
                 <button
                   type="button"
@@ -267,7 +267,7 @@ export default function SettingsPage() {
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-100 bg-slate-950/90 placeholder-slate-500"
+                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 text-slate-100 bg-slate-950/90 placeholder-slate-500"
                 />
                 <button
                   type="button"
@@ -293,7 +293,7 @@ export default function SettingsPage() {
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter new password"
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-100 bg-slate-950/90 placeholder-slate-500"
+                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 text-slate-100 bg-slate-950/90 placeholder-slate-500"
                 />
                 <button
                   type="button"

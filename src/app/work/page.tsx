@@ -521,7 +521,7 @@ export default function MyWorkPage() {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setShowEmailModal(true)}
-                  className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-bold text-sky-300 bg-sky-950/70 hover:bg-sky-900/80 border border-sky-800/60 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-bold text-violet-300 bg-violet-950/70 hover:bg-violet-900/80 border border-violet-800/60 rounded-lg shadow-2xs transition-colors cursor-pointer"
                   title="Preview and format daily work log for email"
                 >
                   <Mail className="w-4 h-4" />
@@ -559,7 +559,7 @@ export default function MyWorkPage() {
               onClick={() => setWorkViewMode('calendar')}
               className={`w-full sm:w-auto h-11 sm:h-auto inline-flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${
                 workViewMode === 'calendar'
-                  ? 'bg-sky-600 text-white shadow-xs'
+                  ? 'bg-violet-600 text-white shadow-xs'
                   : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
               }`}
             >
@@ -605,7 +605,7 @@ export default function MyWorkPage() {
           {/* If Admin: show Team filter; Else: My Work vs Team Tabs */}
           {isAdmin ? (
             <div className="flex items-center space-x-2.5 w-full md:w-auto">
-              <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-950/70 text-sky-300 border border-sky-800/60 shadow-2xs shrink-0">
+              <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60 shadow-2xs shrink-0">
                 Team Work Log
               </span>
               <div className="w-60">
@@ -631,7 +631,7 @@ export default function MyWorkPage() {
                 onClick={() => setSelectedUserFilter('my_work')}
                 className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
                   selectedUserFilter === 'my_work'
-                    ? 'bg-slate-800 text-sky-400 shadow-2xs'
+                    ? 'bg-slate-800 text-violet-400 shadow-2xs'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -641,7 +641,7 @@ export default function MyWorkPage() {
                 onClick={() => setSelectedUserFilter('all')}
                 className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
                   selectedUserFilter !== 'my_work'
-                    ? 'bg-slate-800 text-sky-400 shadow-2xs'
+                    ? 'bg-slate-800 text-violet-400 shadow-2xs'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -687,10 +687,10 @@ export default function MyWorkPage() {
                     setViewDate(parseLocalDate(selectedDate));
                     setIsCalendarOpen(!isCalendarOpen);
                   }}
-                  className="flex items-center space-x-2 px-3 py-1.5 bg-slate-950/80 hover:bg-slate-800/80 rounded-lg border border-slate-700 hover:border-sky-500 shadow-2xs transition-all cursor-pointer text-xs group"
+                  className="flex items-center space-x-2 px-3 py-1.5 bg-slate-950/80 hover:bg-slate-800/80 rounded-lg border border-slate-700 hover:border-violet-500 shadow-2xs transition-all cursor-pointer text-xs group"
                   title="Click to choose a date"
                 >
-                  <Calendar className="w-4 h-4 text-sky-400 shrink-0 group-hover:scale-105 transition-transform" />
+                  <Calendar className="w-4 h-4 text-violet-400 shrink-0 group-hover:scale-105 transition-transform" />
                   <span className="font-bold text-slate-100">
                     {getDateDisplayLabel(selectedDate)}
                   </span>
@@ -746,13 +746,13 @@ export default function MyWorkPage() {
                                   !dayObj.isCurrentMonth ? 'text-slate-600 hover:text-slate-400' : 'text-slate-300 hover:bg-slate-800'
                                 } ${
                                   isSelected
-                                    ? '!bg-sky-600 !text-white font-bold !border-sky-500 shadow-sm'
+                                    ? '!bg-violet-600 !text-white font-bold !border-violet-500 shadow-sm'
                                     : ''
                                 }`}
                               >
                                 {dayObj.date.getDate()}
                                 {isToday && !isSelected && (
-                                  <span className="absolute bottom-1 w-1.5 h-1.5 bg-sky-500 rounded-full" />
+                                  <span className="absolute bottom-1 w-1.5 h-1.5 bg-violet-500 rounded-full" />
                                 )}
                               </button>
                             );
@@ -771,7 +771,7 @@ export default function MyWorkPage() {
                               setViewDate(today);
                               setIsCalendarOpen(false);
                             }}
-                            className="px-2.5 py-1 text-sky-300 bg-sky-950/60 hover:bg-sky-900/80 rounded-md transition-colors cursor-pointer"
+                            className="px-2.5 py-1 text-violet-300 bg-violet-950/60 hover:bg-violet-900/80 rounded-md transition-colors cursor-pointer"
                           >
                             Today
                           </button>
@@ -813,7 +813,7 @@ export default function MyWorkPage() {
               {selectedDate !== todayStr && (
                 <button
                   onClick={() => setSelectedDate(todayStr)}
-                  className="px-2 py-1 text-xs font-bold text-sky-300 bg-sky-950/70 rounded-md border border-sky-800/60 hover:bg-sky-900/80"
+                  className="px-2 py-1 text-xs font-bold text-violet-300 bg-violet-950/70 rounded-md border border-violet-800/60 hover:bg-violet-900/80"
                 >
                   Today
                 </button>
@@ -826,7 +826,7 @@ export default function MyWorkPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-sky-950/70 border border-sky-800/60 flex items-center justify-center text-sky-400 shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-violet-950/70 border border-violet-800/60 flex items-center justify-center text-violet-400 shrink-0">
                 <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0">
@@ -839,15 +839,15 @@ export default function MyWorkPage() {
 
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-teal-950/70 border border-teal-800/60 flex items-center justify-center text-teal-400 shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-violet-950/70 border border-violet-800/60 flex items-center justify-center text-violet-400 shrink-0">
                 <Check className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0">
                 <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Approved Qty</div>
-                <div className="text-lg sm:text-2xl font-extrabold text-teal-400">{totalApproved}</div>
+                <div className="text-lg sm:text-2xl font-extrabold text-violet-400">{totalApproved}</div>
               </div>
             </div>
-            <span className="text-[10px] sm:text-xs text-teal-400 font-bold shrink-0">
+            <span className="text-[10px] sm:text-xs text-violet-400 font-bold shrink-0">
               {totalDone > 0 ? `${Math.round((totalApproved / totalDone) * 100)}%` : '0%'}
             </span>
           </div>
@@ -933,7 +933,7 @@ export default function MyWorkPage() {
                       {/* Client Header Bar */}
                       <div className="px-6 py-3 bg-slate-950/80 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="flex items-center space-x-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-sky-950/80 text-sky-400 flex items-center justify-center border border-sky-800/60">
+                          <div className="w-7 h-7 rounded-lg bg-violet-950/80 text-violet-400 flex items-center justify-center border border-violet-800/60">
                             <Building2 className="w-4 h-4" />
                           </div>
                           <div>
@@ -941,7 +941,7 @@ export default function MyWorkPage() {
                               {clientName}
                             </h3>
                           </div>
-                          <span className="text-[11px] font-bold text-sky-300 bg-sky-950/70 border border-sky-800/60 px-2.5 py-0.5 rounded-full">
+                          <span className="text-[11px] font-bold text-violet-300 bg-violet-950/70 border border-violet-800/60 px-2.5 py-0.5 rounded-full">
                             {clientEntries.length} item(s)
                           </span>
                         </div>
@@ -949,7 +949,7 @@ export default function MyWorkPage() {
                         <div className="flex items-center space-x-4 text-xs font-semibold text-slate-400">
                           <span>Total Qty: <strong className="text-slate-100 font-extrabold">{clientDone}</strong></span>
                           <span className="text-slate-600">•</span>
-                          <span>Approved: <strong className="text-teal-400 font-extrabold">{clientApproved}</strong></span>
+                          <span>Approved: <strong className="text-violet-400 font-extrabold">{clientApproved}</strong></span>
                         </div>
                       </div>
 
@@ -1006,12 +1006,12 @@ export default function MyWorkPage() {
                                       href={entry.project_url || entry.best_work_url!}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-950/70 text-sky-300 hover:bg-sky-900/80 border border-sky-800/60 transition-colors shadow-2xs cursor-pointer group"
+                                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-950/70 text-violet-300 hover:bg-violet-900/80 border border-violet-800/60 transition-colors shadow-2xs cursor-pointer group"
                                       title="Open Deliverable URL in new tab"
                                     >
-                                      <ExternalLink className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition-transform shrink-0" />
+                                      <ExternalLink className="w-3.5 h-3.5 text-violet-400 group-hover:scale-110 transition-transform shrink-0" />
                                       <span>View Project Link ↗</span>
-                                      <span className="text-[11px] text-sky-400/80 font-normal truncate max-w-xs ml-1 border-l border-sky-800/60 pl-1.5">
+                                      <span className="text-[11px] text-violet-400/80 font-normal truncate max-w-xs ml-1 border-l border-violet-800/60 pl-1.5">
                                         {entry.project_url || entry.best_work_url}
                                       </span>
                                     </a>
@@ -1044,7 +1044,7 @@ export default function MyWorkPage() {
 
                                       <div className="text-center">
                                         <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Approved</div>
-                                        <div className="text-base font-extrabold text-teal-400">{entry.quantity_approved}</div>
+                                        <div className="text-base font-extrabold text-violet-400">{entry.quantity_approved}</div>
                                       </div>
                                     </div>
 
@@ -1057,7 +1057,7 @@ export default function MyWorkPage() {
                                           entry.quantity_approved === entry.quantity_done
                                             ? 'bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border-emerald-800/60'
                                             : entry.quantity_approved > 0
-                                            ? 'bg-sky-950/70 hover:bg-sky-900/80 text-sky-300 border-sky-800/60'
+                                            ? 'bg-violet-950/70 hover:bg-violet-900/80 text-violet-300 border-violet-800/60'
                                             : 'bg-amber-950/70 hover:bg-amber-900/80 text-amber-300 border-amber-800/60'
                                         }`}
                                         title="Click to update approved count"
@@ -1070,7 +1070,7 @@ export default function MyWorkPage() {
                                           </>
                                         ) : entry.quantity_approved > 0 ? (
                                           <>
-                                            <Check className="w-3.5 h-3.5 text-sky-400" />
+                                            <Check className="w-3.5 h-3.5 text-violet-400" />
                                             <span>Partial ({entry.quantity_approved}/{entry.quantity_done})</span>
                                             <span className="text-[10px] opacity-60">▾</span>
                                           </>
@@ -1164,10 +1164,10 @@ export default function MyWorkPage() {
                                           type="button"
                                           onClick={() => handleStartTimer(entry)}
                                           disabled={timerLoadingId === entry.id}
-                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-sky-950/60 hover:bg-sky-900/80 text-sky-300 border border-sky-800/60 hover:border-sky-600 rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-violet-950/60 hover:bg-violet-900/80 text-violet-300 border border-violet-800/60 hover:border-violet-600 rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
                                           title="Start timer for this task"
                                         >
-                                          <Play className="w-2.5 h-2.5 fill-sky-400 text-sky-400" />
+                                          <Play className="w-2.5 h-2.5 fill-violet-400 text-violet-400" />
                                           <span>Start</span>
                                         </button>
                                       </div>
@@ -1205,7 +1205,7 @@ export default function MyWorkPage() {
                                   <div className="flex items-center space-x-1 border-l border-slate-800 pl-3">
                                     <Link
                                       href={`/work/${entry.id}`}
-                                      className="p-1.5 text-slate-400 hover:text-sky-400 rounded-lg hover:bg-slate-800 transition-colors"
+                                      className="p-1.5 text-slate-400 hover:text-violet-400 rounded-lg hover:bg-slate-800 transition-colors"
                                       title="Edit my entry"
                                     >
                                       <Edit2 className="w-4 h-4" />
@@ -1433,7 +1433,7 @@ export default function MyWorkPage() {
                             <div className="flex items-center space-x-3 text-xs text-slate-400 font-semibold">
                               <span>Done: <strong className="text-slate-100">{clientDone}</strong></span>
                               <span className="text-slate-600">•</span>
-                              <span>Approved: <strong className="text-teal-400">{clientApproved}</strong></span>
+                              <span>Approved: <strong className="text-violet-400">{clientApproved}</strong></span>
                               <span className="text-slate-600">•</span>
                               <span className="text-amber-400 font-bold">Waiting: {clientDone - clientApproved}</span>
                             </div>
@@ -1464,12 +1464,12 @@ export default function MyWorkPage() {
                                       </span>
 
                                       {/* Designer Tag */}
-                                      <span className="px-2 py-0.5 rounded bg-teal-950/70 text-teal-300 border border-teal-800/60 font-bold text-[11px]">
+                                      <span className="px-2 py-0.5 rounded bg-violet-950/70 text-violet-300 border border-violet-800/60 font-bold text-[11px]">
                                         By {entry.profile?.name || 'Designer'}
                                       </span>
 
                                       {/* Work Type */}
-                                      <span className="px-2 py-0.5 rounded bg-sky-950/70 text-sky-300 border border-sky-800/60 font-semibold text-[11px]">
+                                      <span className="px-2 py-0.5 rounded bg-violet-950/70 text-violet-300 border border-violet-800/60 font-semibold text-[11px]">
                                         {entry.work_type?.name || 'Work'}
                                       </span>
                                     </div>
@@ -1482,7 +1482,7 @@ export default function MyWorkPage() {
                                           href={entry.project_url || entry.best_work_url!}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="inline-flex items-center space-x-1 text-sky-400 hover:text-sky-300 font-semibold underline text-[11px]"
+                                          className="inline-flex items-center space-x-1 text-violet-400 hover:text-violet-300 font-semibold underline text-[11px]"
                                         >
                                           <ExternalLink className="w-3 h-3" />
                                           <span>Project Link</span>
@@ -1512,7 +1512,7 @@ export default function MyWorkPage() {
                                           </div>
                                           <div className="text-sm font-extrabold text-slate-100">
                                             {entry.quantity_done} <span className="text-slate-600 font-normal">/</span>{' '}
-                                            <span className="text-teal-400">{entry.quantity_approved}</span>
+                                            <span className="text-violet-400">{entry.quantity_approved}</span>
                                           </div>
                                         </div>
 

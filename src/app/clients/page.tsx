@@ -130,7 +130,7 @@ export default function ClientsPage() {
         <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-950/70 text-sky-300 border border-sky-800/60">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60">
                 Client Roster
               </span>
               <span className="text-xs text-slate-600">•</span>
@@ -156,7 +156,7 @@ export default function ClientsPage() {
         {/* Add Client Card */}
         <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm space-y-4">
           <h2 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-            <Building2 className="w-4 h-4 text-sky-400" />
+            <Building2 className="w-4 h-4 text-violet-400" />
             <span>Add New Client</span>
           </h2>
           <form onSubmit={handleAddClient} className="flex flex-col sm:flex-row gap-3">
@@ -166,7 +166,7 @@ export default function ClientsPage() {
               value={newClientName}
               onChange={e => setNewClientName(e.target.value)}
               placeholder="Enter new client name (e.g. Acme Corp)"
-              className="flex-1 w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-slate-950 transition-all"
+              className="flex-1 w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-slate-950 transition-all"
             />
             <button
               type="submit"
@@ -194,14 +194,14 @@ export default function ClientsPage() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search clients..."
-                className="w-full pl-9 pr-4 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full pl-9 pr-4 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
               />
             </div>
           </div>
 
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
+              <div className="animate-spin w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
               <p className="mt-3 text-xs text-slate-400">Loading client directory...</p>
             </div>
           ) : filteredClients.length === 0 ? (
@@ -218,7 +218,7 @@ export default function ClientsPage() {
                   return (
                     <div
                       key={client.id}
-                      className="p-3 bg-slate-950 rounded-lg border-2 border-sky-500 shadow-md transition-all"
+                      className="p-3 bg-slate-950 rounded-lg border-2 border-violet-500 shadow-md transition-all"
                     >
                       <form
                         onSubmit={e => {
@@ -228,7 +228,7 @@ export default function ClientsPage() {
                         className="space-y-2.5"
                       >
                         <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 rounded-full bg-sky-950/80 border border-sky-800/60 flex items-center justify-center text-xs font-bold text-sky-400 shrink-0">
+                          <div className="w-6 h-6 rounded-full bg-violet-950/80 border border-violet-800/60 flex items-center justify-center text-xs font-bold text-violet-400 shrink-0">
                             {(editingName.trim().charAt(0) || client.name.charAt(0)).toUpperCase()}
                           </div>
                           <input
@@ -239,7 +239,7 @@ export default function ClientsPage() {
                             onChange={e => setEditingName(e.target.value)}
                             disabled={isUpdating}
                             placeholder="Edit client name..."
-                            className="flex-1 w-full px-2.5 py-1 text-sm font-bold text-slate-100 bg-slate-900 border border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-slate-900"
+                            className="flex-1 w-full px-2.5 py-1 text-sm font-bold text-slate-100 bg-slate-900 border border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-slate-900"
                             onKeyDown={e => {
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
@@ -251,26 +251,16 @@ export default function ClientsPage() {
                             type="button"
                             onClick={handleCancelEdit}
                             disabled={isUpdating}
-                            className="px-2.5 py-1 text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                            className="px-2.5 py-1 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
                           >
                             Cancel
                           </button>
                           <button
                             type="submit"
                             disabled={isUpdating || !editingName.trim()}
-                            className="inline-flex items-center space-x-1 px-3 py-1 text-xs font-bold text-white webtree-gradient-btn rounded shadow-xs disabled:opacity-50 cursor-pointer"
+                            className="px-3 py-1 text-xs font-bold text-white webtree-gradient-btn rounded shadow-sm disabled:opacity-50"
                           >
-                            {isUpdating ? (
-                              <>
-                                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                <span>Updating...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Check className="w-3 h-3" />
-                                <span>Update</span>
-                              </>
-                            )}
+                            {isUpdating ? 'Saving...' : 'Save'}
                           </button>
                         </div>
                       </form>
@@ -284,7 +274,7 @@ export default function ClientsPage() {
                     className="p-4 bg-slate-950/70 rounded-lg border border-slate-800 flex items-center justify-between space-x-3 hover:border-slate-700 hover:bg-slate-800/60 transition-all group"
                   >
                     <div className="flex items-center space-x-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-sky-950/80 border border-sky-800/60 flex items-center justify-center text-xs font-bold text-sky-400 shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-violet-950/80 border border-violet-800/60 flex items-center justify-center text-xs font-bold text-violet-400 shrink-0">
                         {client.name.charAt(0).toUpperCase()}
                       </div>
                       <span className="text-sm font-bold text-slate-200 truncate" title={client.name}>
@@ -296,7 +286,7 @@ export default function ClientsPage() {
                       <button
                         onClick={() => handleStartEdit(client)}
                         disabled={editingId !== null || deletingId === client.id}
-                        className="p-1.5 text-slate-400 hover:text-sky-400 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-violet-400 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-30 cursor-pointer"
                         title={`Edit client "${client.name}"`}
                       >
                         <Pencil className="w-4 h-4" />

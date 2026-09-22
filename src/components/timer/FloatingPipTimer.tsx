@@ -1157,7 +1157,7 @@ export function FloatingPipTimer() {
             <button
               type="button"
               onClick={() => openPipWindow()}
-              className="px-2 py-0.5 text-[10px] font-bold bg-sky-600 hover:bg-sky-500 text-white rounded transition-colors flex items-center space-x-1 cursor-pointer"
+              className="px-2 py-0.5 text-[10px] font-bold bg-violet-600 hover:bg-violet-500 text-white rounded transition-colors flex items-center space-x-1 cursor-pointer"
               title="Float window outside browser (Picture-in-Picture)"
             >
               <ExternalLink className="w-2.5 h-2.5" />
@@ -1196,8 +1196,8 @@ export function FloatingPipTimer() {
                 >
                   <div className="flex items-center justify-between gap-1 text-[11px]">
                     <div className="flex items-center space-x-1 truncate min-w-0 font-bold">
-                      <Building2 className="w-3 h-3 text-sky-400 shrink-0" />
-                      <span className="text-sky-400 truncate">{clientName}</span>
+                      <Building2 className="w-3 h-3 text-violet-400 shrink-0" />
+                      <span className="text-violet-400 truncate">{clientName}</span>
                       <span className="text-slate-600">&bull;</span>
                       <span className="text-slate-300 font-semibold truncate">{workTypeName}</span>
                     </div>

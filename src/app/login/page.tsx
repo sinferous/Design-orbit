@@ -165,7 +165,7 @@ export default function LoginPage() {
           {/* Quick Select Preset Member Account */}
           <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
             <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-300 flex items-center space-x-1">
-              <UserCheck className="w-3.5 h-3.5 text-sky-400" />
+              <UserCheck className="w-3.5 h-3.5 text-violet-400" />
               <span>Select Member Account</span>
             </label>
             <RichSelect
@@ -195,7 +195,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@webtreeonline.com"
-                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-400 text-slate-100 bg-slate-950 placeholder:text-slate-500"
+                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-slate-100 bg-slate-950 placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -214,7 +214,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-400 text-slate-100 bg-slate-950 placeholder:text-slate-500"
+                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-slate-100 bg-slate-950 placeholder:text-slate-500"
                 />
                 <button
                   type="button"

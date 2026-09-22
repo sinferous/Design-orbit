@@ -325,7 +325,7 @@ export default function DashboardPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-100 flex items-baseline flex-wrap">
-              {greeting}, <span className="font-display font-extrabold text-xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
+              {greeting}, <span className="font-display font-extrabold text-xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
               {subtitle}
@@ -349,7 +349,7 @@ export default function DashboardPage() {
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Today Created</span>
-              <Clock className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+              <Clock className="w-3.5 h-3.5 text-violet-400 shrink-0" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1.5">
               <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{todayDone}</span>
@@ -361,11 +361,11 @@ export default function DashboardPage() {
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Today Approved</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-teal-400 leading-none">{todayApproved}</span>
-              <span className="text-[10px] sm:text-xs text-emerald-400 font-bold truncate">({todayApprovalRate}%)</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-violet-400 leading-none">{todayApproved}</span>
+              <span className="text-[10px] sm:text-xs text-violet-300/90 font-bold truncate">({todayApprovalRate}%)</span>
             </div>
           </div>
 
@@ -373,7 +373,7 @@ export default function DashboardPage() {
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">This Week</span>
-              <CalendarDays className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+              <CalendarDays className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1.5">
               <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{weekSummary.totalCreated}</span>
@@ -385,10 +385,10 @@ export default function DashboardPage() {
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Active Clients</span>
-              <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+              <Building2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-sky-400 leading-none">{weekSummary.activeClients}</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-violet-400 leading-none">{weekSummary.activeClients}</span>
               <span className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">brands</span>
             </div>
           </div>
@@ -406,24 +406,24 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <Link
               href="/work/new"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-sky-500/50 hover:bg-slate-800/80 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <Plus className="w-4 h-4 text-sky-400" />
+                <Plus className="w-4 h-4 text-violet-400" />
                 <span className="text-xs font-bold text-slate-200">Add Daily Work</span>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-sky-400" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400" />
             </Link>
 
             <Link
               href="/work"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-sky-500/50 hover:bg-slate-800/80 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <CalendarDays className="w-4 h-4 text-sky-400" />
+                <CalendarDays className="w-4 h-4 text-violet-400" />
                 <span className="text-xs font-bold text-slate-200">My Daily Log</span>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-sky-400" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400" />
             </Link>
 
             <Link
@@ -444,24 +444,24 @@ export default function DashboardPage() {
 
             <Link
               href="/reports/weekly"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-teal-500/50 hover:bg-slate-800/80 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <BarChart2 className="w-4 h-4 text-teal-400" />
+                <BarChart2 className="w-4 h-4 text-violet-400" />
                 <span className="text-xs font-bold text-slate-200">Weekly Report</span>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-teal-400" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400" />
             </Link>
 
             <Link
               href="/reports/monthly"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-teal-500/50 hover:bg-slate-800/80 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
             >
               <div className="flex items-center space-x-2.5">
-                <PieChart className="w-4 h-4 text-teal-400" />
+                <PieChart className="w-4 h-4 text-violet-400" />
                 <span className="text-xs font-bold text-slate-200">Monthly Stats</span>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-teal-400" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400" />
             </Link>
           </div>
         </div>
@@ -539,9 +539,9 @@ export default function DashboardPage() {
                       <button
                         type="button"
                         onClick={() => setSelectedApprovalEntry(entry)}
-                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-teal-300 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/60 rounded-lg shadow-2xs transition-all cursor-pointer"
+                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-violet-300 bg-violet-950/60 hover:bg-violet-900/80 border border-violet-800/60 rounded-lg shadow-2xs transition-all cursor-pointer"
                       >
-                        <CheckCheck className="w-3 h-3 text-teal-400" />
+                        <CheckCheck className="w-3 h-3 text-violet-400" />
                         <span>Approve</span>
                       </button>
                     </div>
@@ -573,7 +573,7 @@ export default function DashboardPage() {
               </div>
               <Link
                 href="/work"
-                className="text-xs font-bold text-sky-400 hover:text-sky-300 flex items-center space-x-1"
+                className="text-xs font-bold text-violet-400 hover:text-violet-300 flex items-center space-x-1"
               >
                 <span>View Full Daily Log</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -620,8 +620,8 @@ export default function DashboardPage() {
                     >
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {entry.profile && (
-                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-950/70 text-teal-300 border border-teal-800/60 shadow-2xs">
-                            <User className="w-3 h-3 text-teal-400" />
+                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60 shadow-2xs">
+                            <User className="w-3 h-3 text-violet-400" />
                             <span>By {entry.profile.name}</span>
                           </span>
                         )}
@@ -633,7 +633,7 @@ export default function DashboardPage() {
                           </span>
                         )}
 
-                        <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-sky-950/70 text-sky-300 border border-sky-800/60">
+                        <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-violet-950/60 text-violet-300 border border-violet-800/60">
                           {entry.work_type?.name || 'Work'}
                         </span>
 
@@ -657,7 +657,7 @@ export default function DashboardPage() {
                         ) : (
                           <>
                             <span>Qty: <strong className="text-slate-100">{entry.quantity_done}</strong></span>
-                            <span>Approved: <strong className="text-teal-400">{entry.quantity_approved}</strong></span>
+                            <span>Approved: <strong className="text-violet-400">{entry.quantity_approved}</strong></span>
                             {isMyEntry ? (
                               <button
                                 type="button"
@@ -666,7 +666,7 @@ export default function DashboardPage() {
                                   entry.quantity_approved === entry.quantity_done
                                     ? 'bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border-emerald-800/60'
                                     : entry.quantity_approved > 0
-                                    ? 'bg-sky-950/70 hover:bg-sky-900/80 text-sky-300 border-sky-800/60'
+                                    ? 'bg-violet-950/70 hover:bg-violet-900/80 text-violet-300 border-violet-800/60'
                                     : 'bg-amber-950/70 hover:bg-amber-900/80 text-amber-300 border-amber-800/60'
                                 }`}
                                 title="Click to update approved deliverables"
@@ -749,10 +749,10 @@ export default function DashboardPage() {
                                   type="button"
                                   onClick={() => handleStartTimer(entry)}
                                   disabled={timerLoadingId === entry.id}
-                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-sky-950/60 hover:bg-sky-900/80 text-sky-300 border border-sky-800/60 hover:border-sky-600 rounded text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-violet-950/60 hover:bg-violet-900/80 text-violet-300 border border-violet-800/60 hover:border-violet-600 rounded text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
                                   title="Start timer for this task"
                                 >
-                                  <Play className="w-2.5 h-2.5 fill-sky-400 text-sky-400" />
+                                  <Play className="w-2.5 h-2.5 fill-violet-400 text-violet-400" />
                                   <span>Start</span>
                                 </button>
                               </div>

@@ -101,7 +101,7 @@ export function WeeklyBestWorkModal({
                 placeholder="https://figma.com/file/... or https://behance.net/..."
                 value={url}
                 onChange={e => setUrl(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-400 transition-all placeholder:text-slate-500"
+                className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-all placeholder:text-slate-500"
               />
             </div>
             <p className="text-[11px] text-slate-500 italic">
@@ -110,16 +110,16 @@ export function WeeklyBestWorkModal({
           </div>
 
           {currentUrl && (
-            <div className="p-3 rounded-xl bg-sky-950/60 border border-sky-800/60 flex items-center justify-between">
+            <div className="p-3 rounded-xl bg-violet-950/60 border border-violet-800/60 flex items-center justify-between">
               <div className="flex items-center space-x-2 truncate mr-2">
-                <ExternalLink className="w-4 h-4 text-sky-400 shrink-0" />
-                <span className="text-xs font-bold text-sky-300 truncate">{currentUrl}</span>
+                <ExternalLink className="w-4 h-4 text-violet-400 shrink-0" />
+                <span className="text-xs font-bold text-violet-300 truncate">{currentUrl}</span>
               </div>
               <a
                 href={currentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-2.5 py-1 text-[11px] font-extrabold text-sky-300 hover:text-white bg-slate-900 rounded-lg border border-sky-700 shrink-0 transition-colors"
+                className="px-2.5 py-1 text-[11px] font-extrabold text-violet-300 hover:text-white bg-slate-900 rounded-lg border border-violet-700 shrink-0 transition-colors"
               >
                 Test Link ↗
               </a>

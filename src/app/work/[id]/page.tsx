@@ -64,7 +64,7 @@ export default function EditWorkEntryPage({ params }: EditWorkEntryPageProps) {
 
         {loading ? (
           <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
+            <div className="animate-spin w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
             <p className="mt-3 text-xs text-slate-400 font-medium">Loading entry details...</p>
           </div>
         ) : error ? (

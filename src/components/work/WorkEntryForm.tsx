@@ -325,7 +325,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
   if (loadingOptions) {
     return (
       <div className="p-8 text-center bg-slate-900 rounded-xl border border-slate-800">
-        <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
+        <div className="animate-spin w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
         <p className="mt-3 text-xs text-slate-400 font-medium">Loading form options...</p>
       </div>
     );
@@ -344,7 +344,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       {/* Auto User & System Date Bar */}
       <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-sky-950 text-sky-400 font-bold flex items-center justify-center text-sm border border-sky-800">
+          <div className="w-9 h-9 rounded-full bg-violet-950 text-violet-400 font-bold flex items-center justify-center text-sm border border-violet-800">
             {activeUserObj?.name?.charAt(0) || 'G'}
           </div>
           <div>
@@ -369,9 +369,9 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       </div>
 
       {/* 1. FIRST FIELD: Client Name Dropdown */}
-      <div className="p-4 rounded-xl bg-sky-950/30 border border-sky-800/60 space-y-3">
+      <div className="p-4 rounded-xl bg-violet-950/30 border border-violet-800/60 space-y-3">
         <div>
-          <label className="block text-xs font-extrabold uppercase tracking-wider text-sky-300">
+          <label className="block text-xs font-extrabold uppercase tracking-wider text-violet-300">
             1. Client Name *
           </label>
         </div>
@@ -383,7 +383,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           placeholder="-- Select Client --"
           size="lg"
           searchable
-          triggerClassName="border-sky-700 bg-slate-900 text-slate-100"
+          triggerClassName="border-violet-700 bg-slate-900 text-slate-100"
         />
       </div>
 
@@ -397,7 +397,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
             <button
               type="button"
               onClick={addItemRow}
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-sky-300 bg-sky-950/60 border border-sky-800/60 hover:bg-sky-900/60 rounded-lg transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-violet-300 bg-violet-950/60 border border-violet-800/60 hover:bg-violet-900/60 rounded-lg transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Add Another Item for this Client</span>
@@ -454,7 +454,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                     placeholder="e.g. 2 Statics or 1 Video homepage edit"
                     value={item.description}
                     onChange={e => updateItemRow(item.id, { description: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-400 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none"
                   />
                 </div>
               </div>
@@ -518,14 +518,14 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                           const val = parseInt(e.target.value);
                           updateItemRow(item.id, { quantity_done: isNaN(val) ? 0 : val });
                         }}
-                        className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-400 focus:outline-none"
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none"
                       />
                     </div>
 
                     <div className="sm:col-span-2">
                       <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
                         <span className="flex items-center space-x-1.5">
-                          <Link2 className="w-3.5 h-3.5 text-sky-400" />
+                          <Link2 className="w-3.5 h-3.5 text-violet-400" />
                           <span>Project URL</span>
                           <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
                         </span>
@@ -536,7 +536,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                           placeholder="https://figma.com/file/... or https://..."
                           value={item.project_url || ''}
                           onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
-                          className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-400 focus:outline-none placeholder:text-slate-500"
+                          className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none placeholder:text-slate-500"
                         />
                         <Link2 className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
                       </div>
@@ -559,7 +559,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                             const val = parseInt(e.target.value);
                             updateItemRow(item.id, { quantity_done: isNaN(val) ? 0 : val });
                           }}
-                          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-400 focus:outline-none"
+                          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none"
                         />
                       </div>
 
@@ -578,7 +578,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                             const val = parseInt(e.target.value);
                             updateItemRow(item.id, { quantity_approved: isNaN(val) ? 0 : val });
                           }}
-                          className={`w-full px-3 py-2 bg-slate-900 border rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-400 focus:outline-none transition-colors ${
+                          className={`w-full px-3 py-2 bg-slate-900 border rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none transition-colors ${
                             item.quantity_approved > 0
                               ? 'border-emerald-500/60 bg-emerald-950/20'
                               : 'border-slate-700'
@@ -623,7 +623,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                     <div className="pt-2">
                       <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
                         <span className="flex items-center space-x-1.5">
-                          <Link2 className="w-3.5 h-3.5 text-sky-400" />
+                          <Link2 className="w-3.5 h-3.5 text-violet-400" />
                           <span>Project URL</span>
                           <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
                         </span>
@@ -634,7 +634,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                           placeholder="https://figma.com/file/... or https://..."
                           value={item.project_url || ''}
                           onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
-                          className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-400 focus:outline-none placeholder:text-slate-500"
+                          className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none placeholder:text-slate-500"
                         />
                         <Link2 className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
                       </div>
@@ -646,7 +646,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                 <div className="pt-1">
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
                     <span className="flex items-center space-x-1.5">
-                      <Link2 className="w-3.5 h-3.5 text-sky-400" />
+                      <Link2 className="w-3.5 h-3.5 text-violet-400" />
                       <span>Project URL</span>
                       <span className="text-[10px] font-normal text-slate-400">(Optional link)</span>
                     </span>
@@ -657,7 +657,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                       placeholder="https://figma.com/file/... or https://..."
                       value={item.project_url || ''}
                       onChange={e => updateItemRow(item.id, { project_url: e.target.value })}
-                      className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-100 focus:ring-2 focus:ring-sky-500 focus:border-sky-400 focus:outline-none placeholder:text-slate-500"
+                      className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none placeholder:text-slate-500"
                     />
                     <Link2 className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
                   </div>
@@ -685,7 +685,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
               type="button"
               disabled={submitting}
               onClick={e => handleSubmit(e, true)}
-              className="w-full sm:w-auto inline-flex justify-center items-center space-x-2 px-4 py-2.5 text-sm font-bold text-sky-300 bg-sky-950/60 border border-sky-800 hover:bg-sky-900/60 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+              className="w-full sm:w-auto inline-flex justify-center items-center space-x-2 px-4 py-2.5 text-sm font-bold text-violet-300 bg-violet-950/60 border border-violet-800 hover:bg-violet-900/60 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Save & Add For Another Client</span>

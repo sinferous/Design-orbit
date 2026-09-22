@@ -166,18 +166,18 @@ export function RichDatePicker({
           }
         }}
         className={cn(
-          'flex items-center space-x-2 bg-slate-900 border border-slate-700 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 transition-all rounded-lg text-slate-100 shadow-sm cursor-pointer select-none font-bold',
+          'flex items-center space-x-2 bg-slate-900 border border-slate-700 hover:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition-all rounded-lg text-slate-100 shadow-sm cursor-pointer select-none font-bold',
           size === 'sm' ? 'px-3 py-1.5 text-xs' : size === 'lg' ? 'px-4 py-2.5 text-base' : 'px-3.5 py-2 text-sm',
-          isOpen && 'border-sky-500 ring-2 ring-sky-500/30',
+          isOpen && 'border-violet-500 ring-2 ring-violet-500/30',
           disabled && 'opacity-60 bg-slate-950 cursor-not-allowed border-slate-800 text-slate-500'
         )}
       >
-        <Calendar className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+        <Calendar className="w-3.5 h-3.5 text-violet-400 shrink-0" />
         <span className="truncate">{getDisplayLabel()}</span>
         <ChevronDown
           className={cn(
             'w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200',
-            isOpen && 'rotate-180 text-sky-400'
+            isOpen && 'rotate-180 text-violet-400'
           )}
         />
       </button>
@@ -234,9 +234,9 @@ export function RichDatePicker({
                   className={cn(
                     'h-8 text-xs font-semibold rounded-lg flex items-center justify-center transition-all cursor-pointer select-none',
                     isSelected
-                      ? 'bg-sky-600 text-white font-extrabold shadow-sm scale-105'
+                      ? 'bg-violet-600 text-white font-extrabold shadow-sm scale-105'
                       : isToday
-                      ? 'border border-sky-500 text-sky-300 bg-sky-950/60 font-bold hover:bg-sky-900/60'
+                      ? 'border border-violet-500 text-violet-300 bg-violet-950/60 font-bold hover:bg-violet-900/60'
                       : dayObj.isCurrentMonth
                       ? 'text-slate-200 hover:bg-slate-800 hover:text-white'
                       : 'text-slate-600 hover:bg-slate-800/40 hover:text-slate-400'
@@ -260,7 +260,7 @@ export function RichDatePicker({
                 className={cn(
                   'px-2 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer',
                   value === todayStr
-                    ? 'bg-sky-950 text-sky-300 border border-sky-800'
+                    ? 'bg-violet-950 text-violet-300 border border-violet-800'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
                 )}
               >
@@ -281,7 +281,7 @@ export function RichDatePicker({
                     y.setDate(y.getDate() - 1);
                     return value === formatDateStr(y);
                   })()
-                    ? 'bg-sky-950 text-sky-300 border border-sky-800'
+                    ? 'bg-violet-950 text-violet-300 border border-violet-800'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
                 )}
               >

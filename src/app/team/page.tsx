@@ -114,8 +114,8 @@ export default function TeamPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-950/70 text-sky-300 border border-sky-800/60 flex items-center space-x-1">
-                <Sparkles className="w-3 h-3 text-sky-400" />
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60 flex items-center space-x-1">
+                <Sparkles className="w-3 h-3 text-violet-400" />
                 <span>Webtree Creative Department</span>
               </span>
               <span className="text-xs text-slate-600">•</span>
@@ -143,7 +143,7 @@ export default function TeamPage() {
           <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h2 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-                <UserPlus className="w-5 h-5 text-sky-400" />
+                <UserPlus className="w-5 h-5 text-violet-400" />
                 <span>New Creative Team Profile</span>
               </h2>
             </div>
@@ -160,7 +160,7 @@ export default function TeamPage() {
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Alex Rivera"
-                    className="w-full px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-slate-950"
+                    className="w-full px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-slate-950"
                   />
                 </div>
 
@@ -174,7 +174,7 @@ export default function TeamPage() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="name@webtreeonline.com"
-                    className="w-full px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-slate-950"
+                    className="w-full px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-slate-950"
                   />
                 </div>
 
@@ -209,7 +209,7 @@ export default function TeamPage() {
                     value={customDesignation}
                     onChange={e => setCustomDesignation(e.target.value)}
                     placeholder="e.g. 3D Animator / Motion Designer"
-                    className="w-full md:w-1/3 px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full md:w-1/3 px-3.5 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
               )}
@@ -238,7 +238,7 @@ export default function TeamPage() {
         {/* Team Grid */}
         {loading ? (
           <div className="p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto" />
+            <div className="animate-spin w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
             <p className="mt-3 text-xs text-slate-400 font-semibold">Loading team profiles...</p>
           </div>
         ) : (
@@ -253,11 +253,11 @@ export default function TeamPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-500 to-teal-600 text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
                         {profile.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="text-base font-extrabold text-slate-100 group-hover:text-sky-400 transition-colors">
+                        <h3 className="text-base font-extrabold text-slate-100 group-hover:text-violet-400 transition-colors">
                           {profile.name}
                         </h3>
                         <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700 mt-0.5">
@@ -297,7 +297,7 @@ export default function TeamPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedModalUserId(profile.id)}
-                          className="text-sky-400 hover:text-sky-300 font-bold inline-flex items-center space-x-1 cursor-pointer"
+                          className="text-violet-400 hover:text-violet-300 font-bold inline-flex items-center space-x-1 cursor-pointer"
                         >
                           <span>Calendar Heatmap</span>
                           <span>→</span>

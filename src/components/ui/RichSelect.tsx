@@ -174,9 +174,9 @@ export function RichSelect<T extends string | number = string | number>({
         }}
         className={cn(
           'w-full flex items-center justify-between border bg-slate-900 text-slate-100 transition-all duration-150 cursor-pointer select-none',
-          'border-slate-700 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 shadow-sm',
+          'border-slate-700 hover:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 shadow-sm',
           sizeClasses[size],
-          isOpen && 'border-sky-500 ring-2 ring-sky-500/30',
+          isOpen && 'border-violet-500 ring-2 ring-violet-500/30',
           disabled && 'opacity-60 bg-slate-950 cursor-not-allowed border-slate-800 text-slate-500',
           triggerClassName
         )}
@@ -205,7 +205,7 @@ export function RichSelect<T extends string | number = string | number>({
         <ChevronDown
           className={cn(
             'w-4 h-4 shrink-0 text-slate-400 transition-transform duration-200',
-            isOpen && 'rotate-180 text-sky-400'
+            isOpen && 'rotate-180 text-violet-400'
           )}
         />
       </button>
@@ -229,7 +229,7 @@ export function RichSelect<T extends string | number = string | number>({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search options..."
-                  className="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+                  className="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400"
                 />
                 {searchQuery && (
                   <button
@@ -273,7 +273,7 @@ export function RichSelect<T extends string | number = string | number>({
                     className={cn(
                       'px-3 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors select-none',
                       isSelected
-                        ? 'bg-sky-950/80 text-sky-300 font-bold'
+                        ? 'bg-violet-950/80 text-violet-300 font-bold'
                         : isHighlighted
                         ? 'bg-slate-800 text-white'
                         : 'text-slate-200 hover:bg-slate-800/80 hover:text-white',
@@ -298,7 +298,7 @@ export function RichSelect<T extends string | number = string | number>({
                     </div>
 
                     {isSelected && (
-                      <Check className="w-3.5 h-3.5 shrink-0 text-sky-400 ml-2" />
+                      <Check className="w-3.5 h-3.5 shrink-0 text-violet-400 ml-2" />
                     )}
                   </li>
                 );

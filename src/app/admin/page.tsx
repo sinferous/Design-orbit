@@ -191,8 +191,8 @@ export default function AdminDashboardPage() {
         <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-950/70 text-sky-300 border border-sky-800/60 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-violet-950/70 text-violet-300 border border-violet-800/60 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-violet-400" />
                 <span>Executive Admin Dashboard</span>
               </span>
               <span className="text-xs text-slate-600">•</span>
@@ -227,17 +227,17 @@ export default function AdminDashboardPage() {
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Today Output</span>
-              <span className="p-1.5 rounded-lg bg-sky-950/70 text-sky-400 border border-sky-800/60 shrink-0">
+              <span className="p-1.5 rounded-lg bg-violet-950/70 text-violet-400 border border-violet-800/60 shrink-0">
                 <Sparkles className="w-3.5 h-3.5" />
               </span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
               <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{todayCreated}</span>
-              <span className="text-[10px] sm:text-xs font-bold text-teal-400 truncate">({todayApproved} app.)</span>
+              <span className="text-[10px] sm:text-xs font-bold text-violet-400 truncate">({todayApproved} app.)</span>
             </div>
             <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
               <span className="text-slate-500">Active</span>
-              <span className="font-bold text-sky-400">
+              <span className="font-bold text-violet-400">
                 {activeTodayDesignerIds.size} designers
               </span>
             </div>
@@ -247,13 +247,13 @@ export default function AdminDashboardPage() {
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Weekly Output</span>
-              <span className="p-1.5 rounded-lg bg-teal-950/70 text-teal-400 border border-teal-800/60 shrink-0">
+              <span className="p-1.5 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/60 shrink-0">
                 <TrendingUp className="w-3.5 h-3.5" />
               </span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-1">
               <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{weekSummary.totalCreated}</span>
-              <span className="text-[10px] sm:text-xs font-bold text-teal-400 truncate">({weekSummary.totalApproved} app.)</span>
+              <span className="text-[10px] sm:text-xs font-bold text-violet-400 truncate">({weekSummary.totalApproved} app.)</span>
             </div>
             <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
               <span className="text-slate-500">Approval</span>
@@ -298,7 +298,7 @@ export default function AdminDashboardPage() {
               <span className="text-[10px] sm:text-xs text-slate-500 truncate">brands</span>
             </div>
             <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
-              <Link href="/clients" className="text-sky-400 hover:text-sky-300 font-bold inline-flex items-center space-x-0.5">
+              <Link href="/clients" className="text-violet-400 hover:text-violet-300 font-bold inline-flex items-center space-x-0.5">
                 <span>Directory</span>
                 <ArrowUpRight className="w-3 h-3" />
               </Link>
@@ -311,7 +311,7 @@ export default function AdminDashboardPage() {
         <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Users className="w-5 h-5 text-sky-400" />
+              <Users className="w-5 h-5 text-violet-400" />
               <h2 className="text-lg font-bold text-slate-100">Creative Team Workload & Live Status</h2>
             </div>
             <div className="flex items-center space-x-3 text-xs">
@@ -349,7 +349,7 @@ export default function AdminDashboardPage() {
                         isWorkingNow
                           ? 'bg-emerald-600 text-white shadow-2xs'
                           : hasLoggedToday
-                          ? 'bg-sky-950/80 text-sky-300 border border-sky-800/50'
+                          ? 'bg-violet-950/80 text-violet-300 border border-violet-800/50'
                           : 'bg-slate-800 text-slate-400'
                       }`}>
                         {p.name.charAt(0).toUpperCase()}
@@ -366,7 +366,7 @@ export default function AdminDashboardPage() {
                         <span>LIVE</span>
                       </span>
                     ) : hasLoggedToday ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-950/70 text-sky-300 border border-sky-800/60">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-950/70 text-violet-300 border border-violet-800/60">
                         Active
                       </span>
                     ) : (
@@ -391,7 +391,7 @@ export default function AdminDashboardPage() {
                     ) : hasLoggedToday ? (
                       <div className="flex items-center justify-between text-slate-300 text-[11px]">
                         <span>Today: <strong className="text-slate-100">{designerTodayCount} done</strong></span>
-                        <span className="text-teal-400 font-bold">{designerApprovedCount} approved</span>
+                        <span className="text-violet-400 font-bold">{designerApprovedCount} approved</span>
                       </div>
                     ) : (
                       <p className="text-[11px] text-slate-500 italic">No tasks logged yet today</p>
@@ -494,7 +494,7 @@ export default function AdminDashboardPage() {
                     >
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between gap-1">
-                          <span className="px-2 py-0.5 rounded-md bg-teal-950/70 text-teal-300 border border-teal-800/60 text-[10px] font-bold truncate max-w-[120px]">
+                          <span className="px-2 py-0.5 rounded-md bg-violet-950/70 text-violet-300 border border-violet-800/60 text-[10px] font-bold truncate max-w-[120px]">
                             By {entry.profile?.name || 'Designer'}
                           </span>
                           <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${urgency.bg} ${urgency.text} ${urgency.border}`}>
@@ -504,7 +504,7 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div className="flex items-center space-x-1 text-[11px] font-bold text-slate-300 truncate">
-                          <Building2 className="w-3 h-3 text-sky-400 shrink-0" />
+                          <Building2 className="w-3 h-3 text-violet-400 shrink-0" />
                           <span className="truncate">{entry.client?.name || 'Client'}</span>
                         </div>
 
@@ -523,9 +523,9 @@ export default function AdminDashboardPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedApprovalEntry(entry)}
-                          className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-teal-300 bg-teal-950/60 hover:bg-teal-900/80 border border-teal-800/60 rounded-lg shadow-2xs transition-all cursor-pointer"
+                          className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-violet-300 bg-violet-950/60 hover:bg-violet-900/80 border border-violet-800/60 rounded-lg shadow-2xs transition-all cursor-pointer"
                         >
-                          <CheckCheck className="w-3 h-3 text-teal-400" />
+                          <CheckCheck className="w-3 h-3 text-violet-400" />
                           <span>Approve</span>
                         </button>
                       </div>
@@ -550,7 +550,7 @@ export default function AdminDashboardPage() {
               </div>
               <Link
                 href="/work"
-                className="text-xs font-bold text-sky-400 hover:text-sky-300 inline-flex items-center space-x-1"
+                className="text-xs font-bold text-violet-400 hover:text-violet-300 inline-flex items-center space-x-1"
               >
                 <span>View Full Team Log</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -586,11 +586,11 @@ export default function AdminDashboardPage() {
                     >
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-teal-950/70 text-teal-300 border border-teal-800/60 font-bold text-[11px]">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-bold text-[11px]">
                             By {entry.profile?.name || 'Designer'}
                           </span>
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-sky-950/70 text-sky-300 border border-sky-800/60 font-extrabold text-[11px]">
-                            <Building2 className="w-3 h-3 text-sky-400" />
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-violet-950/70 text-violet-300 border border-violet-800/60 font-extrabold text-[11px]">
+                            <Building2 className="w-3 h-3 text-violet-400" />
                             <span>{entry.client?.name || 'Client'}</span>
                           </span>
                           <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold text-[11px]">
@@ -612,7 +612,7 @@ export default function AdminDashboardPage() {
                             href={entry.project_url || entry.best_work_url!}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center space-x-1 text-sky-400 hover:text-sky-300 font-semibold underline text-[11px]"
+                            className="inline-flex items-center space-x-1 text-violet-400 hover:text-violet-300 font-semibold underline text-[11px]"
                           >
                             <ExternalLink className="w-3 h-3" />
                             <span>Project URL</span>
@@ -627,7 +627,7 @@ export default function AdminDashboardPage() {
                             Done: <strong className="text-slate-100">{entry.quantity_done}</strong>
                           </div>
                           <div className="text-slate-400">
-                            Approved: <strong className="text-teal-400">{entry.quantity_approved}</strong>
+                            Approved: <strong className="text-violet-400">{entry.quantity_approved}</strong>
                           </div>
                         </div>
 
@@ -703,10 +703,10 @@ export default function AdminDashboardPage() {
 
                 <Link
                   href="/reports/weekly"
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-sky-500/50 hover:bg-slate-800/80 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-sky-950/70 text-sky-400 border border-sky-800/50 group-hover:bg-sky-900/60">
+                    <div className="p-2 rounded-lg bg-violet-950/70 text-violet-400 border border-violet-800/50 group-hover:bg-violet-900/60">
                       <BarChart3 className="w-4 h-4" />
                     </div>
                     <div>
@@ -714,15 +714,15 @@ export default function AdminDashboardPage() {
                       <p className="text-[11px] text-slate-400">Weekly meeting deliverables</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-sky-400" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-violet-400" />
                 </Link>
 
                 <Link
                   href="/reports/monthly"
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-teal-500/50 hover:bg-slate-800/80 transition-colors group"
+                  className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-teal-950/70 text-teal-400 border border-teal-800/50 group-hover:bg-teal-900/60">
+                    <div className="p-2 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/50 group-hover:bg-indigo-900/60">
                       <PieChart className="w-4 h-4" />
                     </div>
                     <div>
@@ -730,7 +730,7 @@ export default function AdminDashboardPage() {
                       <p className="text-[11px] text-slate-400">Agency output per month</p>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-teal-400" />
+                  <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400" />
                 </Link>
 
                 <Link

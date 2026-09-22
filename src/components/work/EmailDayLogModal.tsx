@@ -79,13 +79,13 @@ export function EmailDayLogModal({
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/90">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-950 text-sky-400 flex items-center justify-center border border-sky-800 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-violet-950 text-violet-400 flex items-center justify-center border border-violet-800 shadow-sm">
               <Mail className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
                 <span>Email Daily Work Log</span>
-                <span className="px-2 py-0.5 text-xs font-semibold bg-sky-950 text-sky-300 rounded-full border border-sky-800">
+                <span className="px-2 py-0.5 text-xs font-semibold bg-violet-950 text-violet-300 rounded-full border border-violet-800">
                   {completedCount} Deliverable{completedCount === 1 ? '' : 's'}{workingCount > 0 ? ` • ${workingCount} Working` : ''}
                 </span>
               </h3>
@@ -111,7 +111,7 @@ export function EmailDayLogModal({
               onClick={() => setActiveTab('table')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'table'
-                  ? 'bg-slate-800 text-sky-300 border border-slate-700 shadow-xs'
+                  ? 'bg-slate-800 text-violet-300 border border-slate-700 shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -123,7 +123,7 @@ export function EmailDayLogModal({
               onClick={() => setActiveTab('grouped')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'grouped'
-                  ? 'bg-slate-800 text-sky-300 border border-slate-700 shadow-xs'
+                  ? 'bg-slate-800 text-violet-300 border border-slate-700 shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -135,7 +135,7 @@ export function EmailDayLogModal({
               onClick={() => setActiveTab('text')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'text'
-                  ? 'bg-slate-800 text-sky-300 border border-slate-700 shadow-xs'
+                  ? 'bg-slate-800 text-violet-300 border border-slate-700 shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >

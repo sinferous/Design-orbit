@@ -253,7 +253,7 @@ export default function WeeklyReportPage() {
           <div className="flex space-x-4 sm:space-x-6 min-w-max">
             <Link
               href="/reports/weekly"
-              className="py-3 text-xs sm:text-sm font-bold text-sky-400 border-b-2 border-sky-400 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-bold text-violet-400 border-b-2 border-violet-400 whitespace-nowrap"
             >
               Weekly Meeting Report
             </Link>
@@ -295,7 +295,7 @@ export default function WeeklyReportPage() {
         <div className="bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-sky-950/60 text-sky-400 border border-sky-800/60">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-violet-950/60 text-violet-400 border border-violet-800/60">
                 Weekly Meeting Mode
               </span>
               <span className="text-xs text-slate-600 hidden sm:inline">•</span>
@@ -323,9 +323,9 @@ export default function WeeklyReportPage() {
               <button
                 type="button"
                 onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-slate-800/80 hover:bg-slate-700/70 rounded-xl border border-slate-700 hover:border-sky-500/50 shadow-2xs transition-all text-xs font-bold text-slate-200 cursor-pointer group"
+                className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-slate-800/80 hover:bg-slate-700/70 rounded-xl border border-slate-700 hover:border-violet-500/50 shadow-2xs transition-all text-xs font-bold text-slate-200 cursor-pointer group"
               >
-                <Calendar className="w-4 h-4 text-sky-400 shrink-0 group-hover:scale-105 transition-transform" />
+                <Calendar className="w-4 h-4 text-violet-400 shrink-0 group-hover:scale-105 transition-transform" />
                 <span>{getWeekRangeLabel()}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-slate-200 transition-colors" />
               </button>
@@ -388,19 +388,19 @@ export default function WeeklyReportPage() {
                                 !dayObj.isCurrentMonth ? 'text-slate-600' : 'text-slate-300 hover:bg-slate-800'
                               } ${
                                 active
-                                  ? 'bg-sky-950/80 text-sky-300 font-bold border border-sky-700'
+                                  ? 'bg-violet-950/80 text-violet-300 font-bold border border-violet-700'
                                   : hoverActive
                                   ? 'bg-slate-800/60 border border-dashed border-slate-600'
                                   : ''
                               } ${
-                                start ? '!bg-sky-600 !text-white !border-sky-500 shadow-xs' : ''
+                                start ? '!bg-violet-600 !text-white !border-violet-500 shadow-xs' : ''
                               } ${
-                                end ? '!bg-sky-600 !text-white !border-sky-500 shadow-xs' : ''
+                                end ? '!bg-violet-600 !text-white !border-violet-500 shadow-xs' : ''
                               }`}
                             >
                               {dayObj.date.getDate()}
                               {isToday && !active && (
-                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-sky-400 rounded-full" />
+                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-violet-400 rounded-full" />
                               )}
                             </button>
                           );
@@ -421,7 +421,7 @@ export default function WeeklyReportPage() {
                             setEndDate(range.endDate);
                             setViewDate(new Date());
                           }}
-                          className="text-sky-400 hover:text-sky-300 cursor-pointer font-semibold"
+                          className="text-violet-400 hover:text-violet-300 cursor-pointer font-semibold"
                         >
                           This Week
                         </button>
@@ -442,7 +442,7 @@ export default function WeeklyReportPage() {
                         <button
                           type="button"
                           onClick={() => setIsCalendarOpen(false)}
-                          className="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-md cursor-pointer transition-colors shadow-2xs font-semibold"
+                          className="px-3 py-1 bg-violet-600 hover:bg-violet-500 text-white rounded-md cursor-pointer transition-colors shadow-2xs font-semibold"
                         >
                           Apply
                         </button>
@@ -476,9 +476,9 @@ export default function WeeklyReportPage() {
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
             <div>
               <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Team Approved</div>
-              <div className="text-xl sm:text-3xl font-extrabold text-teal-400 mt-0.5">{grandTotalApproved}</div>
+              <div className="text-xl sm:text-3xl font-extrabold text-violet-400 mt-0.5">{grandTotalApproved}</div>
             </div>
-            <p className="text-[11px] text-teal-400 font-semibold sm:text-xs truncate mt-1">{grandApprovalRate}% approval rate</p>
+            <p className="text-[11px] text-violet-300 font-semibold sm:text-xs truncate mt-1">{grandApprovalRate}% approval rate</p>
           </div>
 
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
@@ -495,8 +495,8 @@ export default function WeeklyReportPage() {
           <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
             <div>
               <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Active Clients</div>
-              <div className="text-xl sm:text-3xl font-extrabold text-sky-400 flex items-center space-x-1 sm:space-x-1.5 mt-0.5">
-                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400 shrink-0" />
+              <div className="text-xl sm:text-3xl font-extrabold text-violet-400 flex items-center space-x-1 sm:space-x-1.5 mt-0.5">
+                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400 shrink-0" />
                 <span>{totalActiveClients}</span>
               </div>
             </div>
@@ -528,7 +528,7 @@ export default function WeeklyReportPage() {
                   {/* Card Header */}
                   <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 border-b border-slate-800">
                     <div className="flex items-center space-x-3.5 sm:space-x-4">
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-sky-500 to-teal-500 text-white font-extrabold text-lg sm:text-xl flex items-center justify-center shadow-sm shrink-0">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-extrabold text-lg sm:text-xl flex items-center justify-center shadow-sm shrink-0">
                         {s.profile.name.charAt(0)}
                       </div>
                       <div className="min-w-0">
@@ -552,14 +552,14 @@ export default function WeeklyReportPage() {
                           <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Created / Approved</div>
                           <div className="text-sm sm:text-lg font-bold text-slate-100">
                             {s.totalCreated} <span className="text-slate-500 font-normal">/</span>{' '}
-                            <span className="text-teal-400">{s.totalApproved}</span>
+                            <span className="text-violet-400">{s.totalApproved}</span>
                           </div>
                         </div>
 
                         {/* Approval Rate Mini-Tile */}
                         <div className="bg-slate-950/60 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-800">
                           <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Approval Rate</div>
-                          <div className="text-sm sm:text-lg font-bold text-sky-400">{s.approvalRate}%</div>
+                          <div className="text-sm sm:text-lg font-bold text-violet-400">{s.approvalRate}%</div>
                         </div>
                       </div>
 
@@ -592,7 +592,7 @@ export default function WeeklyReportPage() {
                               key={typeName}
                               className={`p-2 sm:p-3 rounded-lg border text-center transition-all ${
                                 hasWork
-                                  ? 'bg-slate-900 border-sky-500/50 shadow-2xs ring-1 ring-sky-500/20'
+                                  ? 'bg-slate-900 border-violet-500/50 shadow-2xs ring-1 ring-violet-500/20'
                                   : 'bg-slate-900/40 border-slate-800/80 opacity-40 hover:opacity-75'
                               }`}
                             >
@@ -601,7 +601,7 @@ export default function WeeklyReportPage() {
                               </div>
                               <div className="text-xs sm:text-sm font-extrabold text-slate-100 mt-0.5">
                                 {data.done}{' '}
-                                <span className={`text-[10px] sm:text-xs font-bold ${hasWork ? 'text-teal-400' : 'text-slate-500'}`}>
+                                <span className={`text-[10px] sm:text-xs font-bold ${hasWork ? 'text-violet-400' : 'text-slate-500'}`}>
                                   ({data.approved})
                                 </span>
                               </div>
@@ -707,13 +707,13 @@ export default function WeeklyReportPage() {
                                     {/* Client Header */}
                                     <div className="px-3 sm:px-4 py-2 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
                                       <div className="flex items-center space-x-2 truncate">
-                                        <Building2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                                        <Building2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
                                         <span className="font-extrabold text-xs text-slate-100 uppercase tracking-wider truncate">
                                           {clientName}
                                         </span>
                                       </div>
                                       <div className="flex items-center space-x-2 shrink-0">
-                                        <span className="text-[11px] font-bold text-sky-300 bg-sky-950/60 px-2 py-0.5 rounded-full border border-sky-800/60">
+                                        <span className="text-[11px] font-bold text-violet-300 bg-violet-950/60 px-2 py-0.5 rounded-full border border-violet-800/60">
                                           {items.length} item(s)
                                         </span>
                                       </div>
@@ -730,7 +730,7 @@ export default function WeeklyReportPage() {
                                             <span className="font-bold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] shrink-0">
                                               {entry.work_date}
                                             </span>
-                                            <span className="px-2 py-0.5 rounded bg-sky-950/80 text-sky-300 border border-sky-800/60 font-semibold text-[10px] sm:text-[11px] shrink-0">
+                                            <span className="px-2 py-0.5 rounded bg-violet-950/80 text-violet-300 border border-violet-800/60 font-semibold text-[10px] sm:text-[11px] shrink-0">
                                               {entry.work_type?.name || 'Work'}
                                             </span>
                                             <span className="text-slate-200 font-medium break-words">{entry.description}</span>
@@ -739,7 +739,7 @@ export default function WeeklyReportPage() {
                                                 href={entry.project_url || entry.best_work_url!}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center space-x-1 text-sky-400 hover:text-sky-300 font-semibold underline shrink-0"
+                                                className="inline-flex items-center space-x-1 text-violet-400 hover:text-violet-300 font-semibold underline shrink-0"
                                                 title="Open Project URL"
                                               >
                                                 <ExternalLink className="w-3 h-3" />
@@ -753,7 +753,7 @@ export default function WeeklyReportPage() {
                                               Done: <strong className="text-slate-100">{entry.quantity_done}</strong>
                                             </span>
                                             <span>
-                                              Approved: <strong className="text-teal-400">{entry.quantity_approved}</strong>
+                                              Approved: <strong className="text-violet-400">{entry.quantity_approved}</strong>
                                             </span>
                                             <span
                                               className={`font-bold px-2 py-0.5 rounded text-[10px] ${
