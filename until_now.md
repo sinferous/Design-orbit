@@ -535,6 +535,10 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Full Codebase Consistency Pass (0 Legacy Blue/Teal Remaining)**:
   - Updated all form inputs, date pickers, dropdown selects, and focus rings to `focus:ring-violet-500`.
   - Updated all secondary pages: `/work`, `/work/[id]`, `/work/new`, `/clients`, `/team`, `/settings`, `/reports/weekly`, `/reports/monthly`, `/reports/overall`, `/reports/billing`, `/admin`, `/login`, and `/excel-sync`.
+  - **Monthly Activity Heatmap & Mini Heat Strips (`MonthlyActivityHeatmap.tsx`)**:
+    - Harmonized the 5-step GitHub-style heat matrix intensity classes from emerald to deep Electric Violet (`bg-violet-950/80`, `bg-violet-900/80`, `bg-violet-600`, `bg-violet-500`).
+    - Updated the calendar header icon box, consistency metric pill, and bottom legend swatches to matching Electric Violet.
+    - Mini heat strips across `/team` and `/settings` seamlessly inherit the updated Electric Violet palette.
   - Preserved semantic warning indicators (amber for pending deadlines) and success indicators (emerald for completed checklists and Excel spreadsheets).
 - [x] **Production Verification**:
   - Ran `npm run build` with Turbopack — all 19 routes compiled successfully with 0 errors.

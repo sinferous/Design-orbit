@@ -283,7 +283,7 @@ export default function TeamPage() {
                         <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
                           {teamActivity?.monthName} Activity
                         </span>
-                        <span className="text-[11px] font-extrabold text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-800/60">
+                        <span className="text-[11px] font-extrabold text-violet-300 bg-violet-950/70 px-2 py-0.5 rounded-full border border-violet-800/60">
                           {designerActivity.activeDaysCount} Active Days
                         </span>
                       </div>

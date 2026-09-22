@@ -35,13 +35,13 @@ interface MonthlyActivityHeatmapProps {
 export function getIntensityClass(intensity: 0 | 1 | 2 | 3 | 4): string {
   switch (intensity) {
     case 1:
-      return 'bg-emerald-950/80 hover:bg-emerald-900/80 border-emerald-800/80 text-emerald-300';
+      return 'bg-violet-950/80 hover:bg-violet-900/80 border-violet-800/80 text-violet-300';
     case 2:
-      return 'bg-emerald-800/80 hover:bg-emerald-700/80 border-emerald-600/80 text-emerald-100 font-semibold';
+      return 'bg-violet-900/80 hover:bg-violet-800/80 border-violet-700/80 text-violet-100 font-semibold';
     case 3:
-      return 'bg-emerald-600 hover:bg-emerald-500 border-emerald-500 text-white font-bold shadow-xs';
+      return 'bg-violet-600 hover:bg-violet-500 border-violet-500 text-white font-bold shadow-xs';
     case 4:
-      return 'bg-emerald-500 hover:bg-emerald-400 border-emerald-400 text-slate-950 font-extrabold shadow-sm';
+      return 'bg-violet-500 hover:bg-violet-400 border-violet-400 text-slate-950 font-extrabold shadow-sm';
     case 0:
     default:
       return 'bg-slate-800/70 hover:bg-slate-750 border-slate-700/60 text-slate-500';
@@ -105,7 +105,7 @@ export function MonthlyActivityHeatmap({
           </div>
         ) : (
           <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-xl bg-emerald-950/70 text-emerald-400 border border-emerald-800/60 shadow-xs">
+            <div className="p-2 rounded-xl bg-violet-950/70 text-violet-400 border border-violet-800/60 shadow-xs">
               <Calendar className="w-4 h-4" />
             </div>
             <div>
@@ -159,7 +159,7 @@ export function MonthlyActivityHeatmap({
             </span>
             <span className="text-xs text-slate-400">/ {activity.daysInMonth} d</span>
           </div>
-          <span className="text-[11px] font-semibold text-emerald-400">
+          <span className="text-[11px] font-semibold text-violet-400">
             {activity.consistencyPercentage}% consistency
           </span>
         </div>
@@ -278,10 +278,10 @@ export function MonthlyActivityHeatmap({
           <span className="text-[11px] text-slate-500">Less</span>
           <div className="flex items-center space-x-1">
             <span className="w-3.5 h-3.5 rounded-xs bg-slate-800/70 border border-slate-700/60" title="0 works done (Off/Idle)" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-950/80 border border-emerald-800/80" title="1-4 works done" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-800/80 border border-emerald-600/80" title="5-9 works done" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-600 border border-emerald-500" title="10-15 works done" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-emerald-500 border border-emerald-400" title="16+ works done" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-violet-950/80 border border-violet-800/80" title="1-4 works done" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-violet-900/80 border border-violet-700/80" title="5-9 works done" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-violet-600 border border-violet-500" title="10-15 works done" />
+            <span className="w-3.5 h-3.5 rounded-xs bg-violet-500 border border-violet-400" title="16+ works done" />
           </div>
           <span className="text-[11px] text-slate-500">More</span>
         </div>
