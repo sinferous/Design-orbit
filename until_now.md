@@ -503,14 +503,14 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Next.js 16 Metadata Integration (`src/app/layout.tsx`)**:
   - Configured explicit `icons` metadata linking SVG, ICO, and Apple Touch Icon with verified production build passing all 19 metadata routes.
 
-### Phase 21 — 3D Gyroscopic Orbit Loader & Studio Loading System (Completed)
-- [x] **Universal Gyroscopic Orbit Loader Component (`OrbitLoader.tsx`)**:
-  - Built a custom 3D CSS gyroscopic orbit animation system ([`src/components/ui/OrbitLoader.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/OrbitLoader.tsx)) perfectly tailored to the **Design Orbit** brand and dark studio aesthetic.
-  - **Luminous Core Nucleus**: Pulsing cyan-to-emerald core orb (`animate-orbit-core`) with ambient radial backdrop glow.
-  - **Concentric 3D Orbital Rings**: Staggered, tilted elliptical tracks (`rotateX(68deg) rotateY(15deg)`) with counter-rotating emerald and cyan orbiting satellite nodes.
-  - **Scale Presets**: Responsive presets (`sm`, `md`, `lg`, and `fullscreen` backdrop).
-  - **Creative Agency Status Messaging**: Smoothly cycles through inspiring status copy (*"Aligning creative vectors..."*, *"Syncing agency deliverables..."*, *"Harmonizing team momentum..."*).
-  - **Aurora Glass Shimmer Matrix**: Companion `ShimmerSkeleton` and `TableShimmerSkeleton` utilities for instant perceived performance.
+### Phase 21 — Dotted Circle Orbit Loader & Studio Loading System (Completed)
+- [x] **Minimal Dotted Orbit Loader Component (`OrbitLoader.tsx`)**:
+  - Re-architected [`src/components/ui/OrbitLoader.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/ui/OrbitLoader.tsx) into a clean, modern, minimal loading animation.
+  - **Dotted Circular Orbit Track**: Crisp static circular orbit ring rendered with rounded dotted strokes (`#334155`).
+  - **2 Orbiting Circles**: Two vibrant colored nodes (Cyan `#38bdf8` and Emerald `#34d399`) placed 180° apart with subtle glow effects, smoothly revolving around the dotted orbit track.
+  - **Scale Presets**: Responsive presets (`sm: 32px`, `md: 46px`, `lg: 62px`, and `fullscreen: 76px`).
+  - **Clean Micro-Copy**: Clear, uncluttered status text and hints underneath.
+  - **Aurora Glass Shimmer Matrix**: Companion `ShimmerSkeleton` and `TableShimmerSkeleton` utilities.
 - [x] **App-Wide Loading State Upgrade**:
   - Replaced legacy generic browser spinners across:
     - **Excel Sync (`/excel-sync`)**: Daily and Weekly table generation loaders.

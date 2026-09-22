@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface OrbitLoaderProps {
@@ -10,156 +10,132 @@ export interface OrbitLoaderProps {
   text?: string;
   /** Subtitle or secondary hint text */
   subtitle?: string;
-  /** Cycle through playful creative agency status messages */
+  /** Optional flag for cycling text (kept for backwards compatibility) */
   showCyclingText?: boolean;
   /** Additional container classes */
   className?: string;
 }
 
-const CREATIVE_MESSAGES = [
-  'Aligning creative vectors...',
-  'Syncing agency deliverables...',
-  'Harmonizing team momentum...',
-  'Connecting to Design Orbit...',
-  'Calculating deliverable hours...',
-  'Polishing pixels for review...',
-];
-
 export function OrbitLoader({
   size = 'md',
   text,
   subtitle,
-  showCyclingText = false,
   className,
 }: OrbitLoaderProps) {
-  const [messageIndex, setMessageIndex] = useState(0);
-
-  useEffect(() => {
-    if (!showCyclingText && size !== 'fullscreen') return;
-    const interval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % CREATIVE_MESSAGES.length);
-    }, 2400);
-    return () => clearInterval(interval);
-  }, [showCyclingText, size]);
-
-  const activeText = text || (showCyclingText || size === 'fullscreen' ? CREATIVE_MESSAGES[messageIndex] : undefined);
-
-  // Dimension scaling maps
-  const dimensionStyles = {
+  // Scaling configuration for the dotted orbit and 2 orbiting circles
+  const config = {
     sm: {
-      container: 'w-10 h-10',
-      core: 'w-2.5 h-2.5',
-      ring1: 'w-10 h-10 border-[1.5px]',
-      ring2: 'w-8 h-8 border-[1.5px]',
-      satellite: 'w-1.5 h-1.5',
+      svgSize: 32,
+      r: 10.5,
+      dotR: 2.2,
+      strokeWidth: 1.5,
+      dashArray: '2.5 3.5',
     },
     md: {
-      container: 'w-16 h-16',
-      core: 'w-3.5 h-3.5',
-      ring1: 'w-16 h-16 border-2',
-      ring2: 'w-12 h-12 border-[1.5px]',
-      satellite: 'w-2 h-2',
+      svgSize: 46,
+      r: 16,
+      dotR: 3.2,
+      strokeWidth: 1.75,
+      dashArray: '3 4',
     },
     lg: {
-      container: 'w-24 h-24',
-      core: 'w-5 h-5',
-      ring1: 'w-24 h-24 border-2',
-      ring2: 'w-20 h-20 border-2',
-      ring3: 'w-16 h-16 border-[1.5px]',
-      satellite: 'w-2.5 h-2.5',
+      svgSize: 62,
+      r: 22,
+      dotR: 4,
+      strokeWidth: 2,
+      dashArray: '3.5 5',
     },
     fullscreen: {
-      container: 'w-28 h-28',
-      core: 'w-6 h-6',
-      ring1: 'w-28 h-28 border-2',
-      ring2: 'w-22 h-22 border-2',
-      ring3: 'w-18 h-18 border-[1.5px]',
-      satellite: 'w-3 h-3',
+      svgSize: 76,
+      r: 28,
+      dotR: 5,
+      strokeWidth: 2.2,
+      dashArray: '4 6',
     },
   }[size];
 
+  const center = config.svgSize / 2;
+
   const content = (
     <div className={cn('flex flex-col items-center justify-center select-none', className)}>
-      {/* 3D Gyroscopic Orbit Stage */}
       <div
-        className={cn('relative flex items-center justify-center [perspective:600px]', dimensionStyles.container)}
+        className="relative flex items-center justify-center"
+        style={{ width: config.svgSize, height: config.svgSize }}
         role="status"
         aria-label="Loading..."
       >
-        {/* Ambient Radial Backdrop Glow */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-500/20 via-teal-500/10 to-transparent blur-xl pointer-events-none animate-pulse" />
-
-        {/* Pulsing Core Nucleus */}
-        <div
-          className={cn(
-            'absolute rounded-full bg-gradient-to-tr from-sky-400 via-teal-300 to-emerald-400 animate-orbit-core z-10',
-            dimensionStyles.core
-          )}
+        <svg
+          width={config.svgSize}
+          height={config.svgSize}
+          viewBox={`0 0 ${config.svgSize} ${config.svgSize}`}
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <div className="w-full h-full rounded-full bg-white/40 blur-[1px]" />
-        </div>
-
-        {/* Orbital Ring 1 (Cyan / Clockwise tilt) */}
-        <div
-          className={cn(
-            'absolute rounded-full border-sky-400/40 border-dashed animate-orbit-ring-1 flex items-center justify-start pointer-events-none',
-            dimensionStyles.ring1
-          )}
-        >
-          {/* Cyan Satellite Beacon */}
-          <div
-            className={cn(
-              'rounded-full bg-sky-300 shadow-[0_0_8px_#38bdf8] -ml-1',
-              dimensionStyles.satellite
-            )}
+          {/* Subtle central node anchor */}
+          <circle
+            cx={center}
+            cy={center}
+            r={config.dotR * 0.5}
+            fill="#475569"
+            opacity={0.4}
           />
-        </div>
 
-        {/* Orbital Ring 2 (Emerald / Counter-Clockwise tilt) */}
-        <div
-          className={cn(
-            'absolute rounded-full border-emerald-400/40 border-dotted animate-orbit-ring-2 flex items-center justify-end pointer-events-none',
-            dimensionStyles.ring2
-          )}
-        >
-          {/* Emerald Satellite Beacon */}
-          <div
-            className={cn(
-              'rounded-full bg-emerald-300 shadow-[0_0_8px_#34d399] -mr-1',
-              dimensionStyles.satellite
-            )}
+          {/* Dotted Circle Orbit Track */}
+          <circle
+            cx={center}
+            cy={center}
+            r={config.r}
+            fill="none"
+            stroke="#334155"
+            strokeWidth={config.strokeWidth}
+            strokeDasharray={config.dashArray}
+            strokeLinecap="round"
           />
-        </div>
 
-        {/* Orbital Ring 3 (Outer Subtle Ring for lg and fullscreen) */}
-        {(size === 'lg' || size === 'fullscreen') && (
-          <div
-            className={cn(
-              'absolute rounded-full border-teal-500/25 border-dashed animate-orbit-ring-3 flex items-start justify-center pointer-events-none',
-              dimensionStyles.ring3 || 'w-16 h-16 border-[1.5px]'
-            )}
+          {/* Rotating Group containing the 2 Circles moving in orbit */}
+          <g
+            className="animate-spin"
+            style={{
+              animationDuration: '2.2s',
+              animationTimingFunction: 'linear',
+              transformOrigin: `${center}px ${center}px`,
+            }}
           >
-            {/* Third satellite node */}
-            <div
-              className={cn(
-                'rounded-full bg-teal-200 shadow-[0_0_6px_#2dd4bf] -mt-1',
-                dimensionStyles.satellite
-              )}
+            {/* Circle 1 (Cyan / Sky Blue - Top of orbit) */}
+            <circle
+              cx={center}
+              cy={center - config.r}
+              r={config.dotR}
+              fill="#38bdf8"
+              style={{
+                filter: 'drop-shadow(0 0 4px rgba(56, 189, 248, 0.7))',
+              }}
             />
-          </div>
-        )}
+
+            {/* Circle 2 (Emerald Green - Bottom of orbit, 180° opposite) */}
+            <circle
+              cx={center}
+              cy={center + config.r}
+              r={config.dotR}
+              fill="#34d399"
+              style={{
+                filter: 'drop-shadow(0 0 4px rgba(52, 211, 153, 0.7))',
+              }}
+            />
+          </g>
+        </svg>
       </div>
 
-      {/* Label and Subtitle */}
-      {(activeText || subtitle) && (
-        <div className="mt-4 text-center max-w-xs space-y-1">
-          {activeText && (
-            <p className="text-xs sm:text-sm font-semibold tracking-wide text-slate-200 animate-in fade-in duration-300">
-              {activeText}
+      {/* Optional Label and Subtitle */}
+      {(text || subtitle) && (
+        <div className="mt-3 text-center max-w-xs space-y-0.5">
+          {text && (
+            <p className="text-xs font-semibold tracking-wide text-slate-300">
+              {text}
             </p>
           )}
           {subtitle && (
-            <p className="text-[11px] text-slate-400 font-medium">
+            <p className="text-[11px] text-slate-500 font-medium">
               {subtitle}
             </p>
           )}
@@ -197,7 +173,6 @@ export function ShimmerSkeleton({
         className
       )}
     >
-      {/* Prismatic Shimmer Sweep */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-400/10 via-teal-400/10 to-transparent animate-shimmer-sweep pointer-events-none" />
     </div>
   );
