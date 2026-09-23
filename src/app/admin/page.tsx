@@ -515,10 +515,10 @@ export default function AdminDashboardPage() {
               </svg>
 
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
-                <span className="text-3xl sm:text-[32px] font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
+                <span className="text-3xl sm:text-[30px] font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
                   {weeklyApprovalRate}%
                 </span>
-                <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-400 mt-2">
+                <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 mt-1.5">
                   Team Approval
                 </span>
               </div>
