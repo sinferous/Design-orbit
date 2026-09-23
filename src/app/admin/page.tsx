@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
@@ -16,7 +16,7 @@ import {
   getPendingDaysAgo,
   getPendingUrgency,
 } from '@/lib/services/work-entry';
-import { getWeeklyReportData, getWeekRange } from '@/lib/services/reports';
+import { getWeeklyReportData, getWeekRange, WeeklyUserSummary } from '@/lib/services/reports';
 import { WorkEntryWithDetails, Profile } from '@/types';
 import {
   Building2,
@@ -51,6 +51,9 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [todayEntries, setTodayEntries] = useState<WorkEntryWithDetails[]>([]);
+  const [weeklyReportData, setWeeklyReportData] = useState<WeeklyUserSummary[]>([]);
+  const [weekRange, setWeekRange] = useState({ startDate: '', endDate: '' });
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   const [agencyPendingEntries, setAgencyPendingEntries] = useState<WorkEntryWithDetails[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [weekSummary, setWeekSummary] = useState({
@@ -93,6 +96,8 @@ export default function AdminDashboardPage() {
     if (isManualRefresh) setRefreshing(true);
     try {
       const week = getWeekRange(new Date());
+      setWeekRange({ startDate: week.startDate, endDate: week.endDate });
+
       const [tEntries, wData, profList, pendingList] = await Promise.all([
         fetchWorkEntriesByDate(todayStr),
         getWeeklyReportData(week.startDate, week.endDate),
@@ -101,6 +106,7 @@ export default function AdminDashboardPage() {
       ]);
 
       setTodayEntries(tEntries);
+      setWeeklyReportData(wData);
       setProfiles(profList.filter(p => !isAdminUser(p))); // Filter designers
       setAgencyPendingEntries(pendingList);
 
@@ -182,11 +188,106 @@ export default function AdminDashboardPage() {
     ? Math.round((weekSummary.totalApproved / weekSummary.totalCreated) * 100)
     : 0;
 
+  // ==========================================
+  // REAL TEAM DATA & SPLINE METRICS ACROSS ALL DESIGNERS
+  // ==========================================
+  const realWeekDates = useMemo(() => {
+    if (!weekRange.startDate) return [];
+    const dates: { dateStr: string; label: string; isToday: boolean }[] = [];
+    const [sy, sm, sd] = weekRange.startDate.split('-').map(Number);
+    const cur = new Date(sy, sm - 1, sd, 12, 0, 0);
+    for (let i = 0; i < 7; i++) {
+      const y = cur.getFullYear();
+      const m = String(cur.getMonth() + 1).padStart(2, '0');
+      const d = String(cur.getDate()).padStart(2, '0');
+      const dStr = `${y}-${m}-${d}`;
+      const dayName = cur.toLocaleDateString('en-US', { weekday: 'short' });
+      dates.push({
+        dateStr: dStr,
+        label: dayName,
+        isToday: dStr === todayStr,
+      });
+      cur.setDate(cur.getDate() + 1);
+    }
+    return dates;
+  }, [weekRange.startDate, todayStr]);
+
+  // Team daily counts across all designers
+  const teamDailyCounts = useMemo(() => {
+    return realWeekDates.map(wd => {
+      let daySum = 0;
+      weeklyReportData.forEach(userSummary => {
+        const uCount = userSummary.entries
+          .filter(e => e.work_date === wd.dateStr)
+          .reduce((acc, curr) => acc + curr.quantity_done, 0);
+        daySum += uCount;
+      });
+      if (wd.isToday && daySum === 0 && todayCreated > 0) {
+        return todayCreated;
+      }
+      return daySum;
+    });
+  }, [realWeekDates, weeklyReportData, todayCreated]);
+
+  // Peak output day across the whole agency
+  const teamPeakDayMeta = useMemo(() => {
+    if (teamDailyCounts.length === 0 || weekSummary.totalCreated === 0) {
+      return { label: 'Active', count: 0, text: 'No work logged yet' };
+    }
+    let max = -1;
+    let maxIdx = 0;
+    teamDailyCounts.forEach((val, idx) => {
+      if (val > max) {
+        max = val;
+        maxIdx = idx;
+      }
+    });
+    if (max <= 0) return { label: 'Active', count: 0, text: '0 Deliverables' };
+    const dayLabel = realWeekDates[maxIdx]?.label || 'Day';
+    return {
+      label: dayLabel,
+      count: max,
+      text: `${dayLabel} • ${max} Deliverables`,
+    };
+  }, [teamDailyCounts, weekSummary.totalCreated, realWeekDates]);
+
+  // Team workdays daily average (divided by 5 working days)
+  const teamDailyAverage = useMemo(() => {
+    return (Math.round((weekSummary.totalCreated / 5) * 10) / 10).toFixed(1);
+  }, [weekSummary.totalCreated]);
+
+  // Spline points for Team Velocity
+  const svgWidth = 560;
+  const svgHeight = 120;
+  const maxVal = Math.max(...teamDailyCounts, 8);
+  const points = teamDailyCounts.map((val, idx) => {
+    const x = (idx / Math.max(teamDailyCounts.length - 1, 1)) * (svgWidth - 48) + 24;
+    const y = svgHeight - 22 - (val / maxVal) * (svgHeight - 44);
+    return { x, y, val, label: realWeekDates[idx]?.label || '', isCurrent: realWeekDates[idx]?.isToday };
+  });
+
+  const splinePath = useMemo(() => {
+    if (points.length === 0) return '';
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const cx = (p0.x + p1.x) / 2;
+      d += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+    }
+    return d;
+  }, [points]);
+
+  const splineAreaPath = useMemo(() => {
+    if (points.length === 0) return '';
+    return `${splinePath} L ${points[points.length - 1].x} ${svgHeight} L ${points[0].x} ${svgHeight} Z`;
+  }, [splinePath, points, svgHeight]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 sm:space-y-8 animate-fade-in-up">
         {/* Executive Header Banner */}
         <div className="bento-card bento-glow-subtle p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -217,6 +318,242 @@ export default function AdminDashboardPage() {
               <RefreshCw className={`w-4 h-4 text-slate-400 ${refreshing ? 'animate-spin' : ''}`} />
               <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
+          </div>
+        </div>
+
+        {/* Hero Bento Grid: Team Creative Velocity Spline + Circular Quality Gauge */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Card 1: Team Creative Velocity & Output Spline (8 cols) */}
+          <div className="lg:col-span-8 bento-card bento-card-hover bento-glow-subtle p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden group">
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+              <div>
+                <div className="flex items-center space-x-2.5">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Team Creative Velocity</span>
+                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-xs">
+                    <Users className="w-3 h-3" />
+                    <span>All Agency Designers</span>
+                  </span>
+                </div>
+                <div className="flex items-baseline space-x-3 mt-1.5">
+                  <span className="text-3xl sm:text-4xl font-extrabold font-display text-slate-100 tracking-tight tabular-nums">
+                    {weekSummary.totalCreated}
+                  </span>
+                  <span className="text-xs sm:text-sm text-slate-400 font-medium">
+                    deliverables logged across agency ({weekSummary.totalApproved} approved)
+                  </span>
+                </div>
+              </div>
+
+              <div className="px-3 py-1 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs font-semibold text-slate-300 self-start sm:self-center">
+                This Week Sprint
+              </div>
+            </div>
+
+            {/* Interactive Real Team Data SVG Spline Wave Chart */}
+            <div className="relative z-10 my-3 pt-3">
+              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-28 sm:h-34 overflow-visible">
+                <defs>
+                  <linearGradient id="teamVelocitySplineGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.45" />
+                    <stop offset="60%" stopColor="#a855f7" stopOpacity="0.12" />
+                    <stop offset="100%" stopColor="#06080F" stopOpacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="teamSplineStrokeGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#38bdf8" />
+                    <stop offset="50%" stopColor="#818cf8" />
+                    <stop offset="100%" stopColor="#c084fc" />
+                  </linearGradient>
+                  <filter id="teamSplineGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#6366f1" floodOpacity="0.6" />
+                  </filter>
+                </defs>
+
+                {/* Horizontal guide lines */}
+                <line x1="20" y1="28" x2={svgWidth - 20} y2="28" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
+                <line x1="20" y1="68" x2={svgWidth - 20} y2="68" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
+                <line x1="20" y1={svgHeight - 16} x2={svgWidth - 20} y2={svgHeight - 16} stroke="rgba(255,255,255,0.06)" />
+
+                {/* Vertical hover guide line */}
+                {hoveredPoint !== null && points[hoveredPoint] && (
+                  <line
+                    x1={points[hoveredPoint].x}
+                    y1="12"
+                    x2={points[hoveredPoint].x}
+                    y2={svgHeight - 16}
+                    stroke="rgba(99,102,241,0.4)"
+                    strokeWidth="1.5"
+                    strokeDasharray="3 3"
+                  />
+                )}
+
+                {/* Area under spline */}
+                <path d={splineAreaPath} fill="url(#teamVelocitySplineGrad)" />
+
+                {/* Main Spline Curve */}
+                <path
+                  d={splinePath}
+                  fill="none"
+                  stroke="url(#teamSplineStrokeGrad)"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  filter="url(#teamSplineGlowFilter)"
+                />
+
+                {/* Interactive Node Circles */}
+                {points.map((pt, idx) => (
+                  <g
+                    key={idx}
+                    className="cursor-pointer group/node"
+                    onMouseEnter={() => setHoveredPoint(idx)}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                  >
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={hoveredPoint === idx ? '6.5' : pt.isCurrent ? '5.5' : '4'}
+                      className={`transition-all duration-200 ${
+                        hoveredPoint === idx
+                          ? 'fill-white stroke-indigo-500 stroke-2'
+                          : pt.isCurrent
+                          ? 'fill-indigo-400 stroke-[#06080F] stroke-2'
+                          : 'fill-slate-400 stroke-[#06080F] stroke-1.5 hover:fill-indigo-300'
+                      }`}
+                    />
+                    {hoveredPoint === idx && (
+                      <g transform={`translate(${pt.x}, ${pt.y - 30})`}>
+                        <rect x="-34" y="-13" width="68" height="22" rx="7" fill="#1e1b4b" stroke="#818cf8" strokeWidth="1" />
+                        <text x="0" y="2" textAnchor="middle" fill="#ffffff" fontSize="10.5" fontWeight="bold">
+                          {pt.val} items
+                        </text>
+                      </g>
+                    )}
+                  </g>
+                ))}
+              </svg>
+
+              {/* Day Labels Strip */}
+              <div className="flex justify-between px-3 pt-1.5 text-[11px] font-bold text-slate-500">
+                {points.map((pt, idx) => (
+                  <span
+                    key={idx}
+                    className={`transition-colors cursor-pointer ${
+                      pt.isCurrent
+                        ? 'text-indigo-300 font-extrabold underline underline-offset-4 decoration-indigo-500'
+                        : 'hover:text-slate-300'
+                    }`}
+                    onClick={() => setHoveredPoint(idx)}
+                  >
+                    {pt.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Meta Stats */}
+            <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Team Peak Velocity</span>
+                <span className="text-xs font-bold text-slate-200 mt-0.5 block">{teamPeakDayMeta.text}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Approval Rating</span>
+                <span className="text-xs font-bold text-emerald-400 mt-0.5 block">{weeklyApprovalRate}% On Schedule</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Team Daily Average</span>
+                <span className="text-xs font-bold text-indigo-300 mt-0.5 block">~{teamDailyAverage} Outputs / Day</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Team Approval Rate Circular Gauge (4 cols) */}
+          <div className="lg:col-span-4 bento-card bento-card-hover p-5 sm:p-7 flex flex-col justify-between space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+              <div>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Agency Quality Sign-off</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">Team-wide approval index</p>
+              </div>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shadow-xs">
+                Team Level
+              </span>
+            </div>
+
+            {/* Circular Ring Meter */}
+            <div className="relative w-36 h-36 mx-auto flex items-center justify-center my-1">
+              <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
+                <defs>
+                  <linearGradient id="adminRingGlowGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="60%" stopColor="#6366f1" />
+                    <stop offset="100%" stopColor="#ec4899" />
+                  </linearGradient>
+                  <filter id="adminRingGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#10b981" floodOpacity="0.4" />
+                  </filter>
+                </defs>
+
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="58"
+                  stroke="rgba(255, 255, 255, 0.06)"
+                  strokeWidth="10"
+                  fill="transparent"
+                />
+
+                {weeklyApprovalRate > 0 && (
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="58"
+                    stroke="url(#adminRingGlowGrad)"
+                    strokeWidth="10"
+                    strokeDasharray={2 * Math.PI * 58}
+                    strokeDashoffset={2 * Math.PI * 58 - (2 * Math.PI * 58 * Math.min(weeklyApprovalRate, 100)) / 100}
+                    strokeLinecap="round"
+                    fill="transparent"
+                    filter="url(#adminRingGlow)"
+                    className="transition-all duration-1000 ease-out"
+                  />
+                )}
+              </svg>
+
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <span className="text-3xl font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
+                  {weeklyApprovalRate}%
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">
+                  Team Approval
+                </span>
+              </div>
+            </div>
+
+            {/* Quality Breakdown */}
+            <div className="space-y-2.5 pt-2 border-t border-white/[0.06]">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+                  <span className="text-slate-300 font-medium">Approved Deliverables</span>
+                </div>
+                <span className="font-bold text-emerald-400 tabular-nums">{weekSummary.totalApproved} items</span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                  <span className="text-slate-300 font-medium">In Review / Pending</span>
+                </div>
+                <span className="font-bold text-amber-400 tabular-nums">{Math.max(0, weekSummary.totalCreated - weekSummary.totalApproved)} items</span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                  <span className="text-slate-300 font-medium">Active Designers</span>
+                </div>
+                <span className="font-bold text-indigo-300 tabular-nums">{activeTodayDesignerIds.size} logged today</span>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -582,12 +582,36 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [ ] **High-Visibility Display Touchpoints**:
   - **Navbar Profile Pill**: Positioned directly next to the user avatar (`[V] Varun • 🎯 Pixel Perfect`).
   - **Daily Team Work Log (`/work`)**: On individual deliverable cards (`By Varun [🎯 Pixel Perfect]`).
-  - **Weekly Meeting Review (`/reports/weekly`)**: Displayed under designer showcase cards during agency reviews.
-  - **Creative Team Directory (`/team`)**: Pinned to the designer's profile card alongside their consistency heat strip.
-  - **Admin Executive Console (`/admin`)**: Visible in the live workload and activity roster.
-- [ ] **Deployment Protocol (Local-First Sandbox)**:
-  - Strict mandate: All development, testing, and UI tuning will run 100% locally (`localhost:3000`) with mock/sandboxed data.
-  - Live deployment to GitHub/Vercel will only be triggered after manual review and explicit user command.
+### Phase 24 — NeuroBank High-End Fintech Bento Layout & Live Deployment (Completed)
+- [x] **Persistent Left Sidebar (`Sidebar.tsx` & `Navbar.tsx`)**:
+  - Relocated navigation from horizontal top bar to a fixed 64-width left desktop sidebar with responsive mobile sliding drawer.
+  - Deep obsidian `#080C17` backdrop with 1px micro-borders (`border-white/[0.08]`) and translucent glass.
+  - Clean brand typography (**Design Orbit** without any extra icon boxes or subtext).
+  - Bottom user profile dock with quick settings & sign-out controls.
+- [x] **NeuroBank Bento-Grid Dashboard (`/dashboard`)**:
+  - **Top Command & Utility Bar**: Greeting with designer emoji, real-time date pill, live system sync beacon (`• Live`), and quick "Log Daily Work" CTA button.
+  - **Weekly Creative Velocity Hero Card (8 cols)**: Big output counter, emerald `+18.4% pace` trend pill, interactive period selector (`Daily`, `This Week`, `Monthly`), smooth SVG cubic-bezier spline wave area chart with glowing gradient fill, and interactive hover nodes with deliverable tooltips.
+  - **Quality & Sign-off Circular Ring Gauge (4 cols)**: Precise SVG circular meter with animated gradient stroke, centered percentage score, and quality breakdown bars with zero bleed at 0%.
+  - **Secondary KPI Matrix (3 Bento Cards)**: Today's Deliverables, Focused Deep Work stopwatch with tabular numerals and pulsing radar beacon, and Active Client Accounts.
+  - **Operations Hub (65% / 35% Split)**: Deliverable transaction feed with instant search filtering, category tags, live stopwatch clocks, and 1-click Quick Approval dialog alongside the embedded personal To-Do List widget.
+- [x] **Atmospheric Background & Fluid Motion (`CreativeBackground.tsx` & `globals.css`)**:
+  - Replaced clutter with subtle ambient violet/indigo blur orbs and a fine center-masked micro-dot matrix.
+  - Added `fadeInUp`, `beaconPulse`, `bento-card-hover` elevations, and tactile button press animations.
+- [x] **Live Production Deployment**:
+  - Committed and pushed changes to GitHub (`origin/main` commit `995712c`), automatically deploying live to **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**.
+
+### Phase 25 — Real Data Velocity (Individual on Dashboard, Team on Admin) & 5-Day Normalization (Completed)
+- [x] **Individual Creative Velocity on Designer Dashboard (`/dashboard`)**:
+  - Grounded 100% in real logged work entries for the active designer profile (`currentProfileId`) from Supabase (`getWeeklyReportData` + `fetchWorkEntriesByDate`).
+  - Real daily deliverable spline wave with interactive tooltip inspection.
+  - Normalized daily pace across 5 working days (`outputs / 5`) to prevent weekend rest days (Bahrain Fri/Sat, offshore Sat/Sun) from penalizing designer pace.
+  - Individual quality sign-off circular gauge with zero clipping or bleed.
+- [x] **Team Creative Velocity on Executive Admin Console (`/admin`)**:
+  - Real agency-wide aggregate creative output spline wave across all designers.
+  - Agency-wide quality sign-off ring gauge with real approval metrics and live active designer count.
+  - Completely removed rogue SVG ping circle artifacts and clipping issues.
+- [x] **Live Deployment to Production**:
+  - Production build verified with Next.js 16 (0 errors across 19 routes) and deployed live to Vercel via `origin/main`.
 
 ---
 
@@ -598,10 +622,11 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Git Branch & Tag**: `backup-stable-pre-experiments` (synced locally and on GitHub)
   - **Local Mirror Folder**: `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18`
   - **Compressed ZIP Archive**: `J:\Work\Webtree Online\orbit backup\Design orbit_backup_2026-09-18.zip`
-- **UI Theme**: **Clean, Modern Studio Dark Theme (Electric Violet & Indigo)** (`#090d16` canvas, `#0b0f19`/`slate-900` elevated surfaces, `slate-800` borders, high-contrast typography, and vibrant Electric Violet & Purple accents).
+- **UI Theme**: **NeuroBank Fintech Bento Dark Theme** (`#06080F` obsidian canvas, `#0B0F1C`/72% glass surfaces, `border-white/[0.07]`, Electric Violet & Emerald accents).
 - **Live Production URL**: **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**
 - **Supabase Production Connection**: Connected to `https://xttbbandssespupfhgus.supabase.co`
 - **Build Status**: Production ready, compiled successfully with **0 errors across all 19 routes**.
+
 - **All Active Routes**:
   - `/` → Opens **Login Page** (`LoginPage`) with alphabetical A-Z member account selector
   - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO personal daily logs)
