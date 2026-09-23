@@ -71,7 +71,7 @@ export default function DashboardPage() {
   const [nowMs, setNowMs] = useState<number>(Date.now());
   const [timerLoadingId, setTimerLoadingId] = useState<string | null>(null);
   const [selectedApprovalEntry, setSelectedApprovalEntry] = useState<WorkEntryWithDetails | null>(null);
-  const [feedFilter, setFeedFilter] = useState<FeedFilterTab>('my_work');
+  const [feedFilter, setFeedFilter] = useState<FeedFilterTab>('team_work');
   const [searchQuery, setSearchQuery] = useState('');
   const [period, setPeriod] = useState<HorizonPeriod>('weekly');
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
@@ -967,19 +967,8 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Filter Tabs: My Work vs Team Work */}
+              {/* Filter Tabs: Team Work first, then My Work */}
               <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-xs shrink-0 sm:ml-auto">
-                <button
-                  type="button"
-                  onClick={() => setFeedFilter('my_work')}
-                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    feedFilter === 'my_work'
-                      ? 'bg-violet-600/30 text-white border border-violet-500/35 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  My Work ({myTodayEntries.length})
-                </button>
                 <button
                   type="button"
                   onClick={() => setFeedFilter('team_work')}
@@ -993,14 +982,14 @@ export default function DashboardPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFeedFilter('timers')}
+                  onClick={() => setFeedFilter('my_work')}
                   className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    feedFilter === 'timers'
-                      ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/35 shadow-xs'
+                    feedFilter === 'my_work'
+                      ? 'bg-violet-600/30 text-white border border-violet-500/35 shadow-xs'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  Timers
+                  My Work ({myTodayEntries.length})
                 </button>
               </div>
             </div>
