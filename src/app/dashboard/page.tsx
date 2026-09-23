@@ -722,15 +722,15 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Card 2: Individual Approval Rate Circular Gauge (4 cols) */}
+          {/* Card 2: Individual Weekly Approval Rate Circular Gauge (4 cols) */}
           <div className="lg:col-span-4 bento-card bento-card-hover p-5 sm:p-7 flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
               <div>
                 <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">My Quality Sign-off</h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">Your personal approval index</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Weekly approval & client sign-off index</p>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-500/10 text-violet-300 border border-violet-500/20 shadow-xs">
-                Individual
+                This Week
               </span>
             </div>
 
@@ -759,7 +759,7 @@ export default function DashboardPage() {
                 />
 
                 {/* Animated Value Ring (Only render if > 0 to prevent 0% cap bleed) */}
-                {myTodayApprovalRate > 0 && (
+                {myWeekApprovalRate > 0 && (
                   <circle
                     cx="80"
                     cy="80"
@@ -767,7 +767,7 @@ export default function DashboardPage() {
                     stroke="url(#ringGlowGrad)"
                     strokeWidth="10"
                     strokeDasharray={2 * Math.PI * 58}
-                    strokeDashoffset={2 * Math.PI * 58 - (2 * Math.PI * 58 * Math.min(myTodayApprovalRate, 100)) / 100}
+                    strokeDashoffset={2 * Math.PI * 58 - (2 * Math.PI * 58 * Math.min(myWeekApprovalRate, 100)) / 100}
                     strokeLinecap="round"
                     fill="transparent"
                     filter="url(#ringGlow)"
@@ -779,22 +779,22 @@ export default function DashboardPage() {
               {/* Centered Gauge Typography */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
                 <span className="text-3xl font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
-                  {myTodayApprovalRate}%
+                  {myWeekApprovalRate}%
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">
-                  Today Approved
+                  Weekly Sign-off
                 </span>
               </div>
             </div>
 
-            {/* Individual Quality Breakdown */}
+            {/* Individual Weekly Quality Breakdown */}
             <div className="space-y-2.5 pt-2 border-t border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
                   <span className="text-slate-300 font-medium">Approved Deliverables</span>
                 </div>
-                <span className="font-bold text-emerald-400 tabular-nums">{myTodayApproved} items</span>
+                <span className="font-bold text-emerald-400 tabular-nums">{myWeekTotalApproved} items</span>
               </div>
 
               <div className="flex items-center justify-between text-xs">
@@ -802,15 +802,15 @@ export default function DashboardPage() {
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
                   <span className="text-slate-300 font-medium">In Review / Pending</span>
                 </div>
-                <span className="font-bold text-amber-400 tabular-nums">{Math.max(0, myTodayDone - myTodayApproved)} items</span>
+                <span className="font-bold text-amber-400 tabular-nums">{Math.max(0, myWeekTotalCreated - myWeekTotalApproved)} items</span>
               </div>
 
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
-                  <span className="text-slate-300 font-medium">Weekly Approval Rate</span>
+                  <span className="text-slate-300 font-medium">Today's Output</span>
                 </div>
-                <span className="font-bold text-violet-300 tabular-nums">{myWeekApprovalRate}% score</span>
+                <span className="font-bold text-violet-300 tabular-nums">{myTodayDone} logged today</span>
               </div>
             </div>
           </div>
