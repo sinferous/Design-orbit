@@ -950,22 +950,24 @@ export default function DashboardPage() {
           {/* Main Deliverables Stream (8 cols) */}
           <div className="lg:col-span-8 bento-card p-5 sm:p-6 space-y-4">
             {/* Header with Search and Filter Pills */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
-              <div className="flex items-center space-x-2.5">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 border-b border-white/[0.08] pb-4">
+              <div className="flex items-center space-x-3 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0">
                   <Activity className="w-4 h-4" />
                 </div>
-                <div>
-                  <h2 className="text-sm sm:text-base font-bold text-slate-100 flex items-center space-x-2">
-                    <span>Today's Deliverable Feed</span>
+                <div className="min-w-0">
+                  <div className="flex items-center space-x-2.5">
+                    <h2 className="text-sm sm:text-base font-bold text-slate-100 whitespace-nowrap">
+                      Today's Deliverable Feed
+                    </h2>
                     {myRunningTimers.length > 0 && (
-                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                         <span>{myRunningTimers.length} running</span>
                       </span>
                     )}
-                  </h2>
-                  <p className="text-xs text-slate-400">Live stream of creative outputs & focus sessions</p>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">Live stream of creative outputs & focus sessions</p>
                 </div>
               </div>
 
