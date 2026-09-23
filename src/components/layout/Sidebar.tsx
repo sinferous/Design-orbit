@@ -153,19 +153,14 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                     href={item.href}
                     onClick={(e) => {
                       if (item.isCollapsible) {
-                        if (isInsideReports) {
-                          e.preventDefault();
-                          setReportsOpen((prev) => !prev);
-                        } else {
-                          setReportsOpen(true);
-                          if (onCloseMobile) onCloseMobile();
-                        }
+                        e.preventDefault();
+                        setReportsOpen((prev) => !prev);
                       } else {
                         if (onCloseMobile) onCloseMobile();
                       }
                     }}
                     className={cn(
-                      'group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200',
+                      'group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer',
                       isActive
                         ? 'bg-gradient-to-r from-violet-600/20 via-indigo-600/15 to-transparent text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] border border-violet-500/25'
                         : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04] border border-transparent'
@@ -198,14 +193,8 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                       )}
 
                       {item.isCollapsible && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setReportsOpen((prev) => !prev);
-                          }}
-                          className="p-1 -mr-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-slate-200 transition-colors"
+                        <div
+                          className="p-1 -mr-1 rounded-md text-slate-400 group-hover:text-slate-200 transition-colors"
                           title={reportsOpen ? 'Collapse report views' : 'Expand report views'}
                         >
                           <ChevronRight
@@ -214,7 +203,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                               reportsOpen ? 'rotate-90 text-violet-400' : 'text-slate-500'
                             )}
                           />
-                        </button>
+                        </div>
                       )}
                     </div>
                   </Link>
@@ -223,11 +212,11 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                   {item.isCollapsible && (
                     <div
                       className={cn(
-                        'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out',
-                        reportsOpen ? 'grid-rows-[1fr] opacity-100 my-1' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                        'sidebar-submenu-grid',
+                        reportsOpen && 'is-open'
                       )}
                     >
-                      <div className="overflow-hidden">
+                      <div className="sidebar-submenu-inner">
                         <div className="border-l border-violet-500/20 ml-6 pl-2.5 py-0.5 space-y-0.5">
                           {reportSubItems.map((sub) => {
                             const isSubActive = pathname === sub.href;
@@ -237,7 +226,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                                 href={sub.href}
                                 onClick={onCloseMobile}
                                 className={cn(
-                                  'group/sub relative flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
+                                  'sidebar-sub-link group/sub relative flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
                                   isSubActive
                                     ? 'text-violet-300 bg-violet-950/60 font-semibold shadow-xs'
                                     : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
