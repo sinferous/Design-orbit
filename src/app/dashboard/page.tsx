@@ -735,7 +735,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Circular Ring Meter */}
-            <div className="relative w-36 h-36 mx-auto flex items-center justify-center my-1">
+            <div className="relative w-40 h-40 mx-auto flex items-center justify-center my-1">
               <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
                 <defs>
                   <linearGradient id="ringGlowGrad" x1="0" y1="0" x2="1" y2="1">
@@ -754,7 +754,7 @@ export default function DashboardPage() {
                   cy="80"
                   r="58"
                   stroke="rgba(255, 255, 255, 0.06)"
-                  strokeWidth="10"
+                  strokeWidth="9"
                   fill="transparent"
                 />
 
@@ -765,7 +765,7 @@ export default function DashboardPage() {
                     cy="80"
                     r="58"
                     stroke="url(#ringGlowGrad)"
-                    strokeWidth="10"
+                    strokeWidth="9"
                     strokeDasharray={2 * Math.PI * 58}
                     strokeDashoffset={2 * Math.PI * 58 - (2 * Math.PI * 58 * Math.min(myWeekApprovalRate, 100)) / 100}
                     strokeLinecap="round"
@@ -777,11 +777,11 @@ export default function DashboardPage() {
               </svg>
 
               {/* Centered Gauge Typography */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                <span className="text-3xl font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
+                <span className="text-3xl sm:text-[32px] font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
                   {myWeekApprovalRate}%
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">
+                <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-400 mt-2">
                   Weekly Sign-off
                 </span>
               </div>
