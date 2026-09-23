@@ -558,8 +558,12 @@ export default function AdminDashboardPage() {
             </div>
 
             {loading ? (
-              <div className="py-12 text-center text-slate-400 text-sm animate-pulse">
-                Loading today's agency deliverables...
+              <div className="py-12 text-center">
+                <OrbitLoader
+                  size="md"
+                  text="Streaming agency deliverables..."
+                  subtitle="Synchronizing today's team output"
+                />
               </div>
             ) : todayEntries.length === 0 ? (
               <div className="py-12 text-center bg-slate-950/40 rounded-xl border border-dashed border-slate-800">

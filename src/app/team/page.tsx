@@ -10,6 +10,7 @@ import { Profile } from '@/types';
 import { Users, Mail, Sparkles, Plus, Trash2, UserPlus, X, Calendar, Activity } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function TeamPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -238,8 +239,11 @@ export default function TeamPage() {
         {/* Team Grid */}
         {loading ? (
           <div className="p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-3 text-xs text-slate-400 font-semibold">Loading team profiles...</p>
+            <OrbitLoader
+              size="md"
+              text="Loading team profiles..."
+              subtitle="Synchronizing creative roster and activity strips"
+            />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

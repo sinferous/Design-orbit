@@ -548,6 +548,20 @@ This document provides a comprehensive summary of all progress, architecture, an
     - Removed the legacy Webtree corporate logo image and replaced with cohesive "Design Orbit" gradient typography.
     - Updated subtitle from "Internal reporting platform for the Webtree Creative Team" to "Internal reporting platform for the Creative Team".
   - Preserved semantic warning indicators (amber for pending deadlines) and success indicators (emerald for completed checklists and Excel spreadsheets).
+- [x] **Universal OrbitLoader Rollout (100% Zero Generic Spinners Remaining)**:
+  - Replaced all legacy browser spinners (`animate-spin`) across every report, screen, and modal with the custom minimal **`OrbitLoader`** with contextual titles and descriptions:
+    - **Monthly Performance Report ([`/reports/monthly`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/monthly/page.tsx))**: Upgraded to `size="lg"` OrbitLoader with "Aggregating monthly performance report...".
+    - **All-Time Analytics ([`/reports/overall`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/overall/page.tsx))**: Upgraded to `size="lg"` OrbitLoader with "Aggregating overall report data...".
+    - **Client Hours & Billing ([`/reports/billing`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/reports/billing/page.tsx))**: Upgraded to `size="lg"` OrbitLoader with "Calculating client time & billable hours...".
+    - **Client Directory ([`/clients`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/clients/page.tsx))**: Upgraded to `size="md"` OrbitLoader with "Loading client directory...".
+    - **Team Directory ([`/team`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/team/page.tsx))**: Upgraded to `size="md"` OrbitLoader with "Loading team profiles...".
+    - **Profile Settings ([`/settings`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/settings/page.tsx))**: Upgraded activity heatmap loader to `size="md"` OrbitLoader with "Loading your deliverable heatmap & activity matrix...".
+    - **Executive Admin Console ([`/admin`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/admin/page.tsx))**: Upgraded Today's Deliverables live feed loader to `size="md"` OrbitLoader.
+    - **Edit Deliverable ([`/work/[id]`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/%5Bid%5D/page.tsx))**: Upgraded entry loader and form Suspense fallback to `size="md"` OrbitLoader.
+    - **Add Work Entry ([`/work/new`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/work/new/page.tsx) & [`WorkEntryForm.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/work/WorkEntryForm.tsx))**: Upgraded Suspense fallback and client/category options loader to `size="md"` OrbitLoader.
+    - **Activity Inspector Modal ([`DesignerActivityModal.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/activity/DesignerActivityModal.tsx))**: Upgraded monthly matrix loader to `size="md"` OrbitLoader.
+    - **Private To-Do Widget ([`TodoListWidget.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/components/dashboard/TodoListWidget.tsx))**: Upgraded task list loader to `size="sm"` OrbitLoader.
+    - **Next.js Global App Router Loading ([`src/app/loading.tsx`](file:///j:/Work/Webtree%20Online/Design%20orbit/src/app/loading.tsx))**: Added global route loading fallback rendering `OrbitLoader` (`size="lg"`).
 - [x] **Production Verification**:
   - Ran `npm run build` with Turbopack — all 19 routes compiled successfully with 0 errors.
 

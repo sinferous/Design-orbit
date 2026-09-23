@@ -9,6 +9,7 @@ import { Profile, WorkType, Client } from '@/types';
 import { Download, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function MonthlyReportPage() {
   const [selectedYear, setSelectedYear] = useState<number>(() => new Date().getFullYear());
@@ -290,8 +291,11 @@ export default function MonthlyReportPage() {
 
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin w-6 h-6 border-2 border-violet-400 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-3 text-xs text-slate-400 font-medium">Loading monthly report...</p>
+              <OrbitLoader
+                size="lg"
+                text="Aggregating monthly performance report..."
+                subtitle="Calculating deliverable volume, approval rates, and work type metrics"
+              />
             </div>
           ) : (
             <div className="overflow-x-auto">

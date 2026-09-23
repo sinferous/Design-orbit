@@ -17,6 +17,7 @@ import { ToastAlert } from '@/components/ui/ToastAlert';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { RichDatePicker } from '@/components/ui/RichDatePicker';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 interface WorkItemRow {
   id: string;
@@ -324,9 +325,12 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
 
   if (loadingOptions) {
     return (
-      <div className="p-8 text-center bg-slate-900 rounded-xl border border-slate-800">
-        <div className="animate-spin w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
-        <p className="mt-3 text-xs text-slate-400 font-medium">Loading form options...</p>
+      <div className="p-12 text-center bg-slate-900 rounded-xl border border-slate-800">
+        <OrbitLoader
+          size="md"
+          text="Loading form options..."
+          subtitle="Fetching active clients and deliverable types"
+        />
       </div>
     );
   }

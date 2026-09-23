@@ -7,6 +7,7 @@ import {
 } from '@/lib/services/activity';
 import { MonthlyActivityHeatmap } from './MonthlyActivityHeatmap';
 import { X, Sparkles } from 'lucide-react';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 interface DesignerActivityModalProps {
   isOpen: boolean;
@@ -75,10 +76,11 @@ export function DesignerActivityModal({
 
         {loading ? (
           <div className="py-16 text-center">
-            <div className="animate-spin w-7 h-7 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-3 text-xs text-slate-400 font-medium">
-              Loading deliverable activity matrix...
-            </p>
+            <OrbitLoader
+              size="md"
+              text="Loading deliverable activity matrix..."
+              subtitle="Calculating daily submission volumes and consistency"
+            />
           </div>
         ) : activity ? (
           <MonthlyActivityHeatmap

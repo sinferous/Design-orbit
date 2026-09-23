@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { getOverallReportData, OverallSummaryItem, exportToCSV, formatReportTime } from '@/lib/services/reports';
 import { Download, Users, Layers, Briefcase, BarChart3, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function OverallReportPage() {
   const [groupBy, setGroupBy] = useState<'person' | 'work_type' | 'client'>('person');
@@ -168,8 +169,11 @@ export default function OverallReportPage() {
 
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin w-6 h-6 border-2 border-violet-400 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-3 text-xs text-slate-400 font-medium">Aggregating overall report data...</p>
+              <OrbitLoader
+                size="lg"
+                text="Aggregating overall report data..."
+                subtitle="Compiling deliverables, approval ratios, and client distributions"
+              />
             </div>
           ) : (
             <div className="space-y-5">

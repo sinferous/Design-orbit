@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { WorkEntryForm } from '@/components/work/WorkEntryForm';
 import { fetchWorkEntryById, getLoggedInUser } from '@/lib/services/work-entry';
 import { WorkEntryWithDetails } from '@/types';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 interface EditWorkEntryPageProps {
   params: Promise<{ id: string }>;
@@ -64,15 +65,22 @@ export default function EditWorkEntryPage({ params }: EditWorkEntryPageProps) {
 
         {loading ? (
           <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-3 text-xs text-slate-400 font-medium">Loading entry details...</p>
+            <OrbitLoader
+              size="md"
+              text="Loading entry details..."
+              subtitle="Fetching deliverable records from Supabase"
+            />
           </div>
         ) : error ? (
           <div className="bg-slate-900 rounded-xl border border-red-900/50 p-8 text-center text-red-400 font-medium">
             {error}
           </div>
         ) : (
-          <Suspense fallback={<div className="p-8 text-center text-sm text-slate-400">Loading form...</div>}>
+          <Suspense fallback={
+            <div className="p-12 text-center bg-slate-900 rounded-xl border border-slate-800">
+              <OrbitLoader size="md" text="Loading form..." />
+            </div>
+          }>
             <WorkEntryForm initialData={entry} isEditMode={true} />
           </Suspense>
         )}

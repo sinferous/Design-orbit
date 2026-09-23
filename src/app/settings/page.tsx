@@ -20,6 +20,7 @@ import { MonthlyActivityHeatmap } from '@/components/activity/MonthlyActivityHea
 import { Profile } from '@/types';
 import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff, Sparkles, Activity } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -200,8 +201,11 @@ export default function SettingsPage() {
         {!isAdmin && (
           loadingActivity ? (
             <div className="bg-slate-900 p-12 rounded-2xl border border-slate-800 shadow-sm text-center">
-              <div className="animate-spin w-7 h-7 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-3 text-xs text-slate-400 font-medium">Loading your deliverable heatmap & activity matrix...</p>
+              <OrbitLoader
+                size="md"
+                text="Loading your deliverable heatmap & activity matrix..."
+                subtitle="Compiling daily output rhythm and consistency data"
+              />
             </div>
           ) : activity ? (
             <MonthlyActivityHeatmap

@@ -7,6 +7,7 @@ import { fetchClients, createClientRecord, deleteClientRecord, updateClientRecor
 import { Building2, Plus, Search, Trash2, ArrowLeft, Pencil, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/ToastContext';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -201,8 +202,11 @@ export default function ClientsPage() {
 
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-3 text-xs text-slate-400">Loading client directory...</p>
+              <OrbitLoader
+                size="md"
+                text="Loading client directory..."
+                subtitle="Synchronizing client accounts from Supabase"
+              />
             </div>
           ) : filteredClients.length === 0 ? (
             <div className="p-8 text-center bg-slate-950/50 rounded-lg border border-slate-800 text-slate-400 text-sm">

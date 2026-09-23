@@ -20,6 +20,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 interface TodoListWidgetProps {
   userId?: string;
@@ -285,9 +286,11 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
       {/* Task Items List with Drag & Drop Reordering */}
       <div className="flex-1 overflow-y-auto max-h-[380px] space-y-2 pr-1">
         {loading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-2 text-xs text-slate-400 font-medium">Loading your private tasks...</p>
+          <div className="p-8 text-center flex flex-col items-center justify-center">
+            <OrbitLoader
+              size="sm"
+              text="Loading private tasks..."
+            />
           </div>
         ) : filteredTodos.length === 0 ? (
           <div className="p-6 text-center bg-slate-950/60 rounded-xl border border-slate-800 text-slate-400 text-xs space-y-1">

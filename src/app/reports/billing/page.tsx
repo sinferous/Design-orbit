@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function ClientTimeTrackingReportPage() {
   const [startDate, setStartDate] = useState<string>('');
@@ -786,8 +787,11 @@ export default function ClientTimeTrackingReportPage() {
 
           {loading ? (
             <div className="bg-slate-900 p-12 rounded-xl border border-slate-800 text-center">
-              <div className="animate-spin w-6 h-6 border-2 border-violet-400 border-t-transparent rounded-full mx-auto" />
-              <p className="mt-3 text-xs text-slate-400 font-medium">Calculating client time spent...</p>
+              <OrbitLoader
+                size="lg"
+                text="Calculating client time & billable hours..."
+                subtitle="Aggregating deliverable durations across team members and clients"
+              />
             </div>
           ) : reportData.clientSummaries.length === 0 ? (
             <div className="bg-slate-900 p-12 rounded-xl border border-slate-800 text-center text-slate-400">

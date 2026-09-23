@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { WorkEntryForm } from '@/components/work/WorkEntryForm';
+import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function NewWorkEntryPage() {
   return (
@@ -15,7 +16,11 @@ export default function NewWorkEntryPage() {
           </p>
         </div>
 
-        <Suspense fallback={<div className="p-8 text-center text-sm text-slate-400">Loading work form...</div>}>
+        <Suspense fallback={
+          <div className="p-12 text-center bg-slate-900 rounded-xl border border-slate-800">
+            <OrbitLoader size="md" text="Loading work form..." />
+          </div>
+        }>
           <WorkEntryForm />
         </Suspense>
       </main>
