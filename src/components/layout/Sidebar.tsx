@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -22,6 +22,10 @@ import { getLoggedInUser, logoutUser, isAdminUser } from '@/lib/services/work-en
 interface SidebarProps {
   onCloseMobile?: () => void;
 }
+
+// Persistent module cache for seamless indicator animation across page transitions
+let globalLastNavState: { top: number; height: number; href: string } | null = null;
+let globalLastSubNavState: { top: number; height: number; href: string } | null = null;
 
 export function Sidebar({ onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
@@ -102,6 +106,182 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       : []),
   ];
 
+  const navRef = useRef<HTMLElement>(null);
+  const itemRefs = useRef<Record<string, HTMLElement | null>>({});
+  const [activeNavHref, setActiveNavHref] = useState<string>(globalLastNavState?.href || pathname);
+  const [indicator, setIndicator] = useState<{ top: number; height: number; ready: boolean; animate: boolean }>({
+    top: globalLastNavState?.top || 0,
+    height: globalLastNavState?.height || 0,
+    ready: Boolean(globalLastNavState),
+    animate: Boolean(globalLastNavState),
+  });
+
+  const subnavRef = useRef<HTMLDivElement>(null);
+  const subItemRefs = useRef<Record<string, HTMLElement | null>>({});
+  const [activeSubHref, setActiveSubHref] = useState<string>(globalLastSubNavState?.href || pathname);
+  const [subIndicator, setSubIndicator] = useState<{ top: number; height: number; ready: boolean; animate: boolean }>({
+    top: globalLastSubNavState?.top || 0,
+    height: globalLastSubNavState?.height || 0,
+    ready: Boolean(globalLastSubNavState),
+    animate: Boolean(globalLastSubNavState),
+  });
+
+  const handleNavClick = (item: (typeof navItems)[0], e: React.MouseEvent) => {
+    if (item.isCollapsible) {
+      e.preventDefault();
+      setReportsOpen((prev) => !prev);
+      return;
+    }
+
+    const el = itemRefs.current[item.href];
+    if (el) {
+      const top = el.offsetTop;
+      const height = el.offsetHeight;
+      globalLastNavState = { top, height, href: item.href };
+      setIndicator({ top, height, ready: true, animate: true });
+      setActiveNavHref(item.href);
+    }
+
+    if (onCloseMobile) onCloseMobile();
+  };
+
+  const handleSubNavClick = (sub: (typeof reportSubItems)[0]) => {
+    // 1. Keep parent "Reports & Analytics" indicator firmly locked in place (no animation or flicker)
+    const reportsParent = navItems.find((item) => item.matchPrefix === '/reports');
+    if (reportsParent) {
+      const parentEl = itemRefs.current[reportsParent.href];
+      if (parentEl) {
+        const pTop = parentEl.offsetTop;
+        const pHeight = parentEl.offsetHeight;
+        globalLastNavState = { top: pTop, height: pHeight, href: reportsParent.href };
+        setIndicator({ top: pTop, height: pHeight, ready: true, animate: false });
+        setActiveNavHref(reportsParent.href);
+      }
+    }
+
+    // 2. Glide ONLY the inner sub-menu indicator smoothly
+    const el = subItemRefs.current[sub.href];
+    if (el) {
+      const top = el.offsetTop;
+      const height = el.offsetHeight;
+      globalLastSubNavState = { top, height, href: sub.href };
+      setSubIndicator({ top, height, ready: true, animate: true });
+      setActiveSubHref(sub.href);
+    }
+
+    if (onCloseMobile) onCloseMobile();
+  };
+
+  useEffect(() => {
+    setActiveNavHref(pathname);
+
+    const updateNav = () => {
+      const nav = navRef.current;
+      if (!nav) return;
+
+      const activeItem = navItems.find((item) =>
+        item.matchPrefix
+          ? pathname.startsWith(item.matchPrefix)
+          : pathname === item.href || (item.href !== '/dashboard' && item.href !== '/admin' && pathname.startsWith(item.href))
+      );
+
+      if (!activeItem) {
+        setIndicator((prev) => ({ ...prev, ready: false }));
+        return;
+      }
+
+      const el = itemRefs.current[activeItem.href];
+      if (!el) return;
+
+      const top = el.offsetTop;
+      const height = el.offsetHeight;
+      const hadPrevious = Boolean(globalLastNavState);
+      const isSameParent = globalLastNavState?.href === activeItem.href;
+
+      globalLastNavState = { top, height, href: activeItem.href };
+
+      // If staying within the same parent (e.g. between report subcategories), do NOT animate the parent
+      setIndicator({
+        top,
+        height,
+        ready: true,
+        animate: hadPrevious && !isSameParent,
+      });
+
+      if (!hadPrevious) {
+        setTimeout(() => {
+          setIndicator((prev) => ({ ...prev, animate: true }));
+        }, 50);
+      }
+    };
+
+    updateNav();
+    const timer = setTimeout(updateNav, 20);
+
+    const nav = navRef.current;
+    let ro: ResizeObserver | null = null;
+    if (nav && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => updateNav());
+      ro.observe(nav);
+    }
+
+    window.addEventListener('resize', updateNav);
+    return () => {
+      clearTimeout(timer);
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', updateNav);
+    };
+  }, [pathname, isAdmin]);
+
+  useEffect(() => {
+    if (!reportsOpen) {
+      setSubIndicator((prev) => ({ ...prev, ready: false }));
+      return;
+    }
+
+    setActiveSubHref(pathname);
+
+    const updateSub = () => {
+      const subnav = subnavRef.current;
+      if (!subnav) return;
+
+      const activeSub = reportSubItems.find((sub) => pathname === sub.href);
+      if (!activeSub) {
+        setSubIndicator((prev) => ({ ...prev, ready: false }));
+        return;
+      }
+
+      const el = subItemRefs.current[activeSub.href];
+      if (!el) return;
+
+      const top = el.offsetTop;
+      const height = el.offsetHeight;
+      const hadPrevious = Boolean(globalLastSubNavState);
+
+      globalLastSubNavState = { top, height, href: activeSub.href };
+
+      setSubIndicator({
+        top,
+        height,
+        ready: true,
+        animate: hadPrevious,
+      });
+
+      if (!hadPrevious) {
+        setTimeout(() => {
+          setSubIndicator((prev) => ({ ...prev, animate: true }));
+        }, 50);
+      }
+    };
+
+    const timer = setTimeout(updateSub, 20);
+    window.addEventListener('resize', updateSub);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateSub);
+    };
+  }, [pathname, reportsOpen]);
+
   return (
     <aside className="w-64 lg:w-68 h-full flex flex-col justify-between bg-[#080C17]/95 backdrop-blur-2xl border-r border-white/[0.08] select-none text-slate-200">
       {/* Top Section */}
@@ -140,41 +320,48 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             Navigation
           </div>
 
-          <nav className="space-y-1">
+          <nav ref={navRef} className="space-y-1 relative">
+            {/* Smooth Gliding Active Indicator Pill (a bit slow, buttery smooth transition) */}
+            <div
+              className={cn(
+                'absolute top-0 left-0 right-0 pointer-events-none rounded-xl bg-gradient-to-r from-violet-600/20 via-indigo-600/15 to-transparent border border-violet-500/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_0_16px_rgba(168,85,247,0.25)] z-0',
+                indicator.animate ? 'transition-all duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
+              )}
+              style={{
+                transform: `translate3d(0, ${indicator.top}px, 0)`,
+                height: `${indicator.height}px`,
+                opacity: indicator.ready ? 1 : 0,
+              }}
+            >
+              {/* Left Active Glow Pill */}
+              <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-gradient-to-b from-violet-400 to-indigo-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
+            </div>
+
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = item.matchPrefix
-                ? pathname.startsWith(item.matchPrefix)
-                : pathname === item.href || (item.href !== '/dashboard' && item.href !== '/admin' && pathname.startsWith(item.href));
+                ? activeNavHref.startsWith(item.matchPrefix) || pathname.startsWith(item.matchPrefix)
+                : activeNavHref === item.href || pathname === item.href || (item.href !== '/dashboard' && item.href !== '/admin' && activeNavHref.startsWith(item.href));
 
               return (
                 <div key={item.href} className="space-y-1">
                   <Link
-                    href={item.href}
-                    onClick={(e) => {
-                      if (item.isCollapsible) {
-                        e.preventDefault();
-                        setReportsOpen((prev) => !prev);
-                      } else {
-                        if (onCloseMobile) onCloseMobile();
-                      }
+                    ref={(el) => {
+                      itemRefs.current[item.href] = el;
                     }}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(item, e)}
                     className={cn(
-                      'group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer',
+                      'group relative z-10 flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors duration-[480ms] cursor-pointer',
                       isActive
-                        ? 'bg-gradient-to-r from-violet-600/20 via-indigo-600/15 to-transparent text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] border border-violet-500/25'
-                        : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04] border border-transparent'
+                        ? 'text-white font-semibold'
+                        : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04]'
                     )}
                   >
-                    {/* Left Active Glow Pill */}
-                    {isActive && (
-                      <span className="absolute left-1.5 w-1 h-5 rounded-full bg-gradient-to-b from-violet-400 to-indigo-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-                    )}
-
                     <div className="flex items-center space-x-3 pl-1.5 min-w-0">
                       <div
                         className={cn(
-                          'w-7 h-7 rounded-lg flex items-center justify-center transition-colors shrink-0',
+                          'w-7 h-7 rounded-lg flex items-center justify-center transition-colors duration-[480ms] shrink-0',
                           isActive
                             ? 'bg-violet-600/30 text-violet-300 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
                             : 'bg-white/[0.03] text-slate-400 group-hover:text-slate-200 group-hover:bg-white/[0.06]'
@@ -217,24 +404,39 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                       )}
                     >
                       <div className="sidebar-submenu-inner">
-                        <div className="border-l border-violet-500/20 ml-6 pl-2.5 py-0.5 space-y-0.5">
+                        <div ref={subnavRef} className="border-l border-violet-500/20 ml-6 pl-2.5 py-0.5 space-y-0.5 relative">
+                          {/* Gliding sub-pill */}
+                          <div
+                            className={cn(
+                              'absolute top-0 left-0 right-0 pointer-events-none rounded-lg bg-violet-950/60 border border-violet-700/40 shadow-xs z-0',
+                              subIndicator.animate ? 'transition-all duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
+                            )}
+                            style={{
+                              transform: `translate3d(0, ${subIndicator.top}px, 0)`,
+                              height: `${subIndicator.height}px`,
+                              opacity: subIndicator.ready ? 1 : 0,
+                            }}
+                          >
+                            <span className="absolute -left-[14px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.9)]" />
+                          </div>
+
                           {reportSubItems.map((sub) => {
-                            const isSubActive = pathname === sub.href;
+                            const isSubActive = activeSubHref === sub.href || pathname === sub.href;
                             return (
                               <Link
                                 key={sub.href}
+                                ref={(el) => {
+                                  subItemRefs.current[sub.href] = el;
+                                }}
                                 href={sub.href}
-                                onClick={onCloseMobile}
+                                onClick={() => handleSubNavClick(sub)}
                                 className={cn(
-                                  'sidebar-sub-link group/sub relative flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
+                                  'sidebar-sub-link group/sub relative z-10 flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors duration-[480ms]',
                                   isSubActive
-                                    ? 'text-violet-300 bg-violet-950/60 font-semibold shadow-xs'
+                                    ? 'text-violet-300 font-semibold'
                                     : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
                                 )}
                               >
-                                {isSubActive && (
-                                  <span className="absolute -left-[14px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.9)]" />
-                                )}
                                 <span className="truncate">{sub.label}</span>
                                 <ChevronRight
                                   className={cn(

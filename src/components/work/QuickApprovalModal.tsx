@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Check, X, Building2, Layers, AlertCircle } from 'lucide-react';
 import { WorkEntryWithDetails } from '@/types';
 import { updateWorkEntry } from '@/lib/services/work-entry';
 import { useToast } from '@/components/ui/ToastContext';
+import { triggerTinyConfetti } from '@/lib/utils/confetti';
 
 interface QuickApprovalModalProps {
   entry: WorkEntryWithDetails | null;
@@ -22,6 +23,7 @@ export function QuickApprovalModal({
   const { showToast } = useToast();
   const [approvedQty, setApprovedQty] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const saveBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (entry) {
@@ -69,6 +71,9 @@ export function QuickApprovalModal({
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const wasNotApproved = (entry.quantity_approved || 0) === 0;
+      const isNowApproved = approvedQty > 0;
+
       const updated = await updateWorkEntry(entry.id, {
         quantity_approved: approvedQty,
         status: approvedQty > 0 ? 'Reviewed' : 'Submitted',
@@ -80,6 +85,18 @@ export function QuickApprovalModal({
         quantity_approved: approvedQty,
         status: approvedQty > 0 ? 'Reviewed' : 'Submitted',
       };
+
+      // When turning not approved to approved, pop a bit of tiny celebratory confetti!
+      if (wasNotApproved && isNowApproved) {
+        if (saveBtnRef.current) {
+          const rect = saveBtnRef.current.getBoundingClientRect();
+          const x = (rect.left + rect.width / 2) / window.innerWidth;
+          const y = (rect.top + rect.height / 2) / window.innerHeight;
+          triggerTinyConfetti({ origin: { x, y } });
+        } else {
+          triggerTinyConfetti();
+        }
+      }
 
       showToast(
         approvedQty > 0
@@ -245,6 +262,7 @@ export function QuickApprovalModal({
             Cancel
           </button>
           <button
+            ref={saveBtnRef}
             type="button"
             onClick={handleSave}
             disabled={isSaving}

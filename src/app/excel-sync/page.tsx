@@ -7,6 +7,7 @@ import { CreativeBackground } from '@/components/ui/CreativeBackground';
 import { RichDatePicker } from '@/components/ui/RichDatePicker';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
 import { useToast } from '@/components/ui/ToastContext';
+import { SlideTabs } from '@/components/ui/SlideTabs';
 import {
   FileSpreadsheet,
   Copy,
@@ -655,35 +656,19 @@ export default function ExcelSyncPage() {
             </p>
           </div>
 
-          {/* Mode Tabs (Daily vs Weekly) */}
-          <div className="inline-flex p-1.5 bg-black/40 border border-white/[0.08] rounded-xl self-start sm:self-auto shrink-0 shadow-xs">
-            <button
-              type="button"
-              onClick={() => setActiveTab('daily')}
-              className={cn(
-                'w-32 sm:w-36 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer select-none btn-tactile',
-                activeTab === 'daily'
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-[0_0_16px_rgba(16,185,129,0.35)]'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
-              )}
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Daily Report</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('weekly')}
-              className={cn(
-                'w-32 sm:w-36 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer select-none',
-                activeTab === 'weekly'
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-              )}
-            >
-              <TableIcon className="w-3.5 h-3.5" />
-              <span>Weekly Report</span>
-            </button>
-          </div>
+          {/* Mode Tabs (Daily vs Weekly) with Smooth Gliding Pill */}
+          <SlideTabs
+            options={[
+              { id: 'daily', label: 'Daily Report', icon: Calendar },
+              { id: 'weekly', label: 'Weekly Report', icon: TableIcon },
+            ]}
+            value={activeTab}
+            onChange={(val) => setActiveTab(val as 'daily' | 'weekly')}
+            size="md"
+            fullWidth={false}
+            className="self-start sm:self-auto shrink-0 shadow-xs p-1"
+            pillClassName="bg-gradient-to-r from-emerald-600 to-emerald-500 border border-emerald-400/30 shadow-[0_0_16px_rgba(16,185,129,0.35)]"
+          />
         </div>
 
         {/* ---------------------------------------------------- */}

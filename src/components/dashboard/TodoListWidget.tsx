@@ -21,14 +21,16 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
+import { SlideTabs } from '@/components/ui/SlideTabs';
 
 interface TodoListWidgetProps {
   userId?: string;
+  className?: string;
 }
 
 type FilterTab = 'all' | 'pending' | 'completed';
 
-export function TodoListWidget({ userId }: TodoListWidgetProps) {
+export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [newTaskText, setNewTaskText] = useState('');
   const [loading, setLoading] = useState(true);
@@ -177,32 +179,32 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
   });
 
   return (
-    <div className="bento-card p-5 sm:p-6 space-y-4 flex flex-col h-full text-slate-100">
+    <div className={`bento-card bento-card-hover p-4 sm:p-5 flex flex-col h-full min-h-0 text-slate-100 overflow-hidden ${className || ''}`}>
       {/* Header Row: Title, Privacy Indicator & Badge */}
-      <div className="space-y-3 pb-3 border-b border-white/[0.08]">
+      <div className="space-y-2.5 pb-2.5 border-b border-white/[0.08] shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-violet-600/15 text-violet-400 flex items-center justify-center border border-violet-500/20 shadow-sm shrink-0">
-              <CheckSquare className="w-4 h-4" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-violet-600/15 text-violet-400 flex items-center justify-center border border-violet-500/20 shadow-sm shrink-0">
+              <CheckSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
-                <h2 className="text-sm font-bold text-slate-100 leading-tight truncate">My To-Do List</h2>
+                <h2 className="text-xs sm:text-sm font-bold text-slate-100 leading-tight truncate">My To-Do List</h2>
                 <span title="Private to your account" className="inline-flex items-center text-slate-400 hover:text-violet-400">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 truncate">Private tasks • Completed go to bottom</p>
+              <p className="text-[10px] text-slate-400 truncate">Private tasks • Completed go to bottom</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 shrink-0 ml-2">
+          <div className="flex items-center space-x-1.5 shrink-0 ml-2">
             {pendingCount > 0 ? (
-              <span className="px-2.5 py-0.5 text-[11px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 rounded-full whitespace-nowrap">
+              <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 rounded-full whitespace-nowrap">
                 {pendingCount} Pending
               </span>
             ) : (
-              <span className="px-2.5 py-0.5 text-[11px] font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60 rounded-full flex items-center space-x-1 whitespace-nowrap">
+              <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60 rounded-full flex items-center space-x-1 whitespace-nowrap">
                 <Sparkles className="w-3 h-3 text-emerald-400" />
                 <span>All Done!</span>
               </span>
@@ -210,48 +212,25 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
           </div>
         </div>
 
-        {/* Filter Segmented Control Bar */}
-        <div className="flex items-center bg-black/30 p-1 rounded-xl border border-white/[0.08] text-xs w-full">
-          <button
-            type="button"
-            onClick={() => setActiveTab('all')}
-            className={`flex-1 py-1.5 text-center rounded-lg font-bold transition-all cursor-pointer ${
-              activeTab === 'all'
-                ? 'bg-violet-600/25 text-white shadow-xs border border-violet-500/35'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            All ({todos.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('pending')}
-            className={`flex-1 py-1.5 text-center rounded-lg font-bold transition-all cursor-pointer ${
-              activeTab === 'pending'
-                ? 'bg-violet-600/25 text-white shadow-xs border border-violet-500/35'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Pending ({pendingCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('completed')}
-            className={`flex-1 py-1.5 text-center rounded-lg font-bold transition-all cursor-pointer ${
-              activeTab === 'completed'
-                ? 'bg-violet-600/25 text-white shadow-xs border border-violet-500/35'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Done ({completedCount})
-          </button>
-        </div>
+        {/* Filter Segmented Control Bar with Smooth Gliding Pill */}
+        <SlideTabs
+          options={[
+            { id: 'all', label: `All (${todos.length})` },
+            { id: 'pending', label: `Pending (${pendingCount})` },
+            { id: 'completed', label: `Done (${completedCount})` },
+          ]}
+          value={activeTab}
+          onChange={(val) => setActiveTab(val as FilterTab)}
+          size="xs"
+          className="p-0.5 bg-black/30 border-white/[0.08]"
+          pillClassName="bg-violet-600/30 border border-violet-500/40 shadow-xs"
+        />
       </div>
 
       {/* Progress Bar */}
       {todos.length > 0 && (
-        <div className="space-y-1 px-0.5">
-          <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+        <div className="space-y-1 px-0.5 shrink-0 pt-1">
+          <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium">
             <span>{completedCount} of {todos.length} completed</span>
             <span className="font-bold text-violet-400">{progressPercent}%</span>
           </div>
@@ -265,18 +244,18 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
       )}
 
       {/* Quick Add Form */}
-      <form onSubmit={handleAddTodo} className="relative flex items-center">
+      <form onSubmit={handleAddTodo} className="relative flex items-center shrink-0 pt-1 pb-1">
         <input
           type="text"
           value={newTaskText}
           onChange={e => setNewTaskText(e.target.value)}
           placeholder="Add a private task... (Press Enter)"
-          className="w-full pl-3.5 pr-20 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-all font-medium shadow-xs"
+          className="w-full pl-3 pr-16 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-all font-medium shadow-xs"
         />
         <button
           type="submit"
           disabled={adding || !newTaskText.trim()}
-          className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center space-x-1 px-3 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-md shadow-xs disabled:opacity-40 transition-all cursor-pointer"
+          className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-bold text-white webtree-gradient-btn rounded-md shadow-xs disabled:opacity-40 transition-all cursor-pointer"
         >
           <Plus className="w-3 h-3" />
           <span>Add</span>
@@ -284,7 +263,7 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
       </form>
 
       {/* Task Items List with Drag & Drop Reordering */}
-      <div className="flex-1 overflow-y-auto max-h-[380px] space-y-2 pr-1">
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-1.5 pr-1 mt-1">
         {loading ? (
           <div className="p-8 text-center flex flex-col items-center justify-center">
             <OrbitLoader

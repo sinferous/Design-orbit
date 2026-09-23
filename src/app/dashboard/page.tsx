@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
@@ -55,6 +55,7 @@ import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { useToast } from '@/components/ui/ToastContext';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
+import { SlideTabs } from '@/components/ui/SlideTabs';
 
 type FeedFilterTab = 'my_work' | 'team_work' | 'timers' | 'approved' | 'pending';
 type HorizonPeriod = 'weekly' | 'monthly';
@@ -80,6 +81,35 @@ export default function DashboardPage() {
 
   const [greeting, setGreeting] = useState('Good day');
   const [subtitle, setSubtitle] = useState('Here is your personal creative velocity and activity overview.');
+
+  const velocityCardRef = useRef<HTMLDivElement>(null);
+  const [velocityHeight, setVelocityHeight] = useState<number | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(typeof window !== 'undefined' && window.innerWidth >= 1024);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
+  useEffect(() => {
+    if (!velocityCardRef.current) return;
+    const el = velocityCardRef.current;
+    const update = () => {
+      if (el) {
+        setVelocityHeight(el.offsetHeight);
+      }
+    };
+    update();
+    const ro = new ResizeObserver(() => {
+      update();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     const user = getLoggedInUser();
@@ -554,10 +584,13 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Hero Bento Grid: Individual Velocity Spline + Circular Quality Gauge */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Hero Bento Grid: Individual Velocity Spline + To-Do List Widget */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           {/* Card 1: Individual Creative Velocity & Output Spline (8 cols) */}
-          <div className="lg:col-span-8 bento-card bento-card-hover bento-glow-subtle p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden group">
+          <div
+            ref={velocityCardRef}
+            className="lg:col-span-8 bento-card bento-card-hover bento-glow-subtle p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden group"
+          >
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
               <div>
                 <div className="flex items-center space-x-2.5">
@@ -577,31 +610,18 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Time Horizon Segmented Pill Selector */}
-              <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-[11px] self-start sm:self-center">
-                <button
-                  type="button"
-                  onClick={() => setPeriod('weekly')}
-                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    period === 'weekly'
-                      ? 'bg-violet-600/35 text-white border border-violet-500/40 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  This Week
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPeriod('monthly')}
-                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    period === 'monthly'
-                      ? 'bg-violet-600/35 text-white border border-violet-500/40 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Monthly
-                </button>
-              </div>
+              {/* Time Horizon Segmented Pill Selector with Smooth Gliding Pill */}
+              <SlideTabs
+                options={[
+                  { id: 'weekly', label: 'This Week' },
+                  { id: 'monthly', label: 'Monthly' },
+                ]}
+                value={period}
+                onChange={(val) => setPeriod(val as HorizonPeriod)}
+                size="xs"
+                fullWidth={false}
+                className="self-start sm:self-center p-0.5"
+              />
             </div>
 
             {/* Interactive Real Data SVG Spline Wave Chart */}
@@ -718,97 +738,12 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Card 2: Individual Weekly Approval Rate Circular Gauge (4 cols) */}
-          <div className="lg:col-span-4 bento-card bento-card-hover p-5 sm:p-7 flex flex-col justify-between space-y-4">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-              <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">My Quality Sign-off</h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">Weekly approval & client sign-off index</p>
-              </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-500/10 text-violet-300 border border-violet-500/20 shadow-xs">
-                This Week
-              </span>
-            </div>
-
-            {/* Circular Ring Meter */}
-            <div className="relative w-40 h-40 mx-auto flex items-center justify-center my-1">
-              <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
-                <defs>
-                  <linearGradient id="ringGlowGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#10b981" />
-                    <stop offset="60%" stopColor="#8b5cf6" />
-                    <stop offset="100%" stopColor="#ec4899" />
-                  </linearGradient>
-                  <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#10b981" floodOpacity="0.4" />
-                  </filter>
-                </defs>
-
-                {/* Background Ring Track */}
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="58"
-                  stroke="rgba(255, 255, 255, 0.06)"
-                  strokeWidth="9"
-                  fill="transparent"
-                />
-
-                {/* Animated Value Ring (Only render if > 0 to prevent 0% cap bleed) */}
-                {myWeekApprovalRate > 0 && (
-                  <circle
-                    cx="80"
-                    cy="80"
-                    r="58"
-                    stroke="url(#ringGlowGrad)"
-                    strokeWidth="9"
-                    strokeDasharray={2 * Math.PI * 58}
-                    strokeDashoffset={2 * Math.PI * 58 - (2 * Math.PI * 58 * Math.min(myWeekApprovalRate, 100)) / 100}
-                    strokeLinecap="round"
-                    fill="transparent"
-                    filter="url(#ringGlow)"
-                    className="transition-all duration-1000 ease-out"
-                  />
-                )}
-              </svg>
-
-              {/* Centered Gauge Typography */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
-                <span className="text-3xl sm:text-[30px] font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
-                  {myWeekApprovalRate}%
-                </span>
-                <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 mt-1.5">
-                  Weekly Sign-off
-                </span>
-              </div>
-            </div>
-
-            {/* Individual Weekly Quality Breakdown */}
-            <div className="space-y-2.5 pt-2 border-t border-white/[0.06]">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
-                  <span className="text-slate-300 font-medium">Approved Deliverables</span>
-                </div>
-                <span className="font-bold text-emerald-400 tabular-nums">{myWeekTotalApproved} items</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
-                  <span className="text-slate-300 font-medium">In Review / Pending</span>
-                </div>
-                <span className="font-bold text-amber-400 tabular-nums">{Math.max(0, myWeekTotalCreated - myWeekTotalApproved)} items</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
-                  <span className="text-slate-300 font-medium">Today's Output</span>
-                </div>
-                <span className="font-bold text-violet-300 tabular-nums">{myTodayDone} logged today</span>
-              </div>
-            </div>
+          {/* Card 2: Personal Focus & To-Do Hub (4 cols) - Height strictly matched to My Creative Velocity */}
+          <div
+            className="lg:col-span-4 min-h-0 flex flex-col"
+            style={isDesktop && velocityHeight ? { height: `${velocityHeight}px`, maxHeight: `${velocityHeight}px` } : undefined}
+          >
+            <TodoListWidget userId={currentProfileId} />
           </div>
         </div>
 
@@ -941,10 +876,8 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Operations Hub: Deliverables Transaction Stream (65%) & Personal Focus List (35%) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
-          {/* Main Deliverables Stream (8 cols) */}
-          <div className="lg:col-span-8 bento-card p-5 sm:p-6 space-y-4">
+        {/* Operations Hub: Deliverables Transaction Stream (Full Width) */}
+        <div className="bento-card p-5 sm:p-6 space-y-4">
             {/* Header with Filter Pills */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-white/[0.08] pb-4">
               <div className="flex items-center space-x-3 min-w-0 shrink-0">
@@ -967,31 +900,18 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Filter Tabs: Team Work first, then My Work */}
-              <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-xs shrink-0 sm:ml-auto">
-                <button
-                  type="button"
-                  onClick={() => setFeedFilter('team_work')}
-                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    feedFilter === 'team_work'
-                      ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-500/35 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Team ({todayEntries.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFeedFilter('my_work')}
-                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    feedFilter === 'my_work'
-                      ? 'bg-violet-600/30 text-white border border-violet-500/35 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  My Work ({myTodayEntries.length})
-                </button>
-              </div>
+              {/* Filter Tabs: Team Work and My Work with Smooth Gliding Pill */}
+              <SlideTabs
+                options={[
+                  { id: 'team_work', label: `Team (${todayEntries.length})` },
+                  { id: 'my_work', label: `My Work (${myTodayEntries.length})` },
+                ]}
+                value={feedFilter}
+                onChange={(val) => setFeedFilter(val as FeedFilterTab)}
+                size="sm"
+                fullWidth={false}
+                className="shrink-0 sm:ml-auto p-0.5"
+              />
             </div>
 
             {/* Transaction Rows List */}
@@ -1139,12 +1059,6 @@ export default function DashboardPage() {
                 })}
               </div>
             )}
-          </div>
-
-          {/* Personal Focus & Todo Hub (4 cols) */}
-          <div className="lg:col-span-4 h-full">
-            <TodoListWidget userId={currentProfileId} />
-          </div>
         </div>
       </main>
 

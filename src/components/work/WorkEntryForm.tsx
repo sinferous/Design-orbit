@@ -18,6 +18,7 @@ import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { RichDatePicker } from '@/components/ui/RichDatePicker';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
+import { triggerTinyConfetti } from '@/lib/utils/confetti';
 
 interface WorkItemRow {
   id: string;
@@ -271,6 +272,12 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           best_work_url: item.project_url || undefined,
           status: statusVal,
         });
+        const wasNotApproved = (initialData.quantity_approved || 0) === 0;
+        const isNowApproved = item.is_approved && item.quantity_approved > 0;
+        if (wasNotApproved && isNowApproved) {
+          triggerTinyConfetti();
+        }
+
         showToast('Work entry updated successfully!', 'success');
         setTimeout(() => router.push('/work'), 600);
       } else {

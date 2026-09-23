@@ -48,6 +48,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { EmailDayLogModal } from '@/components/work/EmailDayLogModal';
+import { SlideTabs } from '@/components/ui/SlideTabs';
+import { cn } from '@/lib/utils';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
@@ -553,42 +555,49 @@ export default function MyWorkPage() {
 
         {/* Primary View Mode Switcher: Daily Calendar vs Pending Approvals Queue */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
-          <div className="bento-card p-1.5 flex items-center gap-1.5 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => setWorkViewMode('calendar')}
-              className={`flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center space-x-2 btn-tactile ${
-                workViewMode === 'calendar'
-                  ? 'bg-violet-600 text-white shadow-[0_0_16px_rgba(168,85,247,0.4)]'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
-              }`}
-            >
-              <Calendar className="w-4 h-4 shrink-0" />
-              <span>Daily Log <span className="hidden min-[420px]:inline text-[11px] font-normal opacity-90">(By Date)</span></span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setWorkViewMode('pending')}
-              className={`flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center space-x-2 btn-tactile ${
-                workViewMode === 'pending'
-                  ? 'bg-amber-600 text-white shadow-[0_0_16px_rgba(245,158,11,0.4)]'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
-              }`}
-            >
-              <CalendarClock className={`w-4 h-4 shrink-0 ${workViewMode === 'pending' ? 'text-white' : 'text-amber-400'}`} />
-              <span>Pending Queue</span>
-              {pendingEntries.length > 0 && (
-                <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold shrink-0 ${
-                  workViewMode === 'pending'
-                    ? 'bg-white text-amber-950'
-                    : 'bg-amber-900/60 text-amber-300 border border-amber-700/60'
-                }`}>
-                  {pendingEntries.length}
-                </span>
-              )}
-            </button>
-          </div>
+          {/* Primary View Mode Switcher with Smooth Gliding Pill */}
+          <SlideTabs
+            options={[
+              {
+                id: 'calendar',
+                label: (
+                  <span className="flex items-center space-x-1.5">
+                    <span>Daily Log</span>
+                    <span className="hidden min-[420px]:inline text-[11px] font-normal opacity-90">(By Date)</span>
+                  </span>
+                ),
+                icon: Calendar,
+              },
+              {
+                id: 'pending',
+                label: 'Pending Queue',
+                icon: CalendarClock,
+                badge: pendingEntries.length > 0 ? (
+                  <span
+                    className={cn(
+                      'px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold shrink-0 transition-colors',
+                      workViewMode === 'pending'
+                        ? 'bg-white text-amber-950'
+                        : 'bg-amber-900/60 text-amber-300 border border-amber-700/60'
+                    )}
+                  >
+                    {pendingEntries.length}
+                  </span>
+                ) : null,
+              },
+            ]}
+            value={workViewMode}
+            onChange={(val) => setWorkViewMode(val as 'calendar' | 'pending')}
+            size="lg"
+            fullWidth={false}
+            className="bento-card p-1.5 gap-1.5 w-full sm:w-auto"
+            pillClassName={cn(
+              'rounded-xl transition-all duration-[480ms]',
+              workViewMode === 'pending'
+                ? 'bg-amber-600 border border-amber-500/50 shadow-[0_0_16px_rgba(245,158,11,0.4)]'
+                : 'bg-violet-600 border border-violet-500/50 shadow-[0_0_16px_rgba(168,85,247,0.4)]'
+            )}
+          />
 
           <span className="text-xs text-slate-400 font-medium hidden sm:inline">
             {workViewMode === 'pending'
@@ -626,28 +635,19 @@ export default function MyWorkPage() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center space-x-1 bg-slate-950/80 border border-slate-800 p-1 rounded-lg w-full md:w-auto">
-              <button
-                onClick={() => setSelectedUserFilter('my_work')}
-                className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                  selectedUserFilter === 'my_work'
-                    ? 'bg-slate-800 text-violet-400 shadow-2xs'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                My Log ({activeProfile?.name || 'Gajesh'})
-              </button>
-              <button
-                onClick={() => setSelectedUserFilter('all')}
-                className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                  selectedUserFilter !== 'my_work'
-                    ? 'bg-slate-800 text-violet-400 shadow-2xs'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Entire Team Log
-              </button>
-            </div>
+            <SlideTabs
+              options={[
+                { id: 'my_work', label: `My Log (${activeProfile?.name || 'Gajesh'})` },
+                { id: 'all', label: 'Entire Team Log' },
+              ]}
+              value={selectedUserFilter === 'my_work' ? 'my_work' : 'all'}
+              onChange={(val) => setSelectedUserFilter(val)}
+              size="sm"
+              fullWidth={false}
+              className="w-full md:w-auto p-1 bg-slate-950/80 border border-slate-800"
+              pillClassName="bg-slate-800 border border-slate-700 shadow-2xs"
+              activeTextClassName="text-violet-400 font-bold"
+            />
           )}
 
           {/* Date Selector & Designer Filter for non-admin */}
@@ -1262,28 +1262,19 @@ export default function MyWorkPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center space-x-1 bg-slate-950/80 border border-slate-800 p-1 rounded-lg w-full md:w-auto">
-                  <button
-                    onClick={() => setSelectedUserFilter('my_work')}
-                    className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                      selectedUserFilter === 'my_work'
-                        ? 'bg-slate-800 text-amber-400 shadow-2xs'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    My Pending ({activeProfile?.name || 'Gajesh'})
-                  </button>
-                  <button
-                    onClick={() => setSelectedUserFilter('all')}
-                    className={`flex-1 md:flex-initial px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                      selectedUserFilter !== 'my_work'
-                        ? 'bg-slate-800 text-amber-400 shadow-2xs'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    Entire Team Pending
-                  </button>
-                </div>
+                <SlideTabs
+                  options={[
+                    { id: 'my_work', label: `My Pending (${activeProfile?.name || 'Gajesh'})` },
+                    { id: 'all', label: 'Entire Team Pending' },
+                  ]}
+                  value={selectedUserFilter === 'my_work' ? 'my_work' : 'all'}
+                  onChange={(val) => setSelectedUserFilter(val)}
+                  size="sm"
+                  fullWidth={false}
+                  className="w-full md:w-auto p-1 bg-slate-950/80 border border-slate-800"
+                  pillClassName="bg-slate-800 border border-amber-500/35 shadow-[0_0_12px_rgba(245,158,11,0.25)]"
+                  activeTextClassName="text-amber-400 font-bold"
+                />
               )}
 
               {/* Search Box */}
@@ -1313,46 +1304,27 @@ export default function MyWorkPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
                 <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] mr-1">Filter By Age:</span>
-                <button
-                  onClick={() => setPendingFilterUrgency('all')}
-                  className={`px-3 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
-                    pendingFilterUrgency === 'all'
-                      ? 'bg-slate-100 text-slate-950 border-slate-100 shadow-2xs'
-                      : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
-                  }`}
-                >
-                  All ({pendingEntries.length})
-                </button>
-                <button
-                  onClick={() => setPendingFilterUrgency('fresh')}
-                  className={`px-3 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
-                    pendingFilterUrgency === 'fresh'
-                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
-                      : 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/80'
-                  }`}
-                >
-                  Fresh &le;4d ({freshPendingCount})
-                </button>
-                <button
-                  onClick={() => setPendingFilterUrgency('attention')}
-                  className={`px-3 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
-                    pendingFilterUrgency === 'attention'
-                      ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
-                      : 'bg-amber-950/60 text-amber-300 border-amber-800/60 hover:bg-amber-900/80'
-                  }`}
-                >
-                  Follow-up 5-7d ({attentionPendingCount})
-                </button>
-                <button
-                  onClick={() => setPendingFilterUrgency('overdue')}
-                  className={`px-3 py-1 rounded-lg font-bold border transition-colors cursor-pointer ${
-                    pendingFilterUrgency === 'overdue'
-                      ? 'bg-rose-600 text-white border-rose-600 shadow-2xs'
-                      : 'bg-rose-950/60 text-rose-300 border-rose-800/60 hover:bg-rose-900/80'
-                  }`}
-                >
-                  Overdue &gt;7d ({overduePendingCount})
-                </button>
+                <SlideTabs
+                  options={[
+                    { id: 'all', label: `All (${pendingEntries.length})` },
+                    { id: 'fresh', label: `Fresh ≤4d (${freshPendingCount})` },
+                    { id: 'attention', label: `Follow-up 5-7d (${attentionPendingCount})` },
+                    { id: 'overdue', label: `Overdue >7d (${overduePendingCount})` },
+                  ]}
+                  value={pendingFilterUrgency}
+                  onChange={(val) => setPendingFilterUrgency(val as 'all' | 'fresh' | 'attention' | 'overdue')}
+                  size="sm"
+                  fullWidth={false}
+                  className="bg-slate-900 border border-slate-800 p-1"
+                  pillClassName={cn(
+                    'shadow-2xs transition-all duration-[480ms]',
+                    pendingFilterUrgency === 'all' && 'bg-slate-100 border border-slate-100',
+                    pendingFilterUrgency === 'fresh' && 'bg-emerald-600 border border-emerald-500',
+                    pendingFilterUrgency === 'attention' && 'bg-amber-600 border border-amber-500',
+                    pendingFilterUrgency === 'overdue' && 'bg-rose-600 border border-rose-500'
+                  )}
+                  activeTextClassName={pendingFilterUrgency === 'all' ? 'text-slate-950 font-bold' : 'text-white font-bold'}
+                />
               </div>
 
               <div className="text-xs text-slate-400 font-medium">

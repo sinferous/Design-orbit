@@ -12,6 +12,7 @@ import {
 import { isInProgressEntry } from '@/lib/services/work-entry';
 import { X, Copy, Check, Mail, Table2, ListOrdered, FileText, ExternalLink } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { SlideTabs } from '@/components/ui/SlideTabs';
 
 interface EmailDayLogModalProps {
   isOpen: boolean;
@@ -105,44 +106,21 @@ export function EmailDayLogModal({
 
         {/* Tab Selector & Controls */}
         <div className="px-6 py-3 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-          {/* Format Tabs */}
-          <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-lg border border-slate-800 w-full sm:w-auto">
-            <button
-              onClick={() => setActiveTab('table')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'table'
-                  ? 'bg-slate-800 text-violet-300 border border-slate-700 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Table2 className="w-3.5 h-3.5" />
-              <span>Modern Table</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('grouped')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'grouped'
-                  ? 'bg-slate-800 text-violet-300 border border-slate-700 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <ListOrdered className="w-3.5 h-3.5" />
-              <span>Client Digest</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('text')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'text'
-                  ? 'bg-slate-800 text-violet-300 border border-slate-700 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>Plain Text</span>
-            </button>
-          </div>
+          {/* Format Tabs with Smooth Gliding Pill */}
+          <SlideTabs
+            options={[
+              { id: 'table', label: 'Modern Table', icon: Table2 },
+              { id: 'grouped', label: 'Client Digest', icon: ListOrdered },
+              { id: 'text', label: 'Plain Text', icon: FileText },
+            ]}
+            value={activeTab}
+            onChange={(val) => setActiveTab(val as FormatTab)}
+            size="sm"
+            fullWidth={false}
+            className="bg-slate-950 p-1 border-slate-800 w-full sm:w-auto"
+            pillClassName="bg-slate-800 border border-slate-700 shadow-xs"
+            activeTextClassName="text-violet-300 font-bold"
+          />
 
           {/* Quick Helper Badge */}
           <div className="text-xs text-slate-400 font-medium">

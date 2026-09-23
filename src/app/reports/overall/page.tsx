@@ -7,6 +7,8 @@ import { getOverallReportData, OverallSummaryItem, exportToCSV, formatReportTime
 import { Download, Users, Layers, Briefcase, BarChart3, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
+import { SlideTabs } from '@/components/ui/SlideTabs';
+import { ReportsSubNav } from '@/components/reports/ReportsSubNav';
 
 export default function OverallReportPage() {
   const [groupBy, setGroupBy] = useState<'person' | 'work_type' | 'client'>('person');
@@ -53,46 +55,17 @@ export default function OverallReportPage() {
     <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar userName="Gajesh" />
 
-      {/* Sub-Navigation for Reports */}
-      <div className="bg-[#0B0F1C]/80 backdrop-blur-md border-b border-white/[0.08] shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 overflow-x-auto">
-          <div className="flex space-x-4 sm:space-x-6 min-w-max">
-            <Link
-              href="/reports/weekly"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap"
-            >
-              Weekly Meeting Report
-            </Link>
-            <Link
-              href="/reports/monthly"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap"
-            >
-              Monthly Summary
-            </Link>
-            <Link
-              href="/reports/overall"
-              className="py-3 text-xs sm:text-sm font-bold text-violet-300 border-b-2 border-violet-400 whitespace-nowrap"
-            >
-              Overall / All-Time
-            </Link>
-            <Link
-              href="/reports/billing"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap"
-            >
-              Client Time Tracking
-            </Link>
-          </div>
-
-          <button
-            onClick={handleExportCSV}
-            className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
-          >
-            <Download className="w-4 h-4 text-violet-400" />
-            <span className="hidden sm:inline">Export CSV</span>
-            <span className="sm:hidden">CSV</span>
-          </button>
-        </div>
-      </div>
+      {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
+      <ReportsSubNav>
+        <button
+          onClick={handleExportCSV}
+          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
+        >
+          <Download className="w-4 h-4 text-violet-400" />
+          <span className="hidden sm:inline">Export CSV</span>
+          <span className="sm:hidden">CSV</span>
+        </button>
+      </ReportsSubNav>
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Header */}
@@ -104,44 +77,20 @@ export default function OverallReportPage() {
             </p>
           </div>
 
-          {/* Grouping Switcher Buttons */}
-          <div className="flex items-center space-x-1 sm:space-x-2 bg-slate-900 p-1 rounded-xl border border-slate-800 shadow-2xs overflow-x-auto w-full sm:w-auto">
-            <button
-              onClick={() => setGroupBy('person')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                groupBy === 'person'
-                  ? 'bg-violet-600 text-white shadow-2xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>By Person</span>
-            </button>
-
-            <button
-              onClick={() => setGroupBy('work_type')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                groupBy === 'work_type'
-                  ? 'bg-violet-600 text-white shadow-2xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>By Work Type</span>
-            </button>
-
-            <button
-              onClick={() => setGroupBy('client')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                groupBy === 'client'
-                  ? 'bg-violet-600 text-white shadow-2xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Briefcase className="w-3.5 h-3.5" />
-              <span>By Client</span>
-            </button>
-          </div>
+          {/* Grouping Switcher with Smooth Gliding Pill */}
+          <SlideTabs
+            options={[
+              { id: 'person', label: 'By Person', icon: Users },
+              { id: 'work_type', label: 'By Work Type', icon: Layers },
+              { id: 'client', label: 'By Client', icon: Briefcase },
+            ]}
+            value={groupBy}
+            onChange={(val) => setGroupBy(val as 'person' | 'work_type' | 'client')}
+            size="sm"
+            fullWidth={false}
+            className="bg-slate-900 border border-slate-800 p-1 w-full sm:w-auto"
+            pillClassName="bg-violet-600 border border-violet-500/50 shadow-2xs"
+          />
         </div>
 
         {/* Visual Progress Bar Chart Cards */}
