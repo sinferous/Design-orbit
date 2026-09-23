@@ -157,21 +157,6 @@ export default function AdminDashboardPage() {
 
 
 
-  // If unauthorized or checking credentials, prevent any dashboard rendering
-  if (isAuthorized !== true) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#090d16] p-4">
-        <div className="text-center p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-w-sm mx-auto">
-          <OrbitLoader
-            size="lg"
-            text="Verifying Administrator Authorization..."
-            subtitle="Restricted executive area. Validating access credentials."
-          />
-        </div>
-      </div>
-    );
-  }
-
   // Today calculations across the agency
   const todayCreated = todayEntries.reduce((acc, curr) => acc + (curr.quantity_done || 0), 0);
   const todayApproved = todayEntries.reduce((acc, curr) => acc + (curr.quantity_approved || 0), 0);
@@ -282,6 +267,21 @@ export default function AdminDashboardPage() {
     if (points.length === 0) return '';
     return `${splinePath} L ${points[points.length - 1].x} ${svgHeight} L ${points[0].x} ${svgHeight} Z`;
   }, [splinePath, points, svgHeight]);
+
+  // If unauthorized or checking credentials, prevent any dashboard rendering
+  if (isAuthorized !== true) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#090d16] p-4">
+        <div className="text-center p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-w-sm mx-auto">
+          <OrbitLoader
+            size="lg"
+            text="Verifying Administrator Authorization..."
+            subtitle="Restricted executive area. Validating access credentials."
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
