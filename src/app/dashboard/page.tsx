@@ -947,7 +947,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-8 bento-card p-5 sm:p-6 space-y-4">
             {/* Header with Search and Filter Pills */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 border-b border-white/[0.08] pb-4">
-              <div className="flex items-center space-x-3 min-w-0">
+              <div className="flex items-center space-x-3 min-w-0 shrink-0">
                 <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0">
                   <Activity className="w-4 h-4" />
                 </div>
@@ -968,9 +968,9 @@ export default function DashboardPage() {
               </div>
 
               {/* Interactive Search Bar & Filter Controls */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center justify-end gap-2.5 flex-wrap sm:flex-nowrap md:ml-auto w-full md:w-auto">
                 {/* Search Input Box */}
-                <div className="relative min-w-[150px] max-w-xs">
+                <div className="relative w-full sm:w-52 md:w-56 shrink-0">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                   <input
                     type="text"
@@ -991,7 +991,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Filter Tabs: My Work vs Team Work */}
-                <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-xs">
+                <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-xs shrink-0">
                   <button
                     type="button"
                     onClick={() => setFeedFilter('my_work')}
