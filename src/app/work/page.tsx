@@ -552,34 +552,34 @@ export default function MyWorkPage() {
         </div>
 
         {/* Primary View Mode Switcher: Daily Calendar vs Pending Approvals Queue */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-2">
-          <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto items-center">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+          <div className="bento-card p-1.5 flex items-center gap-1.5 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => setWorkViewMode('calendar')}
-              className={`w-full sm:w-auto h-11 sm:h-auto inline-flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${
+              className={`flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center space-x-2 btn-tactile ${
                 workViewMode === 'calendar'
-                  ? 'bg-violet-600 text-white shadow-xs'
-                  : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                  ? 'bg-violet-600 text-white shadow-[0_0_16px_rgba(168,85,247,0.4)]'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
               }`}
             >
               <Calendar className="w-4 h-4 shrink-0" />
-              <span className="truncate">Daily Log <span className="hidden min-[420px]:inline text-[11px] font-normal opacity-90">(By Date)</span></span>
+              <span>Daily Log <span className="hidden min-[420px]:inline text-[11px] font-normal opacity-90">(By Date)</span></span>
             </button>
 
             <button
               type="button"
               onClick={() => setWorkViewMode('pending')}
-              className={`w-full sm:w-auto h-11 sm:h-auto inline-flex items-center justify-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center ${
+              className={`flex-1 sm:flex-initial h-10 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center space-x-2 btn-tactile ${
                 workViewMode === 'pending'
-                  ? 'bg-amber-600 text-white shadow-xs'
-                  : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                  ? 'bg-amber-600 text-white shadow-[0_0_16px_rgba(245,158,11,0.4)]'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
               }`}
             >
               <CalendarClock className={`w-4 h-4 shrink-0 ${workViewMode === 'pending' ? 'text-white' : 'text-amber-400'}`} />
-              <span className="truncate">Pending Queue</span>
+              <span>Pending Queue</span>
               {pendingEntries.length > 0 && (
-                <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold shrink-0 ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold shrink-0 ${
                   workViewMode === 'pending'
                     ? 'bg-white text-amber-950'
                     : 'bg-amber-900/60 text-amber-300 border border-amber-700/60'
@@ -822,40 +822,40 @@ export default function MyWorkPage() {
           </div>
         </div>
 
-        {/* Daily Summary Stat Tiles - Compact on Mobile */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-violet-950/70 border border-violet-800/60 flex items-center justify-center text-violet-400 shrink-0">
-                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
+        {/* Daily Summary Stat Tiles - Bento Matrix */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0 group-hover:scale-105 transition-transform">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Total Quantity</div>
-                <div className="text-lg sm:text-2xl font-extrabold text-slate-100">{totalDone}</div>
+                <div className="text-xl sm:text-2xl font-extrabold text-slate-100 font-display">{totalDone}</div>
               </div>
             </div>
             <span className="text-[10px] sm:text-xs text-slate-500 font-medium hidden min-[400px]:inline shrink-0">{entries.length} items</span>
           </div>
 
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-violet-950/70 border border-violet-800/60 flex items-center justify-center text-violet-400 shrink-0">
-                <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
+                <Check className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Approved Qty</div>
-                <div className="text-lg sm:text-2xl font-extrabold text-violet-400">{totalApproved}</div>
+                <div className="text-xl sm:text-2xl font-extrabold text-emerald-400 font-display">{totalApproved}</div>
               </div>
             </div>
-            <span className="text-[10px] sm:text-xs text-violet-400 font-bold shrink-0">
+            <span className="text-[10px] sm:text-xs text-emerald-400 font-bold shrink-0">
               {totalDone > 0 ? `${Math.round((totalApproved / totalDone) * 100)}%` : '0%'}
             </span>
           </div>
 
-          <div className="col-span-2 sm:col-span-1 bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex items-center justify-between">
-            <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-950/70 border border-amber-800/60 flex items-center justify-center text-amber-400 shrink-0">
-                <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+          <div className="col-span-2 sm:col-span-1 bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
+                <Clock className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Total Time Tracked</div>
@@ -866,12 +866,12 @@ export default function MyWorkPage() {
             </div>
             <span className="text-xs text-amber-400 font-semibold shrink-0">
               {activeTimersCount > 0 ? (
-                <span className="flex items-center space-x-1">
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
+                <span className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-amber-950/60 border border-amber-700/50">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping inline-block" />
                   <span>{activeTimersCount} Running</span>
                 </span>
               ) : (
-                'All Paused'
+                <span className="text-slate-500 text-xs">All Paused</span>
               )}
             </span>
           </div>
@@ -929,11 +929,11 @@ export default function MyWorkPage() {
                   const clientApproved = clientEntries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
 
                   return (
-                    <div key={clientName} className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm overflow-hidden">
+                    <div key={clientName} className="bento-card overflow-hidden">
                       {/* Client Header Bar */}
-                      <div className="px-6 py-3 bg-slate-950/80 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="px-6 py-3.5 bg-black/30 border-b border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="flex items-center space-x-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-violet-950/80 text-violet-400 flex items-center justify-center border border-violet-800/60">
+                          <div className="w-8 h-8 rounded-xl bg-violet-600/15 text-violet-400 flex items-center justify-center border border-violet-500/20">
                             <Building2 className="w-4 h-4" />
                           </div>
                           <div>
@@ -954,7 +954,7 @@ export default function MyWorkPage() {
                       </div>
 
                       {/* Items for this Client */}
-                      <div className="divide-y divide-slate-800">
+                      <div className="divide-y divide-white/[0.06]">
                         {clientEntries.map(entry => {
                           const isMyEntry = Boolean(
                             activeProfile && (

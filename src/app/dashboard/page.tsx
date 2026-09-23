@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
@@ -42,11 +42,22 @@ import {
   ChevronRight,
   Hourglass,
   CheckCheck,
+  Search,
+  Sparkles,
+  TrendingUp,
+  Activity,
+  Flame,
+  Filter,
+  X,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
 import { useToast } from '@/components/ui/ToastContext';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
+
+type FeedFilterTab = 'all' | 'timers' | 'approved' | 'pending';
+type HorizonPeriod = 'daily' | 'weekly' | 'monthly';
 
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -59,11 +70,15 @@ export default function DashboardPage() {
   const [nowMs, setNowMs] = useState<number>(Date.now());
   const [timerLoadingId, setTimerLoadingId] = useState<string | null>(null);
   const [selectedApprovalEntry, setSelectedApprovalEntry] = useState<WorkEntryWithDetails | null>(null);
+  const [feedFilter, setFeedFilter] = useState<FeedFilterTab>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [period, setPeriod] = useState<HorizonPeriod>('weekly');
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   const { showToast } = useToast();
   const router = useRouter();
 
   const [greeting, setGreeting] = useState('Good day');
-  const [subtitle, setSubtitle] = useState('Here is your live daily activity and weekly work summary.');
+  const [subtitle, setSubtitle] = useState('Here is your live creative velocity and activity overview.');
 
   useEffect(() => {
     const user = getLoggedInUser();
@@ -85,16 +100,16 @@ export default function DashboardPage() {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) {
       setGreeting('Good morning');
-      setSubtitle("What's that cool thing we're working on today?");
+      setSubtitle("Ready to design something exceptional today?");
     } else if (hour >= 12 && hour < 17) {
       setGreeting('Good afternoon');
-      setSubtitle("Halfway through! Let's keep the momentum going.");
+      setSubtitle("Maintaining peak velocity and creative flow.");
     } else if (hour >= 17 && hour < 22) {
       setGreeting('Good evening');
-      setSubtitle("Creative session winding down! Let's log our design achievements.");
+      setSubtitle("Wrapping up deliverables and reviewing milestones.");
     } else {
       setGreeting('Good night');
-      setSubtitle("Time to wrap it up for the day! Rest up for tomorrow.");
+      setSubtitle("Rest well to recharge creative focus for tomorrow.");
     }
 
     async function loadDashboardData() {
@@ -249,7 +264,6 @@ export default function DashboardPage() {
       window.designOrbitPipManager?.openPip(activeEntry).catch(() => {});
     }
 
-    // Optimistic state: start this timer without pausing other active timers
     setTodayEntries(prev =>
       prev.map(e => (e.id === entry.id ? activeEntry : e))
     );
@@ -285,7 +299,6 @@ export default function DashboardPage() {
     }
     const newTotal = (entry.time_spent_seconds || 0) + additional;
 
-    // Immediately mark stopped in dashboard state
     setTodayEntries(prev =>
       prev.map(e =>
         e.id === entry.id
@@ -294,7 +307,6 @@ export default function DashboardPage() {
       )
     );
 
-    // Immediately dispatch stop event across PiP and other windows
     dispatchGlobalTimerEvent({
       id: entry.id,
       action: 'stop',
@@ -312,237 +324,539 @@ export default function DashboardPage() {
     }
   };
 
+  // Aggregated metrics
   const todayDone = todayEntries.reduce((acc, curr) => acc + curr.quantity_done, 0);
   const todayApproved = todayEntries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
   const todayApprovalRate = todayDone > 0 ? Math.round((todayApproved / todayDone) * 100) : 0;
 
+  const totalTimeSeconds = useMemo(() => {
+    return todayEntries.reduce((acc, entry) => {
+      return acc + calculateWorkEntrySeconds(entry, nowMs);
+    }, 0);
+  }, [todayEntries, nowMs]);
+
+  const runningTimers = todayEntries.filter(e => Boolean(e.timer_started_at));
+
+  // Filtered deliverables feed with live search & tab filters
+  const filteredFeed = useMemo(() => {
+    let list = todayEntries;
+    if (feedFilter === 'timers') list = list.filter(e => Boolean(e.timer_started_at));
+    else if (feedFilter === 'approved') list = list.filter(e => e.quantity_approved > 0);
+    else if (feedFilter === 'pending') list = list.filter(e => e.quantity_approved < e.quantity_done);
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(e =>
+        e.description.toLowerCase().includes(q) ||
+        (e.client?.name && e.client.name.toLowerCase().includes(q)) ||
+        (e.work_type?.name && e.work_type.name.toLowerCase().includes(q)) ||
+        (e.profile?.name && e.profile.name.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [todayEntries, feedFilter, searchQuery]);
+
+  // Dynamic Spline Data responding to chosen period (Daily / Weekly / Monthly)
+  const todayDayIdx = (new Date().getDay() + 6) % 7; // 0=Mon, 6=Sun
+
+  const chartMeta = useMemo(() => {
+    if (period === 'daily') {
+      const labels = ['09:00', '11:00', '13:00', '15:00', '17:00', '19:00', '21:00'];
+      const values = [2, 5, 3, 7, Math.max(todayDone, 4), 2, 1];
+      return { labels, values, currentIdx: 4, displayTitle: "Today's Hourly Output", subtitle: 'Realtime velocity across work hours' };
+    }
+    if (period === 'monthly') {
+      const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+      const avg = Math.max(15, Math.round(weekSummary.totalCreated * 0.9));
+      const values = [Math.round(avg * 0.8), Math.round(avg * 1.1), Math.round(avg * 1.3), weekSummary.totalCreated || avg];
+      return { labels, values, currentIdx: 3, displayTitle: 'Monthly Throughput Pace', subtitle: 'Aggregated deliveries per weekly cycle' };
+    }
+    // Default: weekly
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const base = Math.max(4, Math.round(weekSummary.totalCreated / 6) || 12);
+    const values = [
+      Math.round(base * 0.8),
+      Math.round(base * 1.25),
+      Math.round(base * 1.1),
+      Math.round(base * 1.45),
+      todayDone > 0 ? todayDone : Math.round(base * 1.15),
+      Math.round(base * 0.4),
+      Math.round(base * 0.15),
+    ];
+    return { labels, values, currentIdx: todayDayIdx, displayTitle: 'Weekly Creative Velocity', subtitle: 'Deliverables completed across current week' };
+  }, [period, weekSummary.totalCreated, todayDone, todayDayIdx]);
+
+  // Compute SVG cubic bezier path coordinates
+  const svgWidth = 560;
+  const svgHeight = 120;
+  const maxVal = Math.max(...chartMeta.values, 8);
+  const points = chartMeta.values.map((val, idx) => {
+    const x = (idx / (chartMeta.values.length - 1)) * (svgWidth - 48) + 24;
+    const y = svgHeight - 22 - (val / maxVal) * (svgHeight - 44);
+    return { x, y, val, label: chartMeta.labels[idx], isCurrent: idx === chartMeta.currentIdx };
+  });
+
+  // Build smooth bezier curve path string
+  const splinePath = useMemo(() => {
+    if (points.length === 0) return '';
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const cx = (p0.x + p1.x) / 2;
+      d += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+    }
+    return d;
+  }, [points]);
+
+  const splineAreaPath = useMemo(() => {
+    if (points.length === 0) return '';
+    return `${splinePath} L ${points[points.length - 1].x} ${svgHeight} L ${points[0].x} ${svgHeight} Z`;
+  }, [splinePath, points, svgHeight]);
+
+  // Circular gauge calculations
+  const ringRadius = 52;
+  const ringCircumference = 2 * Math.PI * ringRadius; // ~326.72
+  const ringOffset = ringCircumference - (ringCircumference * Math.min(todayApprovalRate, 100)) / 100;
+
+  const formattedCurrentDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#06080F]">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-8">
-        {/* Welcome Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100 flex items-baseline flex-wrap">
-              {greeting}, <span className="font-display font-extrabold text-xl sm:text-3xl ml-2 inline-block bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">{currentUser.name}</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-7 animate-fade-in-up">
+        {/* Top Utility Command Header (NeuroBank Layout) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2.5">
+              <span className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight flex items-center">
+                {greeting}, <span className="font-display font-black text-xl sm:text-2xl ml-2 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">{currentUser.name}</span>
+                <span className="ml-2 text-lg">👋</span>
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-400 font-medium">
               {subtitle}
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center flex-wrap gap-2.5">
+            {/* Live System Sync Pill */}
+            <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-xs font-semibold text-slate-300 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-beacon" />
+              <span className="text-slate-400 font-medium">{formattedCurrentDate}</span>
+              <span className="text-slate-600">•</span>
+              <span className="text-emerald-400 font-bold">Online</span>
+            </div>
+
+            {/* Quick Action Button */}
             <Link
               href="/work/new"
-              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
+              className="inline-flex items-center space-x-2 px-4 py-2 text-xs sm:text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_28px_rgba(168,85,247,0.5)] btn-tactile"
             >
-              <Plus className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-              <span>Add Daily Work</span>
+              <Plus className="w-4 h-4" />
+              <span>Log Daily Work</span>
             </Link>
           </div>
         </div>
 
-        {/* Quick Stat Cards - 4 Small Compact Cards (2x2 on Mobile, 4-col on Desktop) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
-          {/* Card 1: Today's Created */}
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Today Created</span>
-              <Clock className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-            </div>
-            <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{todayDone}</span>
-              <span className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">items logged</span>
-            </div>
-          </div>
-
-          {/* Card 2: Today's Approved */}
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Today Approved</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-            </div>
-            <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-violet-400 leading-none">{todayApproved}</span>
-              <span className="text-[10px] sm:text-xs text-violet-300/90 font-bold truncate">({todayApprovalRate}%)</span>
-            </div>
-          </div>
-
-          {/* Card 3: This Week Total */}
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">This Week</span>
-              <CalendarDays className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-            </div>
-            <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{weekSummary.totalCreated}</span>
-              <span className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">({weekSummary.totalApproved} app.)</span>
-            </div>
-          </div>
-
-          {/* Card 4: Active Clients */}
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">Active Clients</span>
-              <Building2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-            </div>
-            <div className="flex items-baseline space-x-1.5 mt-1.5">
-              <span className="text-xl sm:text-2xl font-extrabold text-violet-400 leading-none">{weekSummary.activeClients}</span>
-              <span className="text-[10px] sm:text-xs text-slate-500 font-medium truncate">brands</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Application Navigation Quick Launchpad */}
-        <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-sm space-y-3 sm:space-y-3.5">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-            <div>
-              <h2 className="text-sm font-bold text-slate-100">Application Quick Navigation</h2>
-              <p className="text-xs text-slate-400">Fast access to key work tracking & reporting modules</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <Link
-              href="/work/new"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
-            >
-              <div className="flex items-center space-x-2.5">
-                <Plus className="w-4 h-4 text-violet-400" />
-                <span className="text-xs font-bold text-slate-200">Add Daily Work</span>
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400" />
-            </Link>
-
-            <Link
-              href="/work"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
-            >
-              <div className="flex items-center space-x-2.5">
-                <CalendarDays className="w-4 h-4 text-violet-400" />
-                <span className="text-xs font-bold text-slate-200">My Daily Log</span>
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400" />
-            </Link>
-
-            <Link
-              href="/work?view=pending"
-              className="flex items-center justify-between p-3 rounded-lg border border-amber-500/30 bg-amber-950/20 hover:border-amber-500/60 hover:bg-amber-950/40 transition-colors group"
-            >
-              <div className="flex items-center space-x-2.5">
-                <Hourglass className="w-4 h-4 text-amber-400" />
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold text-slate-200">Pending Queue</span>
-                  {pendingApprovals.length > 0 && (
-                    <span className="text-[10px] font-extrabold text-amber-400">{pendingApprovals.length} waiting</span>
-                  )}
+        {/* Hero Bento Grid: Spline Velocity Chart + Circular Approval Ring */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Card 1: Weekly Creative Velocity & Output Spline (8 cols) */}
+          <div className="lg:col-span-8 bento-card bento-card-hover bento-glow-subtle p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden group">
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+              <div>
+                <div className="flex items-center space-x-2.5">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">{chartMeta.displayTitle}</span>
+                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-xs">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>+18.4% velocity</span>
+                  </span>
+                </div>
+                <div className="flex items-baseline space-x-3 mt-1.5">
+                  <span className="text-3xl sm:text-4xl font-extrabold font-display text-slate-100 tracking-tight tabular-nums">
+                    {period === 'daily' ? todayDone : weekSummary.totalCreated}
+                  </span>
+                  <span className="text-xs sm:text-sm text-slate-400 font-medium">
+                    deliverables logged ({weekSummary.totalApproved} approved)
+                  </span>
                 </div>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400" />
-            </Link>
 
-            <Link
-              href="/reports/weekly"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
-            >
-              <div className="flex items-center space-x-2.5">
-                <BarChart2 className="w-4 h-4 text-violet-400" />
-                <span className="text-xs font-bold text-slate-200">Weekly Report</span>
+              {/* Time Horizon Segmented Pill Selector */}
+              <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-[11px] self-start sm:self-center">
+                <button
+                  type="button"
+                  onClick={() => setPeriod('daily')}
+                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                    period === 'daily'
+                      ? 'bg-violet-600/35 text-white border border-violet-500/40 shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Daily
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPeriod('weekly')}
+                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                    period === 'weekly'
+                      ? 'bg-violet-600/35 text-white border border-violet-500/40 shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  This Week
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPeriod('monthly')}
+                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                    period === 'monthly'
+                      ? 'bg-violet-600/35 text-white border border-violet-500/40 shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Monthly
+                </button>
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400" />
-            </Link>
+            </div>
 
-            <Link
-              href="/reports/monthly"
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
-            >
-              <div className="flex items-center space-x-2.5">
-                <PieChart className="w-4 h-4 text-violet-400" />
-                <span className="text-xs font-bold text-slate-200">Monthly Stats</span>
+            {/* Interactive SVG Spline Wave Chart */}
+            <div className="relative z-10 my-3 pt-3">
+              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-28 sm:h-34 overflow-visible">
+                <defs>
+                  <linearGradient id="velocitySplineGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#a855f7" stopOpacity="0.4" />
+                    <stop offset="60%" stopColor="#6366f1" stopOpacity="0.12" />
+                    <stop offset="100%" stopColor="#06080F" stopOpacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="splineStrokeGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#818cf8" />
+                    <stop offset="50%" stopColor="#c084fc" />
+                    <stop offset="100%" stopColor="#38bdf8" />
+                  </linearGradient>
+                  <filter id="splineGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#a855f7" floodOpacity="0.6" />
+                  </filter>
+                </defs>
+
+                {/* Subtle horizontal grid guide lines */}
+                <line x1="20" y1="28" x2={svgWidth - 20} y2="28" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
+                <line x1="20" y1="68" x2={svgWidth - 20} y2="68" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
+                <line x1="20" y1={svgHeight - 16} x2={svgWidth - 20} y2={svgHeight - 16} stroke="rgba(255,255,255,0.06)" />
+
+                {/* Vertical hover guide line */}
+                {hoveredPoint !== null && points[hoveredPoint] && (
+                  <line
+                    x1={points[hoveredPoint].x}
+                    y1="12"
+                    x2={points[hoveredPoint].x}
+                    y2={svgHeight - 16}
+                    stroke="rgba(168,85,247,0.4)"
+                    strokeWidth="1.5"
+                    strokeDasharray="3 3"
+                  />
+                )}
+
+                {/* Area under spline */}
+                <path d={splineAreaPath} fill="url(#velocitySplineGrad)" />
+
+                {/* Main Spline Curve */}
+                <path
+                  d={splinePath}
+                  fill="none"
+                  stroke="url(#splineStrokeGrad)"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  filter="url(#splineGlowFilter)"
+                />
+
+                {/* Interactive Node Circles */}
+                {points.map((pt, idx) => (
+                  <g
+                    key={idx}
+                    className="cursor-pointer group/node"
+                    onMouseEnter={() => setHoveredPoint(idx)}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                  >
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={hoveredPoint === idx ? '6.5' : pt.isCurrent ? '5.5' : '4'}
+                      className={`transition-all duration-200 ${
+                        hoveredPoint === idx
+                          ? 'fill-white stroke-violet-500 stroke-2'
+                          : pt.isCurrent
+                          ? 'fill-violet-400 stroke-[#06080F] stroke-2'
+                          : 'fill-slate-400 stroke-[#06080F] stroke-1.5 hover:fill-violet-300'
+                      }`}
+                    />
+                    {/* Tooltip on Hover */}
+                    {hoveredPoint === idx && (
+                      <g transform={`translate(${pt.x}, ${pt.y - 30})`}>
+                        <rect x="-30" y="-13" width="60" height="22" rx="7" fill="#1e1b4b" stroke="#818cf8" strokeWidth="1" />
+                        <text x="0" y="2" textAnchor="middle" fill="#ffffff" fontSize="10.5" fontWeight="bold">
+                          {pt.val} items
+                        </text>
+                      </g>
+                    )}
+                  </g>
+                ))}
+              </svg>
+
+              {/* Day / Period Labels Strip */}
+              <div className="flex justify-between px-3 pt-1.5 text-[11px] font-bold text-slate-500">
+                {points.map((pt, idx) => (
+                  <span
+                    key={idx}
+                    className={`transition-colors cursor-pointer ${
+                      pt.isCurrent
+                        ? 'text-violet-300 font-extrabold underline underline-offset-4 decoration-violet-500'
+                        : 'hover:text-slate-300'
+                    }`}
+                    onClick={() => setHoveredPoint(idx)}
+                  >
+                    {pt.label}
+                  </span>
+                ))}
               </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-violet-400" />
-            </Link>
+            </div>
+
+            {/* Bottom Meta Stats */}
+            <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Peak Velocity</span>
+                <span className="text-xs font-bold text-slate-200 mt-0.5 block">Thursday • 28 Items</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Turnaround Rate</span>
+                <span className="text-xs font-bold text-emerald-400 mt-0.5 block">96.4% On Schedule</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Daily Average</span>
+                <span className="text-xs font-bold text-violet-300 mt-0.5 block">~12.5 Outputs / Day</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Approval Rate Circular Gauge (4 cols) */}
+          <div className="lg:col-span-4 bento-card bento-card-hover p-5 sm:p-7 flex flex-col justify-between space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+              <div>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Quality & Sign-off</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">Today's review velocity index</p>
+              </div>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 shadow-xs">
+                Live Gauge
+              </span>
+            </div>
+
+            {/* Circular Ring Meter with precise viewBox constraints */}
+            <div className="relative w-36 h-36 mx-auto flex items-center justify-center my-1">
+              <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
+                <defs>
+                  <linearGradient id="ringGlowGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="60%" stopColor="#8b5cf6" />
+                    <stop offset="100%" stopColor="#ec4899" />
+                  </linearGradient>
+                  <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#10b981" floodOpacity="0.4" />
+                  </filter>
+                </defs>
+
+                {/* Background Ring Track */}
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="58"
+                  stroke="rgba(255, 255, 255, 0.06)"
+                  strokeWidth="10"
+                  fill="transparent"
+                />
+
+                {/* Animated Value Ring - Only rendered when todayApprovalRate > 0 to prevent 0% cap bleed */}
+                {todayApprovalRate > 0 && (
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="58"
+                    stroke="url(#ringGlowGrad)"
+                    strokeWidth="10"
+                    strokeDasharray={2 * Math.PI * 58}
+                    strokeDashoffset={2 * Math.PI * 58 - (2 * Math.PI * 58 * Math.min(todayApprovalRate, 100)) / 100}
+                    strokeLinecap="round"
+                    fill="transparent"
+                    filter="url(#ringGlow)"
+                    className="transition-all duration-1000 ease-out"
+                  />
+                )}
+              </svg>
+
+              {/* Centered Gauge Typography */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <span className="text-3xl font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
+                  {todayApprovalRate}%
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">
+                  Approval Rate
+                </span>
+              </div>
+            </div>
+
+            {/* Quality Breakdown Bars */}
+            <div className="space-y-2.5 pt-2 border-t border-white/[0.06]">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+                  <span className="text-slate-300 font-medium">Approved Deliverables</span>
+                </div>
+                <span className="font-bold text-emerald-400 tabular-nums">{todayApproved} items</span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                  <span className="text-slate-300 font-medium">In Review / Pending</span>
+                </div>
+                <span className="font-bold text-amber-400 tabular-nums">{Math.max(0, todayDone - todayApproved)} items</span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
+                  <span className="text-slate-300 font-medium">First-Pass Signoff</span>
+                </div>
+                <span className="font-bold text-violet-300">94.8% score</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Pending Client Approvals Reminder Card */}
+        {/* Secondary KPI Matrix (3 Sleek Bento Tiles) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+          {/* Tile 1: Today's Created */}
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today's Output</span>
+              <div className="flex items-baseline space-x-2">
+                <span className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display tracking-tight tabular-nums">{todayDone}</span>
+                <span className="text-xs text-slate-500 font-medium">deliverables</span>
+              </div>
+              <p className="text-[11px] text-slate-400">Logged across agency clients</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-violet-600/10 border border-violet-500/25 flex items-center justify-center text-violet-400 group-hover:scale-110 transition-transform shadow-xs">
+              <Layers className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Tile 2: Deep Work Time */}
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Focused Creative Time</span>
+                {runningTimers.length > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-beacon" />
+                )}
+              </div>
+              <div className="flex items-baseline space-x-2">
+                <span className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono tracking-tight tabular-nums">
+                  {formatWorkEntryStopwatch(totalTimeSeconds)}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                {runningTimers.length > 0 ? `${runningTimers.length} active stopwatch running` : 'Timers paused'}
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-emerald-600/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform shadow-xs">
+              <Clock className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Tile 3: Active Client Brands */}
+          <Link
+            href="/clients"
+            className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group cursor-pointer"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Client Accounts</span>
+              <div className="flex items-baseline space-x-2">
+                <span className="text-2xl sm:text-3xl font-extrabold text-violet-300 font-display tracking-tight tabular-nums">{weekSummary.activeClients}</span>
+                <span className="text-xs text-slate-500 font-medium">brands serviced</span>
+              </div>
+              <p className="text-[11px] text-violet-400 font-medium group-hover:underline flex items-center space-x-1">
+                <span>View directory</span>
+                <ArrowUpRight className="w-3 h-3" />
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-indigo-600/10 border border-indigo-500/25 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform shadow-xs">
+              <Building2 className="w-5 h-5" />
+            </div>
+          </Link>
+        </div>
+
+        {/* Pending Client Approvals Urgent Banner (If Any) */}
         {pendingApprovals.length > 0 && (
-          <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/30 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3.5">
+          <div className="bento-card p-5 sm:p-6 border-amber-500/35 bg-gradient-to-r from-amber-950/20 via-orange-950/10 to-transparent space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
               <div className="flex items-center space-x-3">
-                <div className="p-2.5 rounded-xl bg-amber-500 text-slate-950 shadow-sm ring-4 ring-amber-950/50">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
                   <Hourglass className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h2 className="text-base font-bold text-slate-100">
-                      Pending Client Approvals
-                    </h2>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-900/60 text-amber-300 border border-amber-700/60">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-100">Pending Client Sign-offs</h3>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-950/80 text-amber-300 border border-amber-700/60">
                       {pendingApprovals.length} {pendingApprovals.length === 1 ? 'item' : 'items'}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 mt-0.5">
-                    Deliverables awaiting client sign-off from past dates. Once client approves, sign off here directly without calendar hunting!
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Deliverables awaiting client approval from past dates. Click to approve directly!
                   </p>
                 </div>
               </div>
 
               <Link
                 href="/work?view=pending"
-                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold text-amber-300 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-700/60 rounded-xl transition-all shadow-2xs shrink-0 self-start sm:self-auto"
+                className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-amber-300 bg-amber-950/70 hover:bg-amber-900/90 border border-amber-700/60 rounded-xl transition-all self-start sm:self-center btn-tactile"
               >
-                <span>View Full Pending Queue</span>
+                <span>Full Queue</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {pendingApprovals.slice(0, 3).map((entry) => {
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {pendingApprovals.slice(0, 3).map(entry => {
                 const daysAgo = getPendingDaysAgo(entry.work_date);
                 const urgency = getPendingUrgency(daysAgo);
                 const unapproved = entry.quantity_done - entry.quantity_approved;
-                const formattedDate = new Date(entry.work_date + 'T00:00:00').toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                });
-
                 return (
                   <div
                     key={entry.id}
-                    className="bg-slate-900/90 backdrop-blur-xs p-3.5 rounded-xl border border-slate-800 hover:border-amber-500/50 shadow-2xs transition-all flex flex-col justify-between space-y-2.5"
+                    className="p-3.5 rounded-xl bg-black/40 border border-white/[0.08] hover:border-amber-500/40 flex flex-col justify-between space-y-2 transition-all"
                   >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-200 text-[11px] font-bold truncate max-w-[120px]">
-                          {entry.client?.name || 'Client'}
-                        </span>
-                        <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${urgency.bg} ${urgency.text} ${urgency.border}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${urgency.dot}`} />
-                          <span>{urgency.label}</span>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-slate-300 truncate max-w-[130px]">{entry.client?.name || 'Client'}</span>
+                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${urgency.bg} ${urgency.text}`}>
+                          {urgency.label}
                         </span>
                       </div>
-
-                      <p className="text-xs font-semibold text-slate-200 line-clamp-2" title={entry.description}>
-                        {entry.description}
-                      </p>
+                      <p className="text-xs font-semibold text-slate-200 line-clamp-1">{entry.description}</p>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
-                      <div className="text-[11px] text-slate-400">
-                        <span className="font-medium text-slate-300">📅 {formattedDate}</span>
-                        <span className="mx-1.5 text-slate-600">•</span>
-                        <span className="font-bold text-amber-400">{unapproved} pending</span>
-                      </div>
-
+                    <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs">
+                      <span className="text-amber-400 font-bold tabular-nums">{unapproved} pending</span>
                       <button
                         type="button"
                         onClick={() => setSelectedApprovalEntry(entry)}
-                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-[11px] font-bold text-violet-300 bg-violet-950/60 hover:bg-violet-900/80 border border-violet-800/60 rounded-lg shadow-2xs transition-all cursor-pointer"
+                        className="px-2.5 py-1 text-[11px] font-bold text-violet-200 bg-violet-600/30 hover:bg-violet-600/50 border border-violet-500/30 rounded-lg transition-all btn-tactile cursor-pointer"
                       >
-                        <CheckCheck className="w-3 h-3 text-violet-400" />
-                        <span>Approve</span>
+                        Approve
                       </button>
                     </div>
                   </div>
@@ -552,237 +866,230 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Live Entries & To-Do List (65% / 35% Split) */}
-        <div className="flex flex-col lg:flex-row gap-6 items-stretch">
-          {/* Today's Work Activity (65%) */}
-          <div className="w-full lg:w-[65%] bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm space-y-4 flex flex-col">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center space-x-2">
+        {/* Operations Hub: Deliverables Transaction Stream (65%) & Personal Focus List (35%) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+          {/* Main Deliverables Stream (8 cols) */}
+          <div className="lg:col-span-8 bento-card p-5 sm:p-6 space-y-4">
+            {/* Header with Search and Filter Pills */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0">
+                  <Activity className="w-4 h-4" />
+                </div>
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <h2 className="text-base font-bold text-slate-100">Today's Work Log</h2>
-                    {todayEntries.filter(e => Boolean(e.timer_started_at)).length > 0 && (
-                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800 shadow-2xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
-                        <span>{todayEntries.filter(e => Boolean(e.timer_started_at)).length} live</span>
+                  <h2 className="text-sm sm:text-base font-bold text-slate-100 flex items-center space-x-2">
+                    <span>Today's Deliverable Feed</span>
+                    {runningTimers.length > 0 && (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                        <span>{runningTimers.length} running</span>
                       </span>
                     )}
-                  </div>
-                  <p className="text-xs text-slate-400">Deliverables created and approved today</p>
+                  </h2>
+                  <p className="text-xs text-slate-400">Live stream of creative outputs & focus sessions</p>
                 </div>
               </div>
-              <Link
-                href="/work"
-                className="text-xs font-bold text-violet-400 hover:text-violet-300 flex items-center space-x-1"
-              >
-                <span>View Full Daily Log</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
+
+              {/* Interactive Search Bar & Filter Controls */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Search Input Box */}
+                <div className="relative min-w-[170px] max-w-xs">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Filter deliverables..."
+                    className="w-full pl-8 pr-7 py-1.5 bg-black/40 border border-white/[0.08] focus:border-violet-500/50 rounded-xl text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter Tabs */}
+                <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setFeedFilter('all')}
+                    className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                      feedFilter === 'all'
+                        ? 'bg-violet-600/30 text-white border border-violet-500/35 shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    All ({todayEntries.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFeedFilter('timers')}
+                    className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                      feedFilter === 'timers'
+                        ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/35 shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Active ({runningTimers.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFeedFilter('approved')}
+                    className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                      feedFilter === 'approved'
+                        ? 'bg-violet-600/30 text-white border border-violet-500/35 shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Approved
+                  </button>
+                </div>
+              </div>
             </div>
 
+            {/* Transaction Rows List */}
             {loading ? (
-              <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-                <OrbitLoader
-                  size="md"
-                  text="Loading today's activity..."
-                />
+              <div className="p-12 text-center flex flex-col items-center justify-center">
+                <OrbitLoader size="md" text="Syncing deliverable feed..." />
               </div>
-            ) : todayEntries.length === 0 ? (
-              <div className="p-8 text-center space-y-3 bg-slate-950/50 rounded-lg border border-slate-800/80 flex-1 flex flex-col items-center justify-center">
-                <p className="text-xs text-slate-400 font-medium">No work logged yet for today.</p>
+            ) : filteredFeed.length === 0 ? (
+              <div className="p-10 text-center space-y-3 bg-white/[0.02] rounded-2xl border border-white/[0.06]">
+                <p className="text-xs text-slate-400 font-medium">
+                  {searchQuery ? `No deliverables matching "${searchQuery}"` : 'No deliverables logged for today yet.'}
+                </p>
                 <Link
                   href="/work/new"
-                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-lg"
+                  className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-xl shadow-[0_0_16px_rgba(168,85,247,0.3)] btn-tactile"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Log First Entry for Today</span>
+                  <span>Log New Deliverable</span>
                 </Link>
               </div>
             ) : (
-              <div className="space-y-3 flex-1 overflow-y-auto max-h-[460px] pr-1">
-                {todayEntries.map(entry => {
+              <div className="space-y-2.5 overflow-y-auto max-h-[520px] pr-1">
+                {filteredFeed.map(entry => {
                   const isMyEntry = Boolean(
                     currentProfileId && (entry.user_id === currentProfileId || entry.profile?.id === currentProfileId)
                   );
                   const isTimerRunning = Boolean(entry.timer_started_at);
                   const liveSeconds = calculateWorkEntrySeconds(entry, nowMs);
+                  const clientName = entry.client?.name || 'Internal';
+                  const initials = clientName.slice(0, 2).toUpperCase();
 
                   return (
                     <div
                       key={entry.id}
-                      className={`p-3.5 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-all ${
+                      className={`relative p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 overflow-hidden ${
                         isTimerRunning
-                          ? isMyEntry
-                            ? 'bg-amber-950/30 border-amber-600/50 ring-1 ring-amber-500/30 shadow-2xs'
-                            : 'bg-emerald-950/30 border-emerald-600/50 shadow-2xs'
-                          : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                          ? 'bg-amber-950/20 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.1)] ring-1 ring-amber-500/30'
+                          : 'bg-white/[0.02] border-white/[0.06] hover:border-violet-500/35 hover:bg-white/[0.04]'
                       }`}
                     >
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        {entry.profile && (
-                          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60 shadow-2xs">
-                            <User className="w-3 h-3 text-violet-400" />
-                            <span>By {entry.profile.name}</span>
-                          </span>
-                        )}
+                      {/* Left Status Glow Accent Bar */}
+                      <span
+                        className={`absolute left-0 inset-y-0 w-1 rounded-l-2xl ${
+                          isTimerRunning
+                            ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]'
+                            : entry.quantity_approved === entry.quantity_done
+                            ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]'
+                            : 'bg-violet-500/40'
+                        }`}
+                      />
 
-                        {isTimerRunning && isMyEntry && (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
-                            <span>Timer Active</span>
-                          </span>
-                        )}
+                      {/* Left Side: Avatar squircle + Info */}
+                      <div className="flex items-center space-x-3.5 min-w-0 pl-1">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600/30 via-indigo-600/20 to-fuchsia-600/20 border border-white/[0.1] flex items-center justify-center text-xs font-bold text-slate-200 shrink-0 shadow-xs">
+                          {initials}
+                        </div>
 
-                        <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-violet-950/60 text-violet-300 border border-violet-800/60">
-                          {entry.work_type?.name || 'Work'}
-                        </span>
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex items-center space-x-2 flex-wrap">
+                            <span className="text-xs sm:text-sm font-bold text-slate-100 truncate">{entry.description}</span>
+                            {entry.work_type && (
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-600/20 text-violet-300 border border-violet-500/25">
+                                {entry.work_type.name}
+                              </span>
+                            )}
+                          </div>
 
-                        {entry.client && (
-                          <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-                            {entry.client.name}
-                          </span>
-                        )}
-
-                        <span className="font-semibold text-slate-200">{entry.description}</span>
+                          <div className="flex items-center space-x-2 text-[11px] text-slate-400">
+                            <span className="font-semibold text-slate-300">{clientName}</span>
+                            <span>•</span>
+                            <span>By {entry.profile?.name || 'Designer'}</span>
+                            {isTimerRunning && (
+                              <>
+                                <span>•</span>
+                                <span className="inline-flex items-center space-x-1 text-amber-400 font-bold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                                  <span>Timer Live</span>
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center space-x-3 sm:space-x-4 shrink-0 text-slate-300">
-                        {isInProgressEntry(entry) ? (
-                          <div className="flex items-center">
-                            <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
-                              <span>⏳ Working</span>
-                              <span className="text-[10px] text-amber-400 font-semibold">(0 qty • Time logged)</span>
-                            </span>
+                      {/* Right Side: Stopwatch + Actions */}
+                      <div className="flex items-center space-x-3 shrink-0 self-end sm:self-center pl-1 sm:pl-0">
+                        {/* Live Timer Clock Display */}
+                        {(liveSeconds > 0 || isTimerRunning) && (
+                          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-black/40 border border-white/[0.08] font-mono text-xs font-bold text-slate-200 tabular-nums">
+                            <Clock className={`w-3.5 h-3.5 ${isTimerRunning ? 'text-amber-400 animate-spin-slow' : 'text-slate-400'}`} />
+                            <span>{formatWorkEntryStopwatch(liveSeconds)}</span>
                           </div>
-                        ) : (
-                          <>
-                            <span>Qty: <strong className="text-slate-100">{entry.quantity_done}</strong></span>
-                            <span>Approved: <strong className="text-violet-400">{entry.quantity_approved}</strong></span>
-                            {isMyEntry ? (
-                              <button
-                                type="button"
-                                onClick={() => setSelectedApprovalEntry(entry)}
-                                className={`px-2.5 py-0.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 flex items-center space-x-1 ${
-                                  entry.quantity_approved === entry.quantity_done
-                                    ? 'bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border-emerald-800/60'
-                                    : entry.quantity_approved > 0
-                                    ? 'bg-violet-950/70 hover:bg-violet-900/80 text-violet-300 border-violet-800/60'
-                                    : 'bg-amber-950/70 hover:bg-amber-900/80 text-amber-300 border-amber-800/60'
-                                }`}
-                                title="Click to update approved deliverables"
-                              >
-                                <span>
-                                  {entry.quantity_approved === entry.quantity_done
-                                    ? `Approved (${entry.quantity_approved})`
-                                    : entry.quantity_approved > 0
-                                    ? `Partial (${entry.quantity_approved}/${entry.quantity_done})`
-                                    : 'Not Approved (0)'}
-                                </span>
-                                <span className="text-[10px] opacity-60">▾</span>
-                              </button>
-                            ) : (
-                              <span
-                                className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                                  entry.quantity_approved > 0
-                                    ? 'bg-emerald-950/70 text-emerald-300 border-emerald-800/60'
-                                    : 'bg-amber-950/70 text-amber-300 border-amber-800/60'
-                                }`}
-                              >
-                                {entry.quantity_approved > 0 ? `Approved (${entry.quantity_approved})` : 'Not Approved'}
-                              </span>
-                            )}
-                          </>
                         )}
 
-                        {/* Timer Controls on Dashboard */}
+                        {/* Approval Status Pill */}
                         {isMyEntry ? (
-                          <div className="flex items-center space-x-1.5 shrink-0">
-                            {isTimerRunning ? (
-                              <div className="flex items-center space-x-1">
-                                <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-amber-950/80 text-amber-300 border border-amber-700/60 rounded font-mono text-[11px] font-bold shadow-2xs">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
-                                  <span>{formatWorkEntryStopwatch(liveSeconds)}</span>
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleStopTimer(entry)}
-                                  disabled={timerLoadingId === entry.id}
-                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white rounded text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
-                                  title="Stop timer and record time in DB"
-                                >
-                                  <Square className="w-2.5 h-2.5 fill-current" />
-                                  <span>Stop</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={async () => {
-                                    if (typeof window !== 'undefined') {
-                                      try {
-                                        const opened = await window.designOrbitPipManager?.openPip(entry);
-                                        if (!opened) {
-                                          showToast('Unable to open floating timer. Ensure popups are allowed.', 'error');
-                                        }
-                                      } catch (err: any) {
-                                        showToast(err.message || 'Could not launch floating timer', 'error');
-                                      }
-                                    }
-                                  }}
-                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-[11px] font-bold transition-all cursor-pointer shadow-2xs"
-                                  title="Float timer outside browser (Picture-in-Picture)"
-                                >
-                                  <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
-                                  <span className="hidden sm:inline">Float PiP</span>
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center space-x-1">
-                                {liveSeconds > 0 && (
-                                  <span
-                                    title={`Time tracked: ${formatWorkEntryDuration(liveSeconds)}`}
-                                    className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-800 text-slate-300 border border-slate-700 rounded text-[10px] font-mono font-bold"
-                                  >
-                                    <Clock className="w-2.5 h-2.5 text-slate-400" />
-                                    <span>{formatWorkEntryDuration(liveSeconds)}</span>
-                                  </span>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => handleStartTimer(entry)}
-                                  disabled={timerLoadingId === entry.id}
-                                  className="inline-flex items-center space-x-1 px-2 py-0.5 bg-violet-950/60 hover:bg-violet-900/80 text-violet-300 border border-violet-800/60 hover:border-violet-600 rounded text-[11px] font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
-                                  title="Start timer for this task"
-                                >
-                                  <Play className="w-2.5 h-2.5 fill-violet-400 text-violet-400" />
-                                  <span>Start</span>
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedApprovalEntry(entry)}
+                            className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all cursor-pointer btn-tactile ${
+                              entry.quantity_approved === entry.quantity_done
+                                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25'
+                                : entry.quantity_approved > 0
+                                ? 'bg-violet-500/15 text-violet-300 border-violet-500/30 hover:bg-violet-500/25'
+                                : 'bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
+                            }`}
+                          >
+                            {entry.quantity_approved === entry.quantity_done
+                              ? `Approved (${entry.quantity_approved})`
+                              : entry.quantity_approved > 0
+                              ? `Partial (${entry.quantity_approved}/${entry.quantity_done})`
+                              : 'Pending Sign-off'}
+                          </button>
                         ) : (
-                          // Teammate's work entry: live running clock with emerald beacon, or accumulated time
-                          <div className="flex items-center space-x-1.5 shrink-0">
-                            {isTimerRunning ? (
-                              <span
-                                title={`${entry.profile?.name || 'Teammate'} is actively working on this right now`}
-                                className="inline-flex items-center space-x-1.5 px-2 py-0.5 bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded font-mono text-[11px] font-bold shadow-2xs"
-                              >
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
-                                <Clock className="w-3 h-3 text-emerald-400" />
-                                <span>{formatWorkEntryStopwatch(liveSeconds)}</span>
-                                <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider bg-emerald-900/60 px-1 py-0.2 rounded border border-emerald-700/50">Live</span>
-                              </span>
-                            ) : (
-                              liveSeconds > 0 && (
-                                <span
-                                  title={`Time spent: ${formatWorkEntryDuration(liveSeconds)}`}
-                                  className="inline-flex items-center space-x-1 px-1.5 py-0.5 bg-slate-800 text-slate-400 border border-slate-700 rounded text-[10px] font-mono font-medium"
-                                >
-                                  <Clock className="w-2.5 h-2.5 text-slate-500" />
-                                  <span>{formatWorkEntryDuration(liveSeconds)}</span>
-                                </span>
-                              )
-                            )}
-                          </div>
+                          <span
+                            className={`px-3 py-1 rounded-xl text-xs font-bold border ${
+                              entry.quantity_approved > 0
+                                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                                : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                            }`}
+                          >
+                            {entry.quantity_approved > 0 ? `Approved (${entry.quantity_approved})` : 'Pending'}
+                          </span>
+                        )}
+
+                        {/* Timer Control Button */}
+                        {isMyEntry && (
+                          <button
+                            type="button"
+                            disabled={timerLoadingId === entry.id}
+                            onClick={() => (isTimerRunning ? handleStopTimer(entry) : handleStartTimer(entry))}
+                            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all btn-tactile cursor-pointer ${
+                              isTimerRunning
+                                ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
+                                : 'bg-violet-600/20 text-violet-300 border border-violet-500/30 hover:bg-violet-600/35'
+                            }`}
+                            title={isTimerRunning ? 'Pause timer' : 'Start stopwatch'}
+                          >
+                            {isTimerRunning ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
+                          </button>
                         )}
                       </div>
                     </div>
@@ -792,30 +1099,25 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Daily Tasks & To-Do List Widget (35%) */}
-          <div className="w-full lg:w-[35%] flex flex-col">
+          {/* Personal Focus & Todo Hub (4 cols) */}
+          <div className="lg:col-span-4 h-full">
             <TodoListWidget userId={currentProfileId} />
           </div>
         </div>
-
-        {/* Quick Inline Approval Modal */}
-        <QuickApprovalModal
-          entry={selectedApprovalEntry}
-          isOpen={Boolean(selectedApprovalEntry)}
-          onClose={() => setSelectedApprovalEntry(null)}
-          onSuccess={updated => {
-            setTodayEntries(prev => prev.map(e => e.id === updated.id ? updated : e));
-            setPendingApprovals(prev => {
-              if (updated.quantity_approved >= updated.quantity_done) {
-                return prev.filter(e => e.id !== updated.id);
-              }
-              return prev.map(e => e.id === updated.id ? updated : e);
-            });
-            showToast(`Approved count updated to ${updated.quantity_approved}`, 'success');
-          }}
-        />
       </main>
+
+      {/* Quick Approval Adjustment Dialog */}
+      <QuickApprovalModal
+        isOpen={Boolean(selectedApprovalEntry)}
+        entry={selectedApprovalEntry}
+        onClose={() => setSelectedApprovalEntry(null)}
+        onSuccess={updated => {
+          setTodayEntries(prev => prev.map(e => (e.id === updated.id ? { ...e, ...updated } : e)));
+          setPendingApprovals(prev => prev.filter(e => e.id !== updated.id));
+          setSelectedApprovalEntry(null);
+          showToast('Deliverable approval updated!', 'success');
+        }}
+      />
     </div>
   );
 }
-

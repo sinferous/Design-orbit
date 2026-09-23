@@ -463,50 +463,50 @@ export default function WeeklyReportPage() {
           </div>
         </div>
 
-        {/* Weekly Team Overview Bar - 2x2 Grid on Mobile (2 cards side by side) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+        {/* Weekly Team Overview Bar - Bento Matrix Tiles */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div>
               <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Team Created</div>
-              <div className="text-xl sm:text-3xl font-extrabold text-slate-100 mt-0.5">{grandTotalCreated}</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display mt-1">{grandTotalCreated}</div>
             </div>
-            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-1">Items produced</p>
+            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-2">Items produced</p>
           </div>
 
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div>
               <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Team Approved</div>
-              <div className="text-xl sm:text-3xl font-extrabold text-violet-400 mt-0.5">{grandTotalApproved}</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-display mt-1">{grandTotalApproved}</div>
             </div>
-            <p className="text-[11px] text-violet-300 font-semibold sm:text-xs truncate mt-1">{grandApprovalRate}% approval rate</p>
+            <p className="text-[11px] text-emerald-400/90 font-semibold sm:text-xs truncate mt-2">{grandApprovalRate}% approval rate</p>
           </div>
 
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div>
               <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Time Tracked</div>
-              <div className="text-lg sm:text-3xl font-extrabold text-amber-400 flex items-center space-x-1 sm:space-x-1.5 mt-0.5">
+              <div className="text-lg sm:text-2xl font-extrabold text-amber-400 flex items-center space-x-1.5 mt-1 font-mono">
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 shrink-0" />
                 <span className="truncate">{formatReportTime(grandTotalSeconds)}</span>
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-1">Deliverable time</p>
+            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-2">Deliverable time</p>
           </div>
 
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div>
               <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Active Clients</div>
-              <div className="text-xl sm:text-3xl font-extrabold text-violet-400 flex items-center space-x-1 sm:space-x-1.5 mt-0.5">
+              <div className="text-2xl sm:text-3xl font-extrabold text-violet-400 flex items-center space-x-1.5 mt-1 font-display">
                 <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400 shrink-0" />
                 <span>{totalActiveClients}</span>
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-1">Brands this week</p>
+            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-2">Brands this week</p>
           </div>
         </div>
 
         {/* Team Member Cards */}
         {loading ? (
-          <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
+          <div className="bento-card p-12 text-center">
             <OrbitLoader
               size="lg"
               text="Aggregating weekly creative review..."
@@ -523,7 +523,7 @@ export default function WeeklyReportPage() {
               return (
                 <div
                   key={s.profile.id}
-                  className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm overflow-hidden transition-all"
+                  className="bento-card overflow-hidden transition-all"
                 >
                   {/* Card Header */}
                   <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 border-b border-slate-800">

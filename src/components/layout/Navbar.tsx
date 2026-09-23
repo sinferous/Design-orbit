@@ -1,196 +1,81 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Calendar, BarChart3, PlusCircle, LogOut, Building2, Menu, X, FileSpreadsheet } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { getLoggedInUser, logoutUser, isAdminUser } from '@/lib/services/work-entry';
+import { Menu, X, PlusCircle, Sparkles } from 'lucide-react';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { getLoggedInUser, isAdminUser } from '@/lib/services/work-entry';
 
 interface NavbarProps {
+  children?: React.ReactNode;
   userName?: string;
 }
 
-export function Navbar({ userName }: NavbarProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<string>(userName || 'Team Member');
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const user = getLoggedInUser();
-    if (user) {
-      setCurrentUser(user.name);
-      setIsAdmin(isAdminUser(user));
-    } else {
-      router.push('/login');
-    }
-  }, [userName, router]);
-
-  const handleLogout = (e: React.MouseEvent) => {
-    e.preventDefault();
-    logoutUser();
-    router.push('/login');
-  };
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
-  const navItems = [
-    { label: 'Dashboard', href: isAdmin ? '/admin' : '/dashboard', icon: LayoutDashboard },
-    { label: isAdmin ? 'Team Log' : 'My Work', href: '/work', icon: Calendar },
-    { label: 'Clients', href: '/clients', icon: Building2 },
-    { label: 'Reports', href: '/reports/weekly', icon: BarChart3 },
-    ...(!isAdmin ? [{ label: 'Excel Sync', href: '/excel-sync', icon: FileSpreadsheet }] : []),
-  ];
+export function Navbar({ children }: NavbarProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const user = typeof window !== 'undefined' ? getLoggedInUser() : null;
+  const isAdmin = user ? isAdminUser(user) : false;
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md border-b border-slate-800/80 shadow-sm">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo & Brand */}
-          <div className="flex items-center space-x-4 md:space-x-8">
-            <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center group">
-              <span className="font-bold text-slate-200 text-base sm:text-lg tracking-tight">
-                Design
-              </span>
-              <span className="font-display font-black text-base sm:text-lg ml-1.5 tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(168,85,247,0.45)] group-hover:drop-shadow-[0_0_20px_rgba(168,85,247,0.7)] transition-all">
-                Orbit
-              </span>
-            </Link>
+    <>
+      {/* Desktop Fixed Left Sidebar */}
+      <div className="hidden md:flex fixed inset-y-0 left-0 z-30 w-64 lg:w-68">
+        <Sidebar />
+      </div>
 
-            {/* Desktop Navigation links */}
-            <nav className="hidden md:flex items-center space-x-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = item.href.startsWith('/reports')
-                  ? pathname.startsWith('/reports')
-                  : pathname === item.href || (item.href !== '/dashboard' && item.href !== '/admin' && pathname.startsWith(item.href));
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                      isActive
-                        ? 'bg-violet-950/60 text-violet-300 font-semibold border border-violet-800/40'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                    )}
-                  >
-                    <Icon className={cn('w-4 h-4', isActive ? 'text-violet-400' : 'text-slate-400')} />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+      {/* Mobile Top Bar */}
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-[#080C17]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 flex items-center justify-between">
+        <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center py-1">
+          <span className="font-bold text-slate-100 text-base tracking-tight">Design</span>
+          <span className="font-display font-black text-base ml-1.5 tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
+            Orbit
+          </span>
+        </Link>
 
-          {/* Action Button & Profile */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            {!isAdmin && (
-              <Link
-                href="/work/new"
-                className="inline-flex items-center space-x-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span className="hidden xs:inline">Add Work</span>
-                <span className="xs:hidden">Add</span>
-              </Link>
-            )}
-
-            <div className="hidden sm:block h-6 w-px bg-slate-800" />
-
-            <div className="hidden sm:flex items-center space-x-3">
-              <Link
-                href="/settings"
-                title="Account Settings & Password"
-                className="flex items-center space-x-2 group/user"
-              >
-                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-200 group-hover/user:border-violet-500">
-                  {currentUser.charAt(0).toUpperCase()}
-                </div>
-                <span className="text-sm font-bold text-slate-200 group-hover/user:text-violet-400">
-                  {currentUser}
-                </span>
-              </Link>
-
-
-              <button
-                type="button"
-                onClick={handleLogout}
-                title="Sign out"
-                className="text-slate-400 hover:text-red-400 p-1 rounded-md transition-colors cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Mobile Hamburger Menu Button */}
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors"
-              aria-label="Toggle navigation menu"
+        <div className="flex items-center space-x-2">
+          {!isAdmin && (
+            <Link
+              href="/work/new"
+              className="p-1.5 text-white webtree-gradient-btn rounded-lg shadow-sm"
+              title="Add Daily Work"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-slate-200" /> : <Menu className="w-6 h-6 text-slate-200" />}
-            </button>
+              <PlusCircle className="w-4 h-4" />
+            </Link>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.06] transition-colors"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileOpen ? <X className="w-5 h-5 text-slate-100" /> : <Menu className="w-5 h-5 text-slate-100" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Slide-Out Drawer Overlay */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setMobileOpen(false)}
+        >
+          <div
+            className="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] shadow-2xl animate-in slide-in-from-left duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Sidebar onCloseMobile={() => setMobileOpen(false)} />
           </div>
         </div>
+      )}
 
-        {/* Collapsible Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-800 py-3 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150">
-            <div className="px-3 py-2 mb-2 bg-slate-900 rounded-lg flex items-center justify-between border border-slate-800">
-              <div className="flex items-center space-x-2">
-                <div className="w-7 h-7 rounded-full bg-violet-950 border border-violet-800 flex items-center justify-center text-xs font-bold text-violet-400">
-                  {currentUser.charAt(0).toUpperCase()}
-                </div>
-                <span className="text-xs font-bold text-slate-200">{currentUser}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Link
-                  href="/settings"
-                  className="text-xs font-semibold text-violet-400 hover:underline px-2.5 py-1 bg-slate-800 rounded border border-slate-700"
-                >
-                  Settings
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="text-xs font-semibold text-red-400 hover:underline px-2.5 py-1 bg-slate-800 rounded border border-slate-700 cursor-pointer"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = item.href.startsWith('/reports')
-                ? pathname.startsWith('/reports')
-                : pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors',
-                    isActive
-                      ? 'bg-violet-950/60 text-violet-300 border border-violet-800/40'
-                      : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                  )}
-                >
-                  <Icon className={cn('w-5 h-5', isActive ? 'text-violet-400' : 'text-slate-400')} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </header>
+      {children && (
+        <div className="md:pl-64 lg:pl-68 flex-1 min-w-0 min-h-screen flex flex-col pt-14 md:pt-0">
+          {children}
+        </div>
+      )}
+    </>
   );
 }
+
+export default Navbar;

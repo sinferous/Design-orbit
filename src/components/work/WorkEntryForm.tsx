@@ -343,12 +343,12 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       <ToastAlert message={error} type="error" onClose={() => setError(null)} />
       <ToastAlert message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
 
-      <form className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm p-6 sm:p-8 space-y-6 text-slate-100">
+      <form className="bento-card p-6 sm:p-8 space-y-6 text-slate-100">
 
       {/* Auto User & System Date Bar */}
-      <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="bg-black/30 border border-white/[0.08] p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-violet-950 text-violet-400 font-bold flex items-center justify-center text-sm border border-violet-800">
+          <div className="w-9 h-9 rounded-xl bg-violet-600/15 text-violet-300 font-bold flex items-center justify-center text-sm border border-violet-500/25">
             {activeUserObj?.name?.charAt(0) || 'G'}
           </div>
           <div>
@@ -413,9 +413,9 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           {items.map((item, index) => (
             <div
               key={item.id}
-              className="p-5 rounded-xl border border-slate-800 bg-slate-950/70 shadow-sm space-y-4 relative"
+              className="p-5 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:border-violet-500/30 transition-all space-y-4 relative"
             >
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                   Item #{index + 1}
                 </span>

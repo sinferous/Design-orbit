@@ -30,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full bg-[#090d16] dark">
-      <body className={`${inter.className} ${plusJakarta.variable} min-h-full flex flex-col bg-[#090d16] text-slate-100 antialiased relative selection:bg-violet-900 selection:text-violet-200`}>
+    <html lang="en" className="h-full bg-[#06080F] dark">
+      <body className={`${inter.className} ${plusJakarta.variable} min-h-full flex flex-col bg-[#06080F] text-slate-100 antialiased relative selection:bg-violet-900 selection:text-violet-200`}>
         <ToastProvider>
           <CreativeBackground />
           <div className="relative z-10 flex-1 flex flex-col">

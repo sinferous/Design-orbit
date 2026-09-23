@@ -177,12 +177,12 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
   });
 
   return (
-    <div className="bg-slate-900 p-5 sm:p-6 rounded-xl border border-slate-800 shadow-sm space-y-4 flex flex-col h-full text-slate-100">
+    <div className="bento-card p-5 sm:p-6 space-y-4 flex flex-col h-full text-slate-100">
       {/* Header Row: Title, Privacy Indicator & Badge */}
-      <div className="space-y-3 pb-3 border-b border-slate-800">
+      <div className="space-y-3 pb-3 border-b border-white/[0.08]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-violet-950 text-violet-400 flex items-center justify-center border border-violet-800 shadow-sm shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-violet-600/15 text-violet-400 flex items-center justify-center border border-violet-500/20 shadow-sm shrink-0">
               <CheckSquare className="w-4 h-4" />
             </div>
             <div className="min-w-0">
@@ -198,11 +198,11 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
 
           <div className="flex items-center space-x-2 shrink-0 ml-2">
             {pendingCount > 0 ? (
-              <span className="px-2 py-0.5 text-[11px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 rounded-full whitespace-nowrap">
+              <span className="px-2.5 py-0.5 text-[11px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 rounded-full whitespace-nowrap">
                 {pendingCount} Pending
               </span>
             ) : (
-              <span className="px-2 py-0.5 text-[11px] font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60 rounded-full flex items-center space-x-1 whitespace-nowrap">
+              <span className="px-2.5 py-0.5 text-[11px] font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60 rounded-full flex items-center space-x-1 whitespace-nowrap">
                 <Sparkles className="w-3 h-3 text-emerald-400" />
                 <span>All Done!</span>
               </span>
@@ -211,13 +211,13 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
         </div>
 
         {/* Filter Segmented Control Bar */}
-        <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs w-full">
+        <div className="flex items-center bg-black/30 p-1 rounded-xl border border-white/[0.08] text-xs w-full">
           <button
             type="button"
             onClick={() => setActiveTab('all')}
-            className={`flex-1 py-1 text-center rounded-md font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 text-center rounded-lg font-bold transition-all cursor-pointer ${
               activeTab === 'all'
-                ? 'bg-slate-800 text-violet-300 shadow-xs border border-slate-700'
+                ? 'bg-violet-600/25 text-white shadow-xs border border-violet-500/35'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -226,9 +226,9 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
           <button
             type="button"
             onClick={() => setActiveTab('pending')}
-            className={`flex-1 py-1 text-center rounded-md font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 text-center rounded-lg font-bold transition-all cursor-pointer ${
               activeTab === 'pending'
-                ? 'bg-slate-800 text-violet-300 shadow-xs border border-slate-700'
+                ? 'bg-violet-600/25 text-white shadow-xs border border-violet-500/35'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -237,9 +237,9 @@ export function TodoListWidget({ userId }: TodoListWidgetProps) {
           <button
             type="button"
             onClick={() => setActiveTab('completed')}
-            className={`flex-1 py-1 text-center rounded-md font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 text-center rounded-lg font-bold transition-all cursor-pointer ${
               activeTab === 'completed'
-                ? 'bg-slate-800 text-violet-300 shadow-xs border border-slate-700'
+                ? 'bg-violet-600/25 text-white shadow-xs border border-violet-500/35'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >

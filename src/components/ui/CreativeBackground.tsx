@@ -5,86 +5,35 @@ import React from 'react';
 export function CreativeBackground() {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none aria-hidden">
-      {/* Very Faint Ambient Dark Mode Glows */}
-      <div className="absolute -top-32 -left-32 w-[38rem] h-[38rem] bg-violet-900/15 rounded-full blur-3xl" />
-      <div className="absolute -bottom-32 -right-32 w-[38rem] h-[38rem] bg-indigo-900/15 rounded-full blur-3xl" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45rem] h-[45rem] bg-slate-900/30 rounded-full blur-3xl" />
+      {/* Deep Obsidian Canvas Base */}
+      <div className="absolute inset-0 bg-[#06080F]" />
 
-      {/* Subtle Dot Grid Pattern */}
+      {/* Atmospheric Ambient Glow Orbs */}
       <div 
-        className="absolute inset-0 opacity-[0.04]" 
+        className="absolute -top-48 left-1/4 w-[42rem] h-[42rem] rounded-full bg-gradient-to-br from-violet-600/15 via-indigo-600/10 to-transparent blur-[120px] pointer-events-none" 
+      />
+      <div 
+        className="absolute top-1/3 -right-32 w-[36rem] h-[36rem] rounded-full bg-gradient-to-br from-fuchsia-600/10 via-purple-600/08 to-transparent blur-[110px] pointer-events-none" 
+      />
+      <div 
+        className="absolute -bottom-40 left-10 w-[40rem] h-[40rem] rounded-full bg-gradient-to-tr from-indigo-700/12 via-violet-900/08 to-transparent blur-[130px] pointer-events-none" 
+      />
+
+      {/* Fine Micro-Dot Matrix with Center Radial Fade */}
+      <div 
+        className="absolute inset-0 opacity-[0.035]"
         style={{
-          backgroundImage: `radial-gradient(#94a3b8 1px, transparent 1px)`,
-          backgroundSize: '32px 32px',
+          backgroundImage: `radial-gradient(#a855f7 1px, transparent 1px)`,
+          backgroundSize: '28px 28px',
+          maskImage: 'radial-gradient(ellipse 80% 70% at 50% 30%, black 40%, transparent 90%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 30%, black 40%, transparent 90%)',
         }} 
       />
 
-      {/* TOP LEFT SUBTLE BEZIER VECTOR PATH */}
-      <div className="absolute top-16 left-4 sm:left-12 opacity-20 animate-float">
-        <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-600">
-          <path d="M15 125 C 35 35, 105 105, 125 15" stroke="currentColor" strokeWidth="1.5" strokeDasharray="5 5" />
-          <rect x="10" y="120" width="10" height="10" fill="#0f172a" stroke="currentColor" strokeWidth="1.5" rx="1.5" />
-          <rect x="120" y="10" width="10" height="10" fill="#0f172a" stroke="currentColor" strokeWidth="1.5" rx="1.5" />
-          <line x1="15" y1="125" x2="45" y2="70" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
-          <circle cx="45" cy="70" r="3" fill="currentColor" />
-          <line x1="125" y1="15" x2="95" y2="70" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
-          <circle cx="95" cy="70" r="3" fill="currentColor" />
-        </svg>
-      </div>
-
-      {/* TOP RIGHT SUBTLE CANVAS BOUNDING BOX */}
-      <div className="absolute top-20 right-4 sm:right-12 opacity-20 animate-float" style={{ animationDelay: '2s' }}>
-        <div className="w-40 h-32 border border-dashed border-slate-700 rounded-lg relative">
-          <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-900 border border-slate-600 rounded-2xs" />
-          <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-900 border border-slate-600 rounded-2xs" />
-          <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-900 border border-slate-600 rounded-2xs" />
-          <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-slate-900 border border-slate-600 rounded-2xs" />
-          <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-600 rounded-full border border-slate-900" />
-          <div className="absolute -top-5 left-1/2 -translate-x-1/2 h-3.5 w-px bg-slate-700" />
-        </div>
-      </div>
-
-      {/* MID LEFT SUBTLE ROTATING ORBIT RINGS */}
-      <div className="absolute top-1/3 left-2 sm:left-8 opacity-15">
-        <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-600 animate-spin-slow">
-          <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="1.2" strokeDasharray="6 6" />
-          <circle cx="80" cy="80" r="48" stroke="currentColor" strokeWidth="1" strokeOpacity="0.5" />
-          <circle cx="80" cy="80" r="26" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
-          <circle cx="150" cy="80" r="4" fill="currentColor" />
-          <circle cx="32" cy="80" r="3" fill="currentColor" />
-        </svg>
-      </div>
-
-      {/* MID RIGHT SUBTLE VECTOR RULE & CROSSHAIR */}
-      <div className="absolute top-1/2 right-4 sm:right-10 opacity-20 animate-float" style={{ animationDelay: '3.5s' }}>
-        <div className="p-2.5 border border-slate-800 rounded-lg flex items-center space-x-2 text-slate-500 bg-slate-900/30 backdrop-blur-xs">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <line x1="12" y1="2" x2="12" y2="22" strokeDasharray="2 2" />
-            <line x1="2" y1="12" x2="22" y2="12" strokeDasharray="2 2" />
-            <rect x="7" y="7" width="10" height="10" stroke="currentColor" strokeWidth="1.5" fill="none" />
-          </svg>
-          <span className="text-[10px] font-mono tracking-widest text-slate-500 uppercase">Vector</span>
-        </div>
-      </div>
-
-      {/* BOTTOM LEFT SUBTLE TYPOGRAPHY OUTLINE */}
-      <div className="absolute bottom-24 left-6 sm:left-14 opacity-20 animate-float" style={{ animationDelay: '1.5s' }}>
-        <div className="flex items-center space-x-2 text-slate-600">
-          <span className="text-3xl font-black font-serif italic tracking-tighter text-slate-600">Aa</span>
-          <div className="space-y-1">
-            <div className="w-12 h-0.5 bg-slate-700 rounded-full" />
-            <div className="w-20 h-0.5 bg-slate-800 rounded-full" />
-          </div>
-        </div>
-      </div>
-
-      {/* BOTTOM RIGHT SUBTLE VECTOR CURSOR */}
-      <div className="absolute bottom-16 right-6 sm:right-14 opacity-20 animate-float" style={{ animationDelay: '4s' }}>
-        <svg width="24" height="24" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-600">
-          <path d="M12 12 L24 48 L32 32 L48 24 Z" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
-          <circle cx="12" cy="12" r="3" fill="#0f172a" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      </div>
+      {/* Subtle Top Edge Gradient Line */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
     </div>
   );
 }
+
+export default CreativeBackground;

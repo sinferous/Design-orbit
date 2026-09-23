@@ -631,21 +631,21 @@ export default function ExcelSyncPage() {
   const isCurrentWeek = weekStartDate === initialWeek.startDate;
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col relative">
+    <div className="min-h-screen bg-[#06080F] text-slate-100 flex flex-col relative">
       <CreativeBackground />
       <Navbar />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-6 z-10">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-6 z-10 space-y-6">
         {/* Header Title & Subtitle */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="bento-card bento-glow-subtle p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2.5 mb-1.5">
-              <div className="p-2 rounded-lg bg-emerald-950/80 border border-emerald-700/50 text-emerald-400">
+              <div className="p-2 rounded-xl bg-emerald-600/15 border border-emerald-500/25 text-emerald-400">
                 <FileSpreadsheet className="w-5 h-5" />
               </div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
                 Excel Sync
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/40">
+                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/40">
                   Excel & Sheets Ready
                 </span>
               </h1>
@@ -655,16 +655,16 @@ export default function ExcelSyncPage() {
             </p>
           </div>
 
-          {/* Mode Tabs (Daily vs Weekly) - Exactly Same Dimensions & Alignment */}
-          <div className="inline-flex p-1 bg-slate-900 border border-slate-800 rounded-xl self-start sm:self-auto shrink-0 shadow-xs">
+          {/* Mode Tabs (Daily vs Weekly) */}
+          <div className="inline-flex p-1.5 bg-black/40 border border-white/[0.08] rounded-xl self-start sm:self-auto shrink-0 shadow-xs">
             <button
               type="button"
               onClick={() => setActiveTab('daily')}
               className={cn(
-                'w-32 sm:w-36 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer select-none',
+                'w-32 sm:w-36 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer select-none btn-tactile',
                 activeTab === 'daily'
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-[0_0_16px_rgba(16,185,129,0.35)]'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
               )}
             >
               <Calendar className="w-3.5 h-3.5" />

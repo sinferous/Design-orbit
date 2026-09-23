@@ -188,15 +188,14 @@ export default function AdminDashboardPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Executive Header Banner */}
-        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bento-card bento-glow-subtle p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-violet-950/70 text-violet-300 border border-violet-800/60 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-violet-400" />
-                <span>Executive Admin Dashboard</span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60 shadow-2xs">
+                Executive Agency Console
               </span>
               <span className="text-xs text-slate-600">•</span>
-              <span className="text-xs font-semibold text-slate-400">
+              <span className="text-xs text-slate-400">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
               </span>
             </div>
@@ -212,7 +211,7 @@ export default function AdminDashboardPage() {
             <button
               onClick={() => loadData(true)}
               disabled={refreshing}
-              className="inline-flex items-center space-x-2 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center space-x-2 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] rounded-xl shadow-2xs transition-all btn-tactile cursor-pointer disabled:opacity-50"
               title="Refresh agency metrics"
             >
               <RefreshCw className={`w-4 h-4 text-slate-400 ${refreshing ? 'animate-spin' : ''}`} />
@@ -221,21 +220,21 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Top 4 KPI Metrics - 4 Small Compact Cards (2x2 on Mobile, 4-col on Desktop) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+        {/* Top 4 KPI Metrics - Bento Matrix */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Card 1: Today's Team Output */}
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Today Output</span>
-              <span className="p-1.5 rounded-lg bg-violet-950/70 text-violet-400 border border-violet-800/60 shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0 group-hover:scale-105 transition-transform">
                 <Sparkles className="w-3.5 h-3.5" />
-              </span>
+              </div>
             </div>
-            <div className="flex items-baseline space-x-1.5 mt-1">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{todayCreated}</span>
+            <div className="flex items-baseline space-x-1.5 mt-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display leading-none">{todayCreated}</span>
               <span className="text-[10px] sm:text-xs font-bold text-violet-400 truncate">({todayApproved} app.)</span>
             </div>
-            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
+            <div className="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs">
               <span className="text-slate-500">Active</span>
               <span className="font-bold text-violet-400">
                 {activeTodayDesignerIds.size} designers
@@ -244,18 +243,18 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Card 2: Weekly Production */}
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Weekly Output</span>
-              <span className="p-1.5 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/60 shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-indigo-600/15 border border-indigo-500/25 flex items-center justify-center text-indigo-400 shrink-0 group-hover:scale-105 transition-transform">
                 <TrendingUp className="w-3.5 h-3.5" />
-              </span>
+              </div>
             </div>
-            <div className="flex items-baseline space-x-1.5 mt-1">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{weekSummary.totalCreated}</span>
+            <div className="flex items-baseline space-x-1.5 mt-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display leading-none">{weekSummary.totalCreated}</span>
               <span className="text-[10px] sm:text-xs font-bold text-violet-400 truncate">({weekSummary.totalApproved} app.)</span>
             </div>
-            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
+            <div className="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs">
               <span className="text-slate-500">Approval</span>
               <span className="font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-800/60 px-1.5 py-0.5 rounded">
                 {weeklyApprovalRate}%
@@ -264,20 +263,20 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Card 3: Total Deliverable Time */}
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Logged Time</span>
-              <span className="p-1.5 rounded-lg bg-amber-950/70 text-amber-400 border border-amber-800/60 shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
                 <Clock className="w-3.5 h-3.5" />
-              </span>
+              </div>
             </div>
-            <div className="flex items-baseline space-x-1.5 mt-1">
-              <span className="text-xl sm:text-2xl font-extrabold text-amber-400 font-mono leading-none">
+            <div className="flex items-baseline space-x-1.5 mt-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono leading-none">
                 {formatWorkEntryDuration(todaySeconds)}
               </span>
               <span className="text-[10px] sm:text-xs text-slate-500 truncate">today</span>
             </div>
-            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
+            <div className="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs">
               <span className="text-slate-500">Week</span>
               <span className="font-bold text-slate-300 truncate">
                 {formatWorkEntryDuration(weekSummary.totalSeconds)}
@@ -286,18 +285,18 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Card 4: Active Clients */}
-          <div className="bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-800 shadow-2xs flex flex-col justify-between">
+          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Active Clients</span>
-              <span className="p-1.5 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/60 shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0 group-hover:scale-105 transition-transform">
                 <Building2 className="w-3.5 h-3.5" />
-              </span>
+              </div>
             </div>
-            <div className="flex items-baseline space-x-1.5 mt-1">
-              <span className="text-xl sm:text-2xl font-extrabold text-slate-100 leading-none">{weekSummary.activeClients}</span>
+            <div className="flex items-baseline space-x-1.5 mt-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display leading-none">{weekSummary.activeClients}</span>
               <span className="text-[10px] sm:text-xs text-slate-500 truncate">brands</span>
             </div>
-            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center justify-between text-[10px] sm:text-xs">
+            <div className="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs">
               <Link href="/clients" className="text-violet-400 hover:text-violet-300 font-bold inline-flex items-center space-x-0.5">
                 <span>Directory</span>
                 <ArrowUpRight className="w-3 h-3" />
@@ -308,7 +307,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Live Team Workload Status Bar */}
-        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
+        <div className="bento-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-violet-400" />
@@ -538,10 +537,10 @@ export default function AdminDashboardPage() {
         })()}
 
         {/* 2-Column Main Section: Today's Deliverables Feed (65%) + Admin Launchpad & Notes (35%) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           {/* Left: Agency Today's Deliverables Stream (8 Cols) */}
-          <div className="lg:col-span-8 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="lg:col-span-8 bento-card p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
               <div>
                 <h2 className="text-lg font-bold text-slate-100">Today's Agency Deliverables Feed</h2>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -660,7 +659,7 @@ export default function AdminDashboardPage() {
           {/* Right: Executive Operations Launchpad & Private Notes (4 Cols) */}
           <div className="lg:col-span-4 space-y-6">
             {/* Executive Quick Launchpad */}
-            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4">
+            <div className="bento-card p-6 space-y-4">
               <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-300">
                 Executive Agency Controls
               </h2>

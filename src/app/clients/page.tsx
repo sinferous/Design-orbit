@@ -128,7 +128,7 @@ export default function ClientsPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bento-card bento-glow-subtle p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60">
@@ -147,7 +147,7 @@ export default function ClientsPage() {
 
           <Link
             href="/work/new"
-            className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
+            className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-[0_0_16px_rgba(168,85,247,0.3)] btn-tactile"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Work Entry</span>
@@ -155,7 +155,7 @@ export default function ClientsPage() {
         </div>
 
         {/* Add Client Card */}
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm space-y-4">
+        <div className="bento-card p-6 space-y-4">
           <h2 className="text-base font-bold text-slate-100 flex items-center space-x-2">
             <Building2 className="w-4 h-4 text-violet-400" />
             <span>Add New Client</span>
@@ -167,12 +167,12 @@ export default function ClientsPage() {
               value={newClientName}
               onChange={e => setNewClientName(e.target.value)}
               placeholder="Enter new client name (e.g. Acme Corp)"
-              className="flex-1 w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-slate-950 transition-all"
+              className="flex-1 w-full px-4 py-2.5 bg-black/30 border border-white/[0.08] rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-all font-medium"
             />
             <button
               type="submit"
               disabled={adding}
-              className="inline-flex justify-center items-center space-x-2 px-6 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50"
+              className="inline-flex justify-center items-center space-x-2 px-6 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-sm disabled:opacity-50 btn-tactile"
             >
               <Plus className="w-4 h-4" />
               <span>{adding ? 'Adding...' : 'Add Client'}</span>
@@ -181,8 +181,8 @@ export default function ClientsPage() {
         </div>
 
         {/* Client Roster List Card */}
-        <div className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm p-6 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+        <div className="bento-card p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/[0.08]">
             <h2 className="text-base font-bold text-slate-100">
               All Clients ({filteredClients.length})
             </h2>
@@ -195,7 +195,7 @@ export default function ClientsPage() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search clients..."
-                className="w-full pl-9 pr-4 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full pl-9 pr-4 py-2 bg-black/30 border border-white/[0.08] rounded-xl text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 font-medium"
               />
             </div>
           </div>
@@ -275,10 +275,10 @@ export default function ClientsPage() {
                 return (
                   <div
                     key={client.id}
-                    className="p-4 bg-slate-950/70 rounded-lg border border-slate-800 flex items-center justify-between space-x-3 hover:border-slate-700 hover:bg-slate-800/60 transition-all group"
+                    className="p-4 bg-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-between space-x-3 hover:border-violet-500/40 hover:bg-white/[0.05] transition-all group bento-card-hover"
                   >
                     <div className="flex items-center space-x-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-violet-950/80 border border-violet-800/60 flex items-center justify-center text-xs font-bold text-violet-400 shrink-0">
+                      <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-xs font-bold text-violet-300 shrink-0 group-hover:scale-105 transition-transform">
                         {client.name.charAt(0).toUpperCase()}
                       </div>
                       <span className="text-sm font-bold text-slate-200 truncate" title={client.name}>
