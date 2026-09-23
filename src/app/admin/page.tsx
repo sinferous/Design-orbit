@@ -450,7 +450,7 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Bottom Meta Stats */}
-            <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-2 gap-3 text-center text-xs">
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Team Peak Velocity</span>
                 <span className="text-xs font-bold text-slate-200 mt-0.5 block">{teamPeakDayMeta.text}</span>
@@ -458,10 +458,6 @@ export default function AdminDashboardPage() {
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Approval Rating</span>
                 <span className="text-xs font-bold text-emerald-400 mt-0.5 block">{weeklyApprovalRate}% On Schedule</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Team Daily Average</span>
-                <span className="text-xs font-bold text-indigo-300 mt-0.5 block">~{teamDailyAverage} Outputs / Day</span>
               </div>
             </div>
           </div>

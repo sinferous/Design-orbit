@@ -706,7 +706,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Bottom Meta Stats (Normalized for 5-day Working Sprints) */}
-            <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-2 gap-3 text-center text-xs">
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Peak Velocity</span>
                 <span className="text-xs font-bold text-slate-200 mt-0.5 block">{peakDayMeta.text}</span>
@@ -714,10 +714,6 @@ export default function DashboardPage() {
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Approval Rating</span>
                 <span className="text-xs font-bold text-emerald-400 mt-0.5 block">{myTurnaroundRate}</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Workdays Average</span>
-                <span className="text-xs font-bold text-violet-300 mt-0.5 block">~{myDailyAverage} Outputs / Day</span>
               </div>
             </div>
           </div>
