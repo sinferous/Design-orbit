@@ -106,34 +106,34 @@ export default function MonthlyReportPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar userName="Gajesh" />
 
       {/* Sub-Navigation for Reports */}
-      <div className="bg-slate-900 border-b border-slate-800">
+      <div className="bg-[#0B0F1C]/80 backdrop-blur-md border-b border-white/[0.08] shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex space-x-4 sm:space-x-6 min-w-max">
             <Link
               href="/reports/weekly"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap"
             >
               Weekly Meeting Report
             </Link>
             <Link
               href="/reports/monthly"
-              className="py-3 text-xs sm:text-sm font-bold text-violet-400 border-b-2 border-violet-400 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-bold text-violet-300 border-b-2 border-violet-400 whitespace-nowrap"
             >
               Monthly Summary
             </Link>
             <Link
               href="/reports/overall"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap"
             >
               Overall / All-Time
             </Link>
             <Link
               href="/reports/billing"
-              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 whitespace-nowrap"
+              className="py-3 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap"
             >
               Client Time Tracking
             </Link>
@@ -141,9 +141,9 @@ export default function MonthlyReportPage() {
 
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+            className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
           >
-            <Download className="w-4 h-4 text-slate-400" />
+            <Download className="w-4 h-4 text-violet-400" />
             <span className="hidden sm:inline">Export CSV</span>
             <span className="sm:hidden">CSV</span>
           </button>

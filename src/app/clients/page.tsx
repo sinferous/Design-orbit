@@ -123,7 +123,7 @@ export default function ClientsPage() {
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">

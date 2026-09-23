@@ -497,7 +497,7 @@ export default function MyWorkPage() {
   const totalPendingWaiting = totalPendingDone - totalPendingApproved;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar userName={activeProfile?.name || 'Gajesh'} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
