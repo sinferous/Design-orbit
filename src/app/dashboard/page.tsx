@@ -945,8 +945,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
           {/* Main Deliverables Stream (8 cols) */}
           <div className="lg:col-span-8 bento-card p-5 sm:p-6 space-y-4">
-            {/* Header with Search and Filter Pills */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 border-b border-white/[0.08] pb-4">
+            {/* Header with Filter Pills */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-white/[0.08] pb-4">
               <div className="flex items-center space-x-3 min-w-0 shrink-0">
                 <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0">
                   <Activity className="w-4 h-4" />
@@ -967,65 +967,41 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Interactive Search Bar & Filter Controls */}
-              <div className="flex items-center justify-end gap-2.5 flex-wrap sm:flex-nowrap md:ml-auto w-full md:w-auto">
-                {/* Search Input Box */}
-                <div className="relative w-full sm:w-52 md:w-56 shrink-0">
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Filter deliverables..."
-                    className="w-full pl-8 pr-7 py-1.5 bg-black/40 border border-white/[0.08] focus:border-violet-500/50 rounded-xl text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none transition-colors"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Filter Tabs: My Work vs Team Work */}
-                <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-xs shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setFeedFilter('my_work')}
-                    className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                      feedFilter === 'my_work'
-                        ? 'bg-violet-600/30 text-white border border-violet-500/35 shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    My Work ({myTodayEntries.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFeedFilter('team_work')}
-                    className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                      feedFilter === 'team_work'
-                        ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-500/35 shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    Team ({todayEntries.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFeedFilter('timers')}
-                    className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                      feedFilter === 'timers'
-                        ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/35 shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    Timers
-                  </button>
-                </div>
+              {/* Filter Tabs: My Work vs Team Work */}
+              <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-xs shrink-0 sm:ml-auto">
+                <button
+                  type="button"
+                  onClick={() => setFeedFilter('my_work')}
+                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                    feedFilter === 'my_work'
+                      ? 'bg-violet-600/30 text-white border border-violet-500/35 shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  My Work ({myTodayEntries.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFeedFilter('team_work')}
+                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                    feedFilter === 'team_work'
+                      ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-500/35 shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Team ({todayEntries.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFeedFilter('timers')}
+                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                    feedFilter === 'timers'
+                      ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/35 shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Timers
+                </button>
               </div>
             </div>
 
@@ -1037,7 +1013,7 @@ export default function DashboardPage() {
             ) : filteredFeed.length === 0 ? (
               <div className="p-10 text-center space-y-3 bg-white/[0.02] rounded-2xl border border-white/[0.06]">
                 <p className="text-xs text-slate-400 font-medium">
-                  {searchQuery ? `No deliverables matching "${searchQuery}"` : 'No deliverables logged in this view yet.'}
+                  No deliverables logged in this view yet.
                 </p>
                 <Link
                   href="/work/new"
