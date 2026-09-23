@@ -47,11 +47,11 @@ const PIP_EMBEDDED_STYLES = `
   html, body {
     width: 100%;
     height: 100%;
-    background: #090d16;
+    background: #06080F;
   }
 
   body {
-    background: radial-gradient(circle at 50% 0%, #151d30 0%, #090d16 100%);
+    background: radial-gradient(circle at 50% 0%, #161D32 0%, #06080F 100%);
     color: #f1f5f9;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
     overflow: hidden;
@@ -59,7 +59,7 @@ const PIP_EMBEDDED_STYLES = `
     -webkit-user-select: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    padding: 7px 9px 8px;
+    padding: 8px 10px 9px;
     display: flex;
     flex-direction: column;
   }
@@ -117,42 +117,49 @@ const PIP_EMBEDDED_STYLES = `
   }
 
   .pip-logo-text {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #94a3b8;
+    letter-spacing: -0.02em;
+    color: #e2e8f0;
+  }
+
+  .pip-logo-text span {
+    background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+    margin-left: 2px;
   }
 
   .pip-count-badge {
     font-size: 9px;
     font-weight: 700;
-    padding: 1px 6px;
+    padding: 1.5px 7px;
     border-radius: 9999px;
-    background: rgba(56, 189, 248, 0.12);
-    color: #38bdf8;
-    border: 1px solid rgba(56, 189, 248, 0.25);
+    background: rgba(139, 92, 246, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(139, 92, 246, 0.3);
   }
 
   .pip-dock-btn {
     display: inline-flex;
     align-items: center;
     gap: 3px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #cbd5e1;
-    border-radius: 5px;
-    padding: 2px 6px;
+    border-radius: 6px;
+    padding: 3px 7px;
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
   }
 
   .pip-dock-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   .pip-list {
@@ -174,21 +181,21 @@ const PIP_EMBEDDED_STYLES = `
   }
 
   .pip-card {
-    background: rgba(255, 255, 255, 0.035);
+    background: rgba(255, 255, 255, 0.025);
     border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 8px;
-    padding: 6px 8px;
+    border-radius: 10px;
+    padding: 7px 9px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
     flex-shrink: 0;
     transition: all 0.2s ease;
   }
 
   .pip-card.running {
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(16, 185, 129, 0.05) 100%);
-    border-color: rgba(56, 189, 248, 0.3);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+    border-color: rgba(168, 85, 247, 0.35);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 
   .pip-card-header {
@@ -201,7 +208,7 @@ const PIP_EMBEDDED_STYLES = `
   .pip-meta {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     min-width: 0;
     overflow: hidden;
   }
@@ -209,7 +216,7 @@ const PIP_EMBEDDED_STYLES = `
   .pip-client {
     font-size: 11px;
     font-weight: 800;
-    color: #38bdf8;
+    color: #c084fc;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -260,12 +267,13 @@ const PIP_EMBEDDED_STYLES = `
   }
 
   .pip-stopwatch {
-    font-family: "SF Mono", "Roboto Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-size: 17px;
     font-weight: 800;
-    letter-spacing: 0.03em;
-    color: #fbbf24;
-    text-shadow: 0 0 8px rgba(251, 191, 36, 0.35);
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    color: #34d399;
+    text-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
     line-height: 1;
   }
 
@@ -1040,7 +1048,7 @@ export function FloatingPipTimer() {
           <div className="pip-header">
             <div className="pip-brand">
               <div className={`pip-dot ${runningCount === 0 ? 'paused' : ''}`} />
-              <span className="pip-logo-text">DESIGN ORBIT</span>
+              <span className="pip-logo-text">Design <span>Orbit</span></span>
               <span className="pip-count-badge">
                 {runningCount > 0 ? `${runningCount} Active` : 'Paused'}
               </span>
@@ -1132,23 +1140,24 @@ export function FloatingPipTimer() {
 
     // In-page docked corner widget render
     return (
-      <div className="bg-slate-950/95 text-slate-100 backdrop-blur-md rounded-xl shadow-2xl border border-slate-800 p-3 max-w-xs w-full space-y-2">
-        <div className="flex items-center justify-between gap-1.5 border-b border-slate-800/80 pb-1.5 shrink-0">
-          <div className="flex items-center space-x-1.5 min-w-0">
+      <div className="bg-[#0B0F1C]/95 text-slate-100 backdrop-blur-xl rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] border border-white/[0.1] p-3 max-w-xs w-full space-y-2.5">
+        <div className="flex items-center justify-between gap-1.5 border-b border-white/[0.08] pb-2 shrink-0">
+          <div className="flex items-center space-x-2 min-w-0">
             <span className="relative flex h-2 w-2 shrink-0">
               {runningCount > 0 ? (
                 <>
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                 </>
               ) : (
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
               )}
             </span>
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-200 truncate">
-              Design Orbit
-            </span>
-            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+            <div className="flex items-center space-x-1 font-bold text-xs tracking-tight truncate">
+              <span className="text-slate-200">Design</span>
+              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent font-black">Orbit</span>
+            </div>
+            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 shrink-0">
               {runningCount} Active
             </span>
           </div>
@@ -1157,7 +1166,7 @@ export function FloatingPipTimer() {
             <button
               type="button"
               onClick={() => openPipWindow()}
-              className="px-2 py-0.5 text-[10px] font-bold bg-violet-600 hover:bg-violet-500 text-white rounded transition-colors flex items-center space-x-1 cursor-pointer"
+              className="btn-tactile px-2.5 py-1 text-[10px] font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg transition-all flex items-center space-x-1 cursor-pointer shadow-xs hover:shadow-[0_0_12px_rgba(139,92,246,0.5)]"
               title="Float window outside browser (Picture-in-Picture)"
             >
               <ExternalLink className="w-2.5 h-2.5" />
@@ -1166,17 +1175,17 @@ export function FloatingPipTimer() {
             <button
               type="button"
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-0.5 text-slate-400 hover:text-white rounded hover:bg-slate-800 cursor-pointer"
+              className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.08] transition-colors cursor-pointer"
               title={isMinimized ? 'Expand' : 'Minimize'}
             >
-              {isMinimized ? <Maximize2 className="w-3 h-3" /> : <Minimize2 className="w-3 h-3" />}
+              {isMinimized ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
 
         {/* Task List */}
         {!isMinimized && (
-          <div className="space-y-1.5 overflow-y-auto max-h-[220px] pr-0.5">
+          <div className="space-y-2 overflow-y-auto max-h-[220px] pr-0.5">
             {entries.map(entry => {
               const isRunning = Boolean(entry.timer_started_at);
               const elapsed = calculateWorkEntrySeconds(entry, nowMs);
@@ -1188,46 +1197,46 @@ export function FloatingPipTimer() {
               return (
                 <div
                   key={entry.id}
-                  className={`p-1.5 rounded-lg border transition-all ${
+                  className={`p-2 rounded-xl border transition-all ${
                     isRunning
-                      ? 'bg-slate-900/90 border-slate-700 shadow-2xs'
-                      : 'bg-slate-900/40 border-slate-800/60 opacity-80'
+                      ? 'bg-gradient-to-r from-violet-950/40 via-indigo-950/30 to-[#0B0F1C] border-violet-500/35 shadow-[0_0_15px_rgba(139,92,246,0.12)]'
+                      : 'bg-white/[0.02] border-white/[0.06] opacity-80 hover:opacity-100'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1 text-[11px]">
-                    <div className="flex items-center space-x-1 truncate min-w-0 font-bold">
+                    <div className="flex items-center space-x-1.5 truncate min-w-0 font-bold">
                       <Building2 className="w-3 h-3 text-violet-400 shrink-0" />
-                      <span className="text-violet-400 truncate">{clientName}</span>
+                      <span className="text-violet-300 font-bold truncate">{clientName}</span>
                       <span className="text-slate-600">&bull;</span>
-                      <span className="text-slate-300 font-semibold truncate">{workTypeName}</span>
+                      <span className="text-slate-300 font-medium truncate">{workTypeName}</span>
                     </div>
                     <span
-                      className={`text-[8px] font-extrabold uppercase px-1 py-0.2 rounded shrink-0 ${
+                      className={`text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md shrink-0 tracking-wide ${
                         isRunning
-                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-800/80'
-                          : 'bg-amber-950 text-amber-300 border border-amber-800/80'
+                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                          : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       }`}
                     >
-                      {isRunning ? 'RUN' : 'PAUSED'}
+                      {isRunning ? 'RUNNING' : 'PAUSED'}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between gap-2 mt-1 pt-0.5 border-t border-slate-800/50">
+                  <div className="flex items-center justify-between gap-2 mt-1.5 pt-1 border-t border-white/[0.06]">
                     <div
-                      className={`font-mono text-base font-black tracking-tight ${
-                        isRunning ? 'text-amber-400' : 'text-slate-400'
+                      className={`font-mono text-base font-extrabold tracking-tight tabular-nums ${
+                        isRunning ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'text-slate-400'
                       }`}
                     >
                       {stopwatch}
                     </div>
 
-                    <div className="flex items-center space-x-1 shrink-0">
+                    <div className="flex items-center space-x-1.5 shrink-0">
                       {isRunning ? (
                         <button
                           type="button"
                           disabled={isOperating}
                           onClick={() => handlePause(entry)}
-                          className="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded transition-all flex items-center space-x-0.5 cursor-pointer disabled:opacity-50"
+                          className="px-2 py-1 text-[10px] font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 rounded-lg transition-all btn-tactile flex items-center space-x-1 cursor-pointer disabled:opacity-50"
                           title="Pause Timer"
                         >
                           <Pause className="w-2.5 h-2.5 fill-current" />
@@ -1238,7 +1247,7 @@ export function FloatingPipTimer() {
                           type="button"
                           disabled={isOperating}
                           onClick={() => handleResume(entry)}
-                          className="px-2 py-0.5 text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded transition-all flex items-center space-x-0.5 cursor-pointer shadow-xs disabled:opacity-50"
+                          className="px-2 py-1 text-[10px] font-black bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition-all btn-tactile flex items-center space-x-1 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.3)] disabled:opacity-50"
                           title="Resume Timer"
                         >
                           <Play className="w-2.5 h-2.5 fill-current" />
@@ -1250,7 +1259,7 @@ export function FloatingPipTimer() {
                         type="button"
                         disabled={isOperating}
                         onClick={() => handleStop(entry)}
-                        className="p-1 text-slate-500 hover:text-rose-400 rounded cursor-pointer transition-colors"
+                        className="p-1 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 cursor-pointer transition-colors btn-tactile"
                         title="Stop & Finalize Task"
                       >
                         <Square className="w-2.5 h-2.5 fill-current" />
