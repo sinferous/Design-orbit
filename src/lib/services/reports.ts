@@ -107,6 +107,29 @@ export function getWeekRange(dateInput: Date = new Date()) {
   };
 }
 
+// Utility to calculate Velocity week range (Monday to Sunday - exactly 7 days)
+export function getVelocityWeekRange(dateInput: Date = new Date()) {
+  const d = new Date(dateInput);
+  const day = d.getDay();
+  // Distance back to Monday (day 1, where Sunday is 0)
+  const diffToMonday = day === 0 ? 6 : day - 1;
+  const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - diffToMonday, 12, 0, 0);
+  const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6, 12, 0, 0);
+
+  const formatLocal = (dt: Date) => {
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, '0');
+    const dayNum = String(dt.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dayNum}`;
+  };
+
+  return {
+    startDate: formatLocal(monday),
+    endDate: formatLocal(sunday),
+    label: `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+  };
+}
+
 export async function getWeeklyReportData(startDateStr: string, endDateStr: string): Promise<WeeklyUserSummary[]> {
   const allProfiles = await fetchProfiles();
   const profiles = allProfiles.filter(p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator'));

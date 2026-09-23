@@ -21,7 +21,7 @@ import {
   getPendingUrgency,
   isInProgressEntry,
 } from '@/lib/services/work-entry';
-import { getWeeklyReportData, getWeekRange, WeeklyUserSummary } from '@/lib/services/reports';
+import { getWeeklyReportData, getVelocityWeekRange, WeeklyUserSummary } from '@/lib/services/reports';
 import { WorkEntryWithDetails } from '@/types';
 import {
   Plus,
@@ -115,7 +115,7 @@ export default function DashboardPage() {
 
     async function loadDashboardData() {
       try {
-        const week = getWeekRange(new Date());
+        const week = getVelocityWeekRange(new Date());
         setWeekRange({ startDate: week.startDate, endDate: week.endDate });
 
         const [tEntries, wData, profiles] = await Promise.all([

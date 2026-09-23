@@ -16,7 +16,7 @@ import {
   getPendingDaysAgo,
   getPendingUrgency,
 } from '@/lib/services/work-entry';
-import { getWeeklyReportData, getWeekRange, WeeklyUserSummary } from '@/lib/services/reports';
+import { getWeeklyReportData, getVelocityWeekRange, WeeklyUserSummary } from '@/lib/services/reports';
 import { WorkEntryWithDetails, Profile } from '@/types';
 import {
   Building2,
@@ -95,7 +95,7 @@ export default function AdminDashboardPage() {
   const loadData = async (isManualRefresh = false) => {
     if (isManualRefresh) setRefreshing(true);
     try {
-      const week = getWeekRange(new Date());
+      const week = getVelocityWeekRange(new Date());
       setWeekRange({ startDate: week.startDate, endDate: week.endDate });
 
       const [tEntries, wData, profList, pendingList] = await Promise.all([
@@ -345,7 +345,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="px-3 py-1 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs font-semibold text-slate-300 self-start sm:self-center">
-                This Week Sprint
+                This Week (Mon – Sun)
               </div>
             </div>
 
