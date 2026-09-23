@@ -47,6 +47,22 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
     router.push('/login');
   };
 
+  const isInsideReports = pathname.startsWith('/reports');
+  const [reportsOpen, setReportsOpen] = useState(isInsideReports);
+
+  useEffect(() => {
+    if (isInsideReports) {
+      setReportsOpen(true);
+    }
+  }, [isInsideReports]);
+
+  const reportSubItems = [
+    { label: 'Weekly Meeting', href: '/reports/weekly' },
+    { label: 'Monthly Summary', href: '/reports/monthly' },
+    { label: 'Overall Analytics', href: '/reports/overall' },
+    { label: 'Client Hours & Billing', href: '/reports/billing' },
+  ];
+
   const navItems = [
     {
       label: 'Dashboard',
@@ -72,6 +88,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       matchPrefix: '/reports',
       icon: BarChart3,
       badge: null,
+      isCollapsible: true,
     },
     ...(!isAdmin
       ? [
@@ -131,81 +148,123 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                 : pathname === item.href || (item.href !== '/dashboard' && item.href !== '/admin' && pathname.startsWith(item.href));
 
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onCloseMobile}
-                  className={cn(
-                    'group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200',
-                    isActive
-                      ? 'bg-gradient-to-r from-violet-600/20 via-indigo-600/15 to-transparent text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] border border-violet-500/25'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04] border border-transparent'
-                  )}
-                >
-                  {/* Left Active Glow Pill */}
-                  {isActive && (
-                    <span className="absolute left-1.5 w-1 h-5 rounded-full bg-gradient-to-b from-violet-400 to-indigo-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-                  )}
+                <div key={item.href} className="space-y-1">
+                  <Link
+                    href={item.href}
+                    onClick={(e) => {
+                      if (item.isCollapsible) {
+                        if (isInsideReports) {
+                          e.preventDefault();
+                          setReportsOpen((prev) => !prev);
+                        } else {
+                          setReportsOpen(true);
+                          if (onCloseMobile) onCloseMobile();
+                        }
+                      } else {
+                        if (onCloseMobile) onCloseMobile();
+                      }
+                    }}
+                    className={cn(
+                      'group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200',
+                      isActive
+                        ? 'bg-gradient-to-r from-violet-600/20 via-indigo-600/15 to-transparent text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] border border-violet-500/25'
+                        : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04] border border-transparent'
+                    )}
+                  >
+                    {/* Left Active Glow Pill */}
+                    {isActive && (
+                      <span className="absolute left-1.5 w-1 h-5 rounded-full bg-gradient-to-b from-violet-400 to-indigo-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
+                    )}
 
-                  <div className="flex items-center space-x-3 pl-1.5">
+                    <div className="flex items-center space-x-3 pl-1.5 min-w-0">
+                      <div
+                        className={cn(
+                          'w-7 h-7 rounded-lg flex items-center justify-center transition-colors shrink-0',
+                          isActive
+                            ? 'bg-violet-600/30 text-violet-300 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                            : 'bg-white/[0.03] text-slate-400 group-hover:text-slate-200 group-hover:bg-white/[0.06]'
+                        )}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="truncate">{item.label}</span>
+                    </div>
+
+                    <div className="flex items-center space-x-1.5 shrink-0">
+                      {item.badge && (
+                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-violet-950/80 text-violet-300 border border-violet-700/40">
+                          {item.badge}
+                        </span>
+                      )}
+
+                      {item.isCollapsible && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setReportsOpen((prev) => !prev);
+                          }}
+                          className="p-1 -mr-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-slate-200 transition-colors"
+                          title={reportsOpen ? 'Collapse report views' : 'Expand report views'}
+                        >
+                          <ChevronRight
+                            className={cn(
+                              'w-3.5 h-3.5 transition-transform duration-300',
+                              reportsOpen ? 'rotate-90 text-violet-400' : 'text-slate-500'
+                            )}
+                          />
+                        </button>
+                      )}
+                    </div>
+                  </Link>
+
+                  {/* Smooth Sliding Submenu Accordion */}
+                  {item.isCollapsible && (
                     <div
                       className={cn(
-                        'w-7 h-7 rounded-lg flex items-center justify-center transition-colors',
-                        isActive
-                          ? 'bg-violet-600/30 text-violet-300 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
-                          : 'bg-white/[0.03] text-slate-400 group-hover:text-slate-200 group-hover:bg-white/[0.06]'
+                        'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out',
+                        reportsOpen ? 'grid-rows-[1fr] opacity-100 my-1' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
                       )}
                     >
-                      <Icon className="w-4 h-4" />
+                      <div className="overflow-hidden">
+                        <div className="border-l border-violet-500/20 ml-6 pl-2.5 py-0.5 space-y-0.5">
+                          {reportSubItems.map((sub) => {
+                            const isSubActive = pathname === sub.href;
+                            return (
+                              <Link
+                                key={sub.href}
+                                href={sub.href}
+                                onClick={onCloseMobile}
+                                className={cn(
+                                  'group/sub relative flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
+                                  isSubActive
+                                    ? 'text-violet-300 bg-violet-950/60 font-semibold shadow-xs'
+                                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                                )}
+                              >
+                                {isSubActive && (
+                                  <span className="absolute -left-[14px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.9)]" />
+                                )}
+                                <span className="truncate">{sub.label}</span>
+                                <ChevronRight
+                                  className={cn(
+                                    'w-3 h-3 transition-transform group-hover/sub:translate-x-0.5',
+                                    isSubActive ? 'text-violet-400' : 'text-slate-600'
+                                  )}
+                                />
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
-                    <span className="truncate">{item.label}</span>
-                  </div>
-
-                  {item.badge && (
-                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-violet-950/80 text-violet-300 border border-violet-700/40">
-                      {item.badge}
-                    </span>
                   )}
-                </Link>
+                </div>
               );
             })}
           </nav>
         </div>
-
-        {/* Quick Report Shortcuts when inside /reports */}
-        {pathname.startsWith('/reports') && (
-          <div className="pt-2 px-1 space-y-1.5">
-            <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-2">
-              Reports Views
-            </div>
-            <div className="grid grid-cols-1 gap-1 text-xs">
-              {[
-                { label: 'Weekly Meeting', href: '/reports/weekly' },
-                { label: 'Monthly Summary', href: '/reports/monthly' },
-                { label: 'Overall Analytics', href: '/reports/overall' },
-                { label: 'Client Hours & Billing', href: '/reports/billing' },
-              ].map((sub) => {
-                const isSubActive = pathname === sub.href;
-                return (
-                  <Link
-                    key={sub.href}
-                    href={sub.href}
-                    onClick={onCloseMobile}
-                    className={cn(
-                      'flex items-center justify-between px-3 py-1.5 rounded-lg transition-colors',
-                      isSubActive
-                        ? 'text-violet-300 bg-violet-950/50 font-semibold'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
-                    )}
-                  >
-                    <span>{sub.label}</span>
-                    <ChevronRight className={cn('w-3 h-3', isSubActive ? 'text-violet-400' : 'text-slate-600')} />
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Bottom User Profile Dock */}
