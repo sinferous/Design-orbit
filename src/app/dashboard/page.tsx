@@ -57,7 +57,7 @@ import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 type FeedFilterTab = 'my_work' | 'team_work' | 'timers' | 'approved' | 'pending';
-type HorizonPeriod = 'daily' | 'weekly' | 'monthly';
+type HorizonPeriod = 'weekly' | 'monthly';
 
 export default function DashboardPage() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -438,19 +438,8 @@ export default function DashboardPage() {
     };
   }, [realDailyCounts, myWeekTotalCreated, realWeekDates]);
 
-  // Chart Meta based on selected Period (Daily, This Week, Monthly)
+  // Chart Meta based on selected Period (This Week, Monthly)
   const chartMeta = useMemo(() => {
-    if (period === 'daily') {
-      const labels = ['09:00', '11:00', '13:00', '15:00', '17:00', '19:00', '21:00'];
-      const values = [0, 0, 0, 0, myTodayDone, 0, 0];
-      return {
-        labels,
-        values,
-        currentIdx: 4,
-        displayTitle: "My Today's Hourly Output",
-        subtitle: 'Personal focus pace across today',
-      };
-    }
     if (period === 'monthly') {
       const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
       const values = [0, 0, 0, myWeekTotalCreated];
@@ -580,7 +569,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-baseline space-x-3 mt-1.5">
                   <span className="text-3xl sm:text-4xl font-extrabold font-display text-slate-100 tracking-tight tabular-nums">
-                    {period === 'daily' ? myTodayDone : myWeekTotalCreated}
+                    {myWeekTotalCreated}
                   </span>
                   <span className="text-xs sm:text-sm text-slate-400 font-medium">
                     deliverables completed by you ({myWeekTotalApproved} approved)
@@ -590,17 +579,6 @@ export default function DashboardPage() {
 
               {/* Time Horizon Segmented Pill Selector */}
               <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] text-[11px] self-start sm:self-center">
-                <button
-                  type="button"
-                  onClick={() => setPeriod('daily')}
-                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    period === 'daily'
-                      ? 'bg-violet-600/35 text-white border border-violet-500/40 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Daily
-                </button>
                 <button
                   type="button"
                   onClick={() => setPeriod('weekly')}
