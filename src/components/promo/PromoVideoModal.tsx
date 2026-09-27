@@ -13,7 +13,6 @@ import {
   Minimize,
   X,
   Sparkles,
-  Film,
 } from 'lucide-react';
 
 export function PromoVideoModal() {
@@ -24,8 +23,6 @@ export function PromoVideoModal() {
   const [buffered, setBuffered] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [showControls, setShowControls] = useState(true);
@@ -59,7 +56,6 @@ export function PromoVideoModal() {
     if (isPlaying) {
       hideControlsTimerRef.current = setTimeout(() => {
         setShowControls(false);
-        setShowSpeedMenu(false);
       }, 2600);
     }
   }, [isPlaying]);
@@ -103,7 +99,6 @@ export function PromoVideoModal() {
     }
     setIsPlaying(false);
     setIsOpen(false);
-    setShowSpeedMenu(false);
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
@@ -118,7 +113,6 @@ export function PromoVideoModal() {
         playPromise
           .then(() => setIsPlaying(true))
           .catch(() => {
-            // Autoplay with sound might need muted start in some browser policies
             setIsPlaying(false);
           });
       }
@@ -221,15 +215,6 @@ export function PromoVideoModal() {
     resetControlsTimer();
   };
 
-  // Playback speed
-  const changeSpeed = (speed: number) => {
-    if (!videoRef.current) return;
-    videoRef.current.playbackRate = speed;
-    setPlaybackSpeed(speed);
-    setShowSpeedMenu(false);
-    resetControlsTimer();
-  };
-
   // Fullscreen toggle
   const toggleFullscreen = () => {
     if (!playerContainerRef.current) return;
@@ -259,7 +244,6 @@ export function PromoVideoModal() {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if typing in an input
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
 
@@ -407,7 +391,6 @@ export function PromoVideoModal() {
 
           {/* Glassmorphic Inner Button Body */}
           <div className="relative w-full h-full rounded-full bg-[#080C19]/90 border border-violet-500/40 backdrop-blur-xl flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_8px_20px_rgba(0,0,0,0.6)] group-hover:border-violet-400 group-hover:scale-105 group-hover:shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-all duration-300">
-            {/* Play Icon with Gradient & Subtle Offset for Visual Centering */}
             <div className="translate-x-0.5 flex items-center justify-center">
               <Play className="w-5 h-5 text-violet-300 fill-violet-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)] group-hover:text-white group-hover:fill-fuchsia-400 transition-all duration-300" />
             </div>
@@ -435,50 +418,19 @@ export function PromoVideoModal() {
             ref={playerContainerRef}
             onMouseMove={resetControlsTimer}
             onMouseEnter={() => setShowControls(true)}
-            className="relative z-10 w-full max-w-5xl rounded-2xl overflow-hidden bg-[#070A14] border border-violet-500/35 shadow-[0_24px_80px_rgba(0,0,0,0.85),0_0_50px_rgba(139,92,246,0.25)] flex flex-col transition-all duration-300 animate-in zoom-in-95 duration-200"
+            className="relative z-10 w-full max-w-5xl rounded-2xl overflow-hidden bg-black border border-violet-500/35 shadow-[0_24px_80px_rgba(0,0,0,0.85),0_0_50px_rgba(139,92,246,0.25)] flex flex-col transition-all duration-300 animate-in zoom-in-95 duration-200 group"
           >
-            {/* Modal Header Bar */}
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-[#0B0F1E]/95 border-b border-white/[0.08] backdrop-blur-md shrink-0">
-              <div className="flex items-center space-x-3 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[1px] flex items-center justify-center shadow-[0_0_12px_rgba(168,85,247,0.4)]">
-                  <div className="w-full h-full bg-[#080C19] rounded-[11px] flex items-center justify-center">
-                    <Film className="w-4 h-4 text-violet-300" />
-                  </div>
-                </div>
-
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-extrabold text-sm sm:text-base tracking-tight text-white flex items-center space-x-1">
-                      <span>Design</span>
-                      <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-300 bg-clip-text text-transparent font-black">
-                        Orbit
-                      </span>
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
-                      Master Promo
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-slate-400 truncate hidden sm:inline">
-                    Interactive Creative Workspace & Deliverable Acceleration Platform
-                  </span>
-                </div>
-              </div>
-
-              {/* Close Button */}
-              <div className="flex items-center space-x-2">
-                <span className="text-[11px] text-slate-500 font-mono hidden sm:inline-block bg-white/[0.04] px-2 py-1 rounded-md border border-white/[0.06]">
-                  ESC to close
-                </span>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  aria-label="Close Promo Video"
-                  className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white bg-white/[0.04] hover:bg-rose-500/20 hover:border-rose-500/40 border border-white/[0.08] transition-all cursor-pointer focus:outline-none"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+            {/* Sleek Floating Close Button (Top-Right of Video) */}
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              aria-label="Close Promo Video"
+              className={`absolute top-3 right-3 sm:top-4 sm:right-4 z-30 p-2 sm:p-2.5 rounded-full text-slate-300 hover:text-white bg-black/60 hover:bg-rose-500/20 hover:border-rose-500/50 border border-white/15 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer focus:outline-none hover:scale-110 active:scale-95 ${
+                showControls || !isPlaying ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+              }`}
+            >
+              <X className="w-5 h-5" />
+            </button>
 
             {/* Video Viewport Area */}
             <div
@@ -506,7 +458,7 @@ export function PromoVideoModal() {
                 className="w-full h-full object-contain"
               >
                 <source src="/videos/Design_Orbit_Master_Promo.mp4" type="video/mp4" />
-                <source src="/Design_Orbit_Master_Promo.mp4" type="video/mp4" />
+                <source src="/api/promo-video" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
 
@@ -678,38 +630,8 @@ export function PromoVideoModal() {
                     </div>
                   </div>
 
-                  {/* Right Controls: Speed, Fullscreen */}
-                  <div className="flex items-center space-x-2 sm:space-x-3">
-                    {/* Playback Speed Menu */}
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                        className="px-2 py-1 text-xs font-bold rounded-lg text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] transition-colors cursor-pointer border border-white/[0.08]"
-                      >
-                        {playbackSpeed}x
-                      </button>
-
-                      {showSpeedMenu && (
-                        <div className="absolute bottom-full right-0 mb-2 py-1 rounded-xl bg-[#0C1020] border border-violet-500/30 shadow-2xl backdrop-blur-xl flex flex-col z-20 min-w-[70px]">
-                          {[0.75, 1, 1.25, 1.5, 2].map(speed => (
-                            <button
-                              key={speed}
-                              type="button"
-                              onClick={() => changeSpeed(speed)}
-                              className={`px-3 py-1 text-xs text-left hover:bg-violet-600/20 transition-colors ${
-                                playbackSpeed === speed
-                                  ? 'text-violet-300 font-bold bg-violet-500/10'
-                                  : 'text-slate-300'
-                              }`}
-                            >
-                              {speed}x
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
+                  {/* Right Controls: Fullscreen */}
+                  <div className="flex items-center space-x-2">
                     {/* Fullscreen Button */}
                     <button
                       type="button"
