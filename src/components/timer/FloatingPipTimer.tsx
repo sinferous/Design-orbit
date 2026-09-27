@@ -1288,7 +1288,7 @@ export function FloatingPipTimer() {
   return (
     <aside
       aria-label="Live Floating Timers"
-      className="fixed bottom-4 right-4 z-50 animate-in fade-in slide-in-from-bottom-2 duration-150"
+      className="fixed bottom-24 right-4 z-50 animate-in fade-in slide-in-from-bottom-2 duration-150"
     >
       {renderContent(false)}
     </aside>

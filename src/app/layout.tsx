@@ -4,6 +4,7 @@ import './globals.css';
 import { CreativeBackground } from '@/components/ui/CreativeBackground';
 import { ToastProvider } from '@/components/ui/ToastContext';
 import { FloatingPipTimer } from '@/components/timer/FloatingPipTimer';
+import { PromoVideoModal } from '@/components/promo/PromoVideoModal';
 
 const inter = Inter({ subsets: ['latin'] });
 const plusJakarta = Plus_Jakarta_Sans({
@@ -38,6 +39,7 @@ export default function RootLayout({
             {children}
           </div>
           <FloatingPipTimer />
+          <PromoVideoModal />
         </ToastProvider>
       </body>
     </html>
