@@ -668,6 +668,9 @@ This document provides a comprehensive summary of all progress, architecture, an
   - **Clean "Filters Applied" Pill Badges**: Replaced verbose info banners with a sleek, minimal active filters row displaying interactive badges (`Client: X ×`, `Team: Y ×`, `Type: Z ×`, `Description: "..." ×`) with 1-click individual removal and `Clear All` reset.
   - **Matched Text Highlighting in Client Task Tables**: Inside expanded client tables, matching characters in deliverable descriptions are highlighted in Electric Violet.
   - **Filtered CSV Export**: Exporting CSV (`Export Time CSV`) dynamically outputs only the filtered records with custom filename tagging (`Client_Time_Report_{start}_to_{end}_{query}.csv`).
+- [x] **Clean Date Format on Daily Work Log (`/work`)**:
+  - Simplified the date picker button label in `src/app/work/page.tsx` (`getDateDisplayLabel`).
+  - Removed duplicate bracketed English date (`29-09-2026 (Sep 29, 2026)` → `29-09-2026`), leaving a crisp, uncluttered `DD-MM-YYYY` format with no brackets.
 - [x] **Live Production Deployment**:
   - Tested production build with Next.js 16 (`npx next build` verified 0 errors across all 20 routes).
   - Pushed live to GitHub `origin/main` for automatic production deployment on Vercel at **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**.

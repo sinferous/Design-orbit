@@ -186,8 +186,7 @@ export default function MyWorkPage() {
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
-    const nice = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    return `${day}-${month}-${year} (${nice})`;
+    return `${day}-${month}-${year}`;
   };
 
   const handleMonthDelta = (months: number) => {
