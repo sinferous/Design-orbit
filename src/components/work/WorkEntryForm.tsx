@@ -11,6 +11,8 @@ import {
   updateWorkEntry,
   getLoggedInUser,
   isInProgressEntry,
+  fetchAllClientDescriptions,
+  ClientDescriptionItem,
 } from '@/lib/services/work-entry';
 import { Save, Plus, ArrowLeft, CheckCircle, AlertCircle, Trash2, Check, X, Building2, Link2, Hourglass } from 'lucide-react';
 import { ToastAlert } from '@/components/ui/ToastAlert';
@@ -18,6 +20,7 @@ import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { RichDatePicker } from '@/components/ui/RichDatePicker';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
+import { DescriptionAutocomplete } from '@/components/ui/DescriptionAutocomplete';
 import { triggerTinyConfetti } from '@/lib/utils/confetti';
 
 interface WorkItemRow {
@@ -43,6 +46,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [workTypes, setWorkTypes] = useState<WorkType[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [allClientDescriptions, setAllClientDescriptions] = useState<Record<string, ClientDescriptionItem[]>>({});
   const [loadingOptions, setLoadingOptions] = useState(true);
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -74,14 +78,16 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
   useEffect(() => {
     async function loadFormOptions() {
       try {
-        const [pData, wtData, cData] = await Promise.all([
+        const [pData, wtData, cData, descMap] = await Promise.all([
           fetchProfiles(),
           fetchWorkTypes(),
           fetchClients(),
+          fetchAllClientDescriptions(),
         ]);
         setProfiles(pData);
         setWorkTypes(wtData);
         setClients(cData);
+        setAllClientDescriptions(descMap);
 
         const user = getLoggedInUser();
         const matchedProfile = user 
@@ -344,6 +350,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
 
   const activeClientObj = clients.find(c => c.id === selectedClientId);
   const activeUserObj = profiles.find(p => p.id === selectedUserId);
+  const currentClientDescriptions = allClientDescriptions[selectedClientId] || [];
 
   return (
     <>
@@ -454,18 +461,25 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                   />
                 </div>
 
-                {/* Description */}
+                {/* Description with Client-Aware Autocomplete Recommendations */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Description *
                   </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 2 Statics or 1 Video homepage edit"
+                  <DescriptionAutocomplete
                     value={item.description}
-                    onChange={e => updateItemRow(item.id, { description: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none"
+                    onChange={val => updateItemRow(item.id, { description: val })}
+                    onSelectSuggestion={(selectedDesc, descItem) => {
+                      if (descItem?.work_type_id && (!item.work_type_id || item.work_type_id === workTypes[0]?.id)) {
+                        updateItemRow(item.id, { description: selectedDesc, work_type_id: descItem.work_type_id });
+                      } else {
+                        updateItemRow(item.id, { description: selectedDesc });
+                      }
+                    }}
+                    suggestions={currentClientDescriptions}
+                    placeholder="e.g. 2 Statics or Amaron oct social media v1"
+                    required
+                    size="md"
                   />
                 </div>
               </div>

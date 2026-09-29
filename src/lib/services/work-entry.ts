@@ -1572,3 +1572,137 @@ export async function getActiveRunningWorkEntries(userId?: string): Promise<Work
   return all.filter(e => Boolean(e.timer_started_at) && (effectiveUserId === 'all' || e.user_id === effectiveUserId));
 }
 
+export interface ClientDescriptionItem {
+  description: string;
+  work_type_id?: string;
+  count: number;
+}
+
+export async function fetchAllClientDescriptions(): Promise<Record<string, ClientDescriptionItem[]>> {
+  const result: Record<string, ClientDescriptionItem[]> = { all: [] };
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClient();
+      const { data, error } = await (supabase.from('work_entries') as any)
+        .select('client_id, description, work_type_id, created_at')
+        .order('created_at', { ascending: false })
+        .limit(1000);
+
+      if (!error && data && data.length > 0) {
+        const clientDescCountMap: Record<string, Map<string, ClientDescriptionItem>> = {};
+        const allDescCountMap = new Map<string, ClientDescriptionItem>();
+
+        (data as any[]).forEach(item => {
+          const rawDesc = item.description?.trim();
+          if (!rawDesc) return;
+          const lowerDesc = rawDesc.toLowerCase();
+          const clientId = item.client_id || 'unassigned';
+
+          // Per client
+          if (!clientDescCountMap[clientId]) {
+            clientDescCountMap[clientId] = new Map();
+          }
+          const cMap = clientDescCountMap[clientId];
+          const existingClientItem = cMap.get(lowerDesc);
+          if (existingClientItem) {
+            existingClientItem.count += 1;
+            if (!existingClientItem.work_type_id && item.work_type_id) {
+              existingClientItem.work_type_id = item.work_type_id;
+            }
+          } else {
+            cMap.set(lowerDesc, {
+              description: rawDesc,
+              work_type_id: item.work_type_id || undefined,
+              count: 1,
+            });
+          }
+
+          // Across all clients
+          const existingAllItem = allDescCountMap.get(lowerDesc);
+          if (existingAllItem) {
+            existingAllItem.count += 1;
+            if (!existingAllItem.work_type_id && item.work_type_id) {
+              existingAllItem.work_type_id = item.work_type_id;
+            }
+          } else {
+            allDescCountMap.set(lowerDesc, {
+              description: rawDesc,
+              work_type_id: item.work_type_id || undefined,
+              count: 1,
+            });
+          }
+        });
+
+        Object.entries(clientDescCountMap).forEach(([cId, map]) => {
+          result[cId] = Array.from(map.values()).sort((a, b) => b.count - a.count || a.description.localeCompare(b.description));
+        });
+
+        result.all = Array.from(allDescCountMap.values()).sort((a, b) => b.count - a.count || a.description.localeCompare(b.description));
+        return result;
+      }
+    } catch (err) {
+      console.warn('fetchAllClientDescriptions Supabase error:', err);
+    }
+  }
+
+  // Fallback to local stored entries
+  const localEntries = getStoredMockEntries();
+  const clientDescCountMap: Record<string, Map<string, ClientDescriptionItem>> = {};
+  const allDescCountMap = new Map<string, ClientDescriptionItem>();
+
+  localEntries.forEach(item => {
+    const rawDesc = item.description?.trim();
+    if (!rawDesc) return;
+    const lowerDesc = rawDesc.toLowerCase();
+    const clientId = item.client_id || 'unassigned';
+
+    if (!clientDescCountMap[clientId]) {
+      clientDescCountMap[clientId] = new Map();
+    }
+    const cMap = clientDescCountMap[clientId];
+    const existingClientItem = cMap.get(lowerDesc);
+    if (existingClientItem) {
+      existingClientItem.count += 1;
+      if (!existingClientItem.work_type_id && item.work_type_id) {
+        existingClientItem.work_type_id = item.work_type_id;
+      }
+    } else {
+      cMap.set(lowerDesc, {
+        description: rawDesc,
+        work_type_id: item.work_type_id || undefined,
+        count: 1,
+      });
+    }
+
+    const existingAllItem = allDescCountMap.get(lowerDesc);
+    if (existingAllItem) {
+      existingAllItem.count += 1;
+      if (!existingAllItem.work_type_id && item.work_type_id) {
+        existingAllItem.work_type_id = item.work_type_id;
+      }
+    } else {
+      allDescCountMap.set(lowerDesc, {
+        description: rawDesc,
+        work_type_id: item.work_type_id || undefined,
+        count: 1,
+      });
+    }
+  });
+
+  Object.entries(clientDescCountMap).forEach(([cId, map]) => {
+    result[cId] = Array.from(map.values()).sort((a, b) => b.count - a.count || a.description.localeCompare(b.description));
+  });
+  result.all = Array.from(allDescCountMap.values()).sort((a, b) => b.count - a.count || a.description.localeCompare(b.description));
+
+  return result;
+}
+
+export async function fetchClientDescriptions(clientId?: string): Promise<ClientDescriptionItem[]> {
+  const allMap = await fetchAllClientDescriptions();
+  if (clientId && allMap[clientId]) {
+    return allMap[clientId];
+  }
+  return allMap.all || [];
+}
+

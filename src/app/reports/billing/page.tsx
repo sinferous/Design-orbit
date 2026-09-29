@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import {
@@ -11,7 +11,13 @@ import {
   exportToCSV,
   getWeekRange,
 } from '@/lib/services/reports';
-import { fetchProfiles, fetchWorkTypes, fetchClients } from '@/lib/services/work-entry';
+import {
+  fetchProfiles,
+  fetchWorkTypes,
+  fetchClients,
+  fetchAllClientDescriptions,
+  ClientDescriptionItem,
+} from '@/lib/services/work-entry';
 import { Profile, WorkType, Client } from '@/types';
 import {
   Download,
@@ -27,11 +33,16 @@ import {
   Sparkles,
   Users,
   Filter,
+  X,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
 import { ReportsSubNav } from '@/components/reports/ReportsSubNav';
+import {
+  DescriptionAutocomplete,
+  DescriptionSuggestionItem,
+} from '@/components/ui/DescriptionAutocomplete';
 
 export default function ClientTimeTrackingReportPage() {
   const [startDate, setStartDate] = useState<string>('');
@@ -39,10 +50,12 @@ export default function ClientTimeTrackingReportPage() {
   const [selectedClient, setSelectedClient] = useState<string>('');
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedWorkType, setSelectedWorkType] = useState<string>('');
+  const [descriptionFilter, setDescriptionFilter] = useState<string>('');
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [workTypes, setWorkTypes] = useState<WorkType[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [allClientDescriptions, setAllClientDescriptions] = useState<Record<string, ClientDescriptionItem[]>>({});
 
   // Rich Calendar States (consistent with Weekly and Work sections)
   const [viewDate, setViewDate] = useState<Date>(new Date());
@@ -92,10 +105,11 @@ export default function ClientTimeTrackingReportPage() {
   useEffect(() => {
     async function loadOptions() {
       try {
-        const [pData, wtData, cData] = await Promise.all([
+        const [pData, wtData, cData, descMap] = await Promise.all([
           fetchProfiles(),
           fetchWorkTypes(),
           fetchClients(),
+          fetchAllClientDescriptions(),
         ]);
         const creativeProfiles = pData.filter(
           p => p.name !== 'Admin' && !p.designation?.toLowerCase().includes('administrator')
@@ -103,6 +117,7 @@ export default function ClientTimeTrackingReportPage() {
         setProfiles(creativeProfiles);
         setWorkTypes(wtData);
         setClients(cData);
+        setAllClientDescriptions(descMap);
       } catch (err) {
         console.error('Failed to load filter options:', err);
       }
@@ -309,11 +324,160 @@ export default function ClientTimeTrackingReportPage() {
     return daysArr;
   };
 
+  // Filter report data dynamically by description query (fuzzy / substring matching)
+  const filteredReportData = useMemo(() => {
+    const query = descriptionFilter.trim().toLowerCase();
+    if (!query) {
+      return reportData;
+    }
+
+    // Filter all entries matching query substring
+    const matchedEntries = reportData.entries.filter(e =>
+      e.description && e.description.toLowerCase().includes(query)
+    );
+
+    // Re-aggregate per client
+    const clientSummaries: ClientBillingSummary[] = reportData.clientSummaries
+      .map(client => {
+        const clientMatchedEntries = client.entries.filter(e =>
+          e.description && e.description.toLowerCase().includes(query)
+        );
+
+        const totalDone = clientMatchedEntries.reduce((acc, curr) => acc + curr.quantity_done, 0);
+        const totalApproved = clientMatchedEntries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
+        const totalTimeSeconds = clientMatchedEntries.reduce(
+          (acc, curr) => acc + (curr.time_spent_seconds || 0),
+          0
+        );
+        const decimalHours = formatReportHoursDecimal(totalTimeSeconds);
+
+        const breakdown: Record<string, { count: number; timeSeconds: number }> = {};
+        clientMatchedEntries.forEach(e => {
+          const wtName = e.work_type?.name || 'Other';
+          if (wtName.trim().toLowerCase() === 'working') return;
+          if (!breakdown[wtName]) breakdown[wtName] = { count: 0, timeSeconds: 0 };
+          breakdown[wtName].count += e.quantity_done;
+          breakdown[wtName].timeSeconds += (e.time_spent_seconds || 0);
+        });
+
+        return {
+          ...client,
+          totalDone,
+          totalApproved,
+          totalTimeSeconds,
+          decimalHours,
+          entries: clientMatchedEntries,
+          workTypeBreakdown: breakdown,
+        };
+      })
+      .filter(c => c.entries.length > 0)
+      .sort((a, b) => b.totalTimeSeconds - a.totalTimeSeconds || b.totalDone - a.totalDone);
+
+    const totalTimeSecondsAll = matchedEntries.reduce(
+      (acc, curr) => acc + (curr.time_spent_seconds || 0),
+      0
+    );
+    const totalDecimalHoursAll = formatReportHoursDecimal(totalTimeSecondsAll);
+    const totalDoneAll = matchedEntries.reduce((acc, curr) => acc + curr.quantity_done, 0);
+    const totalApprovedAll = matchedEntries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
+
+    return {
+      clientSummaries,
+      totalTimeSecondsAll,
+      totalDecimalHoursAll,
+      totalDoneAll,
+      totalApprovedAll,
+      entries: matchedEntries,
+    };
+  }, [reportData, descriptionFilter]);
+
+  // Suggestions for description filter autocomplete
+  const billingDescriptionSuggestions = useMemo((): DescriptionSuggestionItem[] => {
+    const map = new Map<string, { description: string; count: number; timeSeconds: number }>();
+
+    // 1. Current loaded period entries
+    reportData.entries.forEach(e => {
+      const desc = e.description?.trim();
+      if (!desc) return;
+      const lower = desc.toLowerCase();
+      const existing = map.get(lower);
+      const secs = e.time_spent_seconds || 0;
+      if (existing) {
+        existing.count += 1;
+        existing.timeSeconds += secs;
+      } else {
+        map.set(lower, {
+          description: desc,
+          count: 1,
+          timeSeconds: secs,
+        });
+      }
+    });
+
+    // 2. Known historical descriptions for selected client or all clients
+    const fallbackList = selectedClient
+      ? (allClientDescriptions[selectedClient] || [])
+      : (allClientDescriptions.all || []);
+
+    fallbackList.forEach(item => {
+      const lower = item.description.toLowerCase();
+      if (!map.has(lower)) {
+        map.set(lower, {
+          description: item.description,
+          count: item.count || 0,
+          timeSeconds: 0,
+        });
+      }
+    });
+
+    return Array.from(map.values()).sort(
+      (a, b) => b.timeSeconds - a.timeSeconds || b.count - a.count || a.description.localeCompare(b.description)
+    );
+  }, [reportData.entries, selectedClient, allClientDescriptions]);
+
+  // Active filter helper states
+  const selectedClientName = clients.find(c => c.id === selectedClient)?.name;
+  const selectedUserName = profiles.find(p => p.id === selectedUser)?.name;
+  const selectedWorkTypeName = workTypes.find(wt => wt.id === selectedWorkType)?.name;
+  const hasActiveFilters = Boolean(
+    selectedClient || selectedUser || selectedWorkType || descriptionFilter.trim()
+  );
+
+  const clearAllFilters = () => {
+    setSelectedClient('');
+    setSelectedUser('');
+    setSelectedWorkType('');
+    setDescriptionFilter('');
+  };
+
+  // Highlight matching substring helper
+  const renderHighlightedDescription = (text: string, query: string) => {
+    if (!query.trim() || !text) {
+      return <span>{text || '-'}</span>;
+    }
+    const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    const parts = text.split(regex);
+    return (
+      <span>
+        {parts.map((part, i) =>
+          regex.test(part) ? (
+            <span key={i} className="text-violet-300 font-bold bg-violet-950/90 px-1 py-0.5 rounded border border-violet-800/60">
+              {part}
+            </span>
+          ) : (
+            <span key={i}>{part}</span>
+          )
+        )}
+      </span>
+    );
+  };
+
   // Export Time Tracking CSV (Clean: without rates or currency)
   const handleExportCSV = () => {
     const rows: Record<string, any>[] = [];
 
-    reportData.clientSummaries.forEach(client => {
+    filteredReportData.clientSummaries.forEach(client => {
       if (client.entries.length === 0) {
         rows.push({
           'Client Name': client.clientName,
@@ -346,17 +510,18 @@ export default function ClientTimeTrackingReportPage() {
       }
     });
 
-    exportToCSV(`Client_Time_Report_${startDate}_to_${endDate}`, rows);
+    const nameSuffix = descriptionFilter.trim() ? `_${descriptionFilter.trim().replace(/\s+/g, '_')}` : '';
+    exportToCSV(`Client_Time_Report_${startDate}_to_${endDate}${nameSuffix}`, rows);
     showToast('Exported Client Time Tracking CSV report!', 'success');
   };
 
-  const activeClientsCount = reportData.clientSummaries.filter(
+  const activeClientsCount = filteredReportData.clientSummaries.filter(
     c => c.totalDone > 0 || c.totalTimeSeconds > 0
   ).length;
 
   const avgMinutesPerItem =
-    reportData.totalDoneAll > 0
-      ? Math.round(reportData.totalTimeSecondsAll / reportData.totalDoneAll / 60)
+    filteredReportData.totalDoneAll > 0
+      ? Math.round(filteredReportData.totalTimeSecondsAll / filteredReportData.totalDoneAll / 60)
       : 0;
 
   return (
@@ -630,8 +795,8 @@ export default function ClientTimeTrackingReportPage() {
             </div>
           </div>
 
-          {/* Filter Dropdowns Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Filter Dropdowns Grid - 4 Columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
                 Filter Client
@@ -683,7 +848,98 @@ export default function ClientTimeTrackingReportPage() {
                 placeholder="All Work Types"
               />
             </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                Filter Description
+              </label>
+              <DescriptionAutocomplete
+                value={descriptionFilter}
+                onChange={setDescriptionFilter}
+                suggestions={billingDescriptionSuggestions}
+                placeholder="Search description..."
+                size="sm"
+                allowClear
+              />
+            </div>
           </div>
+
+          {/* Active Filters Applied Row */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-800">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                Filters Applied:
+              </span>
+
+              {selectedClient && (
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 text-xs shadow-2xs">
+                  <span className="text-slate-400">Client:</span>
+                  <span className="font-semibold text-slate-100">{selectedClientName}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedClient('')}
+                    className="p-0.5 hover:text-red-400 text-slate-400 rounded transition-colors cursor-pointer"
+                    title="Remove client filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
+              {selectedUser && (
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 text-xs shadow-2xs">
+                  <span className="text-slate-400">Team:</span>
+                  <span className="font-semibold text-slate-100">{selectedUserName}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedUser('')}
+                    className="p-0.5 hover:text-red-400 text-slate-400 rounded transition-colors cursor-pointer"
+                    title="Remove team filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
+              {selectedWorkType && (
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 text-xs shadow-2xs">
+                  <span className="text-slate-400">Type:</span>
+                  <span className="font-semibold text-slate-100">{selectedWorkTypeName}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedWorkType('')}
+                    className="p-0.5 hover:text-red-400 text-slate-400 rounded transition-colors cursor-pointer"
+                    title="Remove work type filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
+              {descriptionFilter.trim() && (
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 text-xs shadow-2xs">
+                  <span className="text-slate-400">Description:</span>
+                  <span className="font-semibold text-slate-100">&ldquo;{descriptionFilter}&rdquo;</span>
+                  <button
+                    type="button"
+                    onClick={() => setDescriptionFilter('')}
+                    className="p-0.5 hover:text-red-400 text-slate-400 rounded transition-colors cursor-pointer"
+                    title="Remove description filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="text-xs text-slate-400 hover:text-slate-200 underline cursor-pointer ml-1"
+              >
+                Clear All
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Time & Deliverables KPI Overview Cards - 2x2 on Mobile */}
@@ -696,10 +952,10 @@ export default function ClientTimeTrackingReportPage() {
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400 shrink-0" />
             </div>
             <div className="text-xl sm:text-3xl font-extrabold text-slate-100 truncate">
-              {formatReportTime(reportData.totalTimeSecondsAll)}
+              {formatReportTime(filteredReportData.totalTimeSecondsAll)}
             </div>
             <p className="text-[11px] sm:text-xs text-violet-400 font-semibold truncate">
-              {reportData.totalDecimalHoursAll} decimal hrs
+              {filteredReportData.totalDecimalHoursAll} decimal hrs
             </p>
           </div>
 
@@ -711,7 +967,7 @@ export default function ClientTimeTrackingReportPage() {
               <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-indigo-400">
-              {activeClientsCount} <span className="text-xs font-normal text-slate-400">/ {reportData.clientSummaries.length}</span>
+              {activeClientsCount} <span className="text-xs font-normal text-slate-400">/ {filteredReportData.clientSummaries.length}</span>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 truncate">Clients with activity</p>
           </div>
@@ -724,10 +980,10 @@ export default function ClientTimeTrackingReportPage() {
               <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400 shrink-0" />
             </div>
             <div className="text-2xl sm:text-3xl font-extrabold text-violet-400">
-              {reportData.totalDoneAll}
+              {filteredReportData.totalDoneAll}
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 truncate">
-              {reportData.totalApprovedAll} approved items
+              {filteredReportData.totalApprovedAll} approved items
             </p>
           </div>
 
@@ -765,13 +1021,29 @@ export default function ClientTimeTrackingReportPage() {
                 subtitle="Aggregating deliverable durations across team members and clients"
               />
             </div>
-          ) : reportData.clientSummaries.length === 0 ? (
+          ) : filteredReportData.clientSummaries.length === 0 ? (
             <div className="bg-slate-900 p-12 rounded-xl border border-slate-800 text-center text-slate-400">
-              <p className="text-sm font-semibold text-slate-200">No client records found for this date range.</p>
-              <p className="text-xs text-slate-500 mt-1">Try expanding the date filter or resetting your filters.</p>
+              <p className="text-sm font-semibold text-slate-200">
+                {descriptionFilter.trim()
+                  ? `No deliverables found matching "${descriptionFilter}".`
+                  : 'No client records found for this date range.'}
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                {descriptionFilter.trim() ? (
+                  <button
+                    type="button"
+                    onClick={() => setDescriptionFilter('')}
+                    className="text-violet-400 hover:underline cursor-pointer"
+                  >
+                    Clear description filter
+                  </button>
+                ) : (
+                  'Try expanding the date filter or resetting your filters.'
+                )}
+              </p>
             </div>
           ) : (
-            reportData.clientSummaries.map(client => {
+            filteredReportData.clientSummaries.map(client => {
               const isExpanded = Boolean(expandedClients[client.clientId]);
 
               return (
@@ -905,8 +1177,8 @@ export default function ClientTimeTrackingReportPage() {
                                         {entry.work_type?.name || 'Task'}
                                       </span>
                                     </td>
-                                    <td className="px-3 py-2.5 text-slate-400 max-w-xs break-words">
-                                      {entry.description || '-'}
+                                    <td className="px-3 py-2.5 text-slate-300 max-w-xs break-words">
+                                      {renderHighlightedDescription(entry.description || '-', descriptionFilter)}
                                     </td>
                                     <td className="px-3 py-2.5 text-center font-bold text-slate-100">
                                       {entry.quantity_done}
