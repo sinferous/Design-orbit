@@ -8,7 +8,6 @@ import {
   Calendar,
   Building2,
   BarChart3,
-  FileSpreadsheet,
   PlusCircle,
   LogOut,
   Settings,
@@ -94,16 +93,6 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       badge: null,
       isCollapsible: true,
     },
-    ...(!isAdmin
-      ? [
-          {
-            label: 'Excel Sync',
-            href: '/excel-sync',
-            icon: FileSpreadsheet,
-            badge: 'Pro',
-          },
-        ]
-      : []),
   ];
 
   const navRef = useRef<HTMLElement>(null);

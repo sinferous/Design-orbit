@@ -101,6 +101,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
+  // 7. Retired Route: Excel Sync is no longer needed (system officially approved)
+  if (pathname.startsWith('/excel-sync')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
   return response;
 }
 

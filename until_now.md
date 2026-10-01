@@ -694,7 +694,6 @@ This document provides a comprehensive summary of all progress, architecture, an
   - `/admin` → Dedicated Executive Admin Dashboard (agency KPIs, live team workload, deliverables feed, agency pending queue, NO personal daily logs)
   - `/dashboard` → Production overview, live metrics, pending approvals reminder card, top-row Creative Velocity & scrollable To-Do List widget, and full-width Today's Work Log
   - `/clients` → Client Directory Management module with inline edit & update
-  - `/excel-sync` → Excel Sync Daily (2-column) & Weekly (6-column) Report generator with sliding controls & 1-click `Ctrl + V` spreadsheet copy
   - `/login` → Authentication with Eye password toggles, preset account choices in A-Z order, & profile ID binding
   - `/settings` → Change Password & Account Settings with embedded Monthly Activity Heatmap and deliverables inspector
   - `/work` → Streamlined Personal & Team Daily Work Log with sliding pill toggles, plus full **Pending Approvals Queue (`?view=pending`)** with search, age filters, strict ownership controls, & dismiss button
@@ -705,6 +704,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - `/reports/monthly` → Monthly Summary report & breakdown tables with gliding sub-navigation
   - `/reports/overall` → All-time analytics & visual distribution charts with gliding sub-navigation
   - `/team` → Creative team directory with Add Team Member capability
+  - *Retired Routes*: `/excel-sync` → Hidden from sidebar navigation and redirected to `/dashboard` (software officially approved; legacy Excel sync no longer required).
 
 
 
