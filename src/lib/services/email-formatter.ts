@@ -127,7 +127,7 @@ export function generateEmailTableHtml(
 
   <!-- Sign-off -->
   <div style="margin-top: 22px; margin-bottom: 14px; font-size: 14px; color: #1e293b; line-height: 1.6;">
-    regards<br>
+    Regards,<br>
     ${safeName}
   </div>
 
@@ -239,7 +239,7 @@ export function generateGroupedEmailHtml(
 
   <!-- Sign-off -->
   <div style="margin-top: 22px; margin-bottom: 14px; font-size: 14px; color: #1e293b; line-height: 1.6;">
-    regards<br>
+    Regards,<br>
     ${safeName}
   </div>
 
@@ -312,7 +312,7 @@ export function generateCleanPlainText(
   });
 
   output += `--------------------------------------------------------\n`;
-  output += `regards\n${safeName}\n\n`;
+  output += `Regards,\n${safeName}\n\n`;
   output += `Design Orbit | Webtree Creative Team\n`;
 
   return output;

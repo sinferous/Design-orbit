@@ -680,7 +680,7 @@ This document provides a comprehensive summary of all progress, architecture, an
   - Formatted all email export options (Modern Table, Client Digest, Plain Text) as a complete, ready-to-send email body with:
     - Top greeting: `Hi, \n Please find today's report`
     - Main report (Header, summary metadata, deliverables table/groups)
-    - Sign-off: `regards \n <username>` (dynamically fetched from the active user's profile name).
+    - Sign-off: `Regards, \n <username>` (dynamically fetched from the active user's profile name).
 - [x] **Simplified Date-Based Subject Line**:
   - Implemented `formatEmailSubject` formatting the subject as: `{day} {month} end of the day report` *(e.g., `19 Oct end of the day report`)*.
   - Displayed in the modal preview header with a 1-click **Copy Subject** button.
