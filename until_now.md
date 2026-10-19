@@ -671,8 +671,22 @@ This document provides a comprehensive summary of all progress, architecture, an
 - [x] **Clean Date Format on Daily Work Log (`/work`)**:
   - Simplified the date picker button label in `src/app/work/page.tsx` (`getDateDisplayLabel`).
   - Removed duplicate bracketed English date (`29-09-2026 (Sep 29, 2026)` → `29-09-2026`), leaving a crisp, uncluttered `DD-MM-YYYY` format with no brackets.
+
+### Phase 28 — Email Work Log Simplification & Custom Subject Line (Completed)
+- [x] **Email Day Log Modal Cleanup (`EmailDayLogModal.tsx`)**:
+  - Removed deliverable counter badge (`X Deliverables • Y Working`) from the modal header for a cleaner, streamlined title.
+  - Removed redundant helper badge (`Pastes with formatting, colors & links in Gmail/Outlook`) on the tab row.
+- [x] **Ready-to-Send Email Message Composition (`email-formatter.ts`)**:
+  - Formatted all email export options (Modern Table, Client Digest, Plain Text) as a complete, ready-to-send email body with:
+    - Top greeting: `Hi, \n Please find today's report`
+    - Main report (Header, summary metadata, deliverables table/groups)
+    - Sign-off: `regards \n <username>` (dynamically fetched from the active user's profile name).
+- [x] **Simplified Date-Based Subject Line**:
+  - Implemented `formatEmailSubject` formatting the subject as: `{day} {month} end of the day report` *(e.g., `19 Oct end of the day report`)*.
+  - Displayed in the modal preview header with a 1-click **Copy Subject** button.
+  - Automatically configured into the `mailto:` email draft action for default mail clients.
 - [x] **Live Production Deployment**:
-  - Tested production build with Next.js 16 (`npx next build` verified 0 errors across all 20 routes).
+  - Tested production build with Next.js 16 (`npm run build` verified 0 errors across all routes).
   - Pushed live to GitHub `origin/main` for automatic production deployment on Vercel at **[https://design-orbit-sigma.vercel.app](https://design-orbit-sigma.vercel.app)**.
 
 ---

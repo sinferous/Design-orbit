@@ -8,8 +8,8 @@ import {
   generateCleanPlainText,
   copyToClipboardWithHtml,
   formatEmailDate,
+  formatEmailSubject,
 } from '@/lib/services/email-formatter';
-import { isInProgressEntry } from '@/lib/services/work-entry';
 import { X, Copy, Check, Mail, Table2, ListOrdered, FileText, ExternalLink } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { SlideTabs } from '@/components/ui/SlideTabs';
@@ -41,8 +41,7 @@ export function EmailDayLogModal({
   const groupedHtml = generateGroupedEmailHtml(entries, designerName, selectedDate);
   const plainText = generateCleanPlainText(entries, designerName, selectedDate);
   const formattedDate = formatEmailDate(selectedDate);
-  const completedCount = entries.filter(e => !isInProgressEntry(e) && (e.quantity_done || 0) > 0).length;
-  const workingCount = entries.filter(e => isInProgressEntry(e) || (e.quantity_done || 0) === 0).length;
+  const emailSubject = formatEmailSubject(selectedDate);
 
   const handleCopyRich = async () => {
     const htmlToCopy = activeTab === 'grouped' ? groupedHtml : tableHtml;
@@ -67,8 +66,19 @@ export function EmailDayLogModal({
     }
   };
 
+  const handleCopySubject = async () => {
+    try {
+      await navigator.clipboard.writeText(emailSubject);
+      setCopiedType('subject');
+      showToast('Copied email subject line!', 'success');
+      setTimeout(() => setCopiedType(null), 2500);
+    } catch {
+      showToast('Failed to copy subject', 'error');
+    }
+  };
+
   const handleOpenMailto = () => {
-    const subject = encodeURIComponent(`Daily Work Log - ${designerName} - ${formattedDate}`);
+    const subject = encodeURIComponent(emailSubject);
     const body = encodeURIComponent(plainText);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
@@ -84,11 +94,8 @@ export function EmailDayLogModal({
               <Mail className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-                <span>Email Daily Work Log</span>
-                <span className="px-2 py-0.5 text-xs font-semibold bg-violet-950 text-violet-300 rounded-full border border-violet-800">
-                  {completedCount} Deliverable{completedCount === 1 ? '' : 's'}{workingCount > 0 ? ` • ${workingCount} Working` : ''}
-                </span>
+              <h3 className="text-base font-bold text-slate-100">
+                Email Daily Work Log
               </h3>
               <p className="text-xs text-slate-400">
                 Formatted for beautiful rendering in Gmail, Outlook, Apple Mail, and messaging apps.
@@ -105,7 +112,7 @@ export function EmailDayLogModal({
         </div>
 
         {/* Tab Selector & Controls */}
-        <div className="px-6 py-3 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="px-6 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-start">
           {/* Format Tabs with Smooth Gliding Pill */}
           <SlideTabs
             options={[
@@ -121,15 +128,6 @@ export function EmailDayLogModal({
             pillClassName="bg-slate-800 border border-slate-700 shadow-xs"
             activeTextClassName="text-violet-300 font-bold"
           />
-
-          {/* Quick Helper Badge */}
-          <div className="text-xs text-slate-400 font-medium">
-            {activeTab === 'text' ? (
-              <span>Great for Slack, WhatsApp & quick chats</span>
-            ) : (
-              <span>Pastes with formatting, colors & links in Gmail/Outlook</span>
-            )}
-          </div>
         </div>
 
         {/* Live Preview Area */}
@@ -138,9 +136,23 @@ export function EmailDayLogModal({
             {/* Mock Email Client Header */}
             <div className="border-b border-slate-800 pb-3 mb-4 text-xs text-slate-400 space-y-1">
               <div className="flex items-center justify-between">
-                <div>
-                  <strong className="text-slate-200 font-semibold">Subject: </strong>
-                  Daily Work Log — {designerName} — {formattedDate}
+                <div className="flex items-center space-x-2">
+                  <span className="text-slate-200">
+                    <strong className="font-semibold">Subject: </strong>
+                    <span className="text-slate-100 font-medium">{emailSubject}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopySubject}
+                    className="p-1 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded transition-colors cursor-pointer"
+                    title="Copy subject line"
+                  >
+                    {copiedType === 'subject' ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
                 </div>
                 <span className="text-emerald-400 font-medium bg-emerald-950/60 px-2.5 py-0.5 rounded text-[11px] border border-emerald-800/60">
                   Email-Ready Preview
