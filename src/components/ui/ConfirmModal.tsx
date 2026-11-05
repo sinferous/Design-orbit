@@ -53,7 +53,7 @@ export function ConfirmModal({
           </div>
 
           <div className="space-y-1.5 pt-0.5">
-            <h3 className="text-lg font-extrabold text-slate-100 leading-tight">{title}</h3>
+            <h3 className="text-lg font-semibold text-slate-100 leading-tight">{title}</h3>
             <p className="text-xs text-slate-400 leading-relaxed">{message}</p>
           </div>
         </div>

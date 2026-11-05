@@ -143,19 +143,14 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
         <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/60 text-violet-400 border border-violet-800/60">
-                Personal Profile
-              </span>
-            </div>
-            <h1 className="text-2xl font-bold text-slate-100 mt-1">
+            <h1 className="text-2xl font-bold text-slate-100">
               Profile & Account Settings
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
@@ -177,7 +172,7 @@ export default function SettingsPage() {
         {/* User Card */}
         <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-extrabold flex items-center justify-center text-xl shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-semibold flex items-center justify-center text-xl shadow-sm">
               {currentUser.name.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -233,7 +228,7 @@ export default function SettingsPage() {
 
           <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">
                 Current Password
               </label>
               <div className="relative">
@@ -258,7 +253,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">
                 New Password
               </label>
               <div className="relative">
@@ -284,7 +279,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">
                 Confirm New Password
               </label>
               <div className="relative">

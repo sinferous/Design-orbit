@@ -1,5 +1,6 @@
 'use client';
 
+import { Diya, FESTIVE } from '@/components/ui/Diwali';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -546,41 +547,31 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-7 animate-fade-in-up">
         {/* Top Utility Command Header (Personal Workspace) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
           <div className="space-y-1">
-            <div className="flex items-center space-x-2.5">
-              <span className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight flex items-center">
-                {greeting}, <span className="font-display font-black text-xl sm:text-2xl ml-2 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">{currentUser.name}</span>
-                <span className="ml-2 text-lg">👋</span>
-              </span>
+            <div className="flex items-center space-x-2">
+              <h1 className="font-display text-2xl sm:text-[28px] leading-tight font-semibold text-slate-50">
+                {greeting}, {currentUser.name}
+              </h1>
+              <Diya size={26} className="-mt-1" />
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 font-medium">
+            <p className="text-sm text-slate-400 font-normal">
               {subtitle}
             </p>
           </div>
 
           <div className="flex items-center flex-wrap gap-2.5">
             {/* Live System Sync Pill */}
-            <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-xs font-semibold text-slate-300 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-beacon" />
-              <span className="text-slate-400 font-medium">{formattedCurrentDate}</span>
-              <span className="text-slate-600">•</span>
-              <span className="text-emerald-400 font-bold">Personal Workspace</span>
+            <div className="flex items-center space-x-2 px-1 text-sm text-slate-400 tabular-nums">
+              {FESTIVE && <span className="text-[#f2a93b]">Happy Diwali</span>}
+              {FESTIVE && <span aria-hidden="true" className="text-slate-600">·</span>}
+              <span>{formattedCurrentDate}</span>
             </div>
-
-            {/* Quick Action Button */}
-            <Link
-              href="/work/new"
-              className="inline-flex items-center space-x-2 px-4 py-2 text-xs sm:text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_28px_rgba(168,85,247,0.5)] btn-tactile"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Log Daily Work</span>
-            </Link>
           </div>
         </div>
 
@@ -589,22 +580,18 @@ export default function DashboardPage() {
           {/* Card 1: Individual Creative Velocity & Output Spline (8 cols) */}
           <div
             ref={velocityCardRef}
-            className="lg:col-span-8 bento-card bento-card-hover bento-glow-subtle p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden group"
+            className="lg:col-span-8 bento-card bento-card-hover p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group"
           >
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
               <div>
                 <div className="flex items-center space-x-2.5">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">{chartMeta.displayTitle}</span>
-                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-500/15 text-violet-300 border border-violet-500/30 shadow-xs">
-                    <User className="w-3 h-3" />
-                    <span>My Individual Output</span>
-                  </span>
+                  <h2 className="text-sm font-semibold text-slate-200 font-sans tracking-normal">{chartMeta.displayTitle}</h2>
                 </div>
                 <div className="flex items-baseline space-x-3 mt-1.5">
-                  <span className="text-3xl sm:text-4xl font-extrabold font-display text-slate-100 tracking-tight tabular-nums">
+                  <span className="text-4xl sm:text-[44px] leading-none font-semibold font-display text-white tabular-nums">
                     {myWeekTotalCreated}
                   </span>
-                  <span className="text-xs sm:text-sm text-slate-400 font-medium">
+                  <span className="text-xs sm:text-sm text-slate-400 font-normal">
                     deliverables completed by you ({myWeekTotalApproved} approved)
                   </span>
                 </div>
@@ -629,18 +616,10 @@ export default function DashboardPage() {
               <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-28 sm:h-34 overflow-visible">
                 <defs>
                   <linearGradient id="myVelocitySplineGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#a855f7" stopOpacity="0.45" />
-                    <stop offset="60%" stopColor="#6366f1" stopOpacity="0.12" />
-                    <stop offset="100%" stopColor="#06080F" stopOpacity="0.0" />
+                    <stop offset="0%" stopColor="#55cb98" stopOpacity="0.14" />
+                    <stop offset="100%" stopColor="#55cb98" stopOpacity="0.0" />
                   </linearGradient>
-                  <linearGradient id="mySplineStrokeGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#818cf8" />
-                    <stop offset="50%" stopColor="#c084fc" />
-                    <stop offset="100%" stopColor="#38bdf8" />
-                  </linearGradient>
-                  <filter id="mySplineGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#a855f7" floodOpacity="0.6" />
-                  </filter>
+
                 </defs>
 
                 {/* Horizontal guide lines */}
@@ -655,7 +634,7 @@ export default function DashboardPage() {
                     y1="12"
                     x2={points[hoveredPoint].x}
                     y2={svgHeight - 16}
-                    stroke="rgba(168,85,247,0.4)"
+                    stroke="rgba(85,203,152,0.3)"
                     strokeWidth="1.5"
                     strokeDasharray="3 3"
                   />
@@ -668,13 +647,12 @@ export default function DashboardPage() {
                 <path
                   d={splinePath}
                   fill="none"
-                  stroke="url(#mySplineStrokeGrad)"
-                  strokeWidth="3.5"
+                  stroke="#55cb98"
+                  strokeWidth="2.25"
                   strokeLinecap="round"
-                  filter="url(#mySplineGlowFilter)"
                 />
 
-                {/* Interactive Node Circles (Clean static nodes, NO moving circles) */}
+                {/* Interactive Node Circles */}
                 {points.map((pt, idx) => (
                   <g
                     key={idx}
@@ -685,20 +663,20 @@ export default function DashboardPage() {
                     <circle
                       cx={pt.x}
                       cy={pt.y}
-                      r={hoveredPoint === idx ? '6.5' : pt.isCurrent ? '5.5' : '4'}
-                      className={`transition-all duration-200 ${
+                      r={hoveredPoint === idx ? '5.5' : pt.isCurrent ? '4.5' : '3.5'}
+                      className={`transition-all duration-150 ${
                         hoveredPoint === idx
-                          ? 'fill-white stroke-violet-500 stroke-2'
+                          ? 'fill-white stroke-blue-500 stroke-2'
                           : pt.isCurrent
-                          ? 'fill-violet-400 stroke-[#06080F] stroke-2'
-                          : 'fill-slate-400 stroke-[#06080F] stroke-1.5 hover:fill-violet-300'
+                          ? 'fill-blue-500 stroke-[#0c0c0b] stroke-2'
+                          : 'fill-slate-500 stroke-[#0c0c0b] stroke-1.5 hover:fill-blue-400'
                       }`}
                     />
                     {/* Tooltip on Hover */}
                     {hoveredPoint === idx && (
                       <g transform={`translate(${pt.x}, ${pt.y - 30})`}>
-                        <rect x="-32" y="-13" width="64" height="22" rx="7" fill="#1e1b4b" stroke="#818cf8" strokeWidth="1" />
-                        <text x="0" y="2" textAnchor="middle" fill="#ffffff" fontSize="10.5" fontWeight="bold">
+                        <rect x="-32" y="-13" width="64" height="22" rx="6" fill="#1a1a19" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+                        <text x="0" y="2" textAnchor="middle" fill="#ffffff" fontSize="10.5" fontWeight="600">
                           {pt.val} items
                         </text>
                       </g>
@@ -708,14 +686,14 @@ export default function DashboardPage() {
               </svg>
 
               {/* Day / Period Labels Strip */}
-              <div className="flex justify-between px-3 pt-1.5 text-[11px] font-bold text-slate-500">
+              <div className="flex justify-between px-3 pt-1.5 text-[11px] font-medium text-slate-400">
                 {points.map((pt, idx) => (
                   <span
                     key={idx}
                     className={`transition-colors cursor-pointer ${
                       pt.isCurrent
-                        ? 'text-violet-300 font-extrabold underline underline-offset-4 decoration-violet-500'
-                        : 'hover:text-slate-300'
+                        ? 'text-slate-50 font-semibold'
+                        : 'hover:text-slate-200'
                     }`}
                     onClick={() => setHoveredPoint(idx)}
                   >
@@ -725,15 +703,15 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Bottom Meta Stats (Normalized for 5-day Working Sprints) */}
-            <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-2 gap-3 text-center text-xs">
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Peak Velocity</span>
-                <span className="text-xs font-bold text-slate-200 mt-0.5 block">{peakDayMeta.text}</span>
+            {/* Bottom Meta Stats */}
+            <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-2 gap-4 text-xs">
+              <div className="py-1 text-left">
+                <span className="text-xs text-slate-500 block">Peak day</span>
+                <span className="text-sm font-medium text-slate-100 mt-0.5 block">{peakDayMeta.text}</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Approval Rating</span>
-                <span className="text-xs font-bold text-emerald-400 mt-0.5 block">{myTurnaroundRate}</span>
+              <div className="py-1 text-left pl-4 border-l border-white/[0.06]">
+                <span className="text-xs text-slate-500 block">Approval rate</span>
+                <span className="text-sm font-medium text-emerald-400 mt-0.5 block">{myTurnaroundRate}</span>
               </div>
             </div>
           </div>
@@ -752,15 +730,12 @@ export default function DashboardPage() {
           {/* Tile 1: Today's Created */}
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">My Today's Output</span>
+              <span className="text-xs font-medium text-slate-400">Today's output</span>
               <div className="flex items-baseline space-x-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display tracking-tight tabular-nums">{myTodayDone}</span>
-                <span className="text-xs text-slate-500 font-medium">deliverables</span>
+                <span className="text-2xl sm:text-3xl font-semibold text-white font-display tabular-nums">{myTodayDone}</span>
+                <span className="text-xs text-slate-400 font-normal">deliverables</span>
               </div>
-              <p className="text-[11px] text-slate-400">Logged by you today</p>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-violet-600/10 border border-violet-500/25 flex items-center justify-center text-violet-400 group-hover:scale-110 transition-transform shadow-xs">
-              <Layers className="w-5 h-5" />
+              <p className="text-[11px] text-slate-500">Logged by you today</p>
             </div>
           </div>
 
@@ -768,22 +743,19 @@ export default function DashboardPage() {
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">My Focused Creative Time</span>
+                <span className="text-xs font-medium text-slate-400">Focused time</span>
                 {myRunningTimers.length > 0 && (
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-beacon" />
                 )}
               </div>
               <div className="flex items-baseline space-x-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono tracking-tight tabular-nums">
+                <span className="text-2xl sm:text-3xl font-semibold text-emerald-400 font-display tabular-nums">
                   {formatWorkEntryStopwatch(myTotalTimeSeconds)}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500">
                 {myRunningTimers.length > 0 ? `${myRunningTimers.length} active stopwatch running` : 'Timers paused'}
               </p>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-600/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform shadow-xs">
-              <Clock className="w-5 h-5" />
             </div>
           </div>
 
@@ -793,34 +765,28 @@ export default function DashboardPage() {
             className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group cursor-pointer"
           >
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">My Client Accounts</span>
+              <span className="text-xs font-medium text-slate-400">Clients this week</span>
               <div className="flex items-baseline space-x-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-violet-300 font-display tracking-tight tabular-nums">{myActiveClientsCount}</span>
-                <span className="text-xs text-slate-500 font-medium">brands serviced</span>
+                <span className="text-2xl sm:text-3xl font-semibold text-white font-display tabular-nums">{myActiveClientsCount}</span>
+                <span className="text-xs text-slate-400 font-normal">brands serviced</span>
               </div>
-              <p className="text-[11px] text-violet-400 font-medium group-hover:underline flex items-center space-x-1">
+              <p className="text-[11px] text-blue-400 font-medium group-hover:underline flex items-center space-x-1">
                 <span>View directory</span>
                 <ArrowUpRight className="w-3 h-3" />
               </p>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600/10 border border-indigo-500/25 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform shadow-xs">
-              <Building2 className="w-5 h-5" />
             </div>
           </Link>
         </div>
 
         {/* Pending Client Approvals Urgent Banner (If Any) */}
         {pendingApprovals.length > 0 && (
-          <div className="bento-card p-5 sm:p-6 border-amber-500/35 bg-gradient-to-r from-amber-950/20 via-orange-950/10 to-transparent space-y-3.5">
+          <div className="bento-card p-5 sm:p-6 border-amber-500/35 bg-amber-950/15 space-y-3.5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
-                  <Hourglass className="w-5 h-5" />
-                </div>
                 <div>
                   <div className="flex items-center space-x-2">
                     <h3 className="text-sm sm:text-base font-bold text-slate-100">Pending Client Sign-offs</h3>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-amber-950/80 text-amber-300 border border-amber-700/60">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-950/80 text-amber-300 border border-amber-700/60">
                       {pendingApprovals.length} {pendingApprovals.length === 1 ? 'item' : 'items'}
                     </span>
                   </div>
@@ -879,19 +845,16 @@ export default function DashboardPage() {
         {/* Operations Hub: Deliverables Transaction Stream (Full Width) */}
         <div className="bento-card p-5 sm:p-6 space-y-4">
             {/* Header with Filter Pills */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-white/[0.08] pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-white/[0.07] pb-4">
               <div className="flex items-center space-x-3 min-w-0 shrink-0">
-                <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0">
-                  <Activity className="w-4 h-4" />
-                </div>
                 <div className="min-w-0">
                   <div className="flex items-center space-x-2.5">
-                    <h2 className="text-sm sm:text-base font-bold text-slate-100 whitespace-nowrap">
+                    <h2 className="text-sm sm:text-base font-semibold text-slate-100 whitespace-nowrap">
                       Today's Deliverable Feed
                     </h2>
                     {myRunningTimers.length > 0 && (
-                      <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-beacon" />
                         <span>{myRunningTimers.length} running</span>
                       </span>
                     )}
@@ -920,13 +883,13 @@ export default function DashboardPage() {
                 <OrbitLoader size="md" text="Syncing deliverable feed..." />
               </div>
             ) : filteredFeed.length === 0 ? (
-              <div className="p-10 text-center space-y-3 bg-white/[0.02] rounded-2xl border border-white/[0.06]">
+              <div className="p-10 text-center space-y-3 bg-white/[0.02] rounded-xl border border-white/[0.06]">
                 <p className="text-xs text-slate-400 font-medium">
                   No deliverables logged in this view yet.
                 </p>
                 <Link
                   href="/work/new"
-                  className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-xl shadow-[0_0_16px_rgba(168,85,247,0.3)] btn-tactile"
+                  className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white webtree-gradient-btn rounded-xl shadow-xs btn-tactile"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Log New Deliverable</span>
@@ -946,47 +909,47 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={entry.id}
-                      className={`relative p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 overflow-hidden ${
+                      className={`relative p-3.5 sm:p-4 rounded-xl border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-3 overflow-hidden ${
                         isTimerRunning
-                          ? 'bg-amber-950/20 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.1)] ring-1 ring-amber-500/30'
-                          : 'bg-white/[0.02] border-white/[0.06] hover:border-violet-500/35 hover:bg-white/[0.04]'
+                          ? 'bg-amber-950/20 border-amber-500/35 ring-1 ring-amber-500/20'
+                          : 'bg-[#131312] border-white/[0.06] hover:border-white/[0.12] hover:bg-[#181817]'
                       }`}
                     >
-                      {/* Left Status Glow Accent Bar */}
+                      {/* Left Status Accent Bar */}
                       <span
-                        className={`absolute left-0 inset-y-0 w-1 rounded-l-2xl ${
+                        className={`absolute left-0 inset-y-0 w-1 rounded-l-xl ${
                           isTimerRunning
-                            ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]'
+                            ? 'bg-amber-400'
                             : entry.quantity_approved === entry.quantity_done
-                            ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]'
-                            : 'bg-violet-500/40'
+                            ? 'bg-emerald-400'
+                            : 'bg-blue-500/40'
                         }`}
                       />
 
                       {/* Left Side: Avatar squircle + Info */}
                       <div className="flex items-center space-x-3.5 min-w-0 pl-1">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600/30 via-indigo-600/20 to-fuchsia-600/20 border border-white/[0.1] flex items-center justify-center text-xs font-bold text-slate-200 shrink-0 shadow-xs">
+                        <div className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-xs font-semibold text-slate-200 shrink-0">
                           {initials}
                         </div>
 
                         <div className="min-w-0 space-y-1">
                           <div className="flex items-center space-x-2 flex-wrap">
-                            <span className="text-xs sm:text-sm font-bold text-slate-100 truncate">{entry.description}</span>
+                            <span className="text-xs sm:text-sm font-semibold text-slate-100 truncate">{entry.description}</span>
                             {entry.work_type && (
-                              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-600/20 text-violet-300 border border-violet-500/25">
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-white/[0.04] text-slate-300 border border-white/[0.08]">
                                 {entry.work_type.name}
                               </span>
                             )}
                           </div>
 
                           <div className="flex items-center space-x-2 text-[11px] text-slate-400">
-                            <span className="font-semibold text-slate-300">{clientName}</span>
+                            <span className="font-medium text-slate-300">{clientName}</span>
                             <span>•</span>
                             <span>By {entry.profile?.name || (isMyEntry ? currentUser.name : 'Designer')}</span>
                             {isTimerRunning && (
                               <>
                                 <span>•</span>
-                                <span className="inline-flex items-center space-x-1 text-amber-400 font-bold">
+                                <span className="inline-flex items-center space-x-1 text-amber-400 font-semibold">
                                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
                                   <span>Timer Live</span>
                                 </span>
@@ -1000,7 +963,7 @@ export default function DashboardPage() {
                       <div className="flex items-center space-x-3 shrink-0 self-end sm:self-center pl-1 sm:pl-0">
                         {/* Live Timer Clock Display */}
                         {(liveSeconds > 0 || isTimerRunning) && (
-                          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-black/40 border border-white/[0.08] font-mono text-xs font-bold text-slate-200 tabular-nums">
+                          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-[#0c0c0b] border border-white/[0.08] font-display tabular-nums text-xs font-medium text-slate-200 tabular-nums">
                             <Clock className={`w-3.5 h-3.5 ${isTimerRunning ? 'text-amber-400 animate-spin-slow' : 'text-slate-400'}`} />
                             <span>{formatWorkEntryStopwatch(liveSeconds)}</span>
                           </div>
@@ -1011,12 +974,12 @@ export default function DashboardPage() {
                           <button
                             type="button"
                             onClick={() => setSelectedApprovalEntry(entry)}
-                            className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all cursor-pointer btn-tactile ${
+                            className={`px-3 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer btn-tactile ${
                               entry.quantity_approved === entry.quantity_done
-                                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25'
+                                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25 hover:bg-emerald-500/20'
                                 : entry.quantity_approved > 0
-                                ? 'bg-violet-500/15 text-violet-300 border-violet-500/30 hover:bg-violet-500/25'
-                                : 'bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
+                                ? 'bg-blue-500/10 text-blue-300 border-blue-500/25 hover:bg-blue-500/20'
+                                : 'bg-amber-500/10 text-amber-300 border-amber-500/25 hover:bg-amber-500/20'
                             }`}
                           >
                             {entry.quantity_approved === entry.quantity_done
@@ -1027,10 +990,10 @@ export default function DashboardPage() {
                           </button>
                         ) : (
                           <span
-                            className={`px-3 py-1 rounded-xl text-xs font-bold border ${
+                            className={`px-3 py-1 rounded-lg text-xs font-medium border ${
                               entry.quantity_approved > 0
-                                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                                : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25'
+                                : 'bg-amber-500/10 text-amber-300 border-amber-500/25'
                             }`}
                           >
                             {entry.quantity_approved > 0 ? `Approved (${entry.quantity_approved})` : 'Pending'}
@@ -1043,10 +1006,10 @@ export default function DashboardPage() {
                             type="button"
                             disabled={timerLoadingId === entry.id}
                             onClick={() => (isTimerRunning ? handleStopTimer(entry) : handleStartTimer(entry))}
-                            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all btn-tactile cursor-pointer ${
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all btn-tactile cursor-pointer ${
                               isTimerRunning
-                                ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-                                : 'bg-violet-600/20 text-violet-300 border border-violet-500/30 hover:bg-violet-600/35'
+                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30'
+                                : 'bg-white/[0.04] text-slate-300 border border-white/[0.08] hover:bg-white/[0.08]'
                             }`}
                             title={isTimerRunning ? 'Pause timer' : 'Start stopwatch'}
                           >

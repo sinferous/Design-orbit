@@ -1,16 +1,19 @@
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Instrument_Sans, Bricolage_Grotesque } from 'next/font/google';
 import './globals.css';
 import { CreativeBackground } from '@/components/ui/CreativeBackground';
 import { ToastProvider } from '@/components/ui/ToastContext';
 import { FloatingPipTimer } from '@/components/timer/FloatingPipTimer';
-import { PromoVideoModal } from '@/components/promo/PromoVideoModal';
 
-const inter = Inter({ subsets: ['latin'] });
-const plusJakarta = Plus_Jakarta_Sans({
+const uiFont = Instrument_Sans({
   subsets: ['latin'],
-  weight: ['500', '600', '700', '800'],
-  variable: '--font-display',
+  variable: '--font-ui',
+  display: 'swap',
+});
+const brandFont = Bricolage_Grotesque({
+  subsets: ['latin'],
+  variable: '--font-brand',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -31,15 +34,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full bg-[#06080F] dark">
-      <body className={`${inter.className} ${plusJakarta.variable} min-h-full flex flex-col bg-[#06080F] text-slate-100 antialiased relative selection:bg-violet-900 selection:text-violet-200`}>
+    <html lang="en" className={`${uiFont.variable} ${brandFont.variable} h-full bg-[#0c0c0b] dark`}>
+      <body className={`font-sans min-h-full flex flex-col bg-[#0c0c0b] text-slate-100 antialiased relative`}>
         <ToastProvider>
           <CreativeBackground />
           <div className="relative z-10 flex-1 flex flex-col">
             {children}
           </div>
           <FloatingPipTimer />
-          <PromoVideoModal />
         </ToastProvider>
       </body>
     </html>

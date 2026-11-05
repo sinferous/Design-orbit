@@ -16,6 +16,8 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandMark } from '@/components/ui/BrandMark';
+import { Diya, Toran } from '@/components/ui/Diwali';
 import { getLoggedInUser, logoutUser, isAdminUser } from '@/lib/services/work-entry';
 
 interface SidebarProps {
@@ -272,21 +274,25 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
   }, [pathname, reportsOpen]);
 
   return (
-    <aside className="w-64 lg:w-68 h-full flex flex-col justify-between bg-[#080C17]/95 backdrop-blur-2xl border-r border-white/[0.08] select-none text-slate-200">
+    <aside className="w-64 lg:w-68 h-full flex flex-col justify-between bg-[#0c0c0b] border-r border-white/[0.06] select-none text-slate-200">
       {/* Top Section */}
       <div className="flex flex-col flex-1 overflow-y-auto px-4 py-5 space-y-6">
+        <Toran className="-mx-4 -mt-5 !w-[calc(100%+2rem)] !mb-0" />
+
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 pt-1 pb-1">
           <Link
             href={isAdmin ? '/admin' : '/dashboard'}
             onClick={onCloseMobile}
-            className="flex items-center group py-1"
+            className="flex items-center space-x-2.5 group py-1"
           >
-            <span className="font-bold text-slate-100 text-xl tracking-tight">Design</span>
-            <span className="font-display font-black text-xl ml-1.5 tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(168,85,247,0.45)] group-hover:drop-shadow-[0_0_20px_rgba(168,85,247,0.7)] transition-all">
-              Orbit
-            </span>
+            <BrandMark size={30} className="shrink-0 transition-transform duration-500 group-hover:rotate-[-18deg]" />
+            <div className="flex flex-col">
+              <span className="font-display font-bold text-slate-50 text-[17px] leading-tight">Design Orbit</span>
+              <span className="text-[11px] text-slate-500 font-medium">Webtree creative team</span>
+            </div>
           </Link>
+          <Diya size={22} className="shrink-0" />
         </div>
 
         {/* Quick Action Button (Non-Admin only) */}
@@ -295,7 +301,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             <Link
               href="/work/new"
               onClick={onCloseMobile}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-xs sm:text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_28px_rgba(168,85,247,0.5)] btn-tactile"
+              className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-sm webtree-gradient-btn rounded-full btn-tactile"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Add Daily Work</span>
@@ -305,16 +311,13 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
 
         {/* Navigation Rail */}
         <div className="space-y-1">
-          <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-3 mb-2">
-            Navigation
-          </div>
 
           <nav ref={navRef} className="space-y-1 relative">
-            {/* Smooth Gliding Active Indicator Pill (a bit slow, buttery smooth transition) */}
+            {/* Smooth Gliding Active Indicator Pill */}
             <div
               className={cn(
-                'absolute top-0 left-0 right-0 pointer-events-none rounded-xl bg-gradient-to-r from-violet-600/20 via-indigo-600/15 to-transparent border border-violet-500/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_0_16px_rgba(168,85,247,0.25)] z-0',
-                indicator.animate ? 'transition-all duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
+                'absolute top-0 left-0 right-0 pointer-events-none rounded-lg bg-white/[0.07] z-0',
+                indicator.animate ? 'transition-all duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
               )}
               style={{
                 transform: `translate3d(0, ${indicator.top}px, 0)`,
@@ -322,8 +325,6 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                 opacity: indicator.ready ? 1 : 0,
               }}
             >
-              {/* Left Active Glow Pill */}
-              <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-gradient-to-b from-violet-400 to-indigo-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
             </div>
 
             {navItems.map((item) => {
@@ -341,29 +342,26 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                     href={item.href}
                     onClick={(e) => handleNavClick(item, e)}
                     className={cn(
-                      'group relative z-10 flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors duration-[480ms] cursor-pointer',
+                      'group relative z-10 flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer',
                       isActive
-                        ? 'text-white font-semibold'
-                        : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04]'
+                        ? 'text-white'
+                        : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.035]'
                     )}
                   >
-                    <div className="flex items-center space-x-3 pl-1.5 min-w-0">
-                      <div
+                    <div className="flex items-center space-x-3 min-w-0">
+                      <Icon
+                        strokeWidth={1.75}
                         className={cn(
-                          'w-7 h-7 rounded-lg flex items-center justify-center transition-colors duration-[480ms] shrink-0',
-                          isActive
-                            ? 'bg-violet-600/30 text-violet-300 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
-                            : 'bg-white/[0.03] text-slate-400 group-hover:text-slate-200 group-hover:bg-white/[0.06]'
+                          'w-[18px] h-[18px] shrink-0 transition-colors duration-200',
+                          isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'
                         )}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </div>
+                      />
                       <span className="truncate">{item.label}</span>
                     </div>
 
                     <div className="flex items-center space-x-1.5 shrink-0">
                       {item.badge && (
-                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-violet-950/80 text-violet-300 border border-violet-700/40">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-950/80 text-blue-300 border border-blue-800/40">
                           {item.badge}
                         </span>
                       )}
@@ -375,8 +373,8 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                         >
                           <ChevronRight
                             className={cn(
-                              'w-3.5 h-3.5 transition-transform duration-300',
-                              reportsOpen ? 'rotate-90 text-violet-400' : 'text-slate-500'
+                              'w-3.5 h-3.5 transition-transform duration-200',
+                              reportsOpen ? 'rotate-90 text-blue-400' : 'text-slate-500'
                             )}
                           />
                         </div>
@@ -393,12 +391,12 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                       )}
                     >
                       <div className="sidebar-submenu-inner">
-                        <div ref={subnavRef} className="border-l border-violet-500/20 ml-6 pl-2.5 py-0.5 space-y-0.5 relative">
+                        <div ref={subnavRef} className="border-l border-white/[0.08] ml-[21px] pl-2.5 py-0.5 space-y-0.5 relative">
                           {/* Gliding sub-pill */}
                           <div
                             className={cn(
-                              'absolute top-0 left-0 right-0 pointer-events-none rounded-lg bg-violet-950/60 border border-violet-700/40 shadow-xs z-0',
-                              subIndicator.animate ? 'transition-all duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
+                              'absolute top-0 left-0 right-0 pointer-events-none rounded-md bg-white/[0.05] z-0',
+                              subIndicator.animate ? 'transition-all duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
                             )}
                             style={{
                               transform: `translate3d(0, ${subIndicator.top}px, 0)`,
@@ -406,7 +404,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                               opacity: subIndicator.ready ? 1 : 0,
                             }}
                           >
-                            <span className="absolute -left-[14px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(168,85,247,0.9)]" />
+                            <span className="absolute -left-[14px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-400" />
                           </div>
 
                           {reportSubItems.map((sub) => {
@@ -420,17 +418,17 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                                 href={sub.href}
                                 onClick={() => handleSubNavClick(sub)}
                                 className={cn(
-                                  'sidebar-sub-link group/sub relative z-10 flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors duration-[480ms]',
+                                  'sidebar-sub-link group/sub relative z-10 flex items-center justify-between px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors duration-200',
                                   isSubActive
-                                    ? 'text-violet-300 font-semibold'
-                                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                                    ? 'text-white'
+                                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
                                 )}
                               >
                                 <span className="truncate">{sub.label}</span>
                                 <ChevronRight
                                   className={cn(
                                     'w-3 h-3 transition-transform group-hover/sub:translate-x-0.5',
-                                    isSubActive ? 'text-violet-400' : 'text-slate-600'
+                                    isSubActive ? 'text-blue-400' : 'text-slate-600'
                                   )}
                                 />
                               </Link>
@@ -448,27 +446,27 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       </div>
 
       {/* Bottom User Profile Dock */}
-      <div className="p-3 border-t border-white/[0.08] bg-[#060A14]/80">
-        <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-violet-500/30 transition-all group">
+      <div className="p-3 border-t border-white/[0.06]">
+        <div className="flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.035] transition-colors group">
           <Link
             href="/settings"
             onClick={onCloseMobile}
             className="flex items-center space-x-2.5 min-w-0 flex-1"
           >
             <div className="relative shrink-0">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-600/40 to-indigo-800/40 border border-violet-500/40 flex items-center justify-center text-xs font-bold text-violet-200">
+              <div className="w-8 h-8 rounded-full bg-[#232322] flex items-center justify-center text-xs font-semibold text-slate-200">
                 {currentUser.charAt(0).toUpperCase()}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#080C17]" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0c0c0b]" />
             </div>
 
             <div className="min-w-0 flex-1 text-left">
-              <div className="text-xs font-bold text-slate-200 truncate group-hover:text-violet-400 transition-colors">
+              <div className="text-[13px] font-medium text-slate-100 truncate">
                 {currentUser}
               </div>
-              <div className="text-[10px] text-slate-500 truncate flex items-center">
+              <div className="text-[11px] text-slate-500 truncate flex items-center">
                 {isAdmin ? (
-                  <span className="text-amber-400 font-semibold flex items-center">
+                  <span className="text-amber-400 font-medium flex items-center">
                     <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> Admin
                   </span>
                 ) : (
@@ -483,7 +481,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
               href="/settings"
               onClick={onCloseMobile}
               title="Settings"
-              className="p-1.5 text-slate-400 hover:text-violet-300 hover:bg-white/[0.05] rounded-lg transition-colors"
+              className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] rounded-lg transition-colors"
             >
               <Settings className="w-3.5 h-3.5" />
             </Link>
@@ -491,7 +489,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
               type="button"
               onClick={handleLogout}
               title="Sign Out"
-              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-950/30 rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
             </button>

@@ -123,31 +123,24 @@ export default function ClientsPage() {
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="bento-card bento-glow-subtle p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bento-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60">
-                Client Roster
-              </span>
-              <span className="text-xs text-slate-600">•</span>
-              <span className="text-xs font-semibold text-slate-400">{clients.length} Active Clients (A-Z)</span>
-            </div>
-            <h1 className="text-2xl font-bold text-slate-100 mt-1">
+            <h1 className="text-2xl font-bold text-slate-100">
               Client Directory
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
-              Add new client names or edit and update existing accounts for daily work entries.
+              {clients.length} active clients. Add new names or edit existing accounts for daily work entries.
             </p>
           </div>
 
           <Link
             href="/work/new"
-            className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-[0_0_16px_rgba(168,85,247,0.3)] btn-tactile"
+            className="inline-flex items-center space-x-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white webtree-gradient-btn rounded-xl shadow-xs btn-tactile"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Work Entry</span>
@@ -156,8 +149,8 @@ export default function ClientsPage() {
 
         {/* Add Client Card */}
         <div className="bento-card p-6 space-y-4">
-          <h2 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-            <Building2 className="w-4 h-4 text-violet-400" />
+          <h2 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
+            <Building2 className="w-4 h-4 text-blue-400" />
             <span>Add New Client</span>
           </h2>
           <form onSubmit={handleAddClient} className="flex flex-col sm:flex-row gap-3">
@@ -167,12 +160,12 @@ export default function ClientsPage() {
               value={newClientName}
               onChange={e => setNewClientName(e.target.value)}
               placeholder="Enter new client name (e.g. Acme Corp)"
-              className="flex-1 w-full px-4 py-2.5 bg-black/30 border border-white/[0.08] rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-all font-medium"
+              className="flex-1 w-full px-4 py-2.5 bg-[#0c0c0b] border border-white/[0.08] rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all font-medium"
             />
             <button
               type="submit"
               disabled={adding}
-              className="inline-flex justify-center items-center space-x-2 px-6 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-sm disabled:opacity-50 btn-tactile"
+              className="inline-flex justify-center items-center space-x-2 px-6 py-2.5 text-sm font-semibold text-white webtree-gradient-btn rounded-xl shadow-xs disabled:opacity-50 btn-tactile"
             >
               <Plus className="w-4 h-4" />
               <span>{adding ? 'Adding...' : 'Add Client'}</span>
@@ -183,7 +176,7 @@ export default function ClientsPage() {
         {/* Client Roster List Card */}
         <div className="bento-card p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/[0.08]">
-            <h2 className="text-base font-bold text-slate-100">
+            <h2 className="text-base font-semibold text-slate-100">
               All Clients ({filteredClients.length})
             </h2>
 
@@ -195,7 +188,7 @@ export default function ClientsPage() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search clients..."
-                className="w-full pl-9 pr-4 py-2 bg-black/30 border border-white/[0.08] rounded-xl text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 font-medium"
+                className="w-full pl-9 pr-4 py-2 bg-[#0c0c0b] border border-white/[0.08] rounded-xl text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 font-medium"
               />
             </div>
           </div>
@@ -209,7 +202,7 @@ export default function ClientsPage() {
               />
             </div>
           ) : filteredClients.length === 0 ? (
-            <div className="p-8 text-center bg-slate-950/50 rounded-lg border border-slate-800 text-slate-400 text-sm">
+            <div className="p-8 text-center bg-[#0c0c0b] rounded-xl border border-white/[0.06] text-slate-400 text-sm">
               No clients found matching "{searchQuery}".
             </div>
           ) : (
@@ -222,7 +215,7 @@ export default function ClientsPage() {
                   return (
                     <div
                       key={client.id}
-                      className="p-3 bg-slate-950 rounded-lg border-2 border-violet-500 shadow-md transition-all"
+                      className="p-3 bg-[#0c0c0b] rounded-xl border border-blue-500 shadow-sm transition-all"
                     >
                       <form
                         onSubmit={e => {
@@ -232,7 +225,7 @@ export default function ClientsPage() {
                         className="space-y-2.5"
                       >
                         <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 rounded-full bg-violet-950/80 border border-violet-800/60 flex items-center justify-center text-xs font-bold text-violet-400 shrink-0">
+                          <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs font-semibold text-blue-400 shrink-0">
                             {(editingName.trim().charAt(0) || client.name.charAt(0)).toUpperCase()}
                           </div>
                           <input
@@ -243,14 +236,14 @@ export default function ClientsPage() {
                             onChange={e => setEditingName(e.target.value)}
                             disabled={isUpdating}
                             placeholder="Edit client name..."
-                            className="flex-1 w-full px-2.5 py-1 text-sm font-bold text-slate-100 bg-slate-900 border border-slate-700 rounded focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-slate-900"
+                            className="flex-1 w-full px-2.5 py-1 text-sm font-semibold text-slate-100 bg-[#141413] border border-white/[0.1] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500"
                             onKeyDown={e => {
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
                         </div>
 
-                        <div className="flex items-center justify-end space-x-1.5 pt-1.5 border-t border-slate-800">
+                        <div className="flex items-center justify-end space-x-1.5 pt-1.5 border-t border-white/[0.06]">
                           <button
                             type="button"
                             onClick={handleCancelEdit}
@@ -262,7 +255,7 @@ export default function ClientsPage() {
                           <button
                             type="submit"
                             disabled={isUpdating || !editingName.trim()}
-                            className="px-3 py-1 text-xs font-bold text-white webtree-gradient-btn rounded shadow-sm disabled:opacity-50"
+                            className="px-3 py-1 text-xs font-semibold text-white webtree-gradient-btn rounded-lg shadow-xs disabled:opacity-50"
                           >
                             {isUpdating ? 'Saving...' : 'Save'}
                           </button>
@@ -275,7 +268,7 @@ export default function ClientsPage() {
                 return (
                   <div
                     key={client.id}
-                    className="p-4 bg-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-between space-x-3 hover:border-violet-500/40 hover:bg-white/[0.05] transition-all group bento-card-hover"
+                    className="p-4 bg-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-between space-x-3 hover:border-white/[0.14] hover:bg-white/[0.04] transition-all group bento-card-hover"
                   >
                     <div className="flex items-center space-x-2.5 min-w-0">
                       <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-xs font-bold text-violet-300 shrink-0 group-hover:scale-105 transition-transform">

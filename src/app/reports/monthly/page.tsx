@@ -107,7 +107,7 @@ export default function MonthlyReportPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar userName="Gajesh" />
 
       {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
@@ -136,7 +136,7 @@ export default function MonthlyReportPage() {
         {/* Month / Year & Filters Bar */}
         <div className="bg-slate-900 p-3.5 sm:p-4 rounded-xl border border-slate-800 shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 mb-1">
               Month
             </label>
             <RichSelect
@@ -148,7 +148,7 @@ export default function MonthlyReportPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 mb-1">
               Year
             </label>
             <RichSelect
@@ -162,7 +162,7 @@ export default function MonthlyReportPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 mb-1">
               Team Member
             </label>
             <RichSelect
@@ -181,7 +181,7 @@ export default function MonthlyReportPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 mb-1">
               Work Type
             </label>
             <RichSelect
@@ -197,7 +197,7 @@ export default function MonthlyReportPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-slate-400 mb-1">
               Client
             </label>
             <RichSelect
@@ -217,24 +217,24 @@ export default function MonthlyReportPage() {
         {/* Monthly Summary Statistics - 2x2 Grid on Mobile */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
               {months.find(m => m.value === selectedMonth)?.name} Created
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-slate-100">{reportData.totalDoneAll}</div>
+            <div className="text-2xl sm:text-3xl font-semibold text-slate-100">{reportData.totalDoneAll}</div>
             <p className="text-[11px] sm:text-xs text-slate-400 truncate">Items this month</p>
           </div>
 
           <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
               {months.find(m => m.value === selectedMonth)?.name} Approved
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-violet-400">{reportData.totalApprovedAll}</div>
+            <div className="text-2xl sm:text-3xl font-semibold text-violet-400">{reportData.totalApprovedAll}</div>
             <p className="text-[11px] sm:text-xs text-emerald-400 font-medium truncate">{reportData.overallApprovalRate}% approved</p>
           </div>
 
           <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Time Logged</div>
-            <div className="text-xl sm:text-3xl font-extrabold text-amber-400 flex items-center space-x-1 sm:space-x-1.5">
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Time Logged</div>
+            <div className="text-xl sm:text-3xl font-semibold text-amber-400 flex items-center space-x-1 sm:space-x-1.5">
               <Clock className="w-5 h-5 text-amber-400 shrink-0" />
               <span className="truncate">{formatReportTime(reportData.totalTimeSecondsAll || 0)}</span>
             </div>
@@ -244,8 +244,8 @@ export default function MonthlyReportPage() {
           </div>
 
           <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Active Categories</div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-indigo-400">
+            <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Active Categories</div>
+            <div className="text-2xl sm:text-3xl font-semibold text-indigo-400">
               {reportData.summaries.filter(s => s.totalDone > 0).length} / {reportData.summaries.length}
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 truncate">Work types active</p>
@@ -272,7 +272,7 @@ export default function MonthlyReportPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-slate-300">
-                <thead className="bg-slate-950/80 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                <thead className="bg-slate-950/80 text-xs font-bold text-slate-400 border-b border-slate-800">
                   <tr>
                     <th className="px-6 py-3.5">Work Type</th>
                     <th className="px-6 py-3.5 text-right">Created Quantity</th>
@@ -285,20 +285,20 @@ export default function MonthlyReportPage() {
                   {reportData.summaries.map(s => (
                     <tr key={s.workType.id} className="hover:bg-slate-800/60 transition-colors">
                       <td className="px-6 py-4 font-bold text-slate-200">{s.workType.name}</td>
-                      <td className="px-6 py-4 text-right font-extrabold text-slate-100">{s.totalDone}</td>
-                      <td className="px-6 py-4 text-right font-extrabold text-violet-400">{s.totalApproved}</td>
+                      <td className="px-6 py-4 text-right font-semibold text-slate-100">{s.totalDone}</td>
+                      <td className="px-6 py-4 text-right font-semibold text-violet-400">{s.totalApproved}</td>
                       <td className="px-6 py-4 text-right font-bold text-indigo-400">{s.approvalRate}%</td>
-                      <td className="px-6 py-4 text-right font-mono font-bold text-amber-400">
+                      <td className="px-6 py-4 text-right font-display tabular-nums font-bold text-amber-400">
                         {formatReportTime(s.totalTimeSeconds || 0)}
                       </td>
                     </tr>
                   ))}
-                  <tr className="bg-slate-950/90 font-extrabold text-slate-100 border-t-2 border-slate-700">
-                    <td className="px-6 py-4 uppercase">Total</td>
+                  <tr className="bg-slate-950/90 font-semibold text-slate-100 border-t-2 border-slate-700">
+                    <td className="px-6 py-4">Total</td>
                     <td className="px-6 py-4 text-right text-slate-100">{reportData.totalDoneAll}</td>
                     <td className="px-6 py-4 text-right text-violet-400">{reportData.totalApprovedAll}</td>
                     <td className="px-6 py-4 text-right text-indigo-400">{reportData.overallApprovalRate}%</td>
-                    <td className="px-6 py-4 text-right font-mono font-bold text-amber-400">
+                    <td className="px-6 py-4 text-right font-display tabular-nums font-bold text-amber-400">
                       {formatReportTime(reportData.totalTimeSecondsAll || 0)}
                     </td>
                   </tr>

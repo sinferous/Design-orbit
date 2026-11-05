@@ -632,7 +632,7 @@ export default function ExcelSyncPage() {
   const isCurrentWeek = weekStartDate === initialWeek.startDate;
 
   return (
-    <div className="min-h-screen bg-[#06080F] text-slate-100 flex flex-col relative md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen bg-[#0a0a09] text-slate-100 flex flex-col relative md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <CreativeBackground />
       <Navbar />
 
@@ -641,14 +641,9 @@ export default function ExcelSyncPage() {
         <div className="bento-card bento-glow-subtle p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2.5 mb-1.5">
-              <div className="p-2 rounded-xl bg-emerald-600/15 border border-emerald-500/25 text-emerald-400">
-                <FileSpreadsheet className="w-5 h-5" />
-              </div>
+              <FileSpreadsheet className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
                 Excel Sync
-                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/40">
-                  Excel & Sheets Ready
-                </span>
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-400">
@@ -667,7 +662,7 @@ export default function ExcelSyncPage() {
             size="md"
             fullWidth={false}
             className="self-start sm:self-auto shrink-0 shadow-xs p-1"
-            pillClassName="bg-gradient-to-r from-emerald-600 to-emerald-500 border border-emerald-400/30 shadow-[0_0_16px_rgba(16,185,129,0.35)]"
+            pillClassName="bg-gradient-to-r from-emerald-600 to-emerald-500 border border-emerald-400/30 shadow-[0_0_16px_rgba(85,203,152,0.35)]"
           />
         </div>
 
@@ -677,7 +672,7 @@ export default function ExcelSyncPage() {
         {activeTab === 'daily' && (
           <>
             {/* Streamlined Controls Bar: Date Navigation (Without Gaps) */}
-            <div className="bg-[#0b0f19] border border-slate-800/90 rounded-xl p-3.5 sm:p-4 mb-4 shadow-sm flex items-center justify-between">
+            <div className="bg-[#121211] border border-slate-800/90 rounded-xl p-3.5 sm:p-4 mb-4 shadow-sm flex items-center justify-between">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
@@ -724,7 +719,7 @@ export default function ExcelSyncPage() {
                   <span className="text-emerald-400 font-bold">{editableDailyRows.length} rows ready</span>
                 </span>
                 {dailyHasCustomEdits && (
-                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
                     Custom Edited
                   </span>
                 )}
@@ -779,10 +774,10 @@ export default function ExcelSyncPage() {
             </div>
 
             {/* Daily Spreadsheet Preview Table */}
-            <div className="bg-[#0b0f19] border border-slate-800 rounded-xl overflow-hidden shadow-md">
+            <div className="bg-[#121211] border border-slate-800 rounded-xl overflow-hidden shadow-md">
               <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-emerald-400 font-bold">DAILY_EXCEL_PREVIEW</span>
+                  <span className="font-display tabular-nums text-emerald-400 font-bold">DAILY_EXCEL_PREVIEW</span>
                   <span>&bull;</span>
                   <span>Click any cell to edit wording before copying</span>
                 </div>
@@ -826,7 +821,7 @@ export default function ExcelSyncPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
                     <thead>
-                      <tr className="bg-slate-950/80 text-[10px] font-mono text-slate-500 border-b border-slate-800/80">
+                      <tr className="bg-slate-950/80 text-[10px] font-display tabular-nums text-slate-500 border-b border-slate-800/80">
                         <th className="w-12 py-1 px-3 text-center border-r border-slate-800/80">#</th>
                         <th className="w-1/2 py-1 px-4 border-r border-slate-800/80">A</th>
                         <th className="w-1/2 py-1 px-4">B</th>
@@ -836,10 +831,10 @@ export default function ExcelSyncPage() {
                         <th className="py-2.5 px-3 text-center border-r border-slate-800 text-slate-500 text-xs">
                           1
                         </th>
-                        <th className="py-2.5 px-4 border-r border-slate-800 text-white font-extrabold tracking-wide">
+                        <th className="py-2.5 px-4 border-r border-slate-800 text-white font-semibold tracking-wide">
                           Client
                         </th>
-                        <th className="py-2.5 px-4 text-white font-extrabold tracking-wide">
+                        <th className="py-2.5 px-4 text-white font-semibold tracking-wide">
                           Type
                         </th>
                         <th className="py-2.5 px-2 text-center"></th>
@@ -853,7 +848,7 @@ export default function ExcelSyncPage() {
                             key={row.id}
                             className="hover:bg-slate-800/30 transition-colors group"
                           >
-                            <td className="py-2 px-3 text-center text-xs font-mono text-slate-500 bg-slate-950/40 border-r border-slate-800 select-none">
+                            <td className="py-2 px-3 text-center text-xs font-display tabular-nums text-slate-500 bg-slate-950/40 border-r border-slate-800 select-none">
                               {rowNumber}
                             </td>
                             <td className="py-1.5 px-2 border-r border-slate-800">
@@ -908,7 +903,7 @@ export default function ExcelSyncPage() {
         {activeTab === 'weekly' && (
           <>
             {/* Streamlined Controls Bar: Week Navigation */}
-            <div className="bg-[#0b0f19] border border-slate-800/90 rounded-xl p-3.5 sm:p-4 mb-4 shadow-sm flex items-center justify-between">
+            <div className="bg-[#121211] border border-slate-800/90 rounded-xl p-3.5 sm:p-4 mb-4 shadow-sm flex items-center justify-between">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
@@ -978,7 +973,7 @@ export default function ExcelSyncPage() {
                         </div>
 
                         {/* Weekday Column Headers (Mo to Su) */}
-                        <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider pb-0.5">
+                        <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-500 pb-0.5">
                           <span>Mo</span>
                           <span>Tu</span>
                           <span>We</span>
@@ -1101,7 +1096,7 @@ export default function ExcelSyncPage() {
                   <span className="text-emerald-400 font-bold">{editableWeeklyRows.length} deliverables ready</span>
                 </span>
                 {weeklyHasCustomEdits && (
-                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
                     Custom Edited
                   </span>
                 )}
@@ -1156,10 +1151,10 @@ export default function ExcelSyncPage() {
             </div>
 
             {/* Weekly Spreadsheet Preview Table (6 Columns: Serial No. | Company Name | Description | Work Type | Done | Approved) */}
-            <div className="bg-[#0b0f19] border border-slate-800 rounded-xl overflow-hidden shadow-md">
+            <div className="bg-[#121211] border border-slate-800 rounded-xl overflow-hidden shadow-md">
               <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-emerald-400 font-bold">WEEKLY_EXCEL_PREVIEW</span>
+                  <span className="font-display tabular-nums text-emerald-400 font-bold">WEEKLY_EXCEL_PREVIEW</span>
                   <span>&bull;</span>
                   <span className="text-slate-300">Copies <strong>content only</strong> (No headers or Week title)</span>
                 </div>
@@ -1205,7 +1200,7 @@ export default function ExcelSyncPage() {
                   <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
                     <thead>
                       {/* Excel Column Coordinates (A to F) */}
-                      <tr className="bg-slate-950/80 text-[10px] font-mono text-slate-500 border-b border-slate-800/80">
+                      <tr className="bg-slate-950/80 text-[10px] font-display tabular-nums text-slate-500 border-b border-slate-800/80">
                         <th className="w-10 py-1 px-2 text-center border-r border-slate-800/80">#</th>
                         <th className="w-20 py-1 px-3 text-center border-r border-slate-800/80">A</th>
                         <th className="w-40 py-1 px-3 border-r border-slate-800/80">B</th>
@@ -1220,22 +1215,22 @@ export default function ExcelSyncPage() {
                         <th className="py-2 px-2 text-center border-r border-slate-800 text-slate-500 text-xs">
                           1
                         </th>
-                        <th className="py-2 px-3 text-center border-r border-slate-800 text-white font-extrabold text-xs">
+                        <th className="py-2 px-3 text-center border-r border-slate-800 text-white font-semibold text-xs">
                           Serial No.
                         </th>
-                        <th className="py-2 px-3 border-r border-slate-800 text-white font-extrabold text-xs">
+                        <th className="py-2 px-3 border-r border-slate-800 text-white font-semibold text-xs">
                           Company Name
                         </th>
-                        <th className="py-2 px-3 border-r border-slate-800 text-white font-extrabold text-xs">
+                        <th className="py-2 px-3 border-r border-slate-800 text-white font-semibold text-xs">
                           Description
                         </th>
-                        <th className="py-2 px-3 border-r border-slate-800 text-white font-extrabold text-xs">
+                        <th className="py-2 px-3 border-r border-slate-800 text-white font-semibold text-xs">
                           Work Type
                         </th>
-                        <th className="py-2 px-2 text-center border-r border-slate-800 text-white font-extrabold text-xs">
+                        <th className="py-2 px-2 text-center border-r border-slate-800 text-white font-semibold text-xs">
                           Done
                         </th>
-                        <th className="py-2 px-2 text-center border-r border-slate-800 text-white font-extrabold text-xs">
+                        <th className="py-2 px-2 text-center border-r border-slate-800 text-white font-semibold text-xs">
                           Approved
                         </th>
                         <th className="py-2 px-1 text-center"></th>
@@ -1254,7 +1249,7 @@ export default function ExcelSyncPage() {
                             }`}
                           >
                             {/* Row Index */}
-                            <td className="py-1.5 px-2 text-center text-xs font-mono text-slate-500 bg-slate-950/40 border-r border-slate-800 select-none">
+                            <td className="py-1.5 px-2 text-center text-xs font-display tabular-nums text-slate-500 bg-slate-950/40 border-r border-slate-800 select-none">
                               {rowNumber}
                             </td>
 

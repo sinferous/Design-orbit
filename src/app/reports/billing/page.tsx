@@ -525,7 +525,7 @@ export default function ClientTimeTrackingReportPage() {
       : 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar userName="Gajesh" />
 
       {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
@@ -544,14 +544,7 @@ export default function ClientTimeTrackingReportPage() {
         {/* Header Banner with Rich Date Range Picker */}
         <div className="bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-violet-950/60 text-violet-400 rounded-full border border-violet-800/60">
-                Time Spent & Deliverables
-              </span>
-              <span className="text-xs text-slate-600">•</span>
-              <span className="text-xs font-medium text-slate-400">Auto-aggregated from task timers</span>
-            </div>
-            <h1 className="text-2xl font-bold text-slate-100 mt-1">Client Time Tracking Report</h1>
+            <h1 className="text-2xl font-bold text-slate-100">Client Time Tracking Report</h1>
             <p className="text-sm text-slate-400 mt-0.5">
               Review exact time spent by team members across clients and deliverables.
             </p>
@@ -594,7 +587,7 @@ export default function ClientTimeTrackingReportPage() {
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
-                      <span className="text-[11px] font-extrabold text-slate-200 uppercase tracking-wider">
+                      <span className="text-[11px] font-semibold text-slate-200">
                         {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </span>
                       <button
@@ -609,7 +602,7 @@ export default function ClientTimeTrackingReportPage() {
                     {/* Calendar Grid */}
                     <div className="space-y-1">
                       {/* Weekday labels */}
-                      <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pb-1">
+                      <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-400 pb-1">
                         <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
                       </div>
 
@@ -660,7 +653,7 @@ export default function ClientTimeTrackingReportPage() {
                     <div className="border-t border-slate-800 pt-3 space-y-3">
                       <div className="grid grid-cols-2 gap-2">
                         <div className="flex flex-col">
-                          <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">
+                          <span className="text-[11px] text-slate-400 font-semibold">
                             Start Date
                           </span>
                           <input
@@ -671,7 +664,7 @@ export default function ClientTimeTrackingReportPage() {
                           />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">
+                          <span className="text-[11px] text-slate-400 font-semibold">
                             End Date
                           </span>
                           <input
@@ -689,7 +682,7 @@ export default function ClientTimeTrackingReportPage() {
                           type="button"
                           onClick={() => applyPreset('this_week')}
                           className={`cursor-pointer transition-colors ${
-                            isPresetActive('this_week') ? 'text-violet-400 font-extrabold' : 'text-slate-400 hover:text-slate-200'
+                            isPresetActive('this_week') ? 'text-violet-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
                           }`}
                         >
                           This Week
@@ -698,7 +691,7 @@ export default function ClientTimeTrackingReportPage() {
                           type="button"
                           onClick={() => applyPreset('this_month')}
                           className={`cursor-pointer transition-colors ${
-                            isPresetActive('this_month') ? 'text-violet-400 font-extrabold' : 'text-slate-400 hover:text-slate-200'
+                            isPresetActive('this_month') ? 'text-violet-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
                           }`}
                         >
                           This Month
@@ -707,7 +700,7 @@ export default function ClientTimeTrackingReportPage() {
                           type="button"
                           onClick={() => applyPreset('last_30')}
                           className={`cursor-pointer transition-colors ${
-                            isPresetActive('last_30') ? 'text-violet-400 font-extrabold' : 'text-slate-400 hover:text-slate-200'
+                            isPresetActive('last_30') ? 'text-violet-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
                           }`}
                         >
                           30 Days
@@ -741,7 +734,7 @@ export default function ClientTimeTrackingReportPage() {
           {/* Quick Presets Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
             <div className="flex items-center space-x-1.5 overflow-x-auto text-xs font-semibold">
-              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider mr-1">
+              <span className="text-slate-400 text-[11px] font-bold mr-1">
                 Quick Ranges:
               </span>
               <button
@@ -798,7 +791,7 @@ export default function ClientTimeTrackingReportPage() {
           {/* Filter Dropdowns Grid - 4 Columns */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-400 mb-1">
                 Filter Client
               </label>
               <RichSelect
@@ -815,7 +808,7 @@ export default function ClientTimeTrackingReportPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-400 mb-1">
                 Filter Team Member
               </label>
               <RichSelect
@@ -834,7 +827,7 @@ export default function ClientTimeTrackingReportPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-400 mb-1">
                 Filter Work Type
               </label>
               <RichSelect
@@ -850,7 +843,7 @@ export default function ClientTimeTrackingReportPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-400 mb-1">
                 Filter Description
               </label>
               <DescriptionAutocomplete
@@ -867,7 +860,7 @@ export default function ClientTimeTrackingReportPage() {
           {/* Active Filters Applied Row */}
           {hasActiveFilters && (
             <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-800">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-slate-400">
                 Filters Applied:
               </span>
 
@@ -946,12 +939,12 @@ export default function ClientTimeTrackingReportPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
+              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
                 Total Time
               </div>
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400 shrink-0" />
             </div>
-            <div className="text-xl sm:text-3xl font-extrabold text-slate-100 truncate">
+            <div className="text-xl sm:text-3xl font-semibold text-slate-100 truncate">
               {formatReportTime(filteredReportData.totalTimeSecondsAll)}
             </div>
             <p className="text-[11px] sm:text-xs text-violet-400 font-semibold truncate">
@@ -961,12 +954,12 @@ export default function ClientTimeTrackingReportPage() {
 
           <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
+              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
                 Active Clients
               </div>
               <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-indigo-400">
+            <div className="text-2xl sm:text-3xl font-semibold text-indigo-400">
               {activeClientsCount} <span className="text-xs font-normal text-slate-400">/ {filteredReportData.clientSummaries.length}</span>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 truncate">Clients with activity</p>
@@ -974,12 +967,12 @@ export default function ClientTimeTrackingReportPage() {
 
           <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
+              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
                 Deliverables
               </div>
               <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-violet-400">
+            <div className="text-2xl sm:text-3xl font-semibold text-violet-400">
               {filteredReportData.totalDoneAll}
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 truncate">
@@ -989,12 +982,12 @@ export default function ClientTimeTrackingReportPage() {
 
           <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
             <div className="flex items-center justify-between">
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">
+              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
                 Avg Time / Item
               </div>
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-amber-400">
+            <div className="text-2xl sm:text-3xl font-semibold text-amber-400">
               {avgMinutesPerItem} <span className="text-xs font-normal text-slate-400">min</span>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 truncate">Per completed item</p>
@@ -1055,7 +1048,7 @@ export default function ClientTimeTrackingReportPage() {
                   <div className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Client Identity & Deliverables */}
                     <div className="flex items-center space-x-4 min-w-0">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-extrabold text-xl flex items-center justify-center shadow-2xs shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-semibold text-xl flex items-center justify-center shadow-2xs shrink-0">
                         {client.clientName.charAt(0)}
                       </div>
                       <div className="min-w-0">
@@ -1074,10 +1067,10 @@ export default function ClientTimeTrackingReportPage() {
                     <div className="flex flex-wrap items-center justify-between lg:justify-end gap-5">
                       {/* Tracked Time */}
                       <div className="text-right">
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <div className="text-[11px] font-bold text-slate-400">
                           Time Spent
                         </div>
-                        <div className="text-base font-extrabold text-slate-100 flex items-center justify-end space-x-1">
+                        <div className="text-base font-semibold text-slate-100 flex items-center justify-end space-x-1">
                           <Clock className="w-4 h-4 text-amber-400" />
                           <span>{formatReportTime(client.totalTimeSeconds)}</span>
                         </div>
@@ -1100,7 +1093,7 @@ export default function ClientTimeTrackingReportPage() {
 
                   {/* Work Type Badges Row */}
                   <div className="px-6 py-3 bg-slate-950/60 border-t border-slate-800 flex flex-wrap items-center gap-2">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+                    <span className="text-[11px] font-bold text-slate-400 mr-1">
                       Deliverables:
                     </span>
                     {Object.entries(client.workTypeBreakdown)
@@ -1113,7 +1106,7 @@ export default function ClientTimeTrackingReportPage() {
                           <span className="font-bold text-slate-100">{wtName}:</span>
                           <span className="font-semibold text-violet-400">{data.count} items</span>
                           {data.timeSeconds > 0 && (
-                            <span className="text-[11px] text-amber-300 bg-amber-950/60 border border-amber-800/60 px-1.5 py-0.5 rounded font-mono font-bold">
+                            <span className="text-[11px] text-amber-300 bg-amber-950/60 border border-amber-800/60 px-1.5 py-0.5 rounded font-display tabular-nums font-bold">
                               ⏱ {formatReportTime(data.timeSeconds)}
                             </span>
                           )}
@@ -1130,7 +1123,7 @@ export default function ClientTimeTrackingReportPage() {
                   {isExpanded && (
                     <div className="p-5 sm:p-6 border-t border-slate-800 bg-slate-950/40 space-y-3">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                        <h4 className="text-xs font-bold text-slate-300">
                           Logged Deliverables & Tasks ({client.entries.length} items)
                         </h4>
                         <span className="text-xs text-slate-400">
@@ -1145,7 +1138,7 @@ export default function ClientTimeTrackingReportPage() {
                       ) : (
                         <div className="overflow-x-auto">
                           <table className="w-full text-left text-xs text-slate-300">
-                            <thead className="bg-slate-900 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                            <thead className="bg-slate-900 text-[11px] font-bold text-slate-400 border-b border-slate-800">
                               <tr>
                                 <th className="px-3 py-2.5">Date</th>
                                 <th className="px-3 py-2.5">Designer</th>
@@ -1186,7 +1179,7 @@ export default function ClientTimeTrackingReportPage() {
                                     <td className="px-3 py-2.5 text-center font-bold text-violet-400">
                                       {entry.quantity_approved}
                                     </td>
-                                    <td className="px-3 py-2.5 text-right font-mono font-bold text-slate-100 whitespace-nowrap">
+                                    <td className="px-3 py-2.5 text-right font-display tabular-nums font-bold text-slate-100 whitespace-nowrap">
                                       {entrySecs > 0 ? (
                                         <span className="text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/60">
                                           ⏱ {formatReportTime(entrySecs)}
@@ -1195,7 +1188,7 @@ export default function ClientTimeTrackingReportPage() {
                                         <span className="text-slate-500">&mdash;</span>
                                       )}
                                     </td>
-                                    <td className="px-3 py-2.5 text-right font-mono text-slate-400 whitespace-nowrap">
+                                    <td className="px-3 py-2.5 text-right font-display tabular-nums text-slate-400 whitespace-nowrap">
                                       {decHrs > 0 ? `${decHrs}h` : '0.00h'}
                                     </td>
                                     <td className="px-3 py-2.5 text-center whitespace-nowrap">

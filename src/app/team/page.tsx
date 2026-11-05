@@ -7,7 +7,7 @@ import { fetchMonthlyTeamActivity, MonthlyTeamActivity } from '@/lib/services/ac
 import { MiniActivityHeatStrip } from '@/components/activity/MonthlyActivityHeatmap';
 import { DesignerActivityModal } from '@/components/activity/DesignerActivityModal';
 import { Profile } from '@/types';
-import { Users, Mail, Sparkles, Plus, Trash2, UserPlus, X, Calendar, Activity } from 'lucide-react';
+import { Users, Mail, Plus, Trash2, UserPlus, X, Calendar, Activity } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
@@ -107,26 +107,18 @@ export default function TeamPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60 flex items-center space-x-1">
-                <Sparkles className="w-3 h-3 text-violet-400" />
-                <span>Webtree Creative Department</span>
-              </span>
-              <span className="text-xs text-slate-600">•</span>
-              <span className="text-xs font-semibold text-slate-400">{profiles.length} Active Designers</span>
-            </div>
-            <h1 className="text-2xl font-bold text-slate-100 mt-1">
+            <h1 className="text-2xl font-bold text-slate-100">
               Creative Team Directory
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
-              Graphic Designers, UI/UX Specialists, and Design Leads reporting daily work.
+              {profiles.length} designers reporting daily work.
             </p>
           </div>
 
@@ -152,7 +144,7 @@ export default function TeamPage() {
             <form onSubmit={handleAddMember} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
                     Full Name *
                   </label>
                   <input
@@ -166,7 +158,7 @@ export default function TeamPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
                     Work Email *
                   </label>
                   <input
@@ -180,7 +172,7 @@ export default function TeamPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
                     Designation
                   </label>
                   <RichSelect
@@ -201,7 +193,7 @@ export default function TeamPage() {
 
               {designation === 'Other' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
                     Specify Custom Designation
                   </label>
                   <input
@@ -257,11 +249,11 @@ export default function TeamPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white font-semibold flex items-center justify-center text-lg shadow-sm">
                         {profile.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="text-base font-extrabold text-slate-100 group-hover:text-violet-400 transition-colors">
+                        <h3 className="text-base font-semibold text-slate-100 group-hover:text-violet-400 transition-colors">
                           {profile.name}
                         </h3>
                         <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700 mt-0.5">
@@ -284,10 +276,10 @@ export default function TeamPage() {
                   {designerActivity && (
                     <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                        <span className="text-[11px] font-bold text-slate-300">
                           {teamActivity?.monthName} Activity
                         </span>
-                        <span className="text-[11px] font-extrabold text-violet-300 bg-violet-950/70 px-2 py-0.5 rounded-full border border-violet-800/60">
+                        <span className="text-[11px] font-semibold text-violet-300 bg-violet-950/70 px-2 py-0.5 rounded-full border border-violet-800/60">
                           {designerActivity.activeDaysCount} Active Days
                         </span>
                       </div>

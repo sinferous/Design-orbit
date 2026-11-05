@@ -77,8 +77,8 @@ export function OrbitLoader({
         >
           <defs>
             <linearGradient id={`orbit-center-grad-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#c084fc" />
-              <stop offset="100%" stopColor="#818cf8" />
+              <stop offset="0%" stopColor="#55cb98" />
+              <stop offset="100%" stopColor="#7ddbae" />
             </linearGradient>
           </defs>
 
@@ -88,9 +88,6 @@ export function OrbitLoader({
             cy={center}
             r={config.centerR}
             fill={`url(#orbit-center-grad-${size})`}
-            style={{
-              filter: 'drop-shadow(0 0 6px rgba(192, 132, 252, 0.6))',
-            }}
           />
 
           {/* Dotted Circle Orbit Track */}
@@ -114,26 +111,20 @@ export function OrbitLoader({
               transformOrigin: `${center}px ${center}px`,
             }}
           >
-            {/* Circle 1 (Electric Violet - Top of orbit) */}
+            {/* Circle 1 - Top of orbit */}
             <circle
               cx={center}
               cy={center - config.r}
               r={config.dotR}
-              fill="#c084fc"
-              style={{
-                filter: 'drop-shadow(0 0 4px rgba(192, 132, 252, 0.8))',
-              }}
+              fill="#7ddbae"
             />
 
-            {/* Circle 2 (Indigo Lavender - Bottom of orbit, 180° opposite) */}
+            {/* Circle 2 - Bottom of orbit, 180° opposite */}
             <circle
               cx={center}
               cy={center + config.r}
               r={config.dotR}
-              fill="#818cf8"
-              style={{
-                filter: 'drop-shadow(0 0 4px rgba(129, 140, 248, 0.8))',
-              }}
+              fill="#3eb181"
             />
           </g>
         </svg>
@@ -159,7 +150,7 @@ export function OrbitLoader({
 
   if (size === 'fullscreen') {
     return (
-      <div className="fixed inset-0 z-50 bg-[#090d16]/90 backdrop-blur-md flex flex-col items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 bg-[#0e0e0d]/90 backdrop-blur-md flex flex-col items-center justify-center p-4">
         {content}
       </div>
     );

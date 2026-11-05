@@ -78,15 +78,15 @@ export function SlideTabs<T extends string = string>({
     <div
       ref={containerRef}
       className={cn(
-        'relative flex items-center p-1 rounded-xl bg-black/40 border border-white/[0.08] select-none',
+        'relative flex items-center p-1 rounded-xl bg-[#0c0c0b] border border-white/[0.08] select-none',
         className
       )}
     >
-      {/* Smooth Gliding Highlight Pill (a bit slow, buttery smooth transition) */}
+      {/* Smooth Gliding Highlight Pill */}
       <div
         className={cn(
-          'absolute inset-y-1 left-0 rounded-lg transition-all duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none z-0',
-          pillClassName || 'bg-violet-600/35 border border-violet-500/40 shadow-[0_0_14px_rgba(168,85,247,0.35)]'
+          'absolute inset-y-1 left-0 rounded-lg transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none z-0',
+          pillClassName || 'bg-white/[0.08] border border-white/[0.1] shadow-xs'
         )}
         style={{
           transform: `translate3d(${style.left}px, 0, 0)`,

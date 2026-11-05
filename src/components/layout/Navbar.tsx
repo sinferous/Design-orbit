@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, PlusCircle, Sparkles } from 'lucide-react';
+import { Menu, X, PlusCircle } from 'lucide-react';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { Fireworks } from '@/components/ui/Fireworks';
+import { BrandMark } from '@/components/ui/BrandMark';
 import { getLoggedInUser, isAdminUser } from '@/lib/services/work-entry';
 
 interface NavbarProps {
@@ -18,25 +20,26 @@ export function Navbar({ children }: NavbarProps) {
 
   return (
     <>
+      {/* Diwali fireworks in the empty side gutters (every page) */}
+      <Fireworks />
+
       {/* Desktop Fixed Left Sidebar */}
       <div className="hidden md:flex fixed inset-y-0 left-0 z-30 w-64 lg:w-68">
         <Sidebar />
       </div>
 
       {/* Mobile Top Bar */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-[#080C17]/95 backdrop-blur-xl border-b border-white/[0.08] px-4 flex items-center justify-between">
-        <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center py-1">
-          <span className="font-bold text-slate-100 text-base tracking-tight">Design</span>
-          <span className="font-display font-black text-base ml-1.5 tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
-            Orbit
-          </span>
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-[#0c0c0b] border-b border-white/[0.07] px-4 flex items-center justify-between">
+        <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center space-x-2 py-1">
+          <BrandMark size={24} />
+          <span className="font-display font-bold text-slate-50 text-base">Design Orbit</span>
         </Link>
 
         <div className="flex items-center space-x-2">
           {!isAdmin && (
             <Link
               href="/work/new"
-              className="p-1.5 text-white webtree-gradient-btn rounded-lg shadow-sm"
+              className="p-2 webtree-gradient-btn rounded-full"
               title="Add Daily Work"
             >
               <PlusCircle className="w-4 h-4" />
@@ -57,7 +60,7 @@ export function Navbar({ children }: NavbarProps) {
       {/* Mobile Slide-Out Drawer Overlay */}
       {mobileOpen && (
         <div
-          className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          className="md:hidden fixed inset-0 z-50 bg-black/70 animate-in fade-in duration-200"
           onClick={() => setMobileOpen(false)}
         >
           <div

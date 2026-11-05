@@ -310,12 +310,12 @@ export function DescriptionAutocomplete({
 
                     <div className="flex items-center space-x-1.5 shrink-0 ml-2">
                       {item.timeSeconds !== undefined && item.timeSeconds > 0 && (
-                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
+                        <span className="text-[10px] font-display tabular-nums font-bold px-1.5 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
                           ⏱ {formatTimeShort(item.timeSeconds)}
                         </span>
                       )}
                       {item.count !== undefined && item.count > 1 && (
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/60">
+                        <span className="text-[10px] font-display tabular-nums px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/60">
                           {item.count}x
                         </span>
                       )}

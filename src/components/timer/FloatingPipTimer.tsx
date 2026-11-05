@@ -47,11 +47,11 @@ const PIP_EMBEDDED_STYLES = `
   html, body {
     width: 100%;
     height: 100%;
-    background: #06080F;
+    background: #0a0a09;
   }
 
   body {
-    background: radial-gradient(circle at 50% 0%, #161D32 0%, #06080F 100%);
+    background: radial-gradient(circle at 50% 0%, #1a1a19 0%, #0a0a09 100%);
     color: #f1f5f9;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
     overflow: hidden;
@@ -99,8 +99,8 @@ const PIP_EMBEDDED_STYLES = `
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 8px #10b981;
+    background: #55cb98;
+    box-shadow: 0 0 8px #55cb98;
     animation: pip-pulse 1.8s infinite ease-in-out;
   }
 
@@ -111,9 +111,9 @@ const PIP_EMBEDDED_STYLES = `
   }
 
   @keyframes pip-pulse {
-    0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 4px #10b981; }
-    50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 10px #10b981; }
-    100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 4px #10b981; }
+    0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 4px #55cb98; }
+    50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 10px #55cb98; }
+    100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 4px #55cb98; }
   }
 
   .pip-logo-text {
@@ -124,7 +124,7 @@ const PIP_EMBEDDED_STYLES = `
   }
 
   .pip-logo-text span {
-    background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #818cf8 100%);
+    background: linear-gradient(135deg, #7ddbae 0%, #7ddbae 50%, #7ddbae 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 900;
@@ -136,9 +136,9 @@ const PIP_EMBEDDED_STYLES = `
     font-weight: 700;
     padding: 1.5px 7px;
     border-radius: 9999px;
-    background: rgba(139, 92, 246, 0.15);
-    color: #c084fc;
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    background: rgba(85,203,152, 0.15);
+    color: #7ddbae;
+    border: 1px solid rgba(85,203,152, 0.3);
   }
 
   .pip-dock-btn {
@@ -193,8 +193,8 @@ const PIP_EMBEDDED_STYLES = `
   }
 
   .pip-card.running {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
-    border-color: rgba(168, 85, 247, 0.35);
+    background: linear-gradient(135deg, rgba(85,203,152, 0.12) 0%, rgba(85,203,152, 0.08) 100%);
+    border-color: rgba(85,203,152, 0.35);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 
@@ -216,7 +216,7 @@ const PIP_EMBEDDED_STYLES = `
   .pip-client {
     font-size: 11px;
     font-weight: 800;
-    color: #c084fc;
+    color: #7ddbae;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -242,14 +242,14 @@ const PIP_EMBEDDED_STYLES = `
     letter-spacing: 0.04em;
     padding: 1px 4px;
     border-radius: 3px;
-    text-transform: uppercase;
+    text-transform:;
     flex-shrink: 0;
   }
 
   .pip-tag.running {
-    background: rgba(16, 185, 129, 0.15);
-    color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.35);
+    background: rgba(85,203,152, 0.15);
+    color: #7ddbae;
+    border: 1px solid rgba(85,203,152, 0.35);
   }
 
   .pip-tag.paused {
@@ -272,8 +272,8 @@ const PIP_EMBEDDED_STYLES = `
     font-weight: 800;
     letter-spacing: 0.02em;
     font-variant-numeric: tabular-nums;
-    color: #34d399;
-    text-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
+    color: #7ddbae;
+    text-shadow: 0 0 10px rgba(85,203,152, 0.35);
     line-height: 1;
   }
 
@@ -320,14 +320,14 @@ const PIP_EMBEDDED_STYLES = `
   }
 
   .pip-btn-start {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, #3eb181 0%, #2b9068 100%);
     color: #ffffff;
-    box-shadow: 0 1px 4px rgba(5, 150, 105, 0.4);
+    box-shadow: 0 1px 4px rgba(85,203,152, 0.4);
   }
 
   .pip-btn-start:hover {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, #55cb98 0%, #3eb181 100%);
+    box-shadow: 0 0 8px rgba(85,203,152, 0.5);
   }
 
   .pip-btn-stop {
@@ -1140,14 +1140,14 @@ export function FloatingPipTimer() {
 
     // In-page docked corner widget render
     return (
-      <div className="bg-[#0B0F1C]/95 text-slate-100 backdrop-blur-xl rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] border border-white/[0.1] p-3 max-w-xs w-full space-y-2.5">
+      <div className="bg-[#121211]/95 text-slate-100 backdrop-blur-xl rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] border border-white/[0.1] p-3 max-w-xs w-full space-y-2.5">
         <div className="flex items-center justify-between gap-1.5 border-b border-white/[0.08] pb-2 shrink-0">
           <div className="flex items-center space-x-2 min-w-0">
             <span className="relative flex h-2 w-2 shrink-0">
               {runningCount > 0 ? (
                 <>
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(85,203,152,0.8)]" />
                 </>
               ) : (
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
@@ -1155,9 +1155,9 @@ export function FloatingPipTimer() {
             </span>
             <div className="flex items-center space-x-1 font-bold text-xs tracking-tight truncate">
               <span className="text-slate-200">Design</span>
-              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent font-black">Orbit</span>
+              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent font-semibold">Orbit</span>
             </div>
-            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 shrink-0">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 shrink-0">
               {runningCount} Active
             </span>
           </div>
@@ -1166,7 +1166,7 @@ export function FloatingPipTimer() {
             <button
               type="button"
               onClick={() => openPipWindow()}
-              className="btn-tactile px-2.5 py-1 text-[10px] font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg transition-all flex items-center space-x-1 cursor-pointer shadow-xs hover:shadow-[0_0_12px_rgba(139,92,246,0.5)]"
+              className="btn-tactile px-2.5 py-1 text-[10px] font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg transition-all flex items-center space-x-1 cursor-pointer shadow-xs hover:shadow-[0_0_12px_rgba(85,203,152,0.5)]"
               title="Float window outside browser (Picture-in-Picture)"
             >
               <ExternalLink className="w-2.5 h-2.5" />
@@ -1199,7 +1199,7 @@ export function FloatingPipTimer() {
                   key={entry.id}
                   className={`p-2 rounded-xl border transition-all ${
                     isRunning
-                      ? 'bg-gradient-to-r from-violet-950/40 via-indigo-950/30 to-[#0B0F1C] border-violet-500/35 shadow-[0_0_15px_rgba(139,92,246,0.12)]'
+                      ? 'bg-gradient-to-r from-violet-950/40 via-indigo-950/30 to-[#121211] border-violet-500/35 shadow-[0_0_15px_rgba(85,203,152,0.12)]'
                       : 'bg-white/[0.02] border-white/[0.06] opacity-80 hover:opacity-100'
                   }`}
                 >
@@ -1211,7 +1211,7 @@ export function FloatingPipTimer() {
                       <span className="text-slate-300 font-medium truncate">{workTypeName}</span>
                     </div>
                     <span
-                      className={`text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md shrink-0 tracking-wide ${
+                      className={`text-[8.5px] font-semibold px-1.5 py-0.5 rounded-md shrink-0 ${
                         isRunning
                           ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                           : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
@@ -1223,8 +1223,8 @@ export function FloatingPipTimer() {
 
                   <div className="flex items-center justify-between gap-2 mt-1.5 pt-1 border-t border-white/[0.06]">
                     <div
-                      className={`font-mono text-base font-extrabold tracking-tight tabular-nums ${
-                        isRunning ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'text-slate-400'
+                      className={`font-display tabular-nums text-base font-semibold tracking-tight tabular-nums ${
+                        isRunning ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(85,203,152,0.4)]' : 'text-slate-400'
                       }`}
                     >
                       {stopwatch}
@@ -1247,7 +1247,7 @@ export function FloatingPipTimer() {
                           type="button"
                           disabled={isOperating}
                           onClick={() => handleResume(entry)}
-                          className="px-2 py-1 text-[10px] font-black bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition-all btn-tactile flex items-center space-x-1 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.3)] disabled:opacity-50"
+                          className="px-2 py-1 text-[10px] font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition-all btn-tactile flex items-center space-x-1 cursor-pointer shadow-[0_0_10px_rgba(85,203,152,0.3)] disabled:opacity-50"
                           title="Resume Timer"
                         >
                           <Play className="w-2.5 h-2.5 fill-current" />

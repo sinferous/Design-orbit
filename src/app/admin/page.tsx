@@ -271,7 +271,7 @@ export default function AdminDashboardPage() {
   // If unauthorized or checking credentials, prevent any dashboard rendering
   if (isAuthorized !== true) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#090d16] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#0e0e0d] p-4">
         <div className="text-center p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-w-sm mx-auto">
           <OrbitLoader
             size="lg"
@@ -284,23 +284,14 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 sm:space-y-8 animate-fade-in-up">
         {/* Executive Header Banner */}
         <div className="bento-card bento-glow-subtle p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60 shadow-2xs">
-                Executive Agency Console
-              </span>
-              <span className="text-xs text-slate-600">•</span>
-              <span className="text-xs text-slate-400">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-100 mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-100">
               Agency Operations & Deliverables Overview
             </h1>
             <p className="text-sm text-slate-400 mt-1">
@@ -328,14 +319,10 @@ export default function AdminDashboardPage() {
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
               <div>
                 <div className="flex items-center space-x-2.5">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Team Creative Velocity</span>
-                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-xs">
-                    <Users className="w-3 h-3" />
-                    <span>All Agency Designers</span>
-                  </span>
+                  <span className="text-[11px] font-semibold text-slate-400">Team Creative Velocity</span>
                 </div>
                 <div className="flex items-baseline space-x-3 mt-1.5">
-                  <span className="text-3xl sm:text-4xl font-extrabold font-display text-slate-100 tracking-tight tabular-nums">
+                  <span className="text-3xl sm:text-4xl font-semibold font-display text-slate-100 tracking-tight tabular-nums">
                     {weekSummary.totalCreated}
                   </span>
                   <span className="text-xs sm:text-sm text-slate-400 font-medium">
@@ -354,17 +341,17 @@ export default function AdminDashboardPage() {
               <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-28 sm:h-34 overflow-visible">
                 <defs>
                   <linearGradient id="teamVelocitySplineGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.45" />
-                    <stop offset="60%" stopColor="#a855f7" stopOpacity="0.12" />
-                    <stop offset="100%" stopColor="#06080F" stopOpacity="0.0" />
+                    <stop offset="0%" stopColor="#55cb98" stopOpacity="0.45" />
+                    <stop offset="60%" stopColor="#7ddbae" stopOpacity="0.12" />
+                    <stop offset="100%" stopColor="#0a0a09" stopOpacity="0.0" />
                   </linearGradient>
                   <linearGradient id="teamSplineStrokeGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#38bdf8" />
-                    <stop offset="50%" stopColor="#818cf8" />
-                    <stop offset="100%" stopColor="#c084fc" />
+                    <stop offset="0%" stopColor="#7ddbae" />
+                    <stop offset="50%" stopColor="#7ddbae" />
+                    <stop offset="100%" stopColor="#7ddbae" />
                   </linearGradient>
                   <filter id="teamSplineGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#6366f1" floodOpacity="0.6" />
+                    <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#55cb98" floodOpacity="0" />
                   </filter>
                 </defs>
 
@@ -380,7 +367,7 @@ export default function AdminDashboardPage() {
                     y1="12"
                     x2={points[hoveredPoint].x}
                     y2={svgHeight - 16}
-                    stroke="rgba(99,102,241,0.4)"
+                    stroke="rgba(85,203,152,0.4)"
                     strokeWidth="1.5"
                     strokeDasharray="3 3"
                   />
@@ -415,13 +402,13 @@ export default function AdminDashboardPage() {
                         hoveredPoint === idx
                           ? 'fill-white stroke-indigo-500 stroke-2'
                           : pt.isCurrent
-                          ? 'fill-indigo-400 stroke-[#06080F] stroke-2'
-                          : 'fill-slate-400 stroke-[#06080F] stroke-1.5 hover:fill-indigo-300'
+                          ? 'fill-indigo-400 stroke-[#0a0a09] stroke-2'
+                          : 'fill-slate-400 stroke-[#0a0a09] stroke-1.5 hover:fill-indigo-300'
                       }`}
                     />
                     {hoveredPoint === idx && (
                       <g transform={`translate(${pt.x}, ${pt.y - 30})`}>
-                        <rect x="-34" y="-13" width="68" height="22" rx="7" fill="#1e1b4b" stroke="#818cf8" strokeWidth="1" />
+                        <rect x="-34" y="-13" width="68" height="22" rx="7" fill="#1a1a19" stroke="#7ddbae" strokeWidth="1" />
                         <text x="0" y="2" textAnchor="middle" fill="#ffffff" fontSize="10.5" fontWeight="bold">
                           {pt.val} items
                         </text>
@@ -438,7 +425,7 @@ export default function AdminDashboardPage() {
                     key={idx}
                     className={`transition-colors cursor-pointer ${
                       pt.isCurrent
-                        ? 'text-indigo-300 font-extrabold underline underline-offset-4 decoration-indigo-500'
+                        ? 'text-indigo-300 font-semibold underline underline-offset-4 decoration-indigo-500'
                         : 'hover:text-slate-300'
                     }`}
                     onClick={() => setHoveredPoint(idx)}
@@ -452,11 +439,11 @@ export default function AdminDashboardPage() {
             {/* Bottom Meta Stats */}
             <div className="relative z-10 pt-3 border-t border-white/[0.06] grid grid-cols-2 gap-3 text-center text-xs">
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Team Peak Velocity</span>
+                <span className="text-[11px] text-slate-500 font-bold block">Team Peak Velocity</span>
                 <span className="text-xs font-bold text-slate-200 mt-0.5 block">{teamPeakDayMeta.text}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Approval Rating</span>
+                <span className="text-[11px] text-slate-500 font-bold block">Approval Rating</span>
                 <span className="text-xs font-bold text-emerald-400 mt-0.5 block">{weeklyApprovalRate}% On Schedule</span>
               </div>
             </div>
@@ -466,12 +453,9 @@ export default function AdminDashboardPage() {
           <div className="lg:col-span-4 bento-card bento-card-hover p-5 sm:p-7 flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
               <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Agency Quality Sign-off</h3>
+                <h3 className="text-xs font-semibold text-slate-400">Agency Quality Sign-off</h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">Team-wide approval index</p>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shadow-xs">
-                Team Level
-              </span>
             </div>
 
             {/* Circular Ring Meter */}
@@ -479,12 +463,12 @@ export default function AdminDashboardPage() {
               <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
                 <defs>
                   <linearGradient id="adminRingGlowGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#10b981" />
-                    <stop offset="60%" stopColor="#6366f1" />
-                    <stop offset="100%" stopColor="#ec4899" />
+                    <stop offset="0%" stopColor="#55cb98" />
+                    <stop offset="60%" stopColor="#55cb98" />
+                    <stop offset="100%" stopColor="#7ddbae" />
                   </linearGradient>
                   <filter id="adminRingGlow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#10b981" floodOpacity="0.4" />
+                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#55cb98" floodOpacity="0" />
                   </filter>
                 </defs>
 
@@ -515,10 +499,10 @@ export default function AdminDashboardPage() {
               </svg>
 
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
-                <span className="text-3xl sm:text-[30px] font-black font-display text-slate-100 tracking-tight tabular-nums leading-none">
+                <span className="text-3xl sm:text-[30px] font-semibold font-display text-slate-100 tracking-tight tabular-nums leading-none">
                   {weeklyApprovalRate}%
                 </span>
-                <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400 mt-1.5">
+                <span className="text-[8px] font-bold text-slate-400 mt-1.5">
                   Team Approval
                 </span>
               </div>
@@ -528,7 +512,7 @@ export default function AdminDashboardPage() {
             <div className="space-y-2.5 pt-2 border-t border-white/[0.06]">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(85,203,152,0.6)]" />
                   <span className="text-slate-300 font-medium">Approved Deliverables</span>
                 </div>
                 <span className="font-bold text-emerald-400 tabular-nums">{weekSummary.totalApproved} items</span>
@@ -544,7 +528,7 @@ export default function AdminDashboardPage() {
 
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(85,203,152,0.5)]" />
                   <span className="text-slate-300 font-medium">Active Designers</span>
                 </div>
                 <span className="font-bold text-indigo-300 tabular-nums">{activeTodayDesignerIds.size} logged today</span>
@@ -558,13 +542,10 @@ export default function AdminDashboardPage() {
           {/* Card 1: Today's Team Output */}
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Today Output</span>
-              <div className="w-7 h-7 rounded-lg bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Sparkles className="w-3.5 h-3.5" />
-              </div>
+              <span className="text-[11px] sm:text-xs font-semibold truncate">Today Output</span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display leading-none">{todayCreated}</span>
+              <span className="text-2xl sm:text-3xl font-semibold text-slate-100 font-display leading-none">{todayCreated}</span>
               <span className="text-[10px] sm:text-xs font-bold text-violet-400 truncate">({todayApproved} app.)</span>
             </div>
             <div className="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs">
@@ -578,13 +559,10 @@ export default function AdminDashboardPage() {
           {/* Card 2: Weekly Production */}
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Weekly Output</span>
-              <div className="w-7 h-7 rounded-lg bg-indigo-600/15 border border-indigo-500/25 flex items-center justify-center text-indigo-400 shrink-0 group-hover:scale-105 transition-transform">
-                <TrendingUp className="w-3.5 h-3.5" />
-              </div>
+              <span className="text-[11px] sm:text-xs font-semibold truncate">Weekly Output</span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display leading-none">{weekSummary.totalCreated}</span>
+              <span className="text-2xl sm:text-3xl font-semibold text-slate-100 font-display leading-none">{weekSummary.totalCreated}</span>
               <span className="text-[10px] sm:text-xs font-bold text-violet-400 truncate">({weekSummary.totalApproved} app.)</span>
             </div>
             <div className="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs">
@@ -598,13 +576,10 @@ export default function AdminDashboardPage() {
           {/* Card 3: Total Deliverable Time */}
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Logged Time</span>
-              <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Clock className="w-3.5 h-3.5" />
-              </div>
+              <span className="text-[11px] sm:text-xs font-semibold truncate">Logged Time</span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono leading-none">
+              <span className="text-2xl sm:text-3xl font-semibold text-amber-400 font-display tabular-nums leading-none">
                 {formatWorkEntryDuration(todaySeconds)}
               </span>
               <span className="text-[10px] sm:text-xs text-slate-500 truncate">today</span>
@@ -620,13 +595,10 @@ export default function AdminDashboardPage() {
           {/* Card 4: Active Clients */}
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div className="flex items-center justify-between text-slate-400">
-              <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate">Active Clients</span>
-              <div className="w-7 h-7 rounded-lg bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Building2 className="w-3.5 h-3.5" />
-              </div>
+              <span className="text-[11px] sm:text-xs font-semibold truncate">Active Clients</span>
             </div>
             <div className="flex items-baseline space-x-1.5 mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display leading-none">{weekSummary.activeClients}</span>
+              <span className="text-2xl sm:text-3xl font-semibold text-slate-100 font-display leading-none">{weekSummary.activeClients}</span>
               <span className="text-[10px] sm:text-xs text-slate-500 truncate">brands</span>
             </div>
             <div className="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] sm:text-xs">
@@ -677,7 +649,7 @@ export default function AdminDashboardPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-2.5">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold ${
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${
                         isWorkingNow
                           ? 'bg-emerald-600 text-white shadow-2xs'
                           : hasLoggedToday
@@ -693,7 +665,7 @@ export default function AdminDashboardPage() {
                     </div>
 
                     {isWorkingNow ? (
-                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         <span>LIVE</span>
                       </span>
@@ -714,7 +686,7 @@ export default function AdminDashboardPage() {
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-emerald-300 font-medium">
                           <span className="truncate max-w-[140px]">{activeTask.client?.name || 'Task'}</span>
-                          <span className="font-mono font-bold">
+                          <span className="font-display tabular-nums font-bold">
                             {formatWorkEntryStopwatch(calculateWorkEntrySeconds(activeTask, nowMs))}
                           </span>
                         </div>
@@ -762,15 +734,13 @@ export default function AdminDashboardPage() {
             <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/30 rounded-2xl p-6 shadow-sm space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-500/20 pb-4">
                 <div className="flex items-center space-x-3.5">
-                  <div className="p-3 rounded-xl bg-amber-500 text-slate-950 shadow-sm ring-4 ring-amber-950/50">
-                    <Hourglass className="w-6 h-6" />
-                  </div>
+                  <Hourglass className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
                   <div>
                     <div className="flex items-center space-x-2.5">
                       <h2 className="text-lg font-bold text-slate-100">
                         Agency Pending Client Approvals Queue
                       </h2>
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-900/60 text-amber-300 border border-amber-700/60">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-900/60 text-amber-300 border border-amber-700/60">
                         {totalUnapproved} deliverables ({agencyPendingEntries.length} tasks)
                       </span>
                     </div>
@@ -925,7 +895,7 @@ export default function AdminDashboardPage() {
                           <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-bold text-[11px]">
                             By {entry.profile?.name || 'Designer'}
                           </span>
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-violet-950/70 text-violet-300 border border-violet-800/60 font-extrabold text-[11px]">
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-violet-950/70 text-violet-300 border border-violet-800/60 font-semibold text-[11px]">
                             <Building2 className="w-3 h-3 text-violet-400" />
                             <span>{entry.client?.name || 'Client'}</span>
                           </span>
@@ -936,7 +906,7 @@ export default function AdminDashboardPage() {
                           {entry.timer_started_at && (
                             <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              <span className="font-mono">{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
+                              <span className="font-display tabular-nums">{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
                             </span>
                           )}
                         </div>
@@ -993,7 +963,7 @@ export default function AdminDashboardPage() {
           <div className="lg:col-span-4 space-y-6">
             {/* Executive Quick Launchpad */}
             <div className="bento-card p-6 space-y-4">
-              <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-300">
+              <h2 className="text-sm font-semibold text-slate-300">
                 Executive Agency Controls
               </h2>
 
@@ -1003,14 +973,12 @@ export default function AdminDashboardPage() {
                   className="flex items-center justify-between p-3 rounded-xl border border-amber-500/30 bg-amber-950/20 hover:border-amber-500/60 hover:bg-amber-950/40 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-amber-900/60 text-amber-300 group-hover:bg-amber-800/60">
-                      <Hourglass className="w-4 h-4" />
-                    </div>
+                    <Hourglass className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
                     <div>
                       <div className="flex items-center space-x-1.5">
                         <h3 className="text-xs font-bold text-slate-200 leading-tight">Pending Client Approvals</h3>
                         {agencyPendingEntries.length > 0 && (
-                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-900/80 text-amber-300 border border-amber-700/60">
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-amber-900/80 text-amber-300 border border-amber-700/60">
                             {agencyPendingEntries.length}
                           </span>
                         )}
@@ -1026,9 +994,7 @@ export default function AdminDashboardPage() {
                   className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-amber-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-amber-950/70 text-amber-400 border border-amber-800/50 group-hover:bg-amber-900/60">
-                      <Clock className="w-4 h-4" />
-                    </div>
+                    <Clock className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
                     <div>
                       <h3 className="text-xs font-bold text-slate-200 leading-tight">Client Time & Invoicing</h3>
                       <p className="text-[11px] text-slate-400">Audit billable client hours</p>
@@ -1042,9 +1008,7 @@ export default function AdminDashboardPage() {
                   className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-violet-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-violet-950/70 text-violet-400 border border-violet-800/50 group-hover:bg-violet-900/60">
-                      <BarChart3 className="w-4 h-4" />
-                    </div>
+                    <BarChart3 className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
                     <div>
                       <h3 className="text-xs font-bold text-slate-200 leading-tight">Weekly Team Review</h3>
                       <p className="text-[11px] text-slate-400">Weekly meeting deliverables</p>
@@ -1058,9 +1022,7 @@ export default function AdminDashboardPage() {
                   className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/50 group-hover:bg-indigo-900/60">
-                      <PieChart className="w-4 h-4" />
-                    </div>
+                    <PieChart className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
                     <div>
                       <h3 className="text-xs font-bold text-slate-200 leading-tight">Monthly Summary</h3>
                       <p className="text-[11px] text-slate-400">Agency output per month</p>
@@ -1074,9 +1036,7 @@ export default function AdminDashboardPage() {
                   className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/50 group-hover:bg-indigo-900/60">
-                      <Building2 className="w-4 h-4" />
-                    </div>
+                    <Building2 className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
                     <div>
                       <h3 className="text-xs font-bold text-slate-200 leading-tight">Clients Directory</h3>
                       <p className="text-[11px] text-slate-400">Manage brand accounts</p>
@@ -1090,9 +1050,7 @@ export default function AdminDashboardPage() {
                   className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-purple-500/50 hover:bg-slate-800/80 transition-colors group"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-lg bg-purple-950/70 text-purple-400 border border-purple-800/50 group-hover:bg-purple-900/60">
-                      <Users className="w-4 h-4" />
-                    </div>
+                    <Users className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
                     <div>
                       <h3 className="text-xs font-bold text-slate-200 leading-tight">Team Management</h3>
                       <p className="text-[11px] text-slate-400">Roster & role designations</p>

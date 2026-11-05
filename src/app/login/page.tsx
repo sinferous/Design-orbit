@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { setLoggedInUser, fetchProfiles, getUserPasswordFromDB, isAdminUser } from '@/lib/services/work-entry';
 import { Profile } from '@/types';
-import { Lock, Mail, ArrowRight, Eye, EyeOff, UserCheck } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
+import { BrandMark } from '@/components/ui/BrandMark';
+import { Diya, Rangoli, Toran } from '@/components/ui/Diwali';
 
 const PRESET_ACCOUNTS = [
-  { name: 'Select a Team Member (Optional)', email: '' },
+  { name: 'Choose your account', email: '' },
   { name: 'Admin (System Administrator)', email: 'admin@webtreeonline.com' },
   { name: 'Fazil (Senior UI/UX Designer)', email: 'fazil@webtreeonline.com' },
   { name: 'Gajesh (UI/UX Designer)', email: 'gajesh@webtreeonline.com' },
@@ -46,7 +48,7 @@ export default function LoginPage() {
               email: p.email || '',
             }));
           setAccountOptions([
-            { name: 'Select a Team Member (Optional)', email: '' },
+            { name: 'Choose your account', email: '' },
             ...sorted,
           ]);
         }
@@ -142,30 +144,103 @@ export default function LoginPage() {
     }, 400);
   };
 
-  return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="flex items-center justify-center">
-          <span className="font-bold text-slate-100 text-3xl sm:text-4xl tracking-tight">
-            Design
-          </span>
-          <span className="font-display font-black text-3xl sm:text-4xl ml-2 tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_16px_rgba(168,85,247,0.45)]">
-            Orbit
-          </span>
-        </div>
-        <p className="mt-2 text-center text-sm text-slate-400">
-          Internal reporting platform for the Creative Team
-        </p>
-      </div>
+  // Team members drawn as planets on the orbit (names from the live account list)
+  const crew = accountOptions
+    .filter(acc => acc.email && !acc.email.startsWith('admin'))
+    .map(acc => {
+      const m = acc.name.match(/^(.*?)\s*\((.*)\)\s*$/);
+      return { name: (m ? m[1] : acc.name).trim(), email: acc.email };
+    });
+  const innerCrew = crew.filter((_, i) => i % 2 === 0);
+  const outerCrew = crew.filter((_, i) => i % 2 === 1);
+  const selectedEmail = email.trim().toLowerCase();
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-slate-900 py-8 px-6 shadow-2xl shadow-black/80 border border-slate-800 rounded-2xl sm:px-10 space-y-6 text-slate-100">
-          {/* Quick Select Preset Member Account */}
-          <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
-            <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-300 flex items-center space-x-1">
-              <UserCheck className="w-3.5 h-3.5 text-violet-400" />
-              <span>Select Member Account</span>
-            </label>
+  const renderPlanets = (list: typeof crew, radius: number, offset: number, spinClass: string, counterClass: string) => (
+    <div className={`absolute inset-0 ${spinClass}`}>
+      {list.map((member, i) => {
+        const angle = (i / Math.max(list.length, 1)) * Math.PI * 2 + offset;
+        const x = 50 + Math.cos(angle) * radius;
+        const y = 50 + Math.sin(angle) * radius;
+        const isSelected = member.email.toLowerCase() === selectedEmail;
+        return (
+          <button
+            key={member.email}
+            type="button"
+            onClick={() => setEmail(member.email)}
+            title={`Sign in as ${member.name}`}
+            className="absolute -translate-x-1/2 -translate-y-1/2 group/planet cursor-pointer"
+            style={{ left: `${x}%`, top: `${y}%` }}
+          >
+            <span className={`flex flex-col items-center gap-1.5 ${counterClass}`}>
+              <span
+                className={`flex items-center justify-center w-11 h-11 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  isSelected
+                    ? 'bg-[#55cb98] text-[#06140d] scale-110'
+                    : 'bg-[#232322] text-slate-200 group-hover/planet:bg-[#30302e]'
+                }`}
+              >
+                {member.name.charAt(0).toUpperCase()}
+              </span>
+              <span className={`text-xs whitespace-nowrap transition-colors ${isSelected ? 'text-slate-50' : 'text-slate-500 group-hover/planet:text-slate-300'}`}>
+                {member.name.split(' ')[0]}
+              </span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen grid lg:grid-cols-[1.15fr_1fr] bg-[#0c0c0b]">
+      {/* Brand side: the team in orbit */}
+      <section className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-[#121211] border-r border-white/[0.05] p-10 xl:p-14">
+        <Toran className="absolute top-0 inset-x-0" />
+        <div className="flex items-center gap-3 relative z-10">
+          <BrandMark size={34} />
+          <span className="font-display font-bold text-xl text-slate-50">Design Orbit</span>
+        </div>
+
+        <div className="relative mx-auto w-full max-w-[520px] aspect-square my-6">
+          <div className="absolute inset-[18%] rounded-full border border-white/[0.07]" />
+          <div className="absolute inset-[2%] rounded-full border border-dashed border-white/[0.08]" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Rangoli size={250} className="absolute opacity-35 animate-orbit" />
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <BrandMark size={128} className="animate-orbit-slow" />
+          </div>
+          {renderPlanets(innerCrew, 32, -Math.PI / 2, 'animate-orbit', '[animation:orbitSpin_24s_linear_infinite_reverse] motion-reduce:[animation:none]')}
+          {renderPlanets(outerCrew, 48, Math.PI / 5, 'animate-orbit-slow', '[animation:orbitSpin_60s_linear_infinite] motion-reduce:[animation:none]')}
+        </div>
+
+        <div className="relative z-10 max-w-xl">
+          <h2 className="font-display text-4xl xl:text-[44px] leading-[1.02] font-semibold text-slate-50">
+            Every brief, logged in orbit.
+          </h2>
+          <p className="mt-4 text-base text-slate-400 leading-relaxed">
+            Daily work, client hours and approvals for the Webtree creative team, in one place. Pick your planet to start.
+          </p>
+          <div className="mt-6 flex items-center gap-2 text-sm text-[#f2a93b]">
+            <Diya size={24} />
+            <span>Happy Diwali from the Webtree team</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Form side */}
+      <section className="flex flex-col justify-center px-5 py-12 sm:px-10">
+        <div className="w-full max-w-sm mx-auto">
+          <div className="flex items-center gap-3 lg:hidden mb-10">
+            <BrandMark size={32} />
+            <span className="font-display font-bold text-xl text-slate-50">Design Orbit</span>
+          </div>
+
+          <h1 className="font-display text-[32px] leading-tight font-semibold text-slate-50">Sign in</h1>
+          <p className="mt-2 text-sm text-slate-400">Use your Webtree work email.</p>
+
+          <div className="mt-8 space-y-1.5">
+            <label className="block text-sm font-medium text-slate-300">Team member</label>
             <RichSelect
               value={email}
               onChange={val => handleSelectAccount(String(val))}
@@ -174,17 +249,17 @@ export default function LoginPage() {
                 label: acc.name,
               }))}
               size="sm"
-              placeholder="Select Member Account..."
+              placeholder="Choose your account"
             />
           </div>
 
-          <form className="space-y-4" onSubmit={handleLogin}>
+          <form className="mt-5 space-y-5" onSubmit={handleLogin}>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Work Email
+              <label className="block text-sm font-medium text-slate-300">
+                Work email
               </label>
-              <div className="mt-1.5 relative rounded-md shadow-xs">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="mt-1.5 relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <Mail className="h-4 w-4 text-slate-500" />
                 </div>
                 <input
@@ -193,17 +268,17 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@webtreeonline.com"
-                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-slate-100 bg-slate-950 placeholder:text-slate-500"
+                  className="block w-full h-11 pl-10 pr-3 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              <label className="block text-sm font-medium text-slate-300">
                 Password
               </label>
-              <div className="mt-1.5 relative rounded-md shadow-xs">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className="mt-1.5 relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <Lock className="h-4 w-4 text-slate-500" />
                 </div>
                 <input
@@ -212,7 +287,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 text-slate-100 bg-slate-950 placeholder:text-slate-500"
+                  className="block w-full h-11 pl-10 pr-10 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
                 />
                 <button
                   type="button"
@@ -233,15 +308,17 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center items-center space-x-2 py-2.5 px-4 text-sm font-bold rounded-xl text-white webtree-gradient-btn shadow-sm disabled:opacity-50 cursor-pointer"
+                className="w-full h-11 flex justify-center items-center gap-2 px-4 text-[15px] rounded-full webtree-gradient-btn cursor-pointer"
               >
-                <span>{loading ? 'Authenticating...' : 'Sign In'}</span>
+                <span>{loading ? 'Signing in…' : 'Sign in'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </form>
+
+          <p className="mt-10 text-xs text-slate-500">Webtree Online · internal tool for the creative team</p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

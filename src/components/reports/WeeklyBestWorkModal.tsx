@@ -72,11 +72,8 @@ export function WeeklyBestWorkModal({
 
         {/* Header */}
         <div className="flex items-start space-x-3.5">
-          <div className="w-11 h-11 rounded-xl bg-amber-950/70 text-amber-400 flex items-center justify-center shrink-0 border border-amber-800/60">
-            <Award className="w-6 h-6" />
-          </div>
           <div>
-            <h3 className="text-lg font-extrabold text-slate-100 leading-tight">
+            <h3 className="text-lg font-semibold text-slate-100 leading-tight">
               Featured Best Work
             </h3>
             <p className="text-xs font-semibold text-slate-400 mt-0.5">
@@ -88,7 +85,7 @@ export function WeeklyBestWorkModal({
         {/* Form */}
         <form onSubmit={handleSave} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-300">
+            <label className="block text-xs font-semibold text-slate-300">
               Best Work URL (Featured for Meeting)
             </label>
             <div className="relative">
@@ -119,7 +116,7 @@ export function WeeklyBestWorkModal({
                 href={currentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-2.5 py-1 text-[11px] font-extrabold text-violet-300 hover:text-white bg-slate-900 rounded-lg border border-violet-700 shrink-0 transition-colors"
+                className="px-2.5 py-1 text-[11px] font-semibold text-violet-300 hover:text-white bg-slate-900 rounded-lg border border-violet-700 shrink-0 transition-colors"
               >
                 Test Link ↗
               </a>

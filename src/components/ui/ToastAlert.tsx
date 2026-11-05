@@ -57,9 +57,9 @@ export function ToastAlert({
     success: {
       defaultTitle: 'Completed',
       icon: CheckCircle2,
-      iconContainer: 'bg-violet-500/15 border-violet-500/30 text-violet-300 shadow-[0_0_16px_rgba(168,85,247,0.35)]',
+      iconContainer: 'bg-violet-500/15 border-violet-500/30 text-violet-300 shadow-[0_0_16px_rgba(85,203,152,0.35)]',
       badgeClass: 'bg-violet-950/80 text-violet-300 border-violet-700/60',
-      borderGlow: 'border-violet-500/35 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),0_0_24px_-4px_rgba(168,85,247,0.25)]',
+      borderGlow: 'border-violet-500/35 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),0_0_24px_-4px_rgba(85,203,152,0.25)]',
       progressGradient: 'from-violet-500 via-fuchsia-400 to-indigo-500',
       accentDot: 'bg-violet-400',
     },
@@ -84,18 +84,18 @@ export function ToastAlert({
     info: {
       defaultTitle: 'Update',
       icon: Info,
-      iconContainer: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300 shadow-[0_0_16px_rgba(99,102,241,0.35)]',
+      iconContainer: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300 shadow-[0_0_16px_rgba(85,203,152,0.35)]',
       badgeClass: 'bg-indigo-950/80 text-indigo-300 border-indigo-700/60',
-      borderGlow: 'border-indigo-500/35 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),0_0_24px_-4px_rgba(99,102,241,0.25)]',
+      borderGlow: 'border-indigo-500/35 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),0_0_24px_-4px_rgba(85,203,152,0.25)]',
       progressGradient: 'from-indigo-500 via-violet-400 to-purple-500',
       accentDot: 'bg-indigo-400',
     },
   }[type] || {
     defaultTitle: 'Notice',
     icon: Sparkles,
-    iconContainer: 'bg-violet-500/15 border-violet-500/30 text-violet-300 shadow-[0_0_16px_rgba(168,85,247,0.35)]',
+    iconContainer: 'bg-violet-500/15 border-violet-500/30 text-violet-300 shadow-[0_0_16px_rgba(85,203,152,0.35)]',
     badgeClass: 'bg-violet-950/80 text-violet-300 border-violet-700/60',
-    borderGlow: 'border-violet-500/35 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),0_0_24px_-4px_rgba(168,85,247,0.25)]',
+    borderGlow: 'border-violet-500/35 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.9),0_0_24px_-4px_rgba(85,203,152,0.25)]',
     progressGradient: 'from-violet-500 via-fuchsia-400 to-indigo-500',
     accentDot: 'bg-violet-400',
   };
@@ -125,7 +125,7 @@ export function ToastAlert({
         <div className="flex-1 min-w-0 pt-0.5 space-y-1">
           <div className="flex items-center space-x-2">
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border shadow-2xs ${styleConfig.badgeClass}`}
+              className={`px-2 py-0.5 rounded-full text-[11px] font-semibold border shadow-2xs ${styleConfig.badgeClass}`}
             >
               {displayTitle}
             </span>

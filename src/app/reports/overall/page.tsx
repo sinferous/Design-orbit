@@ -52,7 +52,7 @@ export default function OverallReportPage() {
   const maxDone = Math.max(...dataItems.map(i => i.totalDone), 1);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar userName="Gajesh" />
 
       {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
@@ -136,13 +136,13 @@ export default function OverallReportPage() {
                       <span className="font-bold text-slate-100 text-sm">{item.name}</span>
                       <div className="flex items-center space-x-3 text-slate-400 font-medium">
                         <span>
-                          Created: <strong className="text-slate-100 font-extrabold">{item.totalDone}</strong>
+                          Created: <strong className="text-slate-100 font-semibold">{item.totalDone}</strong>
                         </span>
                         <span>
-                          Approved: <strong className="text-violet-400 font-extrabold">{item.totalApproved}</strong> ({item.approvalRate}%)
+                          Approved: <strong className="text-violet-400 font-semibold">{item.totalApproved}</strong> ({item.approvalRate}%)
                         </span>
                         {(item.totalTimeSeconds || 0) > 0 && (
-                          <span className="text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60 font-mono font-bold flex items-center space-x-1">
+                          <span className="text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60 font-display tabular-nums font-bold flex items-center space-x-1">
                             <Clock className="w-3 h-3 text-amber-400" />
                             <span>{formatReportTime(item.totalTimeSeconds || 0)}</span>
                           </span>

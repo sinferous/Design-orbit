@@ -245,16 +245,16 @@ export default function WeeklyReportPage() {
   const totalActiveClients = activeClientSet.size;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
       <ReportsSubNav>
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
+          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-xs"
         >
-          <Download className="w-4 h-4 text-violet-400" />
+          <Download className="w-4 h-4 text-blue-400" />
           <span className="hidden sm:inline">Export CSV</span>
           <span className="sm:hidden">CSV</span>
         </button>
@@ -262,16 +262,9 @@ export default function WeeklyReportPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Weekly Header Banner */}
-        <div className="bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bento-card p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-violet-950/60 text-violet-400 border border-violet-800/60">
-                Weekly Meeting Mode
-              </span>
-              <span className="text-xs text-slate-600 hidden sm:inline">•</span>
-              <span className="text-xs font-medium text-slate-400">Auto-aggregated from Daily Entries</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100 mt-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-100">
               Weekly Team Review
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
@@ -283,7 +276,7 @@ export default function WeeklyReportPage() {
           <div className="w-full md:w-auto flex items-center justify-center space-x-2">
             <button
               onClick={() => handleWeekDelta(-1)}
-              className="p-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shrink-0 cursor-pointer shadow-2xs"
+              className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-300 hover:bg-white/[0.08] hover:text-white transition-colors shrink-0 cursor-pointer shadow-xs"
               title="Previous Week"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -293,9 +286,9 @@ export default function WeeklyReportPage() {
               <button
                 type="button"
                 onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-slate-800/80 hover:bg-slate-700/70 rounded-xl border border-slate-700 hover:border-violet-500/50 shadow-2xs transition-all text-xs font-bold text-slate-200 cursor-pointer group"
+                className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-white/[0.04] hover:bg-white/[0.08] rounded-xl border border-white/[0.08] hover:border-blue-500/40 shadow-xs transition-all text-xs font-semibold text-slate-200 cursor-pointer group"
               >
-                <Calendar className="w-4 h-4 text-violet-400 shrink-0 group-hover:scale-105 transition-transform" />
+                <Calendar className="w-4 h-4 text-blue-400 shrink-0 group-hover:scale-105 transition-transform" />
                 <span>{getWeekRangeLabel()}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-slate-200 transition-colors" />
               </button>
@@ -316,7 +309,7 @@ export default function WeeklyReportPage() {
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
-                      <span className="text-[11px] font-extrabold text-slate-200 uppercase tracking-wider">
+                      <span className="text-[11px] font-semibold text-slate-200">
                         {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </span>
                       <button
@@ -331,7 +324,7 @@ export default function WeeklyReportPage() {
                     {/* Calendar Grid */}
                     <div className="space-y-1">
                       {/* Weekday labels */}
-                      <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pb-1">
+                      <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-400 pb-1">
                         <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
                       </div>
 
@@ -358,19 +351,19 @@ export default function WeeklyReportPage() {
                                 !dayObj.isCurrentMonth ? 'text-slate-600' : 'text-slate-300 hover:bg-slate-800'
                               } ${
                                 active
-                                  ? 'bg-violet-950/80 text-violet-300 font-bold border border-violet-700'
+                                  ? 'bg-blue-500/15 text-blue-300 font-bold border border-blue-500/30'
                                   : hoverActive
                                   ? 'bg-slate-800/60 border border-dashed border-slate-600'
                                   : ''
                               } ${
-                                start ? '!bg-violet-600 !text-white !border-violet-500 shadow-xs' : ''
+                                start ? '!bg-blue-600 !text-white !border-blue-500 shadow-xs' : ''
                               } ${
-                                end ? '!bg-violet-600 !text-white !border-violet-500 shadow-xs' : ''
+                                end ? '!bg-blue-600 !text-white !border-blue-500 shadow-xs' : ''
                               }`}
                             >
                               {dayObj.date.getDate()}
                               {isToday && !active && (
-                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-violet-400 rounded-full" />
+                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-blue-400 rounded-full" />
                               )}
                             </button>
                           );
@@ -391,7 +384,7 @@ export default function WeeklyReportPage() {
                             setEndDate(range.endDate);
                             setViewDate(new Date());
                           }}
-                          className="text-violet-400 hover:text-violet-300 cursor-pointer font-semibold"
+                          className="text-blue-400 hover:text-blue-300 cursor-pointer font-semibold"
                         >
                           This Week
                         </button>
@@ -412,7 +405,7 @@ export default function WeeklyReportPage() {
                         <button
                           type="button"
                           onClick={() => setIsCalendarOpen(false)}
-                          className="px-3 py-1 bg-violet-600 hover:bg-violet-500 text-white rounded-md cursor-pointer transition-colors shadow-2xs font-semibold"
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md cursor-pointer transition-colors shadow-xs font-semibold"
                         >
                           Apply
                         </button>
@@ -437,24 +430,24 @@ export default function WeeklyReportPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div>
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Team Created</div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-slate-100 font-display mt-1">{grandTotalCreated}</div>
+              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Team Created</div>
+              <div className="text-2xl sm:text-3xl font-semibold text-slate-100 font-display mt-1">{grandTotalCreated}</div>
             </div>
             <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-2">Items produced</p>
           </div>
 
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div>
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Team Approved</div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-display mt-1">{grandTotalApproved}</div>
+              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Team Approved</div>
+              <div className="text-2xl sm:text-3xl font-semibold text-emerald-400 font-display mt-1">{grandTotalApproved}</div>
             </div>
             <p className="text-[11px] text-emerald-400/90 font-semibold sm:text-xs truncate mt-2">{grandApprovalRate}% approval rate</p>
           </div>
 
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div>
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Time Tracked</div>
-              <div className="text-lg sm:text-2xl font-extrabold text-amber-400 flex items-center space-x-1.5 mt-1 font-mono">
+              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Time Tracked</div>
+              <div className="text-lg sm:text-2xl font-semibold text-amber-400 flex items-center space-x-1.5 mt-1 font-display tabular-nums">
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 shrink-0" />
                 <span className="truncate">{formatReportTime(grandTotalSeconds)}</span>
               </div>
@@ -464,8 +457,8 @@ export default function WeeklyReportPage() {
 
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
             <div>
-              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Active Clients</div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-violet-400 flex items-center space-x-1.5 mt-1 font-display">
+              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Active Clients</div>
+              <div className="text-2xl sm:text-3xl font-semibold text-violet-400 flex items-center space-x-1.5 mt-1 font-display">
                 <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400 shrink-0" />
                 <span>{totalActiveClients}</span>
               </div>
@@ -498,7 +491,7 @@ export default function WeeklyReportPage() {
                   {/* Card Header */}
                   <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 border-b border-slate-800">
                     <div className="flex items-center space-x-3.5 sm:space-x-4">
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-extrabold text-lg sm:text-xl flex items-center justify-center shadow-sm shrink-0">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-semibold text-lg sm:text-xl flex items-center justify-center shadow-sm shrink-0">
                         {s.profile.name.charAt(0)}
                       </div>
                       <div className="min-w-0">
@@ -519,7 +512,7 @@ export default function WeeklyReportPage() {
                       <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:space-x-6 flex-1 sm:flex-initial">
                         {/* Created / Approved Mini-Tile */}
                         <div className="bg-slate-950/60 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-800">
-                          <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Created / Approved</div>
+                          <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Created / Approved</div>
                           <div className="text-sm sm:text-lg font-bold text-slate-100">
                             {s.totalCreated} <span className="text-slate-500 font-normal">/</span>{' '}
                             <span className="text-violet-400">{s.totalApproved}</span>
@@ -528,7 +521,7 @@ export default function WeeklyReportPage() {
 
                         {/* Approval Rate Mini-Tile */}
                         <div className="bg-slate-950/60 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-800">
-                          <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Approval Rate</div>
+                          <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Approval Rate</div>
                           <div className="text-sm sm:text-lg font-bold text-violet-400">{s.approvalRate}%</div>
                         </div>
                       </div>
@@ -548,7 +541,7 @@ export default function WeeklyReportPage() {
 
                   {/* Work Type Summary Table */}
                   <div className="p-3.5 sm:p-6 bg-slate-950/50 space-y-3 sm:space-y-4">
-                    <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    <h3 className="text-xs font-bold text-slate-300">
                       Work Type Aggregation — {s.profile.name}
                     </h3>
 
@@ -569,7 +562,7 @@ export default function WeeklyReportPage() {
                               <div className={`text-[11px] sm:text-xs font-bold truncate ${hasWork ? 'text-slate-200' : 'text-slate-400'}`}>
                                 {typeName}
                               </div>
-                              <div className="text-xs sm:text-sm font-extrabold text-slate-100 mt-0.5">
+                              <div className="text-xs sm:text-sm font-semibold text-slate-100 mt-0.5">
                                 {data.done}{' '}
                                 <span className={`text-[10px] sm:text-xs font-bold ${hasWork ? 'text-violet-400' : 'text-slate-500'}`}>
                                   ({data.approved})
@@ -643,7 +636,7 @@ export default function WeeklyReportPage() {
                   {isExpanded && (
                     <div className="p-3.5 sm:p-6 border-t border-slate-800 space-y-3 sm:space-y-4 bg-slate-900">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                        <h4 className="text-xs font-bold text-slate-300">
                           Client-Wise Work Entries ({s.entries.length} Total Items)
                         </h4>
                         <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
@@ -678,7 +671,7 @@ export default function WeeklyReportPage() {
                                     <div className="px-3 sm:px-4 py-2 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
                                       <div className="flex items-center space-x-2 truncate">
                                         <Building2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-                                        <span className="font-extrabold text-xs text-slate-100 uppercase tracking-wider truncate">
+                                        <span className="font-semibold text-xs text-slate-100 truncate">
                                           {clientName}
                                         </span>
                                       </div>

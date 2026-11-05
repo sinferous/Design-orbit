@@ -302,7 +302,7 @@ export function PromoVideoModal() {
       >
         {/* Hover Pill Tooltip */}
         <div
-          className={`absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 rounded-xl bg-[#0B0F1C]/95 border border-violet-500/30 text-white shadow-[0_8px_30px_rgba(0,0,0,0.7)] backdrop-blur-xl whitespace-nowrap transition-all duration-300 pointer-events-none ${
+          className={`absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 rounded-xl bg-[#121211]/95 border border-violet-500/30 text-white shadow-[0_8px_30px_rgba(0,0,0,0.7)] backdrop-blur-xl whitespace-nowrap transition-all duration-300 pointer-events-none ${
             showTooltip
               ? 'opacity-100 translate-x-0'
               : 'opacity-0 translate-x-2'
@@ -313,7 +313,7 @@ export function PromoVideoModal() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500" />
             </span>
-            <span className="font-extrabold text-xs tracking-tight bg-gradient-to-r from-violet-300 via-fuchsia-300 to-indigo-200 bg-clip-text text-transparent">
+            <span className="font-semibold text-xs tracking-tight bg-gradient-to-r from-violet-300 via-fuchsia-300 to-indigo-200 bg-clip-text text-transparent">
               Design Orbit Promo
             </span>
             <span className="text-[10px] font-semibold text-slate-400 bg-white/[0.06] px-1.5 py-0.5 rounded-md border border-white/[0.08]">
@@ -350,9 +350,9 @@ export function PromoVideoModal() {
             />
             <defs>
               <linearGradient id="orbitGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#c084fc" />
-                <stop offset="50%" stopColor="#ec4899" />
-                <stop offset="100%" stopColor="#818cf8" />
+                <stop offset="0%" stopColor="#7ddbae" />
+                <stop offset="50%" stopColor="#7ddbae" />
+                <stop offset="100%" stopColor="#7ddbae" />
               </linearGradient>
             </defs>
           </svg>
@@ -375,8 +375,8 @@ export function PromoVideoModal() {
             />
             <defs>
               <linearGradient id="orbitGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#a855f7" />
-                <stop offset="100%" stopColor="#38bdf8" />
+                <stop offset="0%" stopColor="#7ddbae" />
+                <stop offset="100%" stopColor="#7ddbae" />
               </linearGradient>
             </defs>
           </svg>
@@ -386,11 +386,11 @@ export function PromoVideoModal() {
             className="absolute -inset-2 w-[calc(100%+16px)] h-[calc(100%+16px)] pointer-events-none"
             style={{ animation: 'spinSlow 8s linear infinite' }}
           >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-fuchsia-300 shadow-[0_0_8px_#ec4899] group-hover:scale-125 transition-transform" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-fuchsia-300 shadow-[0_0_8px_#7ddbae] group-hover:scale-125 transition-transform" />
           </div>
 
           {/* Glassmorphic Inner Button Body */}
-          <div className="relative w-full h-full rounded-full bg-[#080C19]/90 border border-violet-500/40 backdrop-blur-xl flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_8px_20px_rgba(0,0,0,0.6)] group-hover:border-violet-400 group-hover:scale-105 group-hover:shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-all duration-300">
+          <div className="relative w-full h-full rounded-full bg-[#0e0e0d]/90 border border-violet-500/40 backdrop-blur-xl flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_8px_20px_rgba(0,0,0,0.6)] group-hover:border-violet-400 group-hover:scale-105 group-hover:shadow-[0_0_25px_rgba(85,203,152,0.5)] transition-all duration-300">
             <div className="translate-x-0.5 flex items-center justify-center">
               <Play className="w-5 h-5 text-violet-300 fill-violet-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)] group-hover:text-white group-hover:fill-fuchsia-400 transition-all duration-300" />
             </div>
@@ -409,7 +409,7 @@ export function PromoVideoModal() {
         >
           {/* Backdrop Blur Overlay */}
           <div
-            className="fixed inset-0 bg-[#030611]/85 backdrop-blur-xl transition-opacity cursor-pointer"
+            className="fixed inset-0 bg-[#080807]/85 backdrop-blur-xl transition-opacity cursor-pointer"
             onClick={handleCloseModal}
           />
 
@@ -418,7 +418,7 @@ export function PromoVideoModal() {
             ref={playerContainerRef}
             onMouseMove={resetControlsTimer}
             onMouseEnter={() => setShowControls(true)}
-            className="relative z-10 w-full max-w-5xl rounded-2xl overflow-hidden bg-black border border-violet-500/35 shadow-[0_24px_80px_rgba(0,0,0,0.85),0_0_50px_rgba(139,92,246,0.25)] flex flex-col transition-all duration-300 animate-in zoom-in-95 duration-200 group"
+            className="relative z-10 w-full max-w-5xl rounded-2xl overflow-hidden bg-black border border-violet-500/35 shadow-[0_24px_80px_rgba(0,0,0,0.85),0_0_50px_rgba(85,203,152,0.25)] flex flex-col transition-all duration-300 animate-in zoom-in-95 duration-200 group"
           >
             {/* Sleek Floating Close Button (Top-Right of Video) */}
             <button
@@ -475,8 +475,8 @@ export function PromoVideoModal() {
               {/* Big Center Play Button Overlay (when paused) */}
               {!isPlaying && !isBuffering && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[2px] transition-all pointer-events-none">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-violet-600/90 to-fuchsia-600/90 p-[2px] shadow-[0_0_40px_rgba(168,85,247,0.6)] animate-in zoom-in-75 duration-200">
-                    <div className="w-full h-full rounded-full bg-[#080C19]/80 backdrop-blur-md flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-violet-600/90 to-fuchsia-600/90 p-[2px] shadow-[0_0_40px_rgba(85,203,152,0.6)] animate-in zoom-in-75 duration-200">
+                    <div className="w-full h-full rounded-full bg-[#0e0e0d]/80 backdrop-blur-md flex items-center justify-center">
                       <Play className="w-9 h-9 text-white fill-white translate-x-1" />
                     </div>
                   </div>
@@ -501,7 +501,7 @@ export function PromoVideoModal() {
               {/* ================================================================= */}
               <div
                 onClick={e => e.stopPropagation()}
-                className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#050814]/95 via-[#050814]/75 to-transparent px-4 sm:px-6 pt-10 pb-4 transition-all duration-300 ${
+                className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#090908]/95 via-[#090908]/75 to-transparent px-4 sm:px-6 pt-10 pb-4 transition-all duration-300 ${
                   showControls || !isPlaying
                     ? 'opacity-100 translate-y-0 pointer-events-auto'
                     : 'opacity-0 translate-y-3 pointer-events-none'
@@ -519,7 +519,7 @@ export function PromoVideoModal() {
                   {/* Hover Timestamp Bubble */}
                   {isHoveringTimeline && (
                     <div
-                      className="absolute -top-8 px-2 py-1 bg-[#0E1428] border border-violet-500/40 text-[11px] font-mono font-bold text-violet-200 rounded-md shadow-lg pointer-events-none -translate-x-1/2"
+                      className="absolute -top-8 px-2 py-1 bg-[#151514] border border-violet-500/40 text-[11px] font-display tabular-nums font-bold text-violet-200 rounded-md shadow-lg pointer-events-none -translate-x-1/2"
                       style={{ left: `${hoverPosition}%` }}
                     >
                       {formatTime(hoverTime)}
@@ -535,14 +535,14 @@ export function PromoVideoModal() {
                     />
                     {/* Played Progress Gradient */}
                     <div
-                      className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-400 shadow-[0_0_10px_rgba(168,85,247,0.7)]"
+                      className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-400 shadow-[0_0_10px_rgba(85,203,152,0.7)]"
                       style={{ width: `${progressPercent}%` }}
                     />
                   </div>
 
                   {/* Scrubber Knob */}
                   <div
-                    className="absolute w-3.5 h-3.5 group-hover/timeline:w-4 group-hover/timeline:h-4 -ml-2 rounded-full bg-white border-2 border-violet-500 shadow-[0_0_10px_rgba(168,85,247,1)] transition-transform duration-100 scale-0 group-hover/timeline:scale-100 pointer-events-none"
+                    className="absolute w-3.5 h-3.5 group-hover/timeline:w-4 group-hover/timeline:h-4 -ml-2 rounded-full bg-white border-2 border-violet-500 shadow-[0_0_10px_rgba(85,203,152,1)] transition-transform duration-100 scale-0 group-hover/timeline:scale-100 pointer-events-none"
                     style={{ left: `${progressPercent}%` }}
                   />
                 </div>
@@ -573,7 +573,7 @@ export function PromoVideoModal() {
                       className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer relative"
                     >
                       <RotateCcw className="w-4 h-4" />
-                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-black pt-1">
+                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-semibold pt-1">
                         10
                       </span>
                     </button>
@@ -586,7 +586,7 @@ export function PromoVideoModal() {
                       className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer relative"
                     >
                       <RotateCw className="w-4 h-4" />
-                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-black pt-1">
+                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-semibold pt-1">
                         10
                       </span>
                     </button>
@@ -623,7 +623,7 @@ export function PromoVideoModal() {
                     </div>
 
                     {/* Time Counter */}
-                    <div className="text-xs sm:text-sm font-mono text-slate-300 font-semibold tracking-tight pl-1">
+                    <div className="text-xs sm:text-sm font-display tabular-nums text-slate-300 font-semibold tracking-tight pl-1">
                       <span>{formatTime(currentTime)}</span>
                       <span className="text-slate-500 mx-1.5">/</span>
                       <span className="text-slate-400">{formatTime(duration)}</span>

@@ -84,12 +84,12 @@ export function ReportsSubNav({ children }: ReportsSubNavProps) {
   };
 
   return (
-    <div className="bg-[#0B0F1C]/80 backdrop-blur-md border-b border-white/[0.08] shadow-xs">
+    <div className="bg-[#121211]/80 backdrop-blur-md border-b border-white/[0.08] shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 overflow-x-auto">
         <div ref={containerRef} className="flex space-x-4 sm:space-x-6 min-w-max relative py-1">
           {/* Animated Gliding Underline (a bit slow, buttery smooth transition) */}
           <div
-            className="absolute left-0 bottom-0 h-[2.5px] rounded-full bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 shadow-[0_0_12px_rgba(168,85,247,0.85)] pointer-events-none transition-all duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)] z-20"
+            className="absolute left-0 bottom-0 h-[2.5px] rounded-full bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 shadow-[0_0_12px_rgba(85,203,152,0.85)] pointer-events-none transition-all duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)] z-20"
             style={{
               transform: `translate3d(${lineStyle.left}px, 0, 0)`,
               width: `${lineStyle.width}px`,

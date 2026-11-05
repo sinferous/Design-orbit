@@ -209,7 +209,7 @@ export function RichDatePicker({
           </div>
 
           {/* Day of Week Headers */}
-          <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider pb-0.5">
+          <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-500 pb-0.5">
             <span>Mo</span>
             <span>Tu</span>
             <span>We</span>
@@ -234,7 +234,7 @@ export function RichDatePicker({
                   className={cn(
                     'h-8 text-xs font-semibold rounded-lg flex items-center justify-center transition-all cursor-pointer select-none',
                     isSelected
-                      ? 'bg-violet-600 text-white font-extrabold shadow-sm scale-105'
+                      ? 'bg-violet-600 text-white font-semibold shadow-sm scale-105'
                       : isToday
                       ? 'border border-violet-500 text-violet-300 bg-violet-950/60 font-bold hover:bg-violet-900/60'
                       : dayObj.isCurrentMonth

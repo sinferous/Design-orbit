@@ -184,9 +184,6 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
       <div className="space-y-2.5 pb-2.5 border-b border-white/[0.08] shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-violet-600/15 text-violet-400 flex items-center justify-center border border-violet-500/20 shadow-sm shrink-0">
-              <CheckSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
                 <h2 className="text-xs sm:text-sm font-bold text-slate-100 leading-tight truncate">My To-Do List</h2>
@@ -223,7 +220,7 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
           onChange={(val) => setActiveTab(val as FilterTab)}
           size="xs"
           className="p-0.5 bg-black/30 border-white/[0.08]"
-          pillClassName="bg-violet-600/30 border border-violet-500/40 shadow-xs"
+          pillClassName="bg-white/[0.08] border border-white/[0.1] text-white shadow-xs"
         />
       </div>
 
@@ -232,11 +229,11 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
         <div className="space-y-1 px-0.5 shrink-0 pt-1">
           <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium">
             <span>{completedCount} of {todos.length} completed</span>
-            <span className="font-bold text-violet-400">{progressPercent}%</span>
+            <span className="font-semibold text-blue-400">{progressPercent}%</span>
           </div>
-          <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+          <div className="w-full h-1.5 bg-[#0c0c0b] rounded-full overflow-hidden border border-white/[0.06]">
             <div
-              className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-300 rounded-full"
+              className="h-full bg-blue-500 transition-all duration-300 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -250,12 +247,12 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
           value={newTaskText}
           onChange={e => setNewTaskText(e.target.value)}
           placeholder="Add a private task... (Press Enter)"
-          className="w-full pl-3 pr-16 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-all font-medium shadow-xs"
+          className="w-full pl-3 pr-16 py-1.5 bg-[#0c0c0b] border border-white/[0.1] rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all font-medium shadow-xs"
         />
         <button
           type="submit"
           disabled={adding || !newTaskText.trim()}
-          className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-bold text-white webtree-gradient-btn rounded-md shadow-xs disabled:opacity-40 transition-all cursor-pointer"
+          className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold text-white webtree-gradient-btn rounded-md shadow-xs disabled:opacity-40 transition-all cursor-pointer"
         >
           <Plus className="w-3 h-3" />
           <span>Add</span>
@@ -272,7 +269,7 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
             />
           </div>
         ) : filteredTodos.length === 0 ? (
-          <div className="p-6 text-center bg-slate-950/60 rounded-xl border border-slate-800 text-slate-400 text-xs space-y-1">
+          <div className="p-6 text-center bg-[#0c0c0b]/60 rounded-xl border border-white/[0.06] text-slate-400 text-xs space-y-1">
             {activeTab === 'completed' ? (
               <p className="font-medium text-slate-400">No completed tasks yet.</p>
             ) : activeTab === 'pending' ? (
@@ -305,12 +302,12 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
                 }}
                 className={`group p-2.5 sm:p-3 rounded-lg border transition-all flex items-center justify-between gap-2.5 cursor-move select-none ${
                   isBeingDragged
-                    ? 'opacity-40 border-dashed border-violet-500 bg-violet-950/50 scale-[0.98]'
+                    ? 'opacity-40 border-dashed border-blue-500 bg-blue-950/40 scale-[0.98]'
                     : isTargeted
-                    ? 'border-violet-500 ring-2 ring-violet-400/50 bg-violet-950/40'
+                    ? 'border-blue-500 ring-2 ring-blue-400/40 bg-blue-950/30'
                     : todo.is_completed
-                    ? 'bg-slate-950/40 border-slate-850 text-slate-500'
-                    : 'bg-slate-950/80 border-slate-800 hover:border-slate-700 hover:bg-slate-850 text-slate-200'
+                    ? 'bg-[#0c0c0b]/50 border-white/[0.04] text-slate-500'
+                    : 'bg-[#0c0c0b] border-white/[0.08] hover:border-white/[0.14] text-slate-200'
                 }`}
               >
                 {/* Drag Handle & Checkbox & Task Label */}
@@ -328,7 +325,7 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
                     className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 cursor-pointer ${
                       todo.is_completed
                         ? 'bg-emerald-500 border-emerald-500 text-slate-950 shadow-xs'
-                        : 'border-slate-600 bg-slate-900 group-hover:border-violet-400'
+                        : 'border-slate-600 bg-slate-900 group-hover:border-blue-400'
                     }`}
                   >
                     {todo.is_completed && <Check className="w-2.5 h-2.5 stroke-[3]" />}

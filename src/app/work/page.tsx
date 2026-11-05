@@ -498,7 +498,7 @@ export default function MyWorkPage() {
   const totalPendingWaiting = totalPendingDone - totalPendingApproved;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#06080F] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar userName={activeProfile?.name || 'Gajesh'} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
@@ -522,32 +522,22 @@ export default function MyWorkPage() {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setShowEmailModal(true)}
-                  className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-bold text-violet-300 bg-violet-950/70 hover:bg-violet-900/80 border border-violet-800/60 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center space-x-2 px-3.5 py-2 text-xs font-semibold text-slate-200 webtree-secondary-btn rounded-xl shadow-xs cursor-pointer"
                   title="Preview and format daily work log for email"
                 >
-                  <Mail className="w-4 h-4" />
+                  <Mail className="w-4 h-4 text-blue-400" />
                   <span>Email Day Log</span>
                 </button>
 
                 <button
                   onClick={handleQuickCopy}
-                  className="inline-flex items-center justify-center space-x-1.5 px-3 py-2.5 text-sm font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center space-x-1.5 px-3 py-2 text-xs font-semibold text-slate-300 webtree-secondary-btn rounded-xl shadow-xs cursor-pointer"
                   title="Quick copy formatted email log to clipboard"
                 >
                   <Copy className="w-4 h-4 text-slate-400" />
                   <span className="hidden sm:inline">Quick Copy</span>
                 </button>
               </div>
-            )}
-
-            {!isAdmin && (
-              <Link
-                href="/work/new"
-                className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-lg shadow-sm"
-              >
-                <Plus className="w-4.5 h-4.5" />
-                <span>Add Work Entry</span>
-              </Link>
             )}
           </div>
         </div>
@@ -562,7 +552,7 @@ export default function MyWorkPage() {
                 label: (
                   <span className="flex items-center space-x-1.5">
                     <span>Daily Log</span>
-                    <span className="hidden min-[420px]:inline text-[11px] font-normal opacity-90">(By Date)</span>
+                    <span className="hidden min-[420px]:inline text-[11px] font-normal opacity-80">(By Date)</span>
                   </span>
                 ),
                 icon: Calendar,
@@ -574,9 +564,9 @@ export default function MyWorkPage() {
                 badge: pendingEntries.length > 0 ? (
                   <span
                     className={cn(
-                      'px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold shrink-0 transition-colors',
+                      'px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold shrink-0 transition-colors',
                       workViewMode === 'pending'
-                        ? 'bg-white text-amber-950'
+                        ? 'bg-amber-400 text-amber-950'
                         : 'bg-amber-900/60 text-amber-300 border border-amber-700/60'
                     )}
                   >
@@ -587,18 +577,18 @@ export default function MyWorkPage() {
             ]}
             value={workViewMode}
             onChange={(val) => setWorkViewMode(val as 'calendar' | 'pending')}
-            size="lg"
+            size="md"
             fullWidth={false}
-            className="bento-card p-1.5 gap-1.5 w-full sm:w-auto"
+            className="bento-card p-1 gap-1 w-full sm:w-auto"
             pillClassName={cn(
-              'rounded-xl transition-all duration-[480ms]',
+              'rounded-lg transition-all duration-200',
               workViewMode === 'pending'
-                ? 'bg-amber-600 border border-amber-500/50 shadow-[0_0_16px_rgba(245,158,11,0.4)]'
-                : 'bg-violet-600 border border-violet-500/50 shadow-[0_0_16px_rgba(168,85,247,0.4)]'
+                ? 'bg-amber-500/20 border border-amber-500/35 text-amber-200 shadow-xs'
+                : 'bg-white/[0.08] border border-white/[0.1] text-white shadow-xs'
             )}
           />
 
-          <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+          <span className="text-xs text-slate-400 font-normal hidden sm:inline">
             {workViewMode === 'pending'
               ? 'Deliverables awaiting client feedback • Direct approval without date hunting'
               : 'Browse deliverables by calendar date'}
@@ -609,11 +599,11 @@ export default function MyWorkPage() {
         {workViewMode === 'calendar' ? (
           <>
             {/* View Toggle Bar & Date Selector */}
-        <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="bento-card p-4 flex flex-col md:flex-row items-center justify-between gap-4">
           {/* If Admin: show Team filter; Else: My Work vs Team Tabs */}
           {isAdmin ? (
             <div className="flex items-center space-x-2.5 w-full md:w-auto">
-              <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60 shadow-2xs shrink-0">
+              <span className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20 shrink-0">
                 Team Work Log
               </span>
               <div className="w-60">
@@ -643,9 +633,9 @@ export default function MyWorkPage() {
               onChange={(val) => setSelectedUserFilter(val)}
               size="sm"
               fullWidth={false}
-              className="w-full md:w-auto p-1 bg-slate-950/80 border border-slate-800"
-              pillClassName="bg-slate-800 border border-slate-700 shadow-2xs"
-              activeTextClassName="text-violet-400 font-bold"
+              className="w-full md:w-auto p-1 bg-[#0c0c0b] border border-white/[0.08]"
+              pillClassName="bg-white/[0.08] border border-white/[0.1] shadow-xs"
+              activeTextClassName="text-white font-semibold"
             />
           )}
 
@@ -712,7 +702,7 @@ export default function MyWorkPage() {
                         >
                           <ChevronLeft className="w-4 h-4" />
                         </button>
-                        <span className="text-xs font-extrabold text-slate-100 tracking-wide">
+                        <span className="text-xs font-semibold text-slate-100 tracking-wide">
                           {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         </span>
                         <button
@@ -726,7 +716,7 @@ export default function MyWorkPage() {
 
                       {/* Calendar Grid */}
                       <div className="space-y-1">
-                        <div className="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider pb-1">
+                        <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-500 pb-1">
                           <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
                         </div>
 
@@ -825,40 +815,31 @@ export default function MyWorkPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
             <div className="flex items-center space-x-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-violet-400 shrink-0 group-hover:scale-105 transition-transform">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
               <div className="min-w-0">
-                <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Total Quantity</div>
-                <div className="text-xl sm:text-2xl font-extrabold text-slate-100 font-display">{totalDone}</div>
+                <div className="text-xs font-medium text-slate-400 truncate">Total Quantity</div>
+                <div className="text-xl sm:text-2xl font-bold text-slate-100 font-display">{totalDone}</div>
               </div>
             </div>
-            <span className="text-[10px] sm:text-xs text-slate-500 font-medium hidden min-[400px]:inline shrink-0">{entries.length} items</span>
+            <span className="text-xs text-slate-400 font-normal hidden min-[400px]:inline shrink-0">{entries.length} items</span>
           </div>
 
           <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
             <div className="flex items-center space-x-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-emerald-600/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Check className="w-5 h-5" />
-              </div>
               <div className="min-w-0">
-                <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Approved Qty</div>
-                <div className="text-xl sm:text-2xl font-extrabold text-emerald-400 font-display">{totalApproved}</div>
+                <div className="text-xs font-medium text-slate-400 truncate">Approved Qty</div>
+                <div className="text-xl sm:text-2xl font-bold text-emerald-400 font-display">{totalApproved}</div>
               </div>
             </div>
-            <span className="text-[10px] sm:text-xs text-emerald-400 font-bold shrink-0">
+            <span className="text-xs text-emerald-400 font-semibold shrink-0">
               {totalDone > 0 ? `${Math.round((totalApproved / totalDone) * 100)}%` : '0%'}
             </span>
           </div>
 
           <div className="col-span-2 sm:col-span-1 bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
             <div className="flex items-center space-x-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Clock className="w-5 h-5" />
-              </div>
               <div className="min-w-0">
-                <div className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">Total Time Tracked</div>
-                <div className="text-lg sm:text-2xl font-extrabold text-amber-400 font-mono">
+                <div className="text-xs font-medium text-slate-400 truncate">Total Time Tracked</div>
+                <div className="text-lg sm:text-2xl font-bold text-amber-400 font-display tabular-nums">
                   {formatWorkEntryDuration(totalTrackedSeconds)}
                 </div>
               </div>
@@ -866,7 +847,7 @@ export default function MyWorkPage() {
             <span className="text-xs text-amber-400 font-semibold shrink-0">
               {activeTimersCount > 0 ? (
                 <span className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-amber-950/60 border border-amber-700/50">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping inline-block" />
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-beacon inline-block" />
                   <span>{activeTimersCount} Running</span>
                 </span>
               ) : (
@@ -878,7 +859,7 @@ export default function MyWorkPage() {
 
         {/* Work Entries Content */}
         {loading ? (
-          <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
+          <div className="bento-card p-12 text-center">
             <OrbitLoader
               size="md"
               text="Loading daily work log..."
@@ -886,11 +867,11 @@ export default function MyWorkPage() {
             />
           </div>
         ) : entries.length === 0 ? (
-          <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 mx-auto">
+          <div className="bento-card p-12 text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-slate-400 mx-auto">
               <Calendar className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-100">No work logged for {formatDisplayDate(selectedDate)}</h3>
+            <h3 className="text-base font-semibold text-slate-100">No work logged for {formatDisplayDate(selectedDate)}</h3>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
               {isAdmin || selectedUserFilter !== 'my_work'
                 ? "No team members have logged work for this date."
@@ -930,25 +911,22 @@ export default function MyWorkPage() {
                   return (
                     <div key={clientName} className="bento-card overflow-hidden">
                       {/* Client Header Bar */}
-                      <div className="px-6 py-3.5 bg-black/30 border-b border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="px-6 py-3.5 bg-white/[0.02] border-b border-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="flex items-center space-x-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-violet-600/15 text-violet-400 flex items-center justify-center border border-violet-500/20">
-                            <Building2 className="w-4 h-4" />
-                          </div>
                           <div>
-                            <h3 className="text-xs font-extrabold text-slate-100 uppercase tracking-wider">
+                            <h3 className="text-xs font-semibold text-slate-100">
                               {clientName}
                             </h3>
                           </div>
-                          <span className="text-[11px] font-bold text-violet-300 bg-violet-950/70 border border-violet-800/60 px-2.5 py-0.5 rounded-full">
+                          <span className="text-[11px] font-medium text-slate-300 bg-white/[0.04] border border-white/[0.08] px-2.5 py-0.5 rounded-full">
                             {clientEntries.length} item(s)
                           </span>
                         </div>
 
-                        <div className="flex items-center space-x-4 text-xs font-semibold text-slate-400">
-                          <span>Total Qty: <strong className="text-slate-100 font-extrabold">{clientDone}</strong></span>
+                        <div className="flex items-center space-x-4 text-xs font-medium text-slate-400">
+                          <span>Total Qty: <strong className="text-slate-100 font-semibold">{clientDone}</strong></span>
                           <span className="text-slate-600">•</span>
-                          <span>Approved: <strong className="text-violet-400 font-extrabold">{clientApproved}</strong></span>
+                          <span>Approved: <strong className="text-emerald-400 font-semibold">{clientApproved}</strong></span>
                         </div>
                       </div>
 
@@ -969,15 +947,15 @@ export default function MyWorkPage() {
                               className={`p-5 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
                                 entry.timer_started_at
                                   ? isMyEntry
-                                    ? 'bg-amber-950/30 border-l-4 border-l-amber-500 shadow-2xs'
-                                    : 'bg-emerald-950/30 border-l-4 border-l-emerald-500 shadow-2xs'
-                                  : 'hover:bg-slate-800/40'
+                                    ? 'bg-amber-950/25 border-l-4 border-l-amber-500 shadow-2xs'
+                                    : 'bg-emerald-950/25 border-l-4 border-l-emerald-500 shadow-2xs'
+                                  : 'hover:bg-white/[0.02]'
                               }`}
                             >
                               {/* Left Section: Work Type & Description */}
                               <div className="space-y-2 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                                  <span className="px-2.5 py-0.5 rounded-md text-xs font-medium bg-white/[0.04] text-slate-300 border border-white/[0.08]">
                                     {entry.work_type?.name || 'Work'}
                                   </span>
 
@@ -988,7 +966,7 @@ export default function MyWorkPage() {
                                   )}
 
                                   {entry.timer_started_at && isMyEntry && (
-                                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-950/80 text-amber-300 border border-amber-700/60">
+                                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-950/80 text-amber-300 border border-amber-700/60">
                                       <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
                                       <span>Timer Active</span>
                                     </span>
@@ -1005,12 +983,12 @@ export default function MyWorkPage() {
                                       href={entry.project_url || entry.best_work_url!}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-950/70 text-violet-300 hover:bg-violet-900/80 border border-violet-800/60 transition-colors shadow-2xs cursor-pointer group"
+                                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 border border-blue-500/25 transition-colors shadow-2xs cursor-pointer group"
                                       title="Open Deliverable URL in new tab"
                                     >
-                                      <ExternalLink className="w-3.5 h-3.5 text-violet-400 group-hover:scale-110 transition-transform shrink-0" />
+                                      <ExternalLink className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
                                       <span>View Project Link ↗</span>
-                                      <span className="text-[11px] text-violet-400/80 font-normal truncate max-w-xs ml-1 border-l border-violet-800/60 pl-1.5">
+                                      <span className="text-[11px] text-blue-300/70 font-normal truncate max-w-xs ml-1 border-l border-blue-500/25 pl-1.5">
                                         {entry.project_url || entry.best_work_url}
                                       </span>
                                     </a>
@@ -1037,13 +1015,13 @@ export default function MyWorkPage() {
                                   <>
                                     <div className="flex items-center space-x-4 text-xs">
                                       <div className="text-center">
-                                        <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Qty</div>
-                                        <div className="text-base font-extrabold text-slate-100">{entry.quantity_done}</div>
+                                        <div className="text-slate-500 text-[11px] font-bold">Qty</div>
+                                        <div className="text-base font-semibold text-slate-100">{entry.quantity_done}</div>
                                       </div>
 
                                       <div className="text-center">
-                                        <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Approved</div>
-                                        <div className="text-base font-extrabold text-violet-400">{entry.quantity_approved}</div>
+                                        <div className="text-slate-500 text-[11px] font-bold">Approved</div>
+                                        <div className="text-base font-semibold text-violet-400">{entry.quantity_approved}</div>
                                       </div>
                                     </div>
 
@@ -1111,7 +1089,7 @@ export default function MyWorkPage() {
                                     {entry.timer_started_at ? (
                                       // Active running timer: live clock + Stop button
                                       <div className="flex items-center space-x-1.5">
-                                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-950/80 text-amber-300 border border-amber-700/60 rounded-lg font-mono text-xs font-bold shadow-2xs">
+                                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-950/80 text-amber-300 border border-amber-700/60 rounded-lg font-display tabular-nums text-xs font-bold shadow-2xs">
                                           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
                                           <Clock className="w-3 h-3 text-amber-400" />
                                           <span>{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
@@ -1153,7 +1131,7 @@ export default function MyWorkPage() {
                                         {calculateWorkEntrySeconds(entry, nowMs) > 0 && (
                                           <span
                                             title={`Total time tracked: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
-                                            className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-xs font-mono font-bold"
+                                            className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-xs font-display tabular-nums font-bold"
                                           >
                                             <Clock className="w-3 h-3 text-slate-400" />
                                             <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
@@ -1178,18 +1156,18 @@ export default function MyWorkPage() {
                                     {entry.timer_started_at ? (
                                       <span
                                         title={`${entry.profile?.name || 'Teammate'} is actively working on this right now`}
-                                        className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded-lg font-mono text-xs font-bold shadow-2xs"
+                                        className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded-lg font-display tabular-nums text-xs font-bold shadow-2xs"
                                       >
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
                                         <Clock className="w-3.5 h-3.5 text-emerald-400" />
                                         <span>{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
-                                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider bg-emerald-900/60 px-1.5 py-0.5 rounded border border-emerald-700/50">Live</span>
+                                        <span className="text-[11px] font-bold text-emerald-400 bg-emerald-900/60 px-1.5 py-0.5 rounded border border-emerald-700/50">Live</span>
                                       </span>
                                     ) : (
                                       calculateWorkEntrySeconds(entry, nowMs) > 0 && (
                                         <span
                                           title={`Time spent: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
-                                          className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg text-xs font-mono font-medium"
+                                          className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg text-xs font-display tabular-nums font-medium"
                                         >
                                           <Clock className="w-3 h-3 text-slate-500" />
                                           <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
@@ -1302,7 +1280,7 @@ export default function MyWorkPage() {
             {/* Urgency Filter Chips & Pending Summary Tiles */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] mr-1">Filter By Age:</span>
+                <span className="text-slate-400 font-bold text-[11px] mr-1">Filter By Age:</span>
                 <SlideTabs
                   options={[
                     { id: 'all', label: `All (${pendingEntries.length})` },
@@ -1390,10 +1368,7 @@ export default function MyWorkPage() {
                           {/* Client Header */}
                           <div className="px-5 py-3 bg-slate-950/80 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div className="flex items-center space-x-2.5">
-                              <div className="w-7 h-7 rounded-lg bg-amber-950/80 text-amber-400 flex items-center justify-center border border-amber-800/60">
-                                <Building2 className="w-4 h-4" />
-                              </div>
-                              <h3 className="text-xs font-extrabold text-slate-100 uppercase tracking-wider">
+                              <h3 className="text-xs font-semibold text-slate-100">
                                 {clientName}
                               </h3>
                               <span className="text-[11px] font-bold text-amber-300 bg-amber-950/70 border border-amber-800/60 px-2 py-0.5 rounded-full">
@@ -1429,7 +1404,7 @@ export default function MyWorkPage() {
                                       </span>
 
                                       {/* Relative Urgency Age Badge */}
-                                      <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${urgency.badgeBg} ${urgency.badgeText} ${urgency.badgeBorder}`}>
+                                      <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${urgency.badgeBg} ${urgency.badgeText} ${urgency.badgeBorder}`}>
                                         <span className={`w-1.5 h-1.5 rounded-full ${urgency.dotColor}`} />
                                         <span>{urgency.label}</span>
                                       </span>
@@ -1478,10 +1453,10 @@ export default function MyWorkPage() {
                                     return (
                                       <div className="flex items-center space-x-3 shrink-0 justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-800">
                                         <div className="text-right text-xs">
-                                          <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                                          <div className="text-slate-500 text-[11px] font-bold">
                                             Done / Approved
                                           </div>
-                                          <div className="text-sm font-extrabold text-slate-100">
+                                          <div className="text-sm font-semibold text-slate-100">
                                             {entry.quantity_done} <span className="text-slate-600 font-normal">/</span>{' '}
                                             <span className="text-violet-400">{entry.quantity_approved}</span>
                                           </div>

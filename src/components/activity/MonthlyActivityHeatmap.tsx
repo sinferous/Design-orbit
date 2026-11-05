@@ -41,7 +41,7 @@ export function getIntensityClass(intensity: 0 | 1 | 2 | 3 | 4): string {
     case 3:
       return 'bg-violet-600 hover:bg-violet-500 border-violet-500 text-white font-bold shadow-xs';
     case 4:
-      return 'bg-violet-500 hover:bg-violet-400 border-violet-400 text-slate-950 font-extrabold shadow-sm';
+      return 'bg-violet-500 hover:bg-violet-400 border-violet-400 text-slate-950 font-semibold shadow-sm';
     case 0:
     default:
       return 'bg-slate-800/70 hover:bg-slate-750 border-slate-700/60 text-slate-500';
@@ -105,9 +105,7 @@ export function MonthlyActivityHeatmap({
           </div>
         ) : (
           <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-xl bg-violet-950/70 text-violet-400 border border-violet-800/60 shadow-xs">
-              <Calendar className="w-4 h-4" />
-            </div>
+            <Calendar className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
             <div>
               <h3 className="text-base font-bold text-slate-100 leading-tight">
                 Monthly Activity Heatmap
@@ -150,11 +148,11 @@ export function MonthlyActivityHeatmap({
       {/* Monthly Output & Consistency Summary KPI Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
         <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
+          <div className="text-[11px] font-bold text-slate-400 truncate">
             Active Output Days
           </div>
           <div className="flex items-baseline space-x-1 mt-0.5">
-            <span className="text-xl sm:text-2xl font-extrabold text-slate-100">
+            <span className="text-xl sm:text-2xl font-semibold text-slate-100">
               {activity.activeDaysCount}
             </span>
             <span className="text-xs text-slate-400">/ {activity.daysInMonth} d</span>
@@ -165,10 +163,10 @@ export function MonthlyActivityHeatmap({
         </div>
 
         <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
+          <div className="text-[11px] font-bold text-slate-400 truncate">
             Tasks Logged
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-slate-100 mt-0.5">
+          <div className="text-xl sm:text-2xl font-semibold text-slate-100 mt-0.5">
             {activity.totalTasks}
           </div>
           <span className="text-[11px] text-slate-400 font-medium">
@@ -177,10 +175,10 @@ export function MonthlyActivityHeatmap({
         </div>
 
         <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
+          <div className="text-[11px] font-bold text-slate-400 truncate">
             Deliverables Approved
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-violet-400 mt-0.5">
+          <div className="text-xl sm:text-2xl font-semibold text-violet-400 mt-0.5">
             {activity.totalQuantityApproved}
           </div>
           <span className="text-[11px] text-violet-300 font-semibold">
@@ -191,10 +189,10 @@ export function MonthlyActivityHeatmap({
         </div>
 
         <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
+          <div className="text-[11px] font-bold text-slate-400 truncate">
             Deliverable Time
           </div>
-          <div className="text-lg sm:text-xl font-extrabold text-amber-400 font-mono mt-0.5 truncate">
+          <div className="text-lg sm:text-xl font-semibold text-amber-400 font-display tabular-nums mt-0.5 truncate">
             {formatWorkEntryDuration(activity.totalSeconds)}
           </div>
           <span className="text-[11px] text-slate-400 font-medium truncate">
@@ -206,7 +204,7 @@ export function MonthlyActivityHeatmap({
       {/* GitHub-Style 7-Column Calendar Heatmap */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+          <span className="text-xs font-bold text-slate-300">
             Daily Output Matrix — {activity.monthName}
           </span>
           <span className="text-[11px] text-slate-400">
@@ -215,7 +213,7 @@ export function MonthlyActivityHeatmap({
         </div>
 
         {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-1.5 sm:gap-2 text-center text-[10px] sm:text-xs font-extrabold text-slate-500 uppercase tracking-wider">
+        <div className="grid grid-cols-7 gap-1.5 sm:gap-2 text-center text-[11px] sm:text-xs font-semibold text-slate-500">
           <span>Mon</span>
           <span>Tue</span>
           <span>Wed</span>
@@ -261,7 +259,7 @@ export function MonthlyActivityHeatmap({
                 </span>
 
                 {(day.quantityDone > 0 || day.tasksCount > 0) && (
-                  <span className="text-[10px] sm:text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-black/40 text-white">
+                  <span className="text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-black/40 text-white">
                     {day.quantityDone}
                   </span>
                 )}
@@ -300,7 +298,7 @@ export function MonthlyActivityHeatmap({
               <h4 className="text-xs sm:text-sm font-bold text-slate-100">
                 Deliverables Logged on {selectedDay.dateStr}
               </h4>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-violet-950 text-violet-300 border border-violet-800">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-950 text-violet-300 border border-violet-800">
                 {selectedDay.quantityDone} work{selectedDay.quantityDone === 1 ? '' : 's'} ({selectedDay.tasksCount} {selectedDay.tasksCount === 1 ? 'task' : 'tasks'})
               </span>
             </div>
@@ -349,7 +347,7 @@ export function MonthlyActivityHeatmap({
                       <div className="font-bold text-violet-400">
                         {entry.quantity_approved} app.
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                      <div className="text-[10px] text-slate-400 font-display tabular-nums">
                         {formatWorkEntryDuration(entry.time_spent_seconds || 0)}
                       </div>
                     </div>
