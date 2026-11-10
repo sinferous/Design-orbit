@@ -129,11 +129,53 @@ function isSupabaseConfigured(): boolean {
   return Boolean(url && !url.includes('your-supabase-project'));
 }
 
+// Reads the session cookie written by setLoggedInUser (the same one the middleware trusts).
+function readAuthCookie(): { name?: string; email?: string; profileId?: string } | null {
+  try {
+    const raw = document.cookie
+      .split('; ')
+      .find(c => c.startsWith('design_orbit_auth='))
+      ?.slice('design_orbit_auth='.length);
+    return raw ? JSON.parse(decodeURIComponent(raw)) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeGet(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
 export function getLoggedInUser(): { name: string; email: string; profileId?: string } | null {
   if (typeof window !== 'undefined') {
-    const storedName = localStorage.getItem('design_orbit_logged_in_name');
-    const storedEmail = localStorage.getItem('design_orbit_logged_in_email');
-    const storedProfileId = localStorage.getItem('design_orbit_logged_in_profile_id') || undefined;
+    let storedName = safeGet('design_orbit_logged_in_name');
+    let storedEmail = safeGet('design_orbit_logged_in_email');
+    let storedProfileId = safeGet('design_orbit_logged_in_profile_id') || undefined;
+
+    // localStorage can be wiped (browser cleanup, privacy settings, Safari) while the
+    // 30-day auth cookie survives. The middleware then treats the user as logged in but
+    // the app had no name, showing "Team Member" and team-wide numbers as "yours".
+    // Restore the session from the cookie instead.
+    if (!storedName) {
+      const fromCookie = readAuthCookie();
+      if (fromCookie?.name) {
+        storedName = fromCookie.name;
+        storedEmail = fromCookie.email || storedEmail;
+        storedProfileId = fromCookie.profileId || storedProfileId;
+        try {
+          localStorage.setItem('design_orbit_logged_in_name', storedName);
+          if (storedEmail) localStorage.setItem('design_orbit_logged_in_email', storedEmail);
+          if (storedProfileId) localStorage.setItem('design_orbit_logged_in_profile_id', storedProfileId);
+        } catch {
+          // storage blocked: still return the cookie session
+        }
+      }
+    }
+
     if (storedName) {
       // Ensure cookie is synchronized with localStorage for Next.js middleware protection
       if (!document.cookie.includes('design_orbit_auth=')) {
