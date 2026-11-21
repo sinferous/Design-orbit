@@ -39,7 +39,7 @@ export function getIntensityClass(intensity: 0 | 1 | 2 | 3 | 4): string {
     case 2:
       return 'bg-violet-900/80 hover:bg-violet-800/80 border-violet-700/80 text-violet-100 font-semibold';
     case 3:
-      return 'bg-violet-600 hover:bg-violet-500 border-violet-500 text-white font-bold shadow-xs';
+      return 'bg-violet-600 hover:bg-violet-500 border-violet-500 text-white font-semibold shadow-xs';
     case 4:
       return 'bg-violet-500 hover:bg-violet-400 border-violet-400 text-slate-950 font-semibold shadow-sm';
     case 0:
@@ -86,12 +86,12 @@ export function MonthlyActivityHeatmap({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
         {showProfileHeader ? (
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-bold flex items-center justify-center text-base shadow-sm shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-semibold flex items-center justify-center text-base shadow-sm shrink-0">
               {activity.profile.name.charAt(0).toUpperCase()}
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-base sm:text-lg font-bold text-slate-100 leading-tight">
+                <h3 className="text-base sm:text-lg font-semibold text-slate-100 leading-tight">
                   {activity.profile.name}
                 </h3>
                 <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
@@ -107,7 +107,7 @@ export function MonthlyActivityHeatmap({
           <div className="flex items-center space-x-2.5">
             <Calendar className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
             <div>
-              <h3 className="text-base font-bold text-slate-100 leading-tight">
+              <h3 className="text-base font-semibold text-slate-100 leading-tight">
                 Monthly Activity Heatmap
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -129,7 +129,7 @@ export function MonthlyActivityHeatmap({
             <ChevronLeft className="w-4 h-4" />
           </button>
 
-          <span className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs font-bold text-slate-200 min-w-[125px] text-center">
+          <span className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs font-semibold text-slate-200 min-w-[125px] text-center">
             {activity.monthName} {activity.year}
           </span>
 
@@ -148,7 +148,7 @@ export function MonthlyActivityHeatmap({
       {/* Monthly Output & Consistency Summary KPI Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
         <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[11px] font-bold text-slate-400 truncate">
+          <div className="text-[11px] font-semibold text-slate-400 truncate">
             Active Output Days
           </div>
           <div className="flex items-baseline space-x-1 mt-0.5">
@@ -163,7 +163,7 @@ export function MonthlyActivityHeatmap({
         </div>
 
         <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[11px] font-bold text-slate-400 truncate">
+          <div className="text-[11px] font-semibold text-slate-400 truncate">
             Tasks Logged
           </div>
           <div className="text-xl sm:text-2xl font-semibold text-slate-100 mt-0.5">
@@ -175,7 +175,7 @@ export function MonthlyActivityHeatmap({
         </div>
 
         <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[11px] font-bold text-slate-400 truncate">
+          <div className="text-[11px] font-semibold text-slate-400 truncate">
             Deliverables Approved
           </div>
           <div className="text-xl sm:text-2xl font-semibold text-violet-400 mt-0.5">
@@ -189,7 +189,7 @@ export function MonthlyActivityHeatmap({
         </div>
 
         <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[11px] font-bold text-slate-400 truncate">
+          <div className="text-[11px] font-semibold text-slate-400 truncate">
             Deliverable Time
           </div>
           <div className="text-lg sm:text-xl font-semibold text-amber-400 font-display tabular-nums mt-0.5 truncate">
@@ -204,7 +204,7 @@ export function MonthlyActivityHeatmap({
       {/* GitHub-Style 7-Column Calendar Heatmap */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-300">
+          <span className="text-xs font-semibold text-slate-300">
             Daily Output Matrix — {activity.monthName}
           </span>
           <span className="text-[11px] text-slate-400">
@@ -243,7 +243,7 @@ export function MonthlyActivityHeatmap({
                 key={day.dateStr}
                 type="button"
                 onClick={() => setSelectedDay(day)}
-                className={`h-10 sm:h-12 px-2 py-1.5 rounded-lg border transition-all flex items-center justify-between cursor-pointer relative group ${
+                className={`h-10 sm:h-12 px-2 py-1.5 rounded-lg border transition flex items-center justify-between cursor-pointer relative group ${
                   getIntensityClass(day.intensity)
                 } ${
                   isSelected
@@ -254,7 +254,7 @@ export function MonthlyActivityHeatmap({
                 }`}
                 title={`${day.dateStr}: ${day.quantityDone} work(s) done (${day.tasksCount} task entries)`}
               >
-                <span className="text-xs sm:text-sm font-bold">
+                <span className="text-xs sm:text-sm font-semibold">
                   {day.dayNumber}
                 </span>
 
@@ -295,7 +295,7 @@ export function MonthlyActivityHeatmap({
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <div className="flex items-center space-x-2">
               <Calendar className="w-4 h-4 text-violet-400" />
-              <h4 className="text-xs sm:text-sm font-bold text-slate-100">
+              <h4 className="text-xs sm:text-sm font-semibold text-slate-100">
                 Deliverables Logged on {selectedDay.dateStr}
               </h4>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-950 text-violet-300 border border-violet-800">
@@ -325,7 +325,7 @@ export function MonthlyActivityHeatmap({
                 >
                   <div className="min-w-0 space-y-0.5">
                     <div className="flex items-center space-x-2 flex-wrap">
-                      <span className="font-bold text-slate-100 truncate">
+                      <span className="font-semibold text-slate-100 truncate">
                         {entry.client?.name || 'Client'}
                       </span>
                       <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
@@ -344,7 +344,7 @@ export function MonthlyActivityHeatmap({
 
                   <div className="flex items-center space-x-3 shrink-0 text-right">
                     <div>
-                      <div className="font-bold text-violet-400">
+                      <div className="font-semibold text-violet-400">
                         {entry.quantity_approved} app.
                       </div>
                       <div className="text-[10px] text-slate-400 font-display tabular-nums">
@@ -377,7 +377,7 @@ export function MiniActivityHeatStrip({
       {daysList.map((day) => (
         <div
           key={day.dateStr}
-          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-xs border shrink-0 transition-transform hover:scale-125 ${getIntensityClass(
+          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-xs border shrink-0 transition-transform ${getIntensityClass(
             day.intensity
           )}`}
           title={`${day.dateStr}: ${day.tasksCount} task(s), ${day.quantityDone} created`}

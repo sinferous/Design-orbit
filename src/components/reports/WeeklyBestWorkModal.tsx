@@ -98,7 +98,7 @@ export function WeeklyBestWorkModal({
                 placeholder="https://figma.com/file/... or https://behance.net/..."
                 value={url}
                 onChange={e => setUrl(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-all placeholder:text-slate-500"
+                className="w-full pl-9 pr-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition placeholder:text-slate-500"
               />
             </div>
             <p className="text-[11px] text-slate-500 italic">
@@ -110,7 +110,7 @@ export function WeeklyBestWorkModal({
             <div className="p-3 rounded-xl bg-violet-950/60 border border-violet-800/60 flex items-center justify-between">
               <div className="flex items-center space-x-2 truncate mr-2">
                 <ExternalLink className="w-4 h-4 text-violet-400 shrink-0" />
-                <span className="text-xs font-bold text-violet-300 truncate">{currentUrl}</span>
+                <span className="text-xs font-semibold text-violet-300 truncate">{currentUrl}</span>
               </div>
               <a
                 href={currentUrl}
@@ -131,7 +131,7 @@ export function WeeklyBestWorkModal({
                   type="button"
                   onClick={handleDelete}
                   disabled={deleting || saving}
-                  className="px-3.5 py-2 text-xs font-bold text-red-400 hover:text-red-300 bg-red-950/50 hover:bg-red-900/50 border border-red-800/60 rounded-xl transition-colors disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer"
+                  className="px-3.5 py-2 text-xs font-semibold text-red-400 hover:text-red-300 bg-red-950/50 hover:bg-red-900/50 border border-red-800/60 rounded-xl transition-colors disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>{deleting ? 'Removing...' : 'Remove Link'}</span>
@@ -140,7 +140,7 @@ export function WeeklyBestWorkModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -152,7 +152,7 @@ export function WeeklyBestWorkModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -160,7 +160,7 @@ export function WeeklyBestWorkModal({
               <button
                 type="submit"
                 disabled={saving || deleting || !url.trim()}
-                className="px-5 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-xl shadow-xs transition-transform active:scale-95 disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
+                className="px-5 py-2 text-xs font-semibold text-white webtree-gradient-btn rounded-xl shadow-xs transition-transform active:scale-95 disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
               >
                 <Save className="w-4 h-4" />
                 <span>{saving ? 'Saving...' : currentUrl ? 'Update Link' : 'Save Best Work'}</span>

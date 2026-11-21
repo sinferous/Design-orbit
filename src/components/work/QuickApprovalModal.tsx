@@ -117,14 +117,14 @@ export function QuickApprovalModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
       <div 
-        className="relative w-full max-w-md bg-slate-900 rounded-2xl shadow-2xl shadow-black/80 border border-slate-700 overflow-hidden transform transition-all"
+        className="relative w-full max-w-md bg-slate-900 rounded-2xl shadow-2xl shadow-black/80 border border-slate-700 overflow-hidden transform transition"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 text-white flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div>
-              <h3 className="text-sm font-bold tracking-tight text-white">Update Approval</h3>
+              <h3 className="text-sm font-semibold tracking-tight text-white">Update Approval</h3>
               <p className="text-[11px] text-slate-400">Set approved deliverables count</p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export function QuickApprovalModal({
           {/* Deliverable info card */}
           <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center space-x-1.5 font-bold text-slate-200">
+              <span className="flex items-center space-x-1.5 font-semibold text-slate-200">
                 <Building2 className="w-3.5 h-3.5 text-violet-400" />
                 <span>{entry.client?.name || 'Client Work'}</span>
               </span>
@@ -166,7 +166,7 @@ export function QuickApprovalModal({
                 type="button"
                 onClick={handleDecrement}
                 disabled={approvedQty <= 0}
-                className="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xl flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95 border border-slate-700"
+                className="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xl flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95 border border-slate-700"
                 title="Decrease approved count"
               >
                 -
@@ -176,7 +176,7 @@ export function QuickApprovalModal({
                 <span className="text-3xl font-semibold text-white tracking-tight">
                   {approvedQty}
                 </span>
-                <span className="text-sm font-bold text-slate-500 ml-1.5">
+                <span className="text-sm font-semibold text-slate-500 ml-1.5">
                   / {maxQty}
                 </span>
               </div>
@@ -185,7 +185,7 @@ export function QuickApprovalModal({
                 type="button"
                 onClick={handleIncrement}
                 disabled={approvedQty >= maxQty}
-                className="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xl flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95 border border-slate-700"
+                className="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xl flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95 border border-slate-700"
                 title="Increase approved count"
               >
                 +
@@ -195,19 +195,19 @@ export function QuickApprovalModal({
             {/* Status helper feedback */}
             <div className="pt-1">
               {isFullyApproved && (
-                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60">
+                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60">
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
                   <span>✓ 100% Fully Approved ({approvedQty} of {maxQty})</span>
                 </span>
               )}
               {isPartiallyApproved && (
-                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-violet-950/70 text-violet-300 border border-violet-800/60">
+                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-violet-950/70 text-violet-300 border border-violet-800/60">
                   <Layers className="w-3.5 h-3.5 text-violet-400" />
                   <span>Partially Approved ({approvedQty} of {maxQty})</span>
                 </span>
               )}
               {isNotApproved && (
-                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60">
+                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/70 text-amber-300 border border-amber-800/60">
                   <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
                   <span>0 Approved &bull; Not Approved</span>
                 </span>
@@ -222,7 +222,7 @@ export function QuickApprovalModal({
               <button
                 type="button"
                 onClick={handleApproveAll}
-                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all border flex items-center justify-center space-x-1.5 cursor-pointer ${
+                className={`py-2 px-3 rounded-lg text-xs font-semibold transition border flex items-center justify-center space-x-1.5 cursor-pointer ${
                   isFullyApproved
                     ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
                     : 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/50'
@@ -235,7 +235,7 @@ export function QuickApprovalModal({
               <button
                 type="button"
                 onClick={handleResetZero}
-                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all border flex items-center justify-center space-x-1.5 cursor-pointer ${
+                className={`py-2 px-3 rounded-lg text-xs font-semibold transition border flex items-center justify-center space-x-1.5 cursor-pointer ${
                   isNotApproved
                     ? 'bg-amber-600 text-white border-amber-500 shadow-sm'
                     : 'bg-amber-950/40 text-amber-300 border-amber-800/60 hover:bg-amber-900/50'
@@ -254,7 +254,7 @@ export function QuickApprovalModal({
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="px-4 py-2 text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -263,7 +263,7 @@ export function QuickApprovalModal({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="px-5 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-lg shadow-sm hover:opacity-95 transition-all disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
+            className="px-5 py-2 text-xs font-semibold text-white webtree-gradient-btn rounded-lg shadow-sm hover:opacity-95 transition disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
           >
             <Check className="w-3.5 h-3.5" />
             <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>

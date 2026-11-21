@@ -114,7 +114,7 @@ export default function TeamPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm">
           <div>
-            <h1 className="text-2xl font-bold text-slate-100">
+            <h1 className="text-2xl font-semibold text-slate-100">
               Creative Team Directory
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
@@ -124,7 +124,7 @@ export default function TeamPage() {
 
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="inline-flex items-center space-x-2 px-4 py-2.5 text-sm font-bold text-white webtree-gradient-btn rounded-xl shadow-sm cursor-pointer"
+            className="inline-flex items-center space-x-2 px-4 py-2.5 text-sm font-semibold text-white webtree-gradient-btn rounded-xl shadow-sm cursor-pointer"
           >
             {showAddForm ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
             <span>{showAddForm ? 'Close Form' : 'Add Team Member'}</span>
@@ -135,7 +135,7 @@ export default function TeamPage() {
         {showAddForm && (
           <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-base font-bold text-slate-100 flex items-center space-x-2">
+              <h2 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
                 <UserPlus className="w-5 h-5 text-violet-400" />
                 <span>New Creative Team Profile</span>
               </h2>
@@ -144,7 +144,7 @@ export default function TeamPage() {
             <form onSubmit={handleAddMember} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Full Name *
                   </label>
                   <input
@@ -158,7 +158,7 @@ export default function TeamPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Work Email *
                   </label>
                   <input
@@ -172,7 +172,7 @@ export default function TeamPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Designation
                   </label>
                   <RichSelect
@@ -193,7 +193,7 @@ export default function TeamPage() {
 
               {designation === 'Other' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Specify Custom Designation
                   </label>
                   <input
@@ -211,14 +211,14 @@ export default function TeamPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddForm(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={adding}
-                  className="inline-flex items-center space-x-2 px-5 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center space-x-2 px-5 py-2 text-xs font-semibold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>{adding ? 'Creating...' : 'Save Profile'}</span>
@@ -245,7 +245,7 @@ export default function TeamPage() {
               return (
                 <div
                   key={profile.id}
-                  className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col justify-between space-y-4 hover:border-slate-700 transition-all group"
+                  className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col justify-between space-y-4 hover:border-slate-700 transition group"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
@@ -256,7 +256,7 @@ export default function TeamPage() {
                         <h3 className="text-base font-semibold text-slate-100 group-hover:text-violet-400 transition-colors">
                           {profile.name}
                         </h3>
-                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700 mt-0.5">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700 mt-0.5">
                           {profile.designation || 'Graphic Designer'}
                         </span>
                       </div>
@@ -276,7 +276,7 @@ export default function TeamPage() {
                   {designerActivity && (
                     <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-[11px] font-bold text-slate-300">
+                        <span className="text-[11px] font-semibold text-slate-300">
                           {teamActivity?.monthName} Activity
                         </span>
                         <span className="text-[11px] font-semibold text-violet-300 bg-violet-950/70 px-2 py-0.5 rounded-full border border-violet-800/60">
@@ -293,7 +293,7 @@ export default function TeamPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedModalUserId(profile.id)}
-                          className="text-violet-400 hover:text-violet-300 font-bold inline-flex items-center space-x-1 cursor-pointer"
+                          className="text-violet-400 hover:text-violet-300 font-semibold inline-flex items-center space-x-1 cursor-pointer"
                         >
                           <span>Calendar Heatmap</span>
                           <span>→</span>

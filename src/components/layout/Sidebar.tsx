@@ -76,19 +76,19 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       badge: null,
     },
     {
-      label: isAdmin ? 'Team Log' : 'My Daily Log',
+      label: isAdmin ? 'Team log' : 'My log',
       href: '/work',
       icon: Calendar,
       badge: null,
     },
     {
-      label: 'Clients Directory',
+      label: 'Clients',
       href: '/clients',
       icon: Building2,
       badge: null,
     },
     {
-      label: 'Reports & Analytics',
+      label: 'Reports',
       href: '/reports/weekly',
       matchPrefix: '/reports',
       icon: BarChart3,
@@ -286,9 +286,9 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             onClick={onCloseMobile}
             className="flex items-center space-x-2.5 group py-1"
           >
-            <BrandMark size={30} className="shrink-0 transition-transform duration-500 group-hover:rotate-[-18deg]" />
+            <BrandMark size={30} className="shrink-0" />
             <div className="flex flex-col">
-              <span className="font-display font-bold text-slate-50 text-[17px] leading-tight">Design Orbit</span>
+              <span className="font-display font-semibold text-slate-50 text-[17px] leading-tight">Design Orbit</span>
               <span className="text-[11px] text-slate-500 font-medium">Webtree creative team</span>
             </div>
           </Link>
@@ -304,7 +304,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
               className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-sm webtree-gradient-btn rounded-full btn-tactile"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Add Daily Work</span>
+              <span>Log work</span>
             </Link>
           </div>
         )}
@@ -317,7 +317,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             <div
               className={cn(
                 'absolute top-0 left-0 right-0 pointer-events-none rounded-lg bg-white/[0.07] z-0',
-                indicator.animate ? 'transition-all duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
+                indicator.animate ? 'transition duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
               )}
               style={{
                 transform: `translate3d(0, ${indicator.top}px, 0)`,
@@ -361,7 +361,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
 
                     <div className="flex items-center space-x-1.5 shrink-0">
                       {item.badge && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-950/80 text-blue-300 border border-blue-800/40">
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-blue-950/80 text-blue-300 border border-blue-800/40">
                           {item.badge}
                         </span>
                       )}
@@ -396,7 +396,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                           <div
                             className={cn(
                               'absolute top-0 left-0 right-0 pointer-events-none rounded-md bg-white/[0.05] z-0',
-                              subIndicator.animate ? 'transition-all duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
+                              subIndicator.animate ? 'transition duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : 'transition-none'
                             )}
                             style={{
                               transform: `translate3d(0, ${subIndicator.top}px, 0)`,
@@ -470,7 +470,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                     <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> Admin
                   </span>
                 ) : (
-                  <span>Settings & Profile</span>
+                  <span>Settings</span>
                 )}
               </div>
             </div>

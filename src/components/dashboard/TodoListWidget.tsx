@@ -15,9 +15,7 @@ import {
   Plus,
   Trash2,
   Check,
-  Sparkles,
   GripVertical,
-  ShieldCheck,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
@@ -87,7 +85,7 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
       const created = await createTodo(trimmed, userId);
       setTodos(prev => sortTodosWithCompletedAtBottom([created, ...prev]));
       setNewTaskText('');
-      showToast('Task added to your private list!', 'success');
+      showToast('Task added', 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to add task', 'error');
     } finally {
@@ -179,33 +177,24 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
   });
 
   return (
-    <div className={`bento-card bento-card-hover p-4 sm:p-5 flex flex-col h-full min-h-0 text-slate-100 overflow-hidden ${className || ''}`}>
+    <div className={`bento-card p-4 sm:p-5 flex flex-col h-full min-h-0 text-slate-100 overflow-hidden ${className || ''}`}>
       {/* Header Row: Title, Privacy Indicator & Badge */}
       <div className="space-y-2.5 pb-2.5 border-b border-white/[0.08] shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5 min-w-0">
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
-                <h2 className="text-xs sm:text-sm font-bold text-slate-100 leading-tight truncate">My To-Do List</h2>
-                <span title="Private to your account" className="inline-flex items-center text-slate-400 hover:text-violet-400">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                </span>
+                <h2 className="text-sm font-medium text-slate-100 leading-tight truncate">To-do</h2>
               </div>
-              <p className="text-[10px] text-slate-400 truncate">Private tasks • Completed go to bottom</p>
+              <p className="text-xs text-slate-500 truncate">Only you can see these</p>
             </div>
           </div>
 
           <div className="flex items-center space-x-1.5 shrink-0 ml-2">
-            {pendingCount > 0 ? (
-              <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 rounded-full whitespace-nowrap">
-                {pendingCount} Pending
-              </span>
-            ) : (
-              <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60 rounded-full flex items-center space-x-1 whitespace-nowrap">
-                <Sparkles className="w-3 h-3 text-emerald-400" />
-                <span>All Done!</span>
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 tabular-nums whitespace-nowrap">
+              <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full ${pendingCount > 0 ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+              {pendingCount > 0 ? `${pendingCount} open` : 'All done'}
+            </span>
           </div>
         </div>
 
@@ -227,14 +216,14 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
       {/* Progress Bar */}
       {todos.length > 0 && (
         <div className="space-y-1 px-0.5 shrink-0 pt-1">
-          <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium">
-            <span>{completedCount} of {todos.length} completed</span>
-            <span className="font-semibold text-blue-400">{progressPercent}%</span>
+          <div className="flex items-center justify-between text-xs text-slate-500 tabular-nums">
+            <span>{completedCount} of {todos.length} done</span>
+            <span>{progressPercent}%</span>
           </div>
-          <div className="w-full h-1.5 bg-[#0c0c0b] rounded-full overflow-hidden border border-white/[0.06]">
+          <div className="w-full h-1 bg-white/[0.06] rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 transition-all duration-300 rounded-full"
-              style={{ width: `${progressPercent}%` }}
+              className="h-full w-full origin-left bg-blue-500 transition-transform duration-300 ease-out"
+              style={{ transform: `scaleX(${progressPercent / 100})` }}
             />
           </div>
         </div>
@@ -246,13 +235,13 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
           type="text"
           value={newTaskText}
           onChange={e => setNewTaskText(e.target.value)}
-          placeholder="Add a private task... (Press Enter)"
-          className="w-full pl-3 pr-16 py-1.5 bg-[#0c0c0b] border border-white/[0.1] rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all font-medium shadow-xs"
+          placeholder="Add a task"
+          className="w-full pl-3 pr-16 py-1.5 bg-[#0c0c0b] border border-white/[0.1] rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition font-medium shadow-xs"
         />
         <button
           type="submit"
           disabled={adding || !newTaskText.trim()}
-          className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold text-white webtree-gradient-btn rounded-md shadow-xs disabled:opacity-40 transition-all cursor-pointer"
+          className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold text-white webtree-gradient-btn rounded-md shadow-xs disabled:opacity-40 transition cursor-pointer"
         >
           <Plus className="w-3 h-3" />
           <span>Add</span>
@@ -300,7 +289,7 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
                   e.preventDefault();
                   handleDrop(todo.id);
                 }}
-                className={`group p-2.5 sm:p-3 rounded-lg border transition-all flex items-center justify-between gap-2.5 cursor-move select-none ${
+                className={`group p-2.5 sm:p-3 rounded-lg border transition flex items-center justify-between gap-2.5 cursor-move select-none ${
                   isBeingDragged
                     ? 'opacity-40 border-dashed border-blue-500 bg-blue-950/40 scale-[0.98]'
                     : isTargeted
@@ -322,7 +311,7 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
                   <button
                     type="button"
                     onClick={() => handleToggleTodo(todo.id, todo.is_completed)}
-                    className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                    className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition shrink-0 cursor-pointer ${
                       todo.is_completed
                         ? 'bg-emerald-500 border-emerald-500 text-slate-950 shadow-xs'
                         : 'border-slate-600 bg-slate-900 group-hover:border-blue-400'
@@ -351,7 +340,7 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
                     handleDeleteTodo(todo.id);
                   }}
                   disabled={deletingId === todo.id}
-                  className="p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition-all opacity-70 group-hover:opacity-100 shrink-0 cursor-pointer"
+                  className="p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition opacity-70 group-hover:opacity-100 shrink-0 cursor-pointer"
                   title="Delete task"
                 >
                   <Trash2 className="w-3.5 h-3.5" />

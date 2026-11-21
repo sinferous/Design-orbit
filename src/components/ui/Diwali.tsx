@@ -2,7 +2,7 @@
  * Diwali touches: a clay diya, a marigold toran and a dot rangoli.
  * Set FESTIVE to false after the season and every touch disappears.
  */
-export const FESTIVE = true;
+export const FESTIVE = false;
 
 const MARIGOLD = '#f2a93b';
 const SAFFRON = '#e8792b';

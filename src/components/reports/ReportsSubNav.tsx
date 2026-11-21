@@ -89,7 +89,7 @@ export function ReportsSubNav({ children }: ReportsSubNavProps) {
         <div ref={containerRef} className="flex space-x-4 sm:space-x-6 min-w-max relative py-1">
           {/* Animated Gliding Underline (a bit slow, buttery smooth transition) */}
           <div
-            className="absolute left-0 bottom-0 h-[2.5px] rounded-full bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 shadow-[0_0_12px_rgba(85,203,152,0.85)] pointer-events-none transition-all duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)] z-20"
+            className="absolute left-0 bottom-0 h-[2.5px] rounded-full bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 shadow-[0_0_12px_rgba(85,203,152,0.85)] pointer-events-none transition duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)] z-20"
             style={{
               transform: `translate3d(${lineStyle.left}px, 0, 0)`,
               width: `${lineStyle.width}px`,
@@ -111,7 +111,7 @@ export function ReportsSubNav({ children }: ReportsSubNavProps) {
                 className={cn(
                   'py-3 text-xs sm:text-sm whitespace-nowrap transition-colors duration-[480ms] cursor-pointer relative z-10',
                   isActive
-                    ? 'font-bold text-violet-300'
+                    ? 'font-semibold text-violet-300'
                     : 'font-medium text-slate-400 hover:text-slate-200'
                 )}
               >

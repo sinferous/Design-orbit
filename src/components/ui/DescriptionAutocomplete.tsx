@@ -199,7 +199,7 @@ export function DescriptionAutocomplete({
       <span>
         {parts.map((part, i) =>
           regex.test(part) ? (
-            <span key={i} className="text-violet-300 font-bold bg-violet-950/70 px-0.5 rounded">
+            <span key={i} className="text-violet-300 font-semibold bg-violet-950/70 px-0.5 rounded">
               {part}
             </span>
           ) : (
@@ -310,7 +310,7 @@ export function DescriptionAutocomplete({
 
                     <div className="flex items-center space-x-1.5 shrink-0 ml-2">
                       {item.timeSeconds !== undefined && item.timeSeconds > 0 && (
-                        <span className="text-[10px] font-display tabular-nums font-bold px-1.5 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
+                        <span className="text-[10px] font-display tabular-nums font-semibold px-1.5 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
                           ⏱ {formatTimeShort(item.timeSeconds)}
                         </span>
                       )}

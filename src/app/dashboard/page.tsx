@@ -80,8 +80,6 @@ export default function DashboardPage() {
   const { showToast } = useToast();
   const router = useRouter();
 
-  const [greeting, setGreeting] = useState('Good day');
-  const [subtitle, setSubtitle] = useState('Here is your personal creative velocity and activity overview.');
 
   const velocityCardRef = useRef<HTMLDivElement>(null);
   const [velocityHeight, setVelocityHeight] = useState<number | null>(null);
@@ -127,21 +125,6 @@ export default function DashboardPage() {
     }
     if (user?.profileId) {
       setCurrentProfileId(user.profileId);
-    }
-
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) {
-      setGreeting('Good morning');
-      setSubtitle("Ready to design something exceptional today?");
-    } else if (hour >= 12 && hour < 17) {
-      setGreeting('Good afternoon');
-      setSubtitle("Maintaining peak velocity and creative flow.");
-    } else if (hour >= 17 && hour < 22) {
-      setGreeting('Good evening');
-      setSubtitle("Wrapping up deliverables and reviewing milestones.");
-    } else {
-      setGreeting('Good night');
-      setSubtitle("Rest well to recharge creative focus for tomorrow.");
     }
 
     async function loadDashboardData() {
@@ -406,8 +389,8 @@ export default function DashboardPage() {
 
   const myTurnaroundRate = useMemo(() => {
     return myWeekTotalCreated > 0
-      ? `${myWeekApprovalRate}% On Schedule`
-      : '100% On Schedule';
+      ? `${myWeekApprovalRate}% approved`
+      : 'Nothing logged yet';
   }, [myWeekTotalCreated, myWeekApprovalRate]);
 
   // ==========================================
@@ -447,10 +430,19 @@ export default function DashboardPage() {
     });
   }, [realWeekDates, myEntries, myTodayDone]);
 
+  // Approved count per day, for the green share of each bar
+  const realDailyApproved = useMemo(() => {
+    return realWeekDates.map(wd =>
+      myEntries
+        .filter(e => e.work_date === wd.dateStr)
+        .reduce((acc, curr) => acc + curr.quantity_approved, 0)
+    );
+  }, [realWeekDates, myEntries]);
+
   // Peak output day from real data
   const peakDayMeta = useMemo(() => {
     if (realDailyCounts.length === 0 || myWeekTotalCreated === 0) {
-      return { label: 'Active', count: 0, text: 'No work logged yet' };
+      return { label: 'Active', count: 0, text: 'Nothing logged yet' };
     }
     let max = -1;
     let maxIdx = 0;
@@ -460,12 +452,12 @@ export default function DashboardPage() {
         maxIdx = idx;
       }
     });
-    if (max <= 0) return { label: 'Active', count: 0, text: '0 Deliverables' };
+    if (max <= 0) return { label: 'Active', count: 0, text: 'Nothing logged yet' };
     const dayLabel = realWeekDates[maxIdx]?.label || 'Day';
     return {
       label: dayLabel,
       count: max,
-      text: `${dayLabel} • ${max} Deliverables`,
+      text: `${dayLabel} · ${max} ${max === 1 ? 'deliverable' : 'deliverables'}`,
     };
   }, [realDailyCounts, myWeekTotalCreated, realWeekDates]);
 
@@ -474,11 +466,13 @@ export default function DashboardPage() {
     if (period === 'monthly') {
       const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
       const values = [0, 0, 0, myWeekTotalCreated];
+      const approved = [0, 0, 0, myWeekTotalApproved];
       return {
         labels,
         values,
+        approved,
         currentIdx: 3,
-        displayTitle: 'My Monthly Throughput',
+        displayTitle: 'Deliverables this month',
         subtitle: 'Personal outputs completed per sprint cycle',
       };
     }
@@ -489,38 +483,41 @@ export default function DashboardPage() {
     return {
       labels,
       values,
+      approved: realDailyApproved,
       currentIdx: currentIdx >= 0 ? currentIdx : 0,
-      displayTitle: 'My Creative Velocity',
+      displayTitle: 'Deliverables this week',
       subtitle: 'Your personal deliverables logged this week',
     };
-  }, [period, realWeekDates, realDailyCounts, myTodayDone, myWeekTotalCreated]);
+  }, [period, realWeekDates, realDailyCounts, realDailyApproved, myTodayDone, myWeekTotalCreated, myWeekTotalApproved]);
 
-  // Compute SVG cubic bezier path coordinates
-  const svgWidth = 560;
-  const svgHeight = 120;
-  const maxVal = Math.max(...chartMeta.values, 5);
-  const points = chartMeta.values.map((val, idx) => {
-    const x = (idx / (Math.max(chartMeta.values.length - 1, 1))) * (svgWidth - 48) + 24;
-    const y = svgHeight - 22 - (val / maxVal) * (svgHeight - 44);
-    return { x, y, val, label: chartMeta.labels[idx], isCurrent: idx === chartMeta.currentIdx };
-  });
+  // Bar data: each period's total with the approved share stacked at the bottom
+  const bars = chartMeta.values.map((val, idx) => ({
+    val,
+    approved: Math.min(chartMeta.approved[idx] ?? 0, val),
+    label: chartMeta.labels[idx],
+    isCurrent: idx === chartMeta.currentIdx,
+  }));
+  const barMax = Math.max(...chartMeta.values, 1);
 
-  const splinePath = useMemo(() => {
-    if (points.length === 0) return '';
-    let d = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i];
-      const p1 = points[i + 1];
-      const cx = (p0.x + p1.x) / 2;
-      d += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+  // Layered area chart geometry: one 100-unit column per period, points sit in the column centres
+  const areaW = Math.max(bars.length, 1) * 100;
+  const areaH = 160;
+  const areaY = (v: number) => areaH - (v / barMax) * (areaH - 34);
+  const areaPaths = (vals: number[]) => {
+    if (vals.length === 0) return { line: '', fill: '' };
+    const pts = vals.map((v, i) => ({ x: i * 100 + 50, y: areaY(v) }));
+    let line = `M 0 ${pts[0].y} L ${pts[0].x} ${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i];
+      const b = pts[i + 1];
+      const cx = (a.x + b.x) / 2;
+      line += ` C ${cx} ${a.y}, ${cx} ${b.y}, ${b.x} ${b.y}`;
     }
-    return d;
-  }, [points]);
-
-  const splineAreaPath = useMemo(() => {
-    if (points.length === 0) return '';
-    return `${splinePath} L ${points[points.length - 1].x} ${svgHeight} L ${points[0].x} ${svgHeight} Z`;
-  }, [splinePath, points, svgHeight]);
+    line += ` L ${areaW} ${pts[pts.length - 1].y}`;
+    return { line, fill: `${line} L ${areaW} ${areaH} L 0 ${areaH} Z` };
+  };
+  const loggedArea = areaPaths(bars.map(b => b.val));
+  const approvedArea = areaPaths(bars.map(b => b.approved));
 
   // Filtered deliverables feed
   const filteredFeed = useMemo(() => {
@@ -555,13 +552,13 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
-              <h1 className="font-display text-2xl sm:text-[28px] leading-tight font-semibold text-slate-50">
-                {greeting}, {currentUser.name}
+              <h1 className="font-display text-2xl sm:text-[28px] leading-tight font-medium text-slate-50">
+                Today
               </h1>
               <Diya size={26} className="-mt-1" />
             </div>
             <p className="text-sm text-slate-400 font-normal">
-              {subtitle}
+              {currentUser.name}&rsquo;s week, sign-offs and today&rsquo;s log
             </p>
           </div>
 
@@ -585,14 +582,14 @@ export default function DashboardPage() {
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
               <div>
                 <div className="flex items-center space-x-2.5">
-                  <h2 className="text-sm font-semibold text-slate-200 font-sans tracking-normal">{chartMeta.displayTitle}</h2>
+                  <h2 className="text-sm font-medium text-slate-300 font-sans tracking-normal">{chartMeta.displayTitle}</h2>
                 </div>
                 <div className="flex items-baseline space-x-3 mt-1.5">
-                  <span className="text-4xl sm:text-[44px] leading-none font-semibold font-display text-white tabular-nums">
+                  <span className="text-4xl sm:text-[44px] leading-none font-medium font-display text-white tabular-nums">
                     {myWeekTotalCreated}
                   </span>
-                  <span className="text-xs sm:text-sm text-slate-400 font-normal">
-                    deliverables completed by you ({myWeekTotalApproved} approved)
+                  <span className="text-xs sm:text-sm text-slate-400 font-normal tabular-nums">
+                    logged · {myWeekTotalApproved} approved
                   </span>
                 </div>
               </div>
@@ -600,8 +597,8 @@ export default function DashboardPage() {
               {/* Time Horizon Segmented Pill Selector with Smooth Gliding Pill */}
               <SlideTabs
                 options={[
-                  { id: 'weekly', label: 'This Week' },
-                  { id: 'monthly', label: 'Monthly' },
+                  { id: 'weekly', label: 'Week' },
+                  { id: 'monthly', label: 'Month' },
                 ]}
                 value={period}
                 onChange={(val) => setPeriod(val as HorizonPeriod)}
@@ -611,93 +608,97 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Interactive Real Data SVG Spline Wave Chart */}
-            <div className="relative z-10 my-3 pt-3">
-              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-28 sm:h-34 overflow-visible">
-                <defs>
-                  <linearGradient id="myVelocitySplineGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#55cb98" stopOpacity="0.14" />
-                    <stop offset="100%" stopColor="#55cb98" stopOpacity="0.0" />
-                  </linearGradient>
+            {/* Layered area: everything logged (graphite) with the approved share (green) inside it */}
+            <div className="relative z-10 mt-5 mb-4">
+              <div className="flex items-center justify-end gap-4 mb-2 text-xs text-slate-500">
+                <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-0.5 rounded-full bg-slate-400/70" />Logged</span>
+                <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-0.5 rounded-full bg-emerald-400" />Approved</span>
+              </div>
 
-                </defs>
+              <div className="relative h-40 sm:h-44" onMouseLeave={() => setHoveredPoint(null)}>
+                {/* Guide lines */}
+                <div aria-hidden="true" className="absolute inset-x-0 top-[21%] border-t border-dashed border-white/[0.05]" />
+                <div aria-hidden="true" className="absolute inset-x-0 top-[60%] border-t border-dashed border-white/[0.05]" />
 
-                {/* Horizontal guide lines */}
-                <line x1="20" y1="28" x2={svgWidth - 20} y2="28" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
-                <line x1="20" y1="68" x2={svgWidth - 20} y2="68" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
-                <line x1="20" y1={svgHeight - 16} x2={svgWidth - 20} y2={svgHeight - 16} stroke="rgba(255,255,255,0.06)" />
+                <svg
+                  key={period}
+                  viewBox={`0 0 ${areaW} ${areaH}`}
+                  preserveAspectRatio="none"
+                  className="chart-reveal absolute inset-0 w-full h-full overflow-visible"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <linearGradient id="areaLogged" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.12" />
+                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                    </linearGradient>
+                    <linearGradient id="areaApproved" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#55cb98" stopOpacity="0.42" />
+                      <stop offset="100%" stopColor="#55cb98" stopOpacity="0.02" />
+                    </linearGradient>
+                  </defs>
+                  <path d={loggedArea.fill} fill="url(#areaLogged)" />
+                  <path d={loggedArea.line} fill="none" stroke="rgba(203,213,225,0.38)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                  <path d={approvedArea.fill} fill="url(#areaApproved)" />
+                  <path d={approvedArea.line} fill="none" stroke="#55cb98" strokeWidth="2.25" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                  <line x1="0" y1={areaH} x2={areaW} y2={areaH} stroke="rgba(255,255,255,0.08)" vectorEffect="non-scaling-stroke" />
+                </svg>
 
-                {/* Vertical hover guide line */}
-                {hoveredPoint !== null && points[hoveredPoint] && (
-                  <line
-                    x1={points[hoveredPoint].x}
-                    y1="12"
-                    x2={points[hoveredPoint].x}
-                    y2={svgHeight - 16}
-                    stroke="rgba(85,203,152,0.3)"
-                    strokeWidth="1.5"
-                    strokeDasharray="3 3"
-                  />
-                )}
+                {/* Columns: hover target, crosshair, points, numbers */}
+                <div className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${bars.length}, minmax(0, 1fr))` }}>
+                  {bars.map((b, idx) => {
+                    const active = hoveredPoint === idx;
+                    const topLogged = `${(areaY(b.val) / areaH) * 100}%`;
+                    const topApproved = `${(areaY(b.approved) / areaH) * 100}%`;
+                    return (
+                      <div key={idx} className="relative h-full cursor-default" onMouseEnter={() => setHoveredPoint(idx)}>
+                        <div
+                          aria-hidden="true"
+                          className={`absolute left-1/2 bottom-0 w-px -translate-x-1/2 bg-gradient-to-b from-white/0 to-white/20 transition-opacity ${active ? 'opacity-100' : 'opacity-0'}`}
+                          style={{ top: topLogged }}
+                        />
+                        {b.val > 0 && (
+                          <span
+                            className={`absolute left-1/2 -translate-x-1/2 -translate-y-full -mt-2.5 text-xs tabular-nums transition-colors ${active || b.isCurrent ? 'text-slate-100' : 'text-slate-500'}`}
+                            style={{ top: topLogged }}
+                          >
+                            {b.val}
+                          </span>
+                        )}
+                        <span
+                          aria-hidden="true"
+                          className={`absolute left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-300 border-2 border-[#121211] transition-opacity ${active || b.isCurrent ? 'opacity-100' : 'opacity-0'}`}
+                          style={{ top: topLogged }}
+                        />
+                        <span
+                          aria-hidden="true"
+                          className={`absolute left-1/2 w-2.5 h-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-400 border-2 border-[#121211] transition-opacity ${active || b.isCurrent ? 'opacity-100' : 'opacity-0'}`}
+                          style={{ top: topApproved }}
+                        />
+                        {active && (
+                          <div
+                            className={`absolute z-20 top-0 w-max px-3 py-2 rounded-lg bg-[#1b1b1a] border border-white/[0.1] shadow-lg text-xs tabular-nums pointer-events-none ${
+                              idx >= bars.length - 2 ? 'right-1/2 mr-3' : 'left-1/2 ml-3'
+                            }`}
+                          >
+                            <div className="text-slate-400 mb-1">{b.label}</div>
+                            <div className="flex items-center gap-1.5 text-slate-100"><span className="w-1.5 h-1.5 rounded-full bg-slate-300" />{b.val} logged</div>
+                            <div className="flex items-center gap-1.5 text-slate-100"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{b.approved} approved</div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-                {/* Area under spline */}
-                <path d={splineAreaPath} fill="url(#myVelocitySplineGrad)" />
-
-                {/* Main Spline Curve */}
-                <path
-                  d={splinePath}
-                  fill="none"
-                  stroke="#55cb98"
-                  strokeWidth="2.25"
-                  strokeLinecap="round"
-                />
-
-                {/* Interactive Node Circles */}
-                {points.map((pt, idx) => (
-                  <g
-                    key={idx}
-                    className="cursor-pointer group/node"
-                    onMouseEnter={() => setHoveredPoint(idx)}
-                    onMouseLeave={() => setHoveredPoint(null)}
-                  >
-                    <circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r={hoveredPoint === idx ? '5.5' : pt.isCurrent ? '4.5' : '3.5'}
-                      className={`transition-all duration-150 ${
-                        hoveredPoint === idx
-                          ? 'fill-white stroke-blue-500 stroke-2'
-                          : pt.isCurrent
-                          ? 'fill-blue-500 stroke-[#0c0c0b] stroke-2'
-                          : 'fill-slate-500 stroke-[#0c0c0b] stroke-1.5 hover:fill-blue-400'
-                      }`}
-                    />
-                    {/* Tooltip on Hover */}
-                    {hoveredPoint === idx && (
-                      <g transform={`translate(${pt.x}, ${pt.y - 30})`}>
-                        <rect x="-32" y="-13" width="64" height="22" rx="6" fill="#1a1a19" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-                        <text x="0" y="2" textAnchor="middle" fill="#ffffff" fontSize="10.5" fontWeight="600">
-                          {pt.val} items
-                        </text>
-                      </g>
-                    )}
-                  </g>
-                ))}
-              </svg>
-
-              {/* Day / Period Labels Strip */}
-              <div className="flex justify-between px-3 pt-1.5 text-[11px] font-medium text-slate-400">
-                {points.map((pt, idx) => (
+              <div className="grid pt-3" style={{ gridTemplateColumns: `repeat(${bars.length}, minmax(0, 1fr))` }}>
+                {bars.map((b, idx) => (
                   <span
                     key={idx}
-                    className={`transition-colors cursor-pointer ${
-                      pt.isCurrent
-                        ? 'text-slate-50 font-semibold'
-                        : 'hover:text-slate-200'
-                    }`}
-                    onClick={() => setHoveredPoint(idx)}
+                    className={`text-center text-xs transition-colors ${b.isCurrent || hoveredPoint === idx ? 'text-slate-100' : 'text-slate-500'}`}
                   >
-                    {pt.label}
+                    {b.label}
                   </span>
                 ))}
               </div>
@@ -711,7 +712,7 @@ export default function DashboardPage() {
               </div>
               <div className="py-1 text-left pl-4 border-l border-white/[0.06]">
                 <span className="text-xs text-slate-500 block">Approval rate</span>
-                <span className="text-sm font-medium text-emerald-400 mt-0.5 block">{myTurnaroundRate}</span>
+                <span className="text-sm font-medium text-slate-100 mt-0.5 block tabular-nums">{myTurnaroundRate}</span>
               </div>
             </div>
           </div>
@@ -728,19 +729,19 @@ export default function DashboardPage() {
         {/* Secondary KPI Matrix (Personal to this Designer) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
           {/* Tile 1: Today's Created */}
-          <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+          <div className="bento-card p-4 sm:p-5 flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-xs font-medium text-slate-400">Today's output</span>
               <div className="flex items-baseline space-x-2">
-                <span className="text-2xl sm:text-3xl font-semibold text-white font-display tabular-nums">{myTodayDone}</span>
-                <span className="text-xs text-slate-400 font-normal">deliverables</span>
+                <span className="text-2xl sm:text-3xl font-medium text-white font-display tabular-nums">{myTodayDone}</span>
+                <span className="text-xs text-slate-400 font-normal">{myTodayDone === 1 ? 'deliverable' : 'deliverables'}</span>
               </div>
-              <p className="text-[11px] text-slate-500">Logged by you today</p>
+              <p className="text-xs text-slate-500">Logged by you today</p>
             </div>
           </div>
 
           {/* Tile 2: Deep Work Time */}
-          <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+          <div className="bento-card p-4 sm:p-5 flex items-center justify-between">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
                 <span className="text-xs font-medium text-slate-400">Focused time</span>
@@ -749,12 +750,12 @@ export default function DashboardPage() {
                 )}
               </div>
               <div className="flex items-baseline space-x-2">
-                <span className="text-2xl sm:text-3xl font-semibold text-emerald-400 font-display tabular-nums">
+                <span className="text-2xl sm:text-3xl font-medium text-white font-display tabular-nums">
                   {formatWorkEntryStopwatch(myTotalTimeSeconds)}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500">
-                {myRunningTimers.length > 0 ? `${myRunningTimers.length} active stopwatch running` : 'Timers paused'}
+              <p className="text-xs text-slate-500">
+                {myRunningTimers.length > 0 ? `${myRunningTimers.length} timer running` : 'No timer running'}
               </p>
             </div>
           </div>
@@ -767,10 +768,10 @@ export default function DashboardPage() {
             <div className="space-y-1">
               <span className="text-xs font-medium text-slate-400">Clients this week</span>
               <div className="flex items-baseline space-x-2">
-                <span className="text-2xl sm:text-3xl font-semibold text-white font-display tabular-nums">{myActiveClientsCount}</span>
-                <span className="text-xs text-slate-400 font-normal">brands serviced</span>
+                <span className="text-2xl sm:text-3xl font-medium text-white font-display tabular-nums">{myActiveClientsCount}</span>
+                <span className="text-xs text-slate-400 font-normal">{myActiveClientsCount === 1 ? 'brand' : 'brands'}</span>
               </div>
-              <p className="text-[11px] text-blue-400 font-medium group-hover:underline flex items-center space-x-1">
+              <p className="text-xs text-slate-500 group-hover:text-slate-200 transition-colors flex items-center space-x-1">
                 <span>View directory</span>
                 <ArrowUpRight className="w-3 h-3" />
               </p>
@@ -780,27 +781,25 @@ export default function DashboardPage() {
 
         {/* Pending Client Approvals Urgent Banner (If Any) */}
         {pendingApprovals.length > 0 && (
-          <div className="bento-card p-5 sm:p-6 border-amber-500/35 bg-amber-950/15 space-y-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
+          <div className="bento-card p-5 sm:p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
               <div className="flex items-center space-x-3">
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <h3 className="text-sm sm:text-base font-bold text-slate-100">Pending Client Sign-offs</h3>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-950/80 text-amber-300 border border-amber-700/60">
-                      {pendingApprovals.length} {pendingApprovals.length === 1 ? 'item' : 'items'}
-                    </span>
+                  <div className="flex items-baseline space-x-2">
+                    <h3 className="text-sm sm:text-base font-medium text-slate-100">Waiting for client sign-off</h3>
+                    <span className="text-sm text-slate-500 tabular-nums">{pendingApprovals.length}</span>
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Deliverables awaiting client approval from past dates. Click to approve directly!
+                    From earlier days, oldest first
                   </p>
                 </div>
               </div>
 
               <Link
                 href="/work?view=pending"
-                className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-amber-300 bg-amber-950/70 hover:bg-amber-900/90 border border-amber-700/60 rounded-xl transition-all self-start sm:self-center btn-tactile"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-slate-50 bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] rounded-lg transition-colors self-start sm:self-center btn-tactile"
               >
-                <span>Full Queue</span>
+                <span>Full queue</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -813,24 +812,27 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={entry.id}
-                    className="p-3.5 rounded-xl bg-black/40 border border-white/[0.08] hover:border-amber-500/40 flex flex-col justify-between space-y-2 transition-all"
+                    className="p-4 rounded-xl bg-[#131312] border border-white/[0.06] hover:border-white/[0.12] flex flex-col justify-between space-y-3 transition-colors"
                   >
                     <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-slate-300 truncate max-w-[130px]">{entry.client?.name || 'Client'}</span>
-                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${urgency.bg} ${urgency.text}`}>
+                      <div className="flex items-center justify-between gap-2 text-xs">
+                        <span className="text-slate-400 truncate">{entry.client?.name || 'Client'}</span>
+                        <span className={`shrink-0 tabular-nums ${daysAgo >= 3 ? urgency.text : 'text-slate-500'}`}>
                           {urgency.label}
                         </span>
                       </div>
-                      <p className="text-xs font-semibold text-slate-200 line-clamp-1">{entry.description}</p>
+                      <p className="text-sm font-medium text-slate-100 line-clamp-1">{entry.description}</p>
                     </div>
 
-                    <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs">
-                      <span className="text-amber-400 font-bold tabular-nums">{unapproved} pending</span>
+                    <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs">
+                      <span className="inline-flex items-center gap-1.5 text-slate-300 tabular-nums">
+                        <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        {unapproved} pending
+                      </span>
                       <button
                         type="button"
                         onClick={() => setSelectedApprovalEntry(entry)}
-                        className="px-2.5 py-1 text-[11px] font-bold text-violet-200 bg-violet-600/30 hover:bg-violet-600/50 border border-violet-500/30 rounded-lg transition-all btn-tactile cursor-pointer"
+                        className="px-2.5 py-1 text-xs font-medium text-slate-200 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] rounded-lg transition-colors btn-tactile cursor-pointer"
                       >
                         Approve
                       </button>
@@ -849,17 +851,17 @@ export default function DashboardPage() {
               <div className="flex items-center space-x-3 min-w-0 shrink-0">
                 <div className="min-w-0">
                   <div className="flex items-center space-x-2.5">
-                    <h2 className="text-sm sm:text-base font-semibold text-slate-100 whitespace-nowrap">
-                      Today's Deliverable Feed
+                    <h2 className="text-sm sm:text-base font-medium text-slate-100 whitespace-nowrap">
+                      Logged today
                     </h2>
                     {myRunningTimers.length > 0 && (
-                      <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shrink-0">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 tabular-nums shrink-0">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-beacon" />
                         <span>{myRunningTimers.length} running</span>
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">Live stream of creative outputs & focus sessions</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Deliverables and timers from you and the team</p>
                 </div>
               </div>
 
@@ -867,7 +869,7 @@ export default function DashboardPage() {
               <SlideTabs
                 options={[
                   { id: 'team_work', label: `Team (${todayEntries.length})` },
-                  { id: 'my_work', label: `My Work (${myTodayEntries.length})` },
+                  { id: 'my_work', label: `Mine (${myTodayEntries.length})` },
                 ]}
                 value={feedFilter}
                 onChange={(val) => setFeedFilter(val as FeedFilterTab)}
@@ -884,15 +886,15 @@ export default function DashboardPage() {
               </div>
             ) : filteredFeed.length === 0 ? (
               <div className="p-10 text-center space-y-3 bg-white/[0.02] rounded-xl border border-white/[0.06]">
-                <p className="text-xs text-slate-400 font-medium">
-                  No deliverables logged in this view yet.
+                <p className="text-sm text-slate-400">
+                  Nothing logged here yet today
                 </p>
                 <Link
                   href="/work/new"
-                  className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white webtree-gradient-btn rounded-xl shadow-xs btn-tactile"
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-medium text-slate-200 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] rounded-lg transition-colors btn-tactile"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Log New Deliverable</span>
+                  <span>Log work</span>
                 </Link>
               </div>
             ) : (
@@ -909,9 +911,9 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={entry.id}
-                      className={`relative p-3.5 sm:p-4 rounded-xl border transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-3 overflow-hidden ${
+                      className={`relative p-3.5 sm:p-4 rounded-xl border transition duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-3 overflow-hidden ${
                         isTimerRunning
-                          ? 'bg-amber-950/20 border-amber-500/35 ring-1 ring-amber-500/20'
+                          ? 'bg-[#161614] border-white/[0.12]'
                           : 'bg-[#131312] border-white/[0.06] hover:border-white/[0.12] hover:bg-[#181817]'
                       }`}
                     >
@@ -921,8 +923,8 @@ export default function DashboardPage() {
                           isTimerRunning
                             ? 'bg-amber-400'
                             : entry.quantity_approved === entry.quantity_done
-                            ? 'bg-emerald-400'
-                            : 'bg-blue-500/40'
+                            ? 'bg-emerald-400/70'
+                            : 'bg-white/[0.08]'
                         }`}
                       />
 
@@ -934,7 +936,7 @@ export default function DashboardPage() {
 
                         <div className="min-w-0 space-y-1">
                           <div className="flex items-center space-x-2 flex-wrap">
-                            <span className="text-xs sm:text-sm font-semibold text-slate-100 truncate">{entry.description}</span>
+                            <span className="text-sm font-medium text-slate-100 truncate">{entry.description}</span>
                             {entry.work_type && (
                               <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-white/[0.04] text-slate-300 border border-white/[0.08]">
                                 {entry.work_type.name}
@@ -944,14 +946,14 @@ export default function DashboardPage() {
 
                           <div className="flex items-center space-x-2 text-[11px] text-slate-400">
                             <span className="font-medium text-slate-300">{clientName}</span>
-                            <span>•</span>
-                            <span>By {entry.profile?.name || (isMyEntry ? currentUser.name : 'Designer')}</span>
+                            <span aria-hidden="true">·</span>
+                            <span>{entry.profile?.name || (isMyEntry ? currentUser.name : 'Designer')}</span>
                             {isTimerRunning && (
                               <>
-                                <span>•</span>
-                                <span className="inline-flex items-center space-x-1 text-amber-400 font-semibold">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                                  <span>Timer Live</span>
+                                <span aria-hidden="true">·</span>
+                                <span className="inline-flex items-center gap-1.5 text-amber-300">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-beacon" />
+                                  <span>Timer running</span>
                                 </span>
                               </>
                             )}
@@ -974,29 +976,26 @@ export default function DashboardPage() {
                           <button
                             type="button"
                             onClick={() => setSelectedApprovalEntry(entry)}
-                            className={`px-3 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer btn-tactile ${
-                              entry.quantity_approved === entry.quantity_done
-                                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25 hover:bg-emerald-500/20'
-                                : entry.quantity_approved > 0
-                                ? 'bg-blue-500/10 text-blue-300 border-blue-500/25 hover:bg-blue-500/20'
-                                : 'bg-amber-500/10 text-amber-300 border-amber-500/25 hover:bg-amber-500/20'
-                            }`}
+                            title="Update approval"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs text-slate-300 hover:text-white border border-transparent hover:border-white/[0.08] hover:bg-white/[0.04] transition-colors cursor-pointer btn-tactile tabular-nums"
                           >
+                            <span
+                              aria-hidden="true"
+                              className={`w-1.5 h-1.5 rounded-full ${entry.quantity_approved === entry.quantity_done ? 'bg-emerald-400' : 'bg-amber-400'}`}
+                            />
                             {entry.quantity_approved === entry.quantity_done
-                              ? `Approved (${entry.quantity_approved})`
+                              ? 'Approved'
                               : entry.quantity_approved > 0
-                              ? `Partial (${entry.quantity_approved}/${entry.quantity_done})`
-                              : 'Pending Sign-off'}
+                              ? `${entry.quantity_approved} of ${entry.quantity_done} approved`
+                              : 'Pending'}
                           </button>
                         ) : (
-                          <span
-                            className={`px-3 py-1 rounded-lg text-xs font-medium border ${
-                              entry.quantity_approved > 0
-                                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25'
-                                : 'bg-amber-500/10 text-amber-300 border-amber-500/25'
-                            }`}
-                          >
-                            {entry.quantity_approved > 0 ? `Approved (${entry.quantity_approved})` : 'Pending'}
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs text-slate-400 tabular-nums">
+                            <span
+                              aria-hidden="true"
+                              className={`w-1.5 h-1.5 rounded-full ${entry.quantity_approved > 0 ? 'bg-emerald-400' : 'bg-amber-400'}`}
+                            />
+                            {entry.quantity_approved > 0 ? 'Approved' : 'Pending'}
                           </span>
                         )}
 
@@ -1006,7 +1005,7 @@ export default function DashboardPage() {
                             type="button"
                             disabled={timerLoadingId === entry.id}
                             onClick={() => (isTimerRunning ? handleStopTimer(entry) : handleStartTimer(entry))}
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all btn-tactile cursor-pointer ${
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition btn-tactile cursor-pointer ${
                               isTimerRunning
                                 ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30'
                                 : 'bg-white/[0.04] text-slate-300 border border-white/[0.08] hover:bg-white/[0.08]'
@@ -1034,7 +1033,7 @@ export default function DashboardPage() {
           setTodayEntries(prev => prev.map(e => (e.id === updated.id ? { ...e, ...updated } : e)));
           setPendingApprovals(prev => prev.filter(e => e.id !== updated.id));
           setSelectedApprovalEntry(null);
-          showToast('Deliverable approval updated!', 'success');
+          showToast('Approval updated', 'success');
         }}
       />
     </div>

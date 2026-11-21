@@ -103,7 +103,7 @@ export default function MonthlyReportPage() {
       'Decimal Hours': ((s.totalTimeSeconds || 0) / 3600).toFixed(2),
     }));
     exportToCSV(`Monthly_Report_${selectedYear}_${selectedMonth}`, csvRows);
-    showToast('Exported Monthly Report CSV successfully!', 'success');
+    showToast('Monthly report CSV exported', 'success');
   };
 
   return (
@@ -114,7 +114,7 @@ export default function MonthlyReportPage() {
       <ReportsSubNav>
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
+          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
         >
           <Download className="w-4 h-4 text-violet-400" />
           <span className="hidden sm:inline">Export CSV</span>
@@ -126,7 +126,7 @@ export default function MonthlyReportPage() {
         {/* Header & Controls */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100">Monthly Performance Report</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold text-slate-100">Monthly Performance Report</h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
               Aggregated monthly totals and work type distribution calculated from daily entries.
             </p>
@@ -255,7 +255,7 @@ export default function MonthlyReportPage() {
         {/* Breakdown Table */}
         <div className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm overflow-hidden">
           <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-100">Work Type Breakdown Table</h2>
+            <h2 className="text-base font-semibold text-slate-100">Work Type Breakdown Table</h2>
             <span className="text-xs text-slate-400">
               {months.find(m => m.value === selectedMonth)?.name} {selectedYear}
             </span>
@@ -272,7 +272,7 @@ export default function MonthlyReportPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-slate-300">
-                <thead className="bg-slate-950/80 text-xs font-bold text-slate-400 border-b border-slate-800">
+                <thead className="bg-slate-950/80 text-xs font-semibold text-slate-400 border-b border-slate-800">
                   <tr>
                     <th className="px-6 py-3.5">Work Type</th>
                     <th className="px-6 py-3.5 text-right">Created Quantity</th>
@@ -284,11 +284,11 @@ export default function MonthlyReportPage() {
                 <tbody className="divide-y divide-slate-800 bg-slate-900">
                   {reportData.summaries.map(s => (
                     <tr key={s.workType.id} className="hover:bg-slate-800/60 transition-colors">
-                      <td className="px-6 py-4 font-bold text-slate-200">{s.workType.name}</td>
+                      <td className="px-6 py-4 font-semibold text-slate-200">{s.workType.name}</td>
                       <td className="px-6 py-4 text-right font-semibold text-slate-100">{s.totalDone}</td>
                       <td className="px-6 py-4 text-right font-semibold text-violet-400">{s.totalApproved}</td>
-                      <td className="px-6 py-4 text-right font-bold text-indigo-400">{s.approvalRate}%</td>
-                      <td className="px-6 py-4 text-right font-display tabular-nums font-bold text-amber-400">
+                      <td className="px-6 py-4 text-right font-semibold text-indigo-400">{s.approvalRate}%</td>
+                      <td className="px-6 py-4 text-right font-display tabular-nums font-semibold text-amber-400">
                         {formatReportTime(s.totalTimeSeconds || 0)}
                       </td>
                     </tr>
@@ -298,7 +298,7 @@ export default function MonthlyReportPage() {
                     <td className="px-6 py-4 text-right text-slate-100">{reportData.totalDoneAll}</td>
                     <td className="px-6 py-4 text-right text-violet-400">{reportData.totalApprovedAll}</td>
                     <td className="px-6 py-4 text-right text-indigo-400">{reportData.overallApprovalRate}%</td>
-                    <td className="px-6 py-4 text-right font-display tabular-nums font-bold text-amber-400">
+                    <td className="px-6 py-4 text-right font-display tabular-nums font-semibold text-amber-400">
                       {formatReportTime(reportData.totalTimeSecondsAll || 0)}
                     </td>
                   </tr>

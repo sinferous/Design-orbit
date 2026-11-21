@@ -130,7 +130,7 @@ export default function ClientsPage() {
         {/* Header */}
         <div className="bento-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-100">
+            <h1 className="text-2xl font-semibold text-slate-100">
               Client Directory
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
@@ -160,7 +160,7 @@ export default function ClientsPage() {
               value={newClientName}
               onChange={e => setNewClientName(e.target.value)}
               placeholder="Enter new client name (e.g. Acme Corp)"
-              className="flex-1 w-full px-4 py-2.5 bg-[#0c0c0b] border border-white/[0.08] rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all font-medium"
+              className="flex-1 w-full px-4 py-2.5 bg-[#0c0c0b] border border-white/[0.08] rounded-xl text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition font-medium"
             />
             <button
               type="submit"
@@ -215,7 +215,7 @@ export default function ClientsPage() {
                   return (
                     <div
                       key={client.id}
-                      className="p-3 bg-[#0c0c0b] rounded-xl border border-blue-500 shadow-sm transition-all"
+                      className="p-3 bg-[#0c0c0b] rounded-xl border border-blue-500 shadow-sm transition"
                     >
                       <form
                         onSubmit={e => {
@@ -268,13 +268,13 @@ export default function ClientsPage() {
                 return (
                   <div
                     key={client.id}
-                    className="p-4 bg-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-between space-x-3 hover:border-white/[0.14] hover:bg-white/[0.04] transition-all group bento-card-hover"
+                    className="p-4 bg-white/[0.02] rounded-xl border border-white/[0.08] flex items-center justify-between space-x-3 hover:border-white/[0.14] hover:bg-white/[0.04] transition group bento-card-hover"
                   >
                     <div className="flex items-center space-x-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-xs font-bold text-violet-300 shrink-0 group-hover:scale-105 transition-transform">
+                      <div className="w-8 h-8 rounded-xl bg-violet-600/15 border border-violet-500/25 flex items-center justify-center text-xs font-semibold text-violet-300 shrink-0 transition-transform">
                         {client.name.charAt(0).toUpperCase()}
                       </div>
-                      <span className="text-sm font-bold text-slate-200 truncate" title={client.name}>
+                      <span className="text-sm font-semibold text-slate-200 truncate" title={client.name}>
                         {client.name}
                       </span>
                     </div>

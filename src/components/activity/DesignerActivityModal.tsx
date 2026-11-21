@@ -60,7 +60,7 @@ export function DesignerActivityModal({
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-emerald-400" />
-            <h2 className="text-base sm:text-lg font-bold text-slate-100">
+            <h2 className="text-base sm:text-lg font-semibold text-slate-100">
               Designer Deliverable & Activity Matrix
             </h2>
           </div>

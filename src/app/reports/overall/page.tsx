@@ -44,7 +44,7 @@ export default function OverallReportPage() {
       'Decimal Hours': ((item.totalTimeSeconds || 0) / 3600).toFixed(2),
     }));
     exportToCSV(`Overall_Report_grouped_by_${groupBy}`, csvRows);
-    showToast('Exported Overall Analytics CSV successfully!', 'success');
+    showToast('Overall analytics CSV exported', 'success');
   };
 
   const grandDone = dataItems.reduce((acc, curr) => acc + curr.totalDone, 0);
@@ -59,7 +59,7 @@ export default function OverallReportPage() {
       <ReportsSubNav>
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
+          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
         >
           <Download className="w-4 h-4 text-violet-400" />
           <span className="hidden sm:inline">Export CSV</span>
@@ -71,7 +71,7 @@ export default function OverallReportPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100">Overall / All-Time Analytics</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold text-slate-100">Overall / All-Time Analytics</h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
               Long-term aggregated performance and deliverable breakdown.
             </p>
@@ -97,7 +97,7 @@ export default function OverallReportPage() {
         <div className="bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
-              <h2 className="text-base font-bold text-slate-100">
+              <h2 className="text-base font-semibold text-slate-100">
                 Aggregated Distribution (Grouped by {groupBy.replace('_', ' ')})
               </h2>
               <p className="text-xs text-slate-400">
@@ -133,7 +133,7 @@ export default function OverallReportPage() {
                 return (
                   <div key={item.id} className="space-y-2">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-1">
-                      <span className="font-bold text-slate-100 text-sm">{item.name}</span>
+                      <span className="font-semibold text-slate-100 text-sm">{item.name}</span>
                       <div className="flex items-center space-x-3 text-slate-400 font-medium">
                         <span>
                           Created: <strong className="text-slate-100 font-semibold">{item.totalDone}</strong>
@@ -142,7 +142,7 @@ export default function OverallReportPage() {
                           Approved: <strong className="text-violet-400 font-semibold">{item.totalApproved}</strong> ({item.approvalRate}%)
                         </span>
                         {(item.totalTimeSeconds || 0) > 0 && (
-                          <span className="text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60 font-display tabular-nums font-bold flex items-center space-x-1">
+                          <span className="text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60 font-display tabular-nums font-semibold flex items-center space-x-1">
                             <Clock className="w-3 h-3 text-amber-400" />
                             <span>{formatReportTime(item.totalTimeSeconds || 0)}</span>
                           </span>
@@ -152,11 +152,11 @@ export default function OverallReportPage() {
 
                     <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex relative">
                       <div
-                        className="h-full bg-violet-500 rounded-l-full transition-all duration-500"
+                        className="h-full bg-violet-500 rounded-l-full transition duration-500"
                         style={{ width: `${percentDone}%` }}
                       />
                       <div
-                        className="h-full bg-indigo-500 rounded-r-full -ml-1 transition-all duration-500 opacity-90"
+                        className="h-full bg-indigo-500 rounded-r-full -ml-1 transition duration-500 opacity-90"
                         style={{ width: `${percentApproved}%` }}
                       />
                     </div>

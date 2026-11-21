@@ -18,12 +18,12 @@ import {
   Play,
   Pause,
   Square,
-  Building2,
   Minimize2,
   Maximize2,
   ExternalLink,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
+import { BrandMark } from '@/components/ui/BrandMark';
 
 // Global declaration for TypeScript
 declare global {
@@ -36,7 +36,7 @@ declare global {
   }
 }
 
-// Complete self-contained styling for the PiP window to ensure 100% reliable, stunning UI
+// Self-contained styling for the pop-out window: graphite surfaces, one green accent, no glows
 const PIP_EMBEDDED_STYLES = `
   * {
     box-sizing: border-box;
@@ -47,19 +47,18 @@ const PIP_EMBEDDED_STYLES = `
   html, body {
     width: 100%;
     height: 100%;
-    background: #0a0a09;
+    background: #0e0e0d;
   }
 
   body {
-    background: radial-gradient(circle at 50% 0%, #1a1a19 0%, #0a0a09 100%);
     color: #f1f5f9;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
+    font-family: var(--font-ui, "Instrument Sans"), "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    padding: 8px 10px 9px;
+    padding: 10px 12px 12px;
     display: flex;
     flex-direction: column;
   }
@@ -76,272 +75,339 @@ const PIP_EMBEDDED_STYLES = `
     flex-direction: column;
     height: 100%;
     width: 100%;
-    gap: 6px;
-    justify-content: flex-start;
+    gap: 10px;
   }
 
   .pip-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 5px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
+    height: 24px;
   }
 
   .pip-brand {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    min-width: 0;
   }
 
-  .pip-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #55cb98;
-    box-shadow: 0 0 8px #55cb98;
-    animation: pip-pulse 1.8s infinite ease-in-out;
+  .pip-brand svg {
+    flex-shrink: 0;
   }
 
-  .pip-dot.paused {
-    background: #f59e0b;
-    box-shadow: 0 0 6px #f59e0b;
-    animation: none;
-  }
-
-  @keyframes pip-pulse {
-    0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 4px #55cb98; }
-    50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 10px #55cb98; }
-    100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 4px #55cb98; }
+  .pip-brand .pip-status {
+    padding-left: 8px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .pip-logo-text {
+    font-family: var(--font-brand, "Bricolage Grotesque"), "Bricolage Grotesque", var(--font-ui, "Instrument Sans"), system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #e2e8f0;
+    white-space: nowrap;
+  }
+
+  .pip-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 11px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+    color: #94a3b8;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .pip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #55cb98;
+    flex-shrink: 0;
+  }
+
+  .pip-dot.live {
+    animation: pip-breathe 2.4s ease-in-out infinite;
+  }
+
+  .pip-dot.paused {
+    background: #64748b;
+  }
+
+  @keyframes pip-breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pip-dot.live { animation: none; }
+  }
+
+  .pip-time-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .pip-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .pip-ticker {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%);
+  }
+
+  .pip-ticker-track {
+    display: flex;
+    width: max-content;
+    animation: pip-ticker var(--ticker-duration, 16s) linear infinite;
+  }
+
+  .pip-ticker:hover .pip-ticker-track,
+  .pip-ticker-track.still {
+    animation-play-state: paused;
+  }
+
+  .pip-ticker-group {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #94a3b8;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pip-ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pip-ticker-item.brand {
+    font-family: var(--font-brand, "Bricolage Grotesque"), "Bricolage Grotesque", var(--font-ui, "Instrument Sans"), system-ui, sans-serif;
+    font-weight: 500;
     color: #e2e8f0;
   }
 
-  .pip-logo-text span {
-    background: linear-gradient(135deg, #7ddbae 0%, #7ddbae 50%, #7ddbae 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 900;
-    margin-left: 2px;
+  .pip-ticker-item.client {
+    color: #cbd5e1;
   }
 
-  .pip-count-badge {
-    font-size: 9px;
-    font-weight: 700;
-    padding: 1.5px 7px;
-    border-radius: 9999px;
-    background: rgba(85,203,152, 0.15);
-    color: #7ddbae;
-    border: 1px solid rgba(85,203,152, 0.3);
+  .pip-ticker-sep {
+    padding: 0 10px;
+    color: #475569;
   }
 
-  .pip-dock-btn {
+  @keyframes pip-ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pip-ticker-track { animation: none; }
+  }
+
+  .pip-icon-btn {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #cbd5e1;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
     border-radius: 6px;
-    padding: 3px 7px;
-    font-size: 10px;
-    font-weight: 700;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
 
-  .pip-dock-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.2);
+  .pip-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
   }
 
   .pip-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     overflow-y: auto;
     overflow-x: hidden;
     flex: 1;
     min-height: 0;
   }
 
-  .pip-list::-webkit-scrollbar {
-    width: 3px;
-  }
-  .pip-list::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 3px;
-  }
+  .pip-list::-webkit-scrollbar { width: 3px; }
+  .pip-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
 
   .pip-card {
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 10px;
-    padding: 7px 9px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-  }
-
-  .pip-card.running {
-    background: linear-gradient(135deg, rgba(85,203,152, 0.12) 0%, rgba(85,203,152, 0.08) 100%);
-    border-color: rgba(85,203,152, 0.35);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  }
-
-  .pip-card-header {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 4px;
+    gap: 10px;
+    padding: 10px 10px 10px 14px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    overflow: hidden;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .pip-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    border-radius: 0 2px 2px 0;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .pip-card.running {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .pip-card.running::before {
+    background: #55cb98;
+  }
+
+  .pip-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
   }
 
   .pip-meta {
     display: flex;
-    align-items: center;
-    gap: 5px;
+    align-items: baseline;
+    gap: 6px;
     min-width: 0;
-    overflow: hidden;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
   }
 
   .pip-client {
-    font-size: 11px;
-    font-weight: 800;
-    color: #7ddbae;
-    white-space: nowrap;
+    color: #cbd5e1;
+    font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .pip-sep {
-    color: #475569;
-    font-size: 9px;
+    flex-shrink: 0;
+    max-width: 60%;
   }
 
   .pip-type {
-    font-size: 11px;
-    font-weight: 600;
-    color: #e2e8f0;
-    white-space: nowrap;
+    color: #64748b;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .pip-tag {
-    font-size: 8px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    padding: 1px 4px;
-    border-radius: 3px;
-    text-transform:;
-    flex-shrink: 0;
-  }
-
-  .pip-tag.running {
-    background: rgba(85,203,152, 0.15);
-    color: #7ddbae;
-    border: 1px solid rgba(85,203,152, 0.35);
-  }
-
-  .pip-tag.paused {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.35);
-  }
-
-  .pip-card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    padding-top: 2px;
-  }
-
   .pip-stopwatch {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    font-variant-numeric: tabular-nums;
-    color: #7ddbae;
-    text-shadow: 0 0 10px rgba(85,203,152, 0.35);
+    font-family: var(--font-brand, "Bricolage Grotesque"), "Bricolage Grotesque", var(--font-ui, "Instrument Sans"), system-ui, sans-serif;
+    font-size: 22px;
+    font-weight: 500;
     line-height: 1;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+    color: #f8fafc;
   }
 
   .pip-stopwatch.paused {
-    color: #94a3b8;
-    text-shadow: none;
+    color: #64748b;
   }
 
   .pip-actions {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    flex-shrink: 0;
   }
 
   .pip-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 3px;
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 10px;
-    font-weight: 700;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
     cursor: pointer;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
     outline: none;
-    transition: all 0.12s ease;
-    user-select: none;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
   }
 
-  .pip-btn:active {
-    transform: scale(0.96);
+  .pip-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
   }
 
-  .pip-btn-pause {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.18) 100%);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.45);
-  }
-
-  .pip-btn-pause:hover {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.4) 0%, rgba(217, 119, 6, 0.28) 100%);
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
-  }
+  .pip-btn:active { transform: scale(0.94); }
+  .pip-btn:disabled { opacity: 0.5; cursor: default; }
+  .pip-btn:focus-visible { box-shadow: 0 0 0 2px rgba(85, 203, 152, 0.5); }
 
   .pip-btn-start {
-    background: linear-gradient(135deg, #3eb181 0%, #2b9068 100%);
-    color: #ffffff;
-    box-shadow: 0 1px 4px rgba(85,203,152, 0.4);
+    background: #3eb181;
+    border-color: #3eb181;
+    color: #0c0c0b;
   }
 
   .pip-btn-start:hover {
-    background: linear-gradient(135deg, #55cb98 0%, #3eb181 100%);
-    box-shadow: 0 0 8px rgba(85,203,152, 0.5);
+    background: #55cb98;
+    border-color: #55cb98;
+    color: #0c0c0b;
   }
 
   .pip-btn-stop {
-    padding: 3px 5px;
-    background: rgba(244, 63, 94, 0.12);
-    color: #fb7185;
-    border: 1px solid rgba(244, 63, 94, 0.25);
-    border-radius: 5px;
+    width: 26px;
+    height: 26px;
+    background: transparent;
+    border-color: transparent;
+    color: #64748b;
   }
 
   .pip-btn-stop:hover {
-    background: rgba(244, 63, 94, 0.25);
-    color: #fff;
-    border-color: rgba(244, 63, 94, 0.5);
+    background: rgba(244, 63, 94, 0.12);
+    border-color: rgba(244, 63, 94, 0.25);
+    color: #fb7185;
+  }
+
+  .pip-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  .pip-empty span:last-child {
+    font-size: 11px;
+    color: #64748b;
   }
 `;
 
@@ -451,8 +517,8 @@ export function FloatingPipTimer() {
   // Precise dynamic height calculation matching the compact styling and OS window frame
   const computeTargetHeight = useCallback((taskCount: number) => {
     const count = Math.max(1, taskCount);
-    // Titlebar chrome ~42px + body padding/header ~46px + count * (card ~60px + gap 6px)
-    const calculated = 88 + count * 66;
+    // Titlebar chrome ~42px + body padding/header ~56px + count * (card ~64px + gap 8px)
+    const calculated = 98 + count * 72;
     return Math.min(460, Math.max(154, calculated));
   }, []);
 
@@ -462,6 +528,7 @@ export function FloatingPipTimer() {
       // 1. Inject complete, self-contained, bulletproof PiP stylesheet
       const dedicatedStyle = targetWin.document.createElement('style');
       dedicatedStyle.textContent = PIP_EMBEDDED_STYLES;
+      targetWin.document.documentElement.className = document.documentElement.className;
       targetWin.document.head.appendChild(dedicatedStyle);
 
       // 2. Also try cloning any main document stylesheets
@@ -509,7 +576,7 @@ export function FloatingPipTimer() {
       });
     } else {
       if (entriesRef.current.length === 0) {
-        showToast('No active timer running to float. Start a deliverable timer first!');
+        showToast('No timer running. Start one on a deliverable first');
         return false;
       }
     }
@@ -1012,31 +1079,28 @@ export function FloatingPipTimer() {
 
   const runningCount = entries.filter(e => Boolean(e.timer_started_at)).length;
 
-  // Ultra-compact render for floating PiP and corner widget
+  // Compact render for the pop-out window and the docked corner widget
   const renderContent = (isInsidePip: boolean) => {
+    const statusText = runningCount > 0
+      ? `${runningCount} ${runningCount === 1 ? 'task' : 'tasks'} running`
+      : 'Paused';
+
     if (isInsidePip) {
       if (entries.length === 0) {
         return (
           <div className="pip-container">
             <div className="pip-header">
               <div className="pip-brand">
-                <div className="pip-dot paused" />
-                <span className="pip-logo-text">DESIGN ORBIT</span>
-                <span className="pip-count-badge">Idle</span>
+                <BrandMark size={16} />
+                <span className="pip-logo-text">Design Orbit</span>
               </div>
-              <button
-                type="button"
-                onClick={closePipWindow}
-                className="pip-dock-btn"
-                title="Dock to browser window"
-              >
-                <Minimize2 style={{ width: 10, height: 10 }} />
-                <span>Dock</span>
+              <button type="button" onClick={closePipWindow} className="pip-icon-btn" title="Back to the browser tab">
+                <Minimize2 style={{ width: 13, height: 13 }} />
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 10px', textAlign: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 600, color: '#94a3b8' }}>No active timers in PiP</span>
-              <span style={{ fontSize: '9px', color: '#64748b' }}>Start a timer on your work log to track</span>
+            <div className="pip-empty">
+              <span>No timer running</span>
+              <span>Start one from your log</span>
             </div>
           </div>
         );
@@ -1044,27 +1108,20 @@ export function FloatingPipTimer() {
 
       return (
         <div className="pip-container">
-          {/* Header */}
           <div className="pip-header">
             <div className="pip-brand">
-              <div className={`pip-dot ${runningCount === 0 ? 'paused' : ''}`} />
-              <span className="pip-logo-text">Design <span>Orbit</span></span>
-              <span className="pip-count-badge">
-                {runningCount > 0 ? `${runningCount} Active` : 'Paused'}
+              <BrandMark size={16} />
+              <span className="pip-logo-text">Design Orbit</span>
+              <span className="pip-status">
+                <span className={`pip-dot ${runningCount > 0 ? 'live' : 'paused'}`} />
+                {statusText}
               </span>
             </div>
-            <button
-              type="button"
-              onClick={closePipWindow}
-              className="pip-dock-btn"
-              title="Dock to browser window"
-            >
-              <Minimize2 style={{ width: 10, height: 10 }} />
-              <span>Dock</span>
+            <button type="button" onClick={closePipWindow} className="pip-icon-btn" title="Back to the browser tab">
+              <Minimize2 style={{ width: 13, height: 13 }} />
             </button>
           </div>
 
-          {/* List of Tasks */}
           <div className="pip-list">
             {entries.map(entry => {
               const isRunning = Boolean(entry.timer_started_at);
@@ -1073,62 +1130,78 @@ export function FloatingPipTimer() {
               const clientName = entry.client?.name || 'Client';
               const workTypeName = entry.work_type?.name || 'Deliverable';
               const isOperating = operatingId === entry.id;
+              const description = (entry.description || '').trim();
+              // Long descriptions scroll; short ones sit still. Speed stays near 30px a second.
+              const scrolls = description.length > 14;
+              const descDuration = Math.max(6, Math.round((description.length + 4) * 0.22));
 
               return (
                 <div key={entry.id} className={`pip-card ${isRunning ? 'running' : ''}`}>
-                  {/* Top: Client & Deliverable */}
-                  <div className="pip-card-header">
+                  <div className="pip-info">
                     <div className="pip-meta">
                       <span className="pip-client">{clientName}</span>
-                      <span className="pip-sep">&bull;</span>
                       <span className="pip-type">{workTypeName}</span>
                     </div>
-                    <span className={`pip-tag ${isRunning ? 'running' : 'paused'}`}>
-                      {isRunning ? 'RUN' : 'PAUSED'}
-                    </span>
+                    <div className="pip-time-row">
+                      <span className={`pip-stopwatch ${!isRunning ? 'paused' : ''}`}>{stopwatch}</span>
+                      {description && (
+                        scrolls ? (
+                          <div
+                            className="pip-ticker"
+                            title={description}
+                            aria-label={description}
+                            style={{ ['--ticker-duration' as string]: `${descDuration}s` } as React.CSSProperties}
+                          >
+                            <div className={`pip-ticker-track ${isRunning ? '' : 'still'}`} aria-hidden="true">
+                              {[0, 1].map(copy => (
+                                <span key={copy} className="pip-ticker-group">
+                                  {description}
+                                  <span className="pip-ticker-sep">·</span>
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="pip-desc">{description}</span>
+                        )
+                      )}
+                    </div>
                   </div>
 
-                  {/* Bottom: Live Stopwatch + Action Buttons */}
-                  <div className="pip-card-footer">
-                    <span className={`pip-stopwatch ${!isRunning ? 'paused' : ''}`}>
-                      {stopwatch}
-                    </span>
-
-                    <div className="pip-actions">
-                      {isRunning ? (
-                        <button
-                          type="button"
-                          disabled={isOperating}
-                          onClick={() => handlePause(entry)}
-                          className="pip-btn pip-btn-pause"
-                          title="Pause Timer"
-                        >
-                          <Pause style={{ width: 10, height: 10, fill: 'currentColor' }} />
-                          <span>Pause</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled={isOperating}
-                          onClick={() => handleResume(entry)}
-                          className="pip-btn pip-btn-start"
-                          title="Start Timer"
-                        >
-                          <Play style={{ width: 10, height: 10, fill: 'currentColor' }} />
-                          <span>Start</span>
-                        </button>
-                      )}
-
+                  <div className="pip-actions">
+                    {isRunning ? (
                       <button
                         type="button"
                         disabled={isOperating}
-                        onClick={() => handleStop(entry)}
-                        className="pip-btn pip-btn-stop"
-                        title="Stop & Finalize"
+                        onClick={() => handlePause(entry)}
+                        className="pip-btn"
+                        title="Pause"
+                        aria-label="Pause"
                       >
-                        <Square style={{ width: 10, height: 10, fill: 'currentColor' }} />
+                        <Pause style={{ width: 12, height: 12, fill: 'currentColor' }} />
                       </button>
-                    </div>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={isOperating}
+                        onClick={() => handleResume(entry)}
+                        className="pip-btn pip-btn-start"
+                        title="Resume"
+                        aria-label="Resume"
+                      >
+                        <Play style={{ width: 12, height: 12, fill: 'currentColor', marginLeft: 2 }} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={isOperating}
+                      onClick={() => handleStop(entry)}
+                      className="pip-btn pip-btn-stop"
+                      title="Stop and save"
+                      aria-label="Stop and save"
+                    >
+                      <Square style={{ width: 10, height: 10, fill: 'currentColor' }} />
+                    </button>
                   </div>
                 </div>
               );
@@ -1138,54 +1211,45 @@ export function FloatingPipTimer() {
       );
     }
 
-    // In-page docked corner widget render
+    // Docked corner widget inside the page
     return (
-      <div className="bg-[#121211]/95 text-slate-100 backdrop-blur-xl rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] border border-white/[0.1] p-3 max-w-xs w-full space-y-2.5">
-        <div className="flex items-center justify-between gap-1.5 border-b border-white/[0.08] pb-2 shrink-0">
-          <div className="flex items-center space-x-2 min-w-0">
-            <span className="relative flex h-2 w-2 shrink-0">
-              {runningCount > 0 ? (
-                <>
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(85,203,152,0.8)]" />
-                </>
-              ) : (
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-              )}
-            </span>
-            <div className="flex items-center space-x-1 font-bold text-xs tracking-tight truncate">
-              <span className="text-slate-200">Design</span>
-              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent font-semibold">Orbit</span>
-            </div>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 shrink-0">
-              {runningCount} Active
+      <div className="w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/[0.08] bg-[#121211] p-3 shadow-[0_16px_40px_rgba(0,0,0,0.5)] space-y-2.5">
+        <div className="flex items-center justify-between gap-2 px-1">
+          <div className="flex items-baseline gap-2 min-w-0">
+            <span className="font-display text-xs font-medium text-slate-200 whitespace-nowrap">Design Orbit</span>
+            <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 tabular-nums whitespace-nowrap">
+              <span
+                aria-hidden="true"
+                className={`w-1.5 h-1.5 rounded-full ${runningCount > 0 ? 'bg-emerald-400 animate-beacon' : 'bg-slate-500'}`}
+              />
+              {statusText}
             </span>
           </div>
 
-          <div className="flex items-center space-x-1 shrink-0">
+          <div className="flex items-center gap-0.5 shrink-0">
             <button
               type="button"
               onClick={() => openPipWindow()}
-              className="btn-tactile px-2.5 py-1 text-[10px] font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg transition-all flex items-center space-x-1 cursor-pointer shadow-xs hover:shadow-[0_0_12px_rgba(85,203,152,0.5)]"
-              title="Float window outside browser (Picture-in-Picture)"
+              className="inline-flex items-center gap-1.5 h-7 px-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+              title="Float the timer above other windows"
             >
-              <ExternalLink className="w-2.5 h-2.5" />
-              <span>Pop Out</span>
+              <ExternalLink className="w-3 h-3" />
+              <span>Pop out</span>
             </button>
             <button
               type="button"
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.08] transition-colors cursor-pointer"
-              title={isMinimized ? 'Expand' : 'Minimize'}
+              className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+              title={isMinimized ? 'Expand' : 'Collapse'}
+              aria-label={isMinimized ? 'Expand' : 'Collapse'}
             >
               {isMinimized ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
 
-        {/* Task List */}
         {!isMinimized && (
-          <div className="space-y-2 overflow-y-auto max-h-[220px] pr-0.5">
+          <div className="space-y-2 overflow-y-auto max-h-[240px]">
             {entries.map(entry => {
               const isRunning = Boolean(entry.timer_started_at);
               const elapsed = calculateWorkEntrySeconds(entry, nowMs);
@@ -1197,74 +1261,58 @@ export function FloatingPipTimer() {
               return (
                 <div
                   key={entry.id}
-                  className={`p-2 rounded-xl border transition-all ${
-                    isRunning
-                      ? 'bg-gradient-to-r from-violet-950/40 via-indigo-950/30 to-[#121211] border-violet-500/35 shadow-[0_0_15px_rgba(85,203,152,0.12)]'
-                      : 'bg-white/[0.02] border-white/[0.06] opacity-80 hover:opacity-100'
+                  className={`relative flex items-center justify-between gap-3 rounded-xl border py-2.5 pl-3.5 pr-2.5 overflow-hidden transition-colors ${
+                    isRunning ? 'bg-white/[0.045] border-white/[0.1]' : 'bg-white/[0.02] border-white/[0.06]'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-1 text-[11px]">
-                    <div className="flex items-center space-x-1.5 truncate min-w-0 font-bold">
-                      <Building2 className="w-3 h-3 text-violet-400 shrink-0" />
-                      <span className="text-violet-300 font-bold truncate">{clientName}</span>
-                      <span className="text-slate-600">&bull;</span>
-                      <span className="text-slate-300 font-medium truncate">{workTypeName}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-r-full ${isRunning ? 'bg-emerald-400' : 'bg-white/[0.12]'}`}
+                  />
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex items-baseline gap-1.5 text-xs min-w-0">
+                      <span className="text-slate-300 font-medium truncate max-w-[60%]">{clientName}</span>
+                      <span className="text-slate-500 truncate">{workTypeName}</span>
                     </div>
-                    <span
-                      className={`text-[8.5px] font-semibold px-1.5 py-0.5 rounded-md shrink-0 ${
-                        isRunning
-                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                      }`}
-                    >
-                      {isRunning ? 'RUNNING' : 'PAUSED'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-2 mt-1.5 pt-1 border-t border-white/[0.06]">
-                    <div
-                      className={`font-display tabular-nums text-base font-semibold tracking-tight tabular-nums ${
-                        isRunning ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(85,203,152,0.4)]' : 'text-slate-400'
-                      }`}
-                    >
+                    <div className={`font-display text-xl leading-none font-medium tabular-nums ${isRunning ? 'text-slate-50' : 'text-slate-500'}`}>
                       {stopwatch}
                     </div>
+                  </div>
 
-                    <div className="flex items-center space-x-1.5 shrink-0">
-                      {isRunning ? (
-                        <button
-                          type="button"
-                          disabled={isOperating}
-                          onClick={() => handlePause(entry)}
-                          className="px-2 py-1 text-[10px] font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 rounded-lg transition-all btn-tactile flex items-center space-x-1 cursor-pointer disabled:opacity-50"
-                          title="Pause Timer"
-                        >
-                          <Pause className="w-2.5 h-2.5 fill-current" />
-                          <span>Pause</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled={isOperating}
-                          onClick={() => handleResume(entry)}
-                          className="px-2 py-1 text-[10px] font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition-all btn-tactile flex items-center space-x-1 cursor-pointer shadow-[0_0_10px_rgba(85,203,152,0.3)] disabled:opacity-50"
-                          title="Resume Timer"
-                        >
-                          <Play className="w-2.5 h-2.5 fill-current" />
-                          <span>Start</span>
-                        </button>
-                      )}
-
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {isRunning ? (
                       <button
                         type="button"
                         disabled={isOperating}
-                        onClick={() => handleStop(entry)}
-                        className="p-1 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 cursor-pointer transition-colors btn-tactile"
-                        title="Stop & Finalize Task"
+                        onClick={() => handlePause(entry)}
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.1] bg-white/[0.05] text-slate-200 hover:bg-white/[0.1] hover:text-white transition-colors btn-tactile cursor-pointer disabled:opacity-50"
+                        title="Pause"
+                        aria-label="Pause"
                       >
-                        <Square className="w-2.5 h-2.5 fill-current" />
+                        <Pause className="w-3 h-3 fill-current" />
                       </button>
-                    </div>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={isOperating}
+                        onClick={() => handleResume(entry)}
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500 text-[#0c0c0b] hover:bg-emerald-400 transition-colors btn-tactile cursor-pointer disabled:opacity-50"
+                        title="Resume"
+                        aria-label="Resume"
+                      >
+                        <Play className="w-3 h-3 fill-current ml-0.5" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={isOperating}
+                      onClick={() => handleStop(entry)}
+                      className="inline-flex items-center justify-center w-7 h-7 rounded-full text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors btn-tactile cursor-pointer disabled:opacity-50"
+                      title="Stop and save"
+                      aria-label="Stop and save"
+                    >
+                      <Square className="w-2.5 h-2.5 fill-current" />
+                    </button>
                   </div>
                 </div>
               );

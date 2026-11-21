@@ -32,7 +32,7 @@ export default function WeeklyReportPage() {
   const handleSaveModalLink = async (profileId: string, url: string) => {
     await saveWeeklyBestWorkLinkRecord(profileId, startDate, url);
     setBestWorkLinks(prev => ({ ...prev, [profileId]: url }));
-    showToast('Weekly Best Work link saved successfully!', 'success');
+    showToast('Best work link saved', 'success');
   };
 
   const handleDeleteModalLink = async (profileId: string) => {
@@ -228,7 +228,7 @@ export default function WeeklyReportPage() {
       'Weekly Best Work Link': bestWorkLinks[s.profile.id] || '',
     }));
     exportToCSV(`Weekly_Report_${startDate}_to_${endDate}`, csvRows);
-    showToast('Exported Weekly Meeting Report CSV successfully!', 'success');
+    showToast('Weekly meeting CSV exported', 'success');
   };
 
   const grandTotalCreated = summaries.reduce((acc, curr) => acc + curr.totalCreated, 0);
@@ -264,7 +264,7 @@ export default function WeeklyReportPage() {
         {/* Weekly Header Banner */}
         <div className="bento-card p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100">
+            <h1 className="text-xl sm:text-2xl font-semibold text-slate-100">
               Weekly Team Review
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
@@ -286,9 +286,9 @@ export default function WeeklyReportPage() {
               <button
                 type="button"
                 onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-white/[0.04] hover:bg-white/[0.08] rounded-xl border border-white/[0.08] hover:border-blue-500/40 shadow-xs transition-all text-xs font-semibold text-slate-200 cursor-pointer group"
+                className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-white/[0.04] hover:bg-white/[0.08] rounded-xl border border-white/[0.08] hover:border-blue-500/40 shadow-xs transition text-xs font-semibold text-slate-200 cursor-pointer group"
               >
-                <Calendar className="w-4 h-4 text-blue-400 shrink-0 group-hover:scale-105 transition-transform" />
+                <Calendar className="w-4 h-4 text-blue-400 shrink-0 transition-transform" />
                 <span>{getWeekRangeLabel()}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-slate-200 transition-colors" />
               </button>
@@ -347,11 +347,11 @@ export default function WeeklyReportPage() {
                               onClick={() => {
                                 handleSelectWeekFromDate(dayObj.date);
                               }}
-                              className={`h-8 w-8 sm:h-9 sm:w-9 text-xs font-semibold rounded-md flex items-center justify-center transition-all cursor-pointer relative ${
+                              className={`h-8 w-8 sm:h-9 sm:w-9 text-xs font-semibold rounded-md flex items-center justify-center transition cursor-pointer relative ${
                                 !dayObj.isCurrentMonth ? 'text-slate-600' : 'text-slate-300 hover:bg-slate-800'
                               } ${
                                 active
-                                  ? 'bg-blue-500/15 text-blue-300 font-bold border border-blue-500/30'
+                                  ? 'bg-blue-500/15 text-blue-300 font-semibold border border-blue-500/30'
                                   : hoverActive
                                   ? 'bg-slate-800/60 border border-dashed border-slate-600'
                                   : ''
@@ -486,7 +486,7 @@ export default function WeeklyReportPage() {
               return (
                 <div
                   key={s.profile.id}
-                  className="bento-card overflow-hidden transition-all"
+                  className="bento-card overflow-hidden transition"
                 >
                   {/* Card Header */}
                   <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 border-b border-slate-800">
@@ -496,7 +496,7 @@ export default function WeeklyReportPage() {
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                          <h2 className="text-base sm:text-lg font-bold text-slate-100 truncate">{s.profile.name}</h2>
+                          <h2 className="text-base sm:text-lg font-semibold text-slate-100 truncate">{s.profile.name}</h2>
                           <span className="px-2 py-0.5 rounded-md text-[11px] sm:text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
                             {s.profile.designation || 'Team'}
                           </span>
@@ -513,7 +513,7 @@ export default function WeeklyReportPage() {
                         {/* Created / Approved Mini-Tile */}
                         <div className="bg-slate-950/60 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-800">
                           <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Created / Approved</div>
-                          <div className="text-sm sm:text-lg font-bold text-slate-100">
+                          <div className="text-sm sm:text-lg font-semibold text-slate-100">
                             {s.totalCreated} <span className="text-slate-500 font-normal">/</span>{' '}
                             <span className="text-violet-400">{s.totalApproved}</span>
                           </div>
@@ -522,7 +522,7 @@ export default function WeeklyReportPage() {
                         {/* Approval Rate Mini-Tile */}
                         <div className="bg-slate-950/60 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-800">
                           <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Approval Rate</div>
-                          <div className="text-sm sm:text-lg font-bold text-violet-400">{s.approvalRate}%</div>
+                          <div className="text-sm sm:text-lg font-semibold text-violet-400">{s.approvalRate}%</div>
                         </div>
                       </div>
 
@@ -541,7 +541,7 @@ export default function WeeklyReportPage() {
 
                   {/* Work Type Summary Table */}
                   <div className="p-3.5 sm:p-6 bg-slate-950/50 space-y-3 sm:space-y-4">
-                    <h3 className="text-xs font-bold text-slate-300">
+                    <h3 className="text-xs font-semibold text-slate-300">
                       Work Type Aggregation — {s.profile.name}
                     </h3>
 
@@ -553,18 +553,18 @@ export default function WeeklyReportPage() {
                           return (
                             <div
                               key={typeName}
-                              className={`p-2 sm:p-3 rounded-lg border text-center transition-all ${
+                              className={`p-2 sm:p-3 rounded-lg border text-center transition ${
                                 hasWork
                                   ? 'bg-slate-900 border-violet-500/50 shadow-2xs ring-1 ring-violet-500/20'
                                   : 'bg-slate-900/40 border-slate-800/80 opacity-40 hover:opacity-75'
                               }`}
                             >
-                              <div className={`text-[11px] sm:text-xs font-bold truncate ${hasWork ? 'text-slate-200' : 'text-slate-400'}`}>
+                              <div className={`text-[11px] sm:text-xs font-semibold truncate ${hasWork ? 'text-slate-200' : 'text-slate-400'}`}>
                                 {typeName}
                               </div>
                               <div className="text-xs sm:text-sm font-semibold text-slate-100 mt-0.5">
                                 {data.done}{' '}
-                                <span className={`text-[10px] sm:text-xs font-bold ${hasWork ? 'text-violet-400' : 'text-slate-500'}`}>
+                                <span className={`text-[10px] sm:text-xs font-semibold ${hasWork ? 'text-violet-400' : 'text-slate-500'}`}>
                                   ({data.approved})
                                 </span>
                               </div>
@@ -575,7 +575,7 @@ export default function WeeklyReportPage() {
 
                     {/* Featured Weekly Best Work Feature */}
                     <div className="p-3 bg-gradient-to-r from-amber-950/30 via-slate-900/60 to-slate-900 border border-amber-800/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                      <div className="flex items-center space-x-2 text-xs font-bold text-slate-200">
+                      <div className="flex items-center space-x-2 text-xs font-semibold text-slate-200">
                         <Award className="w-4 h-4 text-amber-400 shrink-0" />
                         <span>Featured Weekly Best Work:</span>
                       </div>
@@ -587,7 +587,7 @@ export default function WeeklyReportPage() {
                               href={bestWorkLinks[s.profile.id]}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-bold text-amber-300 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-700/60 rounded-xl transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-2xs"
+                              className="flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-semibold text-amber-300 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-700/60 rounded-xl transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-2xs"
                               title="Open Featured Best Work Link"
                             >
                               <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -604,7 +604,7 @@ export default function WeeklyReportPage() {
                                   currentUrl: bestWorkLinks[s.profile.id],
                                 });
                               }}
-                              className="px-3 py-1.5 text-xs font-bold text-slate-300 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer shrink-0"
+                              className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer shrink-0"
                               title="Edit or Remove Best Work Link"
                             >
                               <Edit2 className="w-3.5 h-3.5 text-slate-400" />
@@ -622,7 +622,7 @@ export default function WeeklyReportPage() {
                                 currentUrl: '',
                               });
                             }}
-                            className="w-full sm:w-auto px-3.5 py-1.5 text-xs font-bold text-white webtree-gradient-btn rounded-xl shadow-2xs transition-transform active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer"
+                            className="w-full sm:w-auto px-3.5 py-1.5 text-xs font-semibold text-white webtree-gradient-btn rounded-xl shadow-2xs transition-transform active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer"
                           >
                             <Plus className="w-3.5 h-3.5" />
                             <span>Add Best Work</span>
@@ -636,7 +636,7 @@ export default function WeeklyReportPage() {
                   {isExpanded && (
                     <div className="p-3.5 sm:p-6 border-t border-slate-800 space-y-3 sm:space-y-4 bg-slate-900">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-slate-300">
+                        <h4 className="text-xs font-semibold text-slate-300">
                           Client-Wise Work Entries ({s.entries.length} Total Items)
                         </h4>
                         <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
@@ -676,7 +676,7 @@ export default function WeeklyReportPage() {
                                         </span>
                                       </div>
                                       <div className="flex items-center space-x-2 shrink-0">
-                                        <span className="text-[11px] font-bold text-violet-300 bg-violet-950/60 px-2 py-0.5 rounded-full border border-violet-800/60">
+                                        <span className="text-[11px] font-semibold text-violet-300 bg-violet-950/60 px-2 py-0.5 rounded-full border border-violet-800/60">
                                           {items.length} item(s)
                                         </span>
                                       </div>
@@ -690,7 +690,7 @@ export default function WeeklyReportPage() {
                                           className="p-2.5 sm:p-3 bg-slate-900 rounded-lg border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:bg-slate-850 hover:border-slate-700 transition-colors"
                                         >
                                           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
-                                            <span className="font-bold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] shrink-0">
+                                            <span className="font-semibold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] shrink-0">
                                               {entry.work_date}
                                             </span>
                                             <span className="px-2 py-0.5 rounded bg-violet-950/80 text-violet-300 border border-violet-800/60 font-semibold text-[10px] sm:text-[11px] shrink-0">
@@ -719,7 +719,7 @@ export default function WeeklyReportPage() {
                                               Approved: <strong className="text-violet-400">{entry.quantity_approved}</strong>
                                             </span>
                                             <span
-                                              className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                                              className={`font-semibold px-2 py-0.5 rounded text-[10px] ${
                                                 entry.quantity_approved > 0 || entry.status === 'Reviewed'
                                                   ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-800/60'
                                                   : 'bg-amber-950/70 text-amber-300 border border-amber-800/60'

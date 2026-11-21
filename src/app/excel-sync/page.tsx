@@ -642,7 +642,7 @@ export default function ExcelSyncPage() {
           <div>
             <div className="flex items-center space-x-2.5 mb-1.5">
               <FileSpreadsheet className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-white flex items-center gap-2">
                 Excel Sync
               </h1>
             </div>
@@ -713,10 +713,10 @@ export default function ExcelSyncPage() {
             {/* Action Bar: Copy for Excel & Download */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 bg-emerald-950/20 border border-emerald-800/40 rounded-xl p-3.5">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 <span className="text-xs sm:text-sm font-semibold text-slate-200">
                   {formattedDailyTitle} &bull;{' '}
-                  <span className="text-emerald-400 font-bold">{editableDailyRows.length} rows ready</span>
+                  <span className="text-emerald-400 font-semibold">{editableDailyRows.length} rows ready</span>
                 </span>
                 {dailyHasCustomEdits && (
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
@@ -752,7 +752,7 @@ export default function ExcelSyncPage() {
                   type="button"
                   onClick={handleCopyDaily}
                   disabled={!editableDailyRows.length}
-                  className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
+                  className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
                     isDailyCopied
                       ? 'bg-emerald-600 text-white'
                       : 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white active:scale-95'
@@ -761,7 +761,7 @@ export default function ExcelSyncPage() {
                   {isDailyCopied ? (
                     <>
                   <Check className="w-4 h-4 text-white" />
-                  <span>Copied!</span>
+                  <span>Copied</span>
                 </>
               ) : (
                 <>
@@ -777,7 +777,7 @@ export default function ExcelSyncPage() {
             <div className="bg-[#121211] border border-slate-800 rounded-xl overflow-hidden shadow-md">
               <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
                 <div className="flex items-center gap-2">
-                  <span className="font-display tabular-nums text-emerald-400 font-bold">DAILY_EXCEL_PREVIEW</span>
+                  <span className="font-display tabular-nums text-emerald-400 font-semibold">DAILY_EXCEL_PREVIEW</span>
                   <span>&bull;</span>
                   <span>Click any cell to edit wording before copying</span>
                 </div>
@@ -827,7 +827,7 @@ export default function ExcelSyncPage() {
                         <th className="w-1/2 py-1 px-4">B</th>
                         <th className="w-10 py-1 px-2 text-center"></th>
                       </tr>
-                      <tr className="bg-slate-900/90 text-slate-200 font-bold border-b border-slate-800">
+                      <tr className="bg-slate-900/90 text-slate-200 font-semibold border-b border-slate-800">
                         <th className="py-2.5 px-3 text-center border-r border-slate-800 text-slate-500 text-xs">
                           1
                         </th>
@@ -857,7 +857,7 @@ export default function ExcelSyncPage() {
                                 value={row.client}
                                 onChange={(e) => handleDailyRowChange(row.id, 'client', e.target.value)}
                                 placeholder="Client name"
-                                className="w-full bg-transparent px-2.5 py-1.5 rounded text-slate-100 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full bg-transparent px-2.5 py-1.5 rounded text-slate-100 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition placeholder:text-slate-600"
                               />
                             </td>
                             <td className="py-1.5 px-2">
@@ -866,7 +866,7 @@ export default function ExcelSyncPage() {
                                 value={row.type}
                                 onChange={(e) => handleDailyRowChange(row.id, 'type', e.target.value)}
                                 placeholder="Type (e.g. Static x3)"
-                                className="w-full bg-transparent px-2.5 py-1.5 rounded text-emerald-300 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full bg-transparent px-2.5 py-1.5 rounded text-emerald-300 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition placeholder:text-slate-600"
                               />
                             </td>
                             <td className="py-1.5 px-2 text-center">
@@ -874,7 +874,7 @@ export default function ExcelSyncPage() {
                                 type="button"
                                 onClick={() => handleDeleteDailyRow(row.id)}
                                 title="Remove row from export"
-                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition-all cursor-pointer"
+                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -922,9 +922,9 @@ export default function ExcelSyncPage() {
                       setViewMonthDate(parseLocalDate(weekStartDate));
                       setIsWeekCalendarOpen(!isWeekCalendarOpen);
                     }}
-                    className="flex items-center space-x-2 px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-emerald-500 rounded-lg text-xs font-bold text-slate-100 shadow-sm transition-all cursor-pointer group select-none"
+                    className="flex items-center space-x-2 px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-emerald-500 rounded-lg text-xs font-semibold text-slate-100 shadow-sm transition cursor-pointer group select-none"
                   >
-                    <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0 group-hover:scale-105 transition-transform" />
+                    <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0 transition-transform" />
                     <span>{weekLabel}</span>
                     <ChevronDown
                       className={cn(
@@ -952,7 +952,7 @@ export default function ExcelSyncPage() {
                           >
                             <ChevronLeft className="w-4 h-4" />
                           </button>
-                          <span className="text-xs font-bold text-slate-100 tracking-wide">
+                          <span className="text-xs font-semibold text-slate-100 tracking-wide">
                             {viewMonthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                           </span>
                           <button
@@ -1003,16 +1003,16 @@ export default function ExcelSyncPage() {
                                 onMouseLeave={() => setHoveredWeekDate(null)}
                                 onClick={() => handleSelectWeekFromDate(dayObj.date)}
                                 className={cn(
-                                  'h-8 w-8 sm:h-8.5 sm:w-8.5 text-xs font-semibold rounded flex items-center justify-center transition-all cursor-pointer relative',
+                                  'h-8 w-8 sm:h-8.5 sm:w-8.5 text-xs font-semibold rounded flex items-center justify-center transition cursor-pointer relative',
                                   !dayObj.isCurrentMonth
                                     ? 'text-slate-600'
                                     : 'text-slate-300 hover:bg-slate-800',
-                                  active && 'bg-emerald-950/90 text-emerald-300 font-bold border border-emerald-700/60',
+                                  active && 'bg-emerald-950/90 text-emerald-300 font-semibold border border-emerald-700/60',
                                   hoverActive && !active && 'bg-emerald-950/40 border border-dashed border-emerald-600/70 text-emerald-200',
-                                  isHoverStart && !active && '!bg-emerald-600/80 !text-white !border-emerald-500 font-bold shadow-sm',
-                                  isHoverEnd && !active && '!bg-emerald-600/80 !text-white !border-emerald-500 font-bold shadow-sm',
-                                  start && '!bg-gradient-to-r !from-emerald-600 !to-emerald-500 !text-white !border-emerald-500 shadow-sm font-bold',
-                                  end && '!bg-gradient-to-r !from-emerald-500 !to-emerald-600 !text-white !border-emerald-500 shadow-sm font-bold'
+                                  isHoverStart && !active && '!bg-emerald-600/80 !text-white !border-emerald-500 font-semibold shadow-sm',
+                                  isHoverEnd && !active && '!bg-emerald-600/80 !text-white !border-emerald-500 font-semibold shadow-sm',
+                                  start && '!bg-gradient-to-r !from-emerald-600 !to-emerald-500 !text-white !border-emerald-500 shadow-sm font-semibold',
+                                  end && '!bg-gradient-to-r !from-emerald-500 !to-emerald-600 !text-white !border-emerald-500 shadow-sm font-semibold'
                                 )}
                               >
                                 {dayObj.date.getDate()}
@@ -1090,10 +1090,10 @@ export default function ExcelSyncPage() {
             {/* Action Bar: Copy for Excel & Download */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 bg-emerald-950/20 border border-emerald-800/40 rounded-xl p-3.5">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 <span className="text-xs sm:text-sm font-semibold text-slate-200">
                   {weekLabel} &bull;{' '}
-                  <span className="text-emerald-400 font-bold">{editableWeeklyRows.length} deliverables ready</span>
+                  <span className="text-emerald-400 font-semibold">{editableWeeklyRows.length} deliverables ready</span>
                 </span>
                 {weeklyHasCustomEdits && (
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/50">
@@ -1129,7 +1129,7 @@ export default function ExcelSyncPage() {
                   type="button"
                   onClick={handleCopyWeekly}
                   disabled={!editableWeeklyRows.length}
-                  className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
+                  className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-2 shadow-sm cursor-pointer ${
                     isWeeklyCopied
                       ? 'bg-emerald-600 text-white'
                       : 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white active:scale-95'
@@ -1138,7 +1138,7 @@ export default function ExcelSyncPage() {
                   {isWeeklyCopied ? (
                     <>
                       <Check className="w-4 h-4 text-white" />
-                      <span>Copied!</span>
+                      <span>Copied</span>
                     </>
                   ) : (
                     <>
@@ -1154,7 +1154,7 @@ export default function ExcelSyncPage() {
             <div className="bg-[#121211] border border-slate-800 rounded-xl overflow-hidden shadow-md">
               <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
                 <div className="flex items-center gap-2">
-                  <span className="font-display tabular-nums text-emerald-400 font-bold">WEEKLY_EXCEL_PREVIEW</span>
+                  <span className="font-display tabular-nums text-emerald-400 font-semibold">WEEKLY_EXCEL_PREVIEW</span>
                   <span>&bull;</span>
                   <span className="text-slate-300">Copies <strong>content only</strong> (No headers or Week title)</span>
                 </div>
@@ -1211,7 +1211,7 @@ export default function ExcelSyncPage() {
                         <th className="w-8 py-1 px-1 text-center"></th>
                       </tr>
                       {/* Visual Header matching Excel */}
-                      <tr className="bg-slate-900/90 text-slate-200 font-bold border-b border-slate-800">
+                      <tr className="bg-slate-900/90 text-slate-200 font-semibold border-b border-slate-800">
                         <th className="py-2 px-2 text-center border-r border-slate-800 text-slate-500 text-xs">
                           1
                         </th>
@@ -1260,7 +1260,7 @@ export default function ExcelSyncPage() {
                                 value={row.serialNo}
                                 onChange={(e) => handleWeeklyRowChange(row.id, 'serialNo', e.target.value)}
                                 placeholder=""
-                                className="w-full bg-transparent px-1 py-1 text-center rounded text-slate-100 font-bold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full bg-transparent px-1 py-1 text-center rounded text-slate-100 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition placeholder:text-slate-600"
                               />
                             </td>
 
@@ -1271,8 +1271,8 @@ export default function ExcelSyncPage() {
                                 value={row.companyName}
                                 onChange={(e) => handleWeeklyRowChange(row.id, 'companyName', e.target.value)}
                                 placeholder=""
-                                className={`w-full bg-transparent px-2 py-1 rounded font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600 ${
-                                  row.companyName ? 'text-white font-bold' : 'text-slate-500'
+                                className={`w-full bg-transparent px-2 py-1 rounded font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition placeholder:text-slate-600 ${
+                                  row.companyName ? 'text-white font-semibold' : 'text-slate-500'
                                 }`}
                               />
                             </td>
@@ -1284,7 +1284,7 @@ export default function ExcelSyncPage() {
                                 value={row.description}
                                 onChange={(e) => handleWeeklyRowChange(row.id, 'description', e.target.value)}
                                 placeholder="Description"
-                                className="w-full bg-transparent px-2 py-1 rounded text-slate-200 focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full bg-transparent px-2 py-1 rounded text-slate-200 focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition placeholder:text-slate-600"
                               />
                             </td>
 
@@ -1295,8 +1295,8 @@ export default function ExcelSyncPage() {
                                 value={row.workType}
                                 onChange={(e) => handleWeeklyRowChange(row.id, 'workType', e.target.value)}
                                 placeholder="Category"
-                                className={`w-full bg-transparent px-2 py-1 rounded font-medium focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all ${
-                                  row.workType === 'Working' ? 'text-amber-400 font-bold' : 'text-emerald-300'
+                                className={`w-full bg-transparent px-2 py-1 rounded font-medium focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition ${
+                                  row.workType === 'Working' ? 'text-amber-400 font-semibold' : 'text-emerald-300'
                                 }`}
                               />
                             </td>
@@ -1308,7 +1308,7 @@ export default function ExcelSyncPage() {
                                 value={row.done}
                                 onChange={(e) => handleWeeklyRowChange(row.id, 'done', e.target.value)}
                                 placeholder=""
-                                className="w-full bg-transparent px-1 py-1 text-center rounded text-slate-100 font-bold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full bg-transparent px-1 py-1 text-center rounded text-slate-100 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition placeholder:text-slate-600"
                               />
                             </td>
 
@@ -1319,7 +1319,7 @@ export default function ExcelSyncPage() {
                                 value={row.approved}
                                 onChange={(e) => handleWeeklyRowChange(row.id, 'approved', e.target.value)}
                                 placeholder=""
-                                className="w-full bg-transparent px-1 py-1 text-center rounded text-emerald-300 font-bold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full bg-transparent px-1 py-1 text-center rounded text-emerald-300 font-semibold focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 outline-none transition placeholder:text-slate-600"
                               />
                             </td>
 
@@ -1329,7 +1329,7 @@ export default function ExcelSyncPage() {
                                 type="button"
                                 onClick={() => handleDeleteWeeklyRow(row.id)}
                                 title="Remove row from export"
-                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition-all cursor-pointer"
+                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded transition cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>

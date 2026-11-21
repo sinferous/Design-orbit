@@ -362,12 +362,12 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       {/* Auto User & System Date Bar */}
       <div className="bg-[#0c0c0b] border border-white/[0.08] p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-300 font-bold flex items-center justify-center text-sm border border-blue-500/20">
+          <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-300 font-semibold flex items-center justify-center text-sm border border-blue-500/20">
             {activeUserObj?.name?.charAt(0) || 'G'}
           </div>
           <div>
             <div className="text-xs font-semibold text-slate-400">Logging Work As</div>
-            <div className="text-sm font-bold text-slate-100">
+            <div className="text-sm font-semibold text-slate-100">
               {activeUserObj?.name || 'Gajesh'}
               <span className="text-xs font-normal text-slate-400 ml-1.5">
                 ({activeUserObj?.designation || 'UI/UX'})
@@ -408,7 +408,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       {/* 2. WORK ITEMS LIST FOR SELECTED CLIENT */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-100">
+          <h3 className="text-sm font-semibold text-slate-100">
             2. Work Items for {activeClientObj?.name || 'Selected Client'} ({items.length})
           </h3>
           {!isEditMode && (
@@ -427,10 +427,10 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
           {items.map((item, index) => (
             <div
               key={item.id}
-              className="p-5 rounded-xl border border-white/[0.08] bg-[#0c0c0b] hover:border-white/[0.14] transition-all space-y-4 relative"
+              className="p-5 rounded-xl border border-white/[0.08] bg-[#0c0c0b] hover:border-white/[0.14] transition space-y-4 relative"
             >
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-                <span className="text-xs font-bold text-slate-400">
+                <span className="text-xs font-semibold text-slate-400">
                   Item #{index + 1}
                 </span>
 
@@ -492,7 +492,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                     <button
                       type="button"
                       onClick={() => updateItemRow(item.id, { is_in_progress: false, quantity_done: item.quantity_done || 1 })}
-                      className={`px-3 py-1 rounded-md font-bold transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded-md font-semibold transition cursor-pointer ${
                         !item.is_in_progress
                           ? 'bg-slate-800 text-white shadow-xs'
                           : 'text-slate-400 hover:text-slate-200'
@@ -503,7 +503,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                     <button
                       type="button"
                       onClick={() => updateItemRow(item.id, { is_in_progress: true, quantity_done: 0, quantity_approved: 0, is_approved: false })}
-                      className={`px-3 py-1 rounded-md font-bold transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded-md font-semibold transition cursor-pointer ${
                         item.is_in_progress
                           ? 'bg-amber-500 text-slate-950 shadow-xs'
                           : 'text-slate-400 hover:text-slate-200'
@@ -543,7 +543,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                           const val = parseInt(e.target.value);
                           updateItemRow(item.id, { quantity_done: isNaN(val) ? 0 : val });
                         }}
-                        className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none"
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-semibold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none"
                       />
                     </div>
 
@@ -584,7 +584,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                             const val = parseInt(e.target.value);
                             updateItemRow(item.id, { quantity_done: isNaN(val) ? 0 : val });
                           }}
-                          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none"
+                          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-semibold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none"
                         />
                       </div>
 
@@ -603,7 +603,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                             const val = parseInt(e.target.value);
                             updateItemRow(item.id, { quantity_approved: isNaN(val) ? 0 : val });
                           }}
-                          className={`w-full px-3 py-2 bg-slate-900 border rounded-lg text-sm font-bold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none transition-colors ${
+                          className={`w-full px-3 py-2 bg-slate-900 border rounded-lg text-sm font-semibold text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-violet-400 focus:outline-none transition-colors ${
                             item.quantity_approved > 0
                               ? 'border-emerald-500/60 bg-emerald-950/20'
                               : 'border-slate-700'
@@ -619,7 +619,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                           <button
                             type="button"
                             onClick={() => updateItemRow(item.id, { is_approved: true })}
-                            className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                            className={`px-3 py-2 rounded-lg text-xs font-semibold border transition flex items-center justify-center space-x-1 cursor-pointer ${
                               item.is_approved
                                 ? 'bg-emerald-950/70 text-emerald-300 border-emerald-700 shadow-xs'
                                 : 'bg-slate-900 text-slate-400 border-slate-700 hover:bg-slate-800'
@@ -632,7 +632,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
                           <button
                             type="button"
                             onClick={() => updateItemRow(item.id, { is_approved: false })}
-                            className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                            className={`px-3 py-2 rounded-lg text-xs font-semibold border transition flex items-center justify-center space-x-1 cursor-pointer ${
                               !item.is_approved
                                 ? 'bg-amber-950/70 text-amber-300 border-amber-700 shadow-xs'
                                 : 'bg-slate-900 text-slate-400 border-slate-700 hover:bg-slate-800'

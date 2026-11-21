@@ -29,7 +29,7 @@ export function SlideTabs<T extends string = string>({
   onChange,
   className,
   pillClassName,
-  activeTextClassName = 'text-white font-bold',
+  activeTextClassName = 'text-white font-semibold',
   inactiveTextClassName = 'text-slate-400 hover:text-slate-200',
   size = 'sm',
   fullWidth = true,
@@ -85,7 +85,7 @@ export function SlideTabs<T extends string = string>({
       {/* Smooth Gliding Highlight Pill */}
       <div
         className={cn(
-          'absolute inset-y-1 left-0 rounded-lg transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none z-0',
+          'absolute inset-y-1 left-0 rounded-lg transition duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none z-0',
           pillClassName || 'bg-white/[0.08] border border-white/[0.1] shadow-xs'
         )}
         style={{
@@ -114,7 +114,7 @@ export function SlideTabs<T extends string = string>({
               size === 'xs' && 'py-1 px-2.5 text-[11px]',
               size === 'sm' && 'py-1.5 px-3 text-xs',
               size === 'md' && 'py-2 px-4 text-xs sm:text-sm',
-              size === 'lg' && 'h-10 px-4 text-xs sm:text-sm font-bold',
+              size === 'lg' && 'h-10 px-4 text-xs sm:text-sm font-semibold',
               isActive ? activeTextClassName : inactiveTextClassName
             )}
           >

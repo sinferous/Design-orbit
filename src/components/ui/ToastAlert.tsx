@@ -107,7 +107,7 @@ export function ToastAlert({
     <div
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-b from-slate-900/95 via-slate-950/98 to-slate-950/95 backdrop-blur-2xl transition-all duration-300 ${styleConfig.borderGlow} animate-in fade-in slide-in-from-top-3 sm:slide-in-from-right-3 duration-250`}
+      className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-b from-slate-900/95 via-slate-950/98 to-slate-950/95 backdrop-blur-2xl transition duration-300 ${styleConfig.borderGlow} animate-in fade-in slide-in-from-top-3 sm:slide-in-from-right-3 duration-250`}
     >
       {/* Top Subtle Edge Rim Light */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
@@ -116,7 +116,7 @@ export function ToastAlert({
       <div className="p-3.5 sm:p-4 flex items-start justify-between gap-3">
         {/* Left: Glowing Icon Squircle */}
         <div
-          className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 duration-200 ${styleConfig.iconContainer}`}
+          className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 transition-transform duration-200 ${styleConfig.iconContainer}`}
         >
           <IconComponent className="w-4.5 h-4.5" />
         </div>
@@ -129,7 +129,7 @@ export function ToastAlert({
             >
               {displayTitle}
             </span>
-            <span className={`w-1.5 h-1.5 rounded-full ${styleConfig.accentDot} animate-pulse`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${styleConfig.accentDot}`} />
             <span className="text-[10px] font-semibold text-slate-500">Design Orbit</span>
           </div>
 
@@ -153,7 +153,7 @@ export function ToastAlert({
       {/* Bottom Animated Auto-Dismiss Progress Bar */}
       <div className="w-full h-[2.5px] bg-slate-800/60 overflow-hidden">
         <div
-          className={`h-full bg-gradient-to-r ${styleConfig.progressGradient} transition-all duration-75 ease-linear`}
+          className={`h-full bg-gradient-to-r ${styleConfig.progressGradient} transition duration-75 ease-linear`}
           style={{ width: `${progress}%` }}
         />
       </div>

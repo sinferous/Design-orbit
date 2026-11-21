@@ -262,8 +262,12 @@ body {
 .animate-orbit { animation: orbitSpin 24s linear infinite; transform-origin: center; }
 .animate-orbit-slow { animation: orbitSpin 60s linear infinite reverse; transform-origin: center; }
 
+/* Chart draws in from the left */
+@keyframes chartReveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.chart-reveal { animation: chartReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-in-up, .animate-beacon, .animate-orbit, .animate-orbit-slow, .diya-flame { animation: none; }
+  .animate-fade-in-up, .animate-beacon, .animate-orbit, .animate-orbit-slow, .diya-flame, .chart-reveal { animation: none; }
 }
 
 /* Sidebar sliding submenu accordion */

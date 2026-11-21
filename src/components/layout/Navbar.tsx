@@ -32,7 +32,7 @@ export function Navbar({ children }: NavbarProps) {
       <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-[#0c0c0b] border-b border-white/[0.07] px-4 flex items-center justify-between">
         <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center space-x-2 py-1">
           <BrandMark size={24} />
-          <span className="font-display font-bold text-slate-50 text-base">Design Orbit</span>
+          <span className="font-display font-semibold text-slate-50 text-base">Design Orbit</span>
         </Link>
 
         <div className="flex items-center space-x-2">
@@ -40,7 +40,7 @@ export function Navbar({ children }: NavbarProps) {
             <Link
               href="/work/new"
               className="p-2 webtree-gradient-btn rounded-full"
-              title="Add Daily Work"
+              title="Log work"
             >
               <PlusCircle className="w-4 h-4" />
             </Link>

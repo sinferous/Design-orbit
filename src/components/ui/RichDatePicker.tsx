@@ -166,7 +166,7 @@ export function RichDatePicker({
           }
         }}
         className={cn(
-          'flex items-center space-x-2 bg-slate-900 border border-slate-700 hover:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition-all rounded-lg text-slate-100 shadow-sm cursor-pointer select-none font-bold',
+          'flex items-center space-x-2 bg-slate-900 border border-slate-700 hover:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition rounded-lg text-slate-100 shadow-sm cursor-pointer select-none font-semibold',
           size === 'sm' ? 'px-3 py-1.5 text-xs' : size === 'lg' ? 'px-4 py-2.5 text-base' : 'px-3.5 py-2 text-sm',
           isOpen && 'border-violet-500 ring-2 ring-violet-500/30',
           disabled && 'opacity-60 bg-slate-950 cursor-not-allowed border-slate-800 text-slate-500'
@@ -195,7 +195,7 @@ export function RichDatePicker({
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-xs font-bold text-slate-100 tracking-wide">
+            <span className="text-xs font-semibold text-slate-100 tracking-wide">
               {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </span>
             <button
@@ -232,11 +232,11 @@ export function RichDatePicker({
                   type="button"
                   onClick={() => handleSelectDay(dayObj.date)}
                   className={cn(
-                    'h-8 text-xs font-semibold rounded-lg flex items-center justify-center transition-all cursor-pointer select-none',
+                    'h-8 text-xs font-semibold rounded-lg flex items-center justify-center transition cursor-pointer select-none',
                     isSelected
                       ? 'bg-violet-600 text-white font-semibold shadow-sm scale-105'
                       : isToday
-                      ? 'border border-violet-500 text-violet-300 bg-violet-950/60 font-bold hover:bg-violet-900/60'
+                      ? 'border border-violet-500 text-violet-300 bg-violet-950/60 font-semibold hover:bg-violet-900/60'
                       : dayObj.isCurrentMonth
                       ? 'text-slate-200 hover:bg-slate-800 hover:text-white'
                       : 'text-slate-600 hover:bg-slate-800/40 hover:text-slate-400'
@@ -258,7 +258,7 @@ export function RichDatePicker({
                   setIsOpen(false);
                 }}
                 className={cn(
-                  'px-2 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer',
+                  'px-2 py-1 rounded-md text-[11px] font-semibold transition-colors cursor-pointer',
                   value === todayStr
                     ? 'bg-violet-950 text-violet-300 border border-violet-800'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
@@ -275,7 +275,7 @@ export function RichDatePicker({
                   setIsOpen(false);
                 }}
                 className={cn(
-                  'px-2 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer',
+                  'px-2 py-1 rounded-md text-[11px] font-semibold transition-colors cursor-pointer',
                   (() => {
                     const y = new Date();
                     y.setDate(y.getDate() - 1);

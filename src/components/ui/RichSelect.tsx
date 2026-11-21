@@ -149,7 +149,7 @@ export function RichSelect<T extends string | number = string | number>({
   const sizeClasses = {
     sm: 'py-1.5 px-3 text-xs rounded-lg',
     md: 'py-2 px-3 text-sm rounded-lg',
-    lg: 'py-2.5 px-4 text-base rounded-xl font-bold',
+    lg: 'py-2.5 px-4 text-base rounded-xl font-semibold',
   };
 
   return (
@@ -173,7 +173,7 @@ export function RichSelect<T extends string | number = string | number>({
           }
         }}
         className={cn(
-          'w-full flex items-center justify-between border bg-slate-900 text-slate-100 transition-all duration-150 cursor-pointer select-none',
+          'w-full flex items-center justify-between border bg-slate-900 text-slate-100 transition duration-150 cursor-pointer select-none',
           'border-slate-700 hover:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 shadow-sm',
           sizeClasses[size],
           isOpen && 'border-violet-500 ring-2 ring-violet-500/30',
@@ -189,14 +189,14 @@ export function RichSelect<T extends string | number = string | number>({
           <span
             className={cn(
               'truncate font-medium',
-              size === 'lg' ? 'font-bold' : size === 'sm' ? 'text-xs' : 'text-sm',
+              size === 'lg' ? 'font-semibold' : size === 'sm' ? 'text-xs' : 'text-sm',
               !selectedOption && 'text-slate-400 font-normal'
             )}
           >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.badge && (
-            <span className="shrink-0 ml-1.5 px-1.5 py-0.5 text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700 rounded">
+            <span className="shrink-0 ml-1.5 px-1.5 py-0.5 text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700 rounded">
               {selectedOption.badge}
             </span>
           )}
@@ -273,7 +273,7 @@ export function RichSelect<T extends string | number = string | number>({
                     className={cn(
                       'px-3 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors select-none',
                       isSelected
-                        ? 'bg-violet-950/80 text-violet-300 font-bold'
+                        ? 'bg-violet-950/80 text-violet-300 font-semibold'
                         : isHighlighted
                         ? 'bg-slate-800 text-white'
                         : 'text-slate-200 hover:bg-slate-800/80 hover:text-white',

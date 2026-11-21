@@ -82,7 +82,7 @@ export function EmailDayLogModal({
         <div className="px-6 py-4 border-b border-white/[0.07] flex items-center justify-between bg-[#0c0c0b]">
           <div className="flex items-center space-x-3">
             <div>
-              <h3 className="text-base font-bold text-slate-100">
+              <h3 className="text-base font-semibold text-slate-100">
                 Email Daily Work Log
               </h3>
               <p className="text-xs text-slate-400">

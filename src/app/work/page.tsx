@@ -505,15 +505,15 @@ export default function MyWorkPage() {
         {/* Header & Main Actions */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-100">
-              {isAdmin ? 'Creative Team Work Log' : (selectedUserFilter === 'my_work' ? 'My Daily Work Log' : 'Team Work Log')}
+            <h1 className="text-2xl font-semibold text-slate-100">
+              {isAdmin ? 'Team log' : (selectedUserFilter === 'my_work' ? 'My log' : 'Team log')}
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
               {isAdmin
-                ? 'Showing work entries logged across the creative design team'
+                ? 'Everything the creative team logged'
                 : (selectedUserFilter === 'my_work'
-                  ? `Showing work entries logged by ${activeProfile?.name || 'you'}`
-                  : 'Showing work entries logged across the team')}
+                  ? `Logged by ${activeProfile?.name || 'you'}`
+                  : 'Everything the team logged')}
             </p>
           </div>
 
@@ -550,24 +550,18 @@ export default function MyWorkPage() {
               {
                 id: 'calendar',
                 label: (
-                  <span className="flex items-center space-x-1.5">
-                    <span>Daily Log</span>
-                    <span className="hidden min-[420px]:inline text-[11px] font-normal opacity-80">(By Date)</span>
-                  </span>
+                  <span>By date</span>
                 ),
                 icon: Calendar,
               },
               {
                 id: 'pending',
-                label: 'Pending Queue',
+                label: 'Pending',
                 icon: CalendarClock,
                 badge: pendingEntries.length > 0 ? (
                   <span
                     className={cn(
-                      'px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold shrink-0 transition-colors',
-                      workViewMode === 'pending'
-                        ? 'bg-amber-400 text-amber-950'
-                        : 'bg-amber-900/60 text-amber-300 border border-amber-700/60'
+                      'text-xs font-normal tabular-nums shrink-0 text-slate-500'
                     )}
                   >
                     {pendingEntries.length}
@@ -581,7 +575,7 @@ export default function MyWorkPage() {
             fullWidth={false}
             className="bento-card p-1 gap-1 w-full sm:w-auto"
             pillClassName={cn(
-              'rounded-lg transition-all duration-200',
+              'rounded-lg transition duration-200',
               workViewMode === 'pending'
                 ? 'bg-amber-500/20 border border-amber-500/35 text-amber-200 shadow-xs'
                 : 'bg-white/[0.08] border border-white/[0.1] text-white shadow-xs'
@@ -591,7 +585,7 @@ export default function MyWorkPage() {
           <span className="text-xs text-slate-400 font-normal hidden sm:inline">
             {workViewMode === 'pending'
               ? 'Deliverables awaiting client feedback • Direct approval without date hunting'
-              : 'Browse deliverables by calendar date'}
+              : 'Pick a day to see its log'}
           </span>
         </div>
 
@@ -626,8 +620,8 @@ export default function MyWorkPage() {
           ) : (
             <SlideTabs
               options={[
-                { id: 'my_work', label: `My Log (${activeProfile?.name || 'Gajesh'})` },
-                { id: 'all', label: 'Entire Team Log' },
+                { id: 'my_work', label: 'Mine' },
+                { id: 'all', label: 'Whole team' },
               ]}
               value={selectedUserFilter === 'my_work' ? 'my_work' : 'all'}
               onChange={(val) => setSelectedUserFilter(val)}
@@ -676,11 +670,11 @@ export default function MyWorkPage() {
                     setViewDate(parseLocalDate(selectedDate));
                     setIsCalendarOpen(!isCalendarOpen);
                   }}
-                  className="flex items-center space-x-2 px-3 py-1.5 bg-slate-950/80 hover:bg-slate-800/80 rounded-lg border border-slate-700 hover:border-violet-500 shadow-2xs transition-all cursor-pointer text-xs group"
+                  className="flex items-center space-x-2 px-3 py-1.5 bg-slate-950/80 hover:bg-slate-800/80 rounded-lg border border-slate-700 hover:border-violet-500 shadow-2xs transition cursor-pointer text-xs group"
                   title="Click to choose a date"
                 >
-                  <Calendar className="w-4 h-4 text-violet-400 shrink-0 group-hover:scale-105 transition-transform" />
-                  <span className="font-bold text-slate-100">
+                  <Calendar className="w-4 h-4 text-violet-400 shrink-0 transition-transform" />
+                  <span className="font-semibold text-slate-100">
                     {getDateDisplayLabel(selectedDate)}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0 group-hover:text-slate-300 transition-colors" />
@@ -731,11 +725,11 @@ export default function MyWorkPage() {
                                 key={dayObj.key}
                                 type="button"
                                 onClick={() => handleSelectDate(dayObj.date)}
-                                className={`h-8 w-8 sm:h-8.5 sm:w-8.5 text-xs font-semibold rounded-lg flex items-center justify-center transition-all cursor-pointer relative ${
+                                className={`h-8 w-8 sm:h-8.5 sm:w-8.5 text-xs font-semibold rounded-lg flex items-center justify-center transition cursor-pointer relative ${
                                   !dayObj.isCurrentMonth ? 'text-slate-600 hover:text-slate-400' : 'text-slate-300 hover:bg-slate-800'
                                 } ${
                                   isSelected
-                                    ? '!bg-violet-600 !text-white font-bold !border-violet-500 shadow-sm'
+                                    ? '!bg-violet-600 !text-white font-semibold !border-violet-500 shadow-sm'
                                     : ''
                                 }`}
                               >
@@ -750,7 +744,7 @@ export default function MyWorkPage() {
                       </div>
 
                       {/* Quick Presets & Actions */}
-                      <div className="border-t border-slate-800 pt-2.5 flex items-center justify-between text-xs font-bold">
+                      <div className="border-t border-slate-800 pt-2.5 flex items-center justify-between text-xs font-semibold">
                         <div className="flex items-center space-x-2">
                           <button
                             type="button"
@@ -802,7 +796,7 @@ export default function MyWorkPage() {
               {selectedDate !== todayStr && (
                 <button
                   onClick={() => setSelectedDate(todayStr)}
-                  className="px-2 py-1 text-xs font-bold text-violet-300 bg-violet-950/70 rounded-md border border-violet-800/60 hover:bg-violet-900/80"
+                  className="px-2 py-1 text-xs font-semibold text-violet-300 bg-violet-950/70 rounded-md border border-violet-800/60 hover:bg-violet-900/80"
                 >
                   Today
                 </button>
@@ -813,45 +807,45 @@ export default function MyWorkPage() {
 
         {/* Daily Summary Stat Tiles - Bento Matrix */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-          <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+          <div className="bento-card p-4 sm:p-5 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
               <div className="min-w-0">
-                <div className="text-xs font-medium text-slate-400 truncate">Total Quantity</div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-100 font-display">{totalDone}</div>
+                <div className="text-xs font-medium text-slate-400 truncate">Deliverables</div>
+                <div className="text-xl sm:text-2xl font-medium text-slate-100 font-display tabular-nums">{totalDone}</div>
               </div>
             </div>
-            <span className="text-xs text-slate-400 font-normal hidden min-[400px]:inline shrink-0">{entries.length} items</span>
+            <span className="text-xs text-slate-500 font-normal hidden min-[400px]:inline shrink-0 tabular-nums">{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</span>
           </div>
 
-          <div className="bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+          <div className="bento-card p-4 sm:p-5 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
               <div className="min-w-0">
-                <div className="text-xs font-medium text-slate-400 truncate">Approved Qty</div>
-                <div className="text-xl sm:text-2xl font-bold text-emerald-400 font-display">{totalApproved}</div>
+                <div className="text-xs font-medium text-slate-400 truncate">Approved</div>
+                <div className="text-xl sm:text-2xl font-medium text-slate-100 font-display tabular-nums">{totalApproved}</div>
               </div>
             </div>
-            <span className="text-xs text-emerald-400 font-semibold shrink-0">
+            <span className="text-xs text-slate-500 tabular-nums shrink-0">
               {totalDone > 0 ? `${Math.round((totalApproved / totalDone) * 100)}%` : '0%'}
             </span>
           </div>
 
-          <div className="col-span-2 sm:col-span-1 bento-card bento-card-hover p-4 sm:p-5 flex items-center justify-between group">
+          <div className="col-span-2 sm:col-span-1 bento-card p-4 sm:p-5 flex items-center justify-between">
             <div className="flex items-center space-x-3 min-w-0">
               <div className="min-w-0">
-                <div className="text-xs font-medium text-slate-400 truncate">Total Time Tracked</div>
-                <div className="text-lg sm:text-2xl font-bold text-amber-400 font-display tabular-nums">
+                <div className="text-xs font-medium text-slate-400 truncate">Time tracked</div>
+                <div className="text-lg sm:text-2xl font-medium text-slate-100 font-display tabular-nums">
                   {formatWorkEntryDuration(totalTrackedSeconds)}
                 </div>
               </div>
             </div>
-            <span className="text-xs text-amber-400 font-semibold shrink-0">
+            <span className="text-xs text-slate-400 shrink-0 tabular-nums">
               {activeTimersCount > 0 ? (
-                <span className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-amber-950/60 border border-amber-700/50">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-beacon inline-block" />
-                  <span>{activeTimersCount} Running</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-beacon inline-block" />
+                  <span>{activeTimersCount} running</span>
                 </span>
               ) : (
-                <span className="text-slate-500 text-xs">All Paused</span>
+                <span className="text-slate-500 text-xs">None running</span>
               )}
             </span>
           </div>
@@ -871,20 +865,20 @@ export default function MyWorkPage() {
             <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-slate-400 mx-auto">
               <Calendar className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-semibold text-slate-100">No work logged for {formatDisplayDate(selectedDate)}</h3>
+            <h3 className="text-base font-medium text-slate-100">Nothing logged for {formatDisplayDate(selectedDate)}</h3>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
               {isAdmin || selectedUserFilter !== 'my_work'
-                ? "No team members have logged work for this date."
-                : "You haven't logged any work items for this date yet."}
+                ? "Nobody on the team logged work this day"
+                : "Entries you log for this day show up here"}
             </p>
             {!isAdmin && (
               <div className="pt-2">
                 <Link
                   href="/work/new"
-                  className="inline-flex items-center space-x-2 px-4 py-2 text-xs font-bold text-white webtree-gradient-btn rounded-lg"
+                  className="inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-medium text-slate-200 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] rounded-lg transition-colors"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Log Daily Work</span>
+                  <span>Log work</span>
                 </Link>
               </div>
             )}
@@ -944,7 +938,7 @@ export default function MyWorkPage() {
                           return (
                             <div
                               key={entry.id}
-                              className={`p-5 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                              className={`p-5 transition flex flex-col md:flex-row md:items-center justify-between gap-4 ${
                                 entry.timer_started_at
                                   ? isMyEntry
                                     ? 'bg-amber-950/25 border-l-4 border-l-amber-500 shadow-2xs'
@@ -986,7 +980,7 @@ export default function MyWorkPage() {
                                       className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 border border-blue-500/25 transition-colors shadow-2xs cursor-pointer group"
                                       title="Open Deliverable URL in new tab"
                                     >
-                                      <ExternalLink className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
+                                      <ExternalLink className="w-3.5 h-3.5 text-blue-400 transition-transform shrink-0" />
                                       <span>View Project Link ↗</span>
                                       <span className="text-[11px] text-blue-300/70 font-normal truncate max-w-xs ml-1 border-l border-blue-500/25 pl-1.5">
                                         {entry.project_url || entry.best_work_url}
@@ -1006,7 +1000,7 @@ export default function MyWorkPage() {
                               <div className="flex flex-wrap items-center space-x-3 sm:space-x-5 justify-between md:justify-end gap-y-2">
                                 {isInProgressEntry(entry) ? (
                                   <div className="flex items-center">
-                                    <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
+                                    <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
                                       <span>⏳ Working</span>
                                       <span className="text-[11px] text-amber-400 font-semibold">(0 qty • Time logged)</span>
                                     </span>
@@ -1015,12 +1009,12 @@ export default function MyWorkPage() {
                                   <>
                                     <div className="flex items-center space-x-4 text-xs">
                                       <div className="text-center">
-                                        <div className="text-slate-500 text-[11px] font-bold">Qty</div>
+                                        <div className="text-slate-500 text-[11px] font-semibold">Qty</div>
                                         <div className="text-base font-semibold text-slate-100">{entry.quantity_done}</div>
                                       </div>
 
                                       <div className="text-center">
-                                        <div className="text-slate-500 text-[11px] font-bold">Approved</div>
+                                        <div className="text-slate-500 text-[11px] font-semibold">Approved</div>
                                         <div className="text-base font-semibold text-violet-400">{entry.quantity_approved}</div>
                                       </div>
                                     </div>
@@ -1030,7 +1024,7 @@ export default function MyWorkPage() {
                                       <button
                                         type="button"
                                         onClick={() => setSelectedApprovalEntry(entry)}
-                                        className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1.5 transition-all border shadow-2xs hover:scale-105 active:scale-95 cursor-pointer ${
+                                        className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition border shadow-2xs active:scale-95 cursor-pointer ${
                                           entry.quantity_approved === entry.quantity_done
                                             ? 'bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border-emerald-800/60'
                                             : entry.quantity_approved > 0
@@ -1061,7 +1055,7 @@ export default function MyWorkPage() {
                                       </button>
                                     ) : (
                                       <span
-                                        className={`px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 border ${
+                                        className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1 border ${
                                           entry.quantity_approved > 0
                                             ? 'bg-emerald-950/70 text-emerald-300 border-emerald-800/60'
                                             : 'bg-amber-950/70 text-amber-300 border-amber-800/60'
@@ -1089,7 +1083,7 @@ export default function MyWorkPage() {
                                     {entry.timer_started_at ? (
                                       // Active running timer: live clock + Stop button
                                       <div className="flex items-center space-x-1.5">
-                                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-950/80 text-amber-300 border border-amber-700/60 rounded-lg font-display tabular-nums text-xs font-bold shadow-2xs">
+                                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-950/80 text-amber-300 border border-amber-700/60 rounded-lg font-display tabular-nums text-xs font-semibold shadow-2xs">
                                           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
                                           <Clock className="w-3 h-3 text-amber-400" />
                                           <span>{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
@@ -1098,7 +1092,7 @@ export default function MyWorkPage() {
                                           type="button"
                                           onClick={() => handleStopTimer(entry)}
                                           disabled={timerLoadingId === entry.id}
-                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition cursor-pointer disabled:opacity-50"
                                           title="Stop timer and record time in DB"
                                         >
                                           <Square className="w-2.5 h-2.5 fill-current" />
@@ -1118,7 +1112,7 @@ export default function MyWorkPage() {
                                               }
                                             }
                                           }}
-                                          className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                                          className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer shadow-2xs"
                                           title="Float timer outside browser (Picture-in-Picture)"
                                         >
                                           <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -1131,7 +1125,7 @@ export default function MyWorkPage() {
                                         {calculateWorkEntrySeconds(entry, nowMs) > 0 && (
                                           <span
                                             title={`Total time tracked: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
-                                            className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-xs font-display tabular-nums font-bold"
+                                            className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-xs font-display tabular-nums font-semibold"
                                           >
                                             <Clock className="w-3 h-3 text-slate-400" />
                                             <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
@@ -1141,7 +1135,7 @@ export default function MyWorkPage() {
                                           type="button"
                                           onClick={() => handleStartTimer(entry)}
                                           disabled={timerLoadingId === entry.id}
-                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-violet-950/60 hover:bg-violet-900/80 text-violet-300 border border-violet-800/60 hover:border-violet-600 rounded-lg text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-violet-950/60 hover:bg-violet-900/80 text-violet-300 border border-violet-800/60 hover:border-violet-600 rounded-lg text-xs font-semibold shadow-2xs transition cursor-pointer disabled:opacity-50"
                                           title="Start timer for this task"
                                         >
                                           <Play className="w-2.5 h-2.5 fill-violet-400 text-violet-400" />
@@ -1156,12 +1150,12 @@ export default function MyWorkPage() {
                                     {entry.timer_started_at ? (
                                       <span
                                         title={`${entry.profile?.name || 'Teammate'} is actively working on this right now`}
-                                        className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded-lg font-display tabular-nums text-xs font-bold shadow-2xs"
+                                        className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded-lg font-display tabular-nums text-xs font-semibold shadow-2xs"
                                       >
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
                                         <Clock className="w-3.5 h-3.5 text-emerald-400" />
                                         <span>{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
-                                        <span className="text-[11px] font-bold text-emerald-400 bg-emerald-900/60 px-1.5 py-0.5 rounded border border-emerald-700/50">Live</span>
+                                        <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-900/60 px-1.5 py-0.5 rounded border border-emerald-700/50">Live</span>
                                       </span>
                                     ) : (
                                       calculateWorkEntrySeconds(entry, nowMs) > 0 && (
@@ -1218,7 +1212,7 @@ export default function MyWorkPage() {
               {/* Designer Filter for Team/Admin or My Log tab */}
               {isAdmin ? (
                 <div className="flex items-center space-x-2.5 w-full md:w-auto">
-                  <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs shrink-0">
+                  <span className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs shrink-0">
                     Pending Team Approvals
                   </span>
                   <div className="w-56">
@@ -1250,7 +1244,7 @@ export default function MyWorkPage() {
                   fullWidth={false}
                   className="w-full md:w-auto p-1 bg-slate-950/80 border border-slate-800"
                   pillClassName="bg-slate-800 border border-amber-500/35 shadow-[0_0_12px_rgba(245,158,11,0.25)]"
-                  activeTextClassName="text-amber-400 font-bold"
+                  activeTextClassName="text-amber-400 font-semibold"
                 />
               )}
 
@@ -1264,7 +1258,7 @@ export default function MyWorkPage() {
                   value={pendingSearch}
                   onChange={e => setPendingSearch(e.target.value)}
                   placeholder="Search client, task, designer..."
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-950/80 border border-slate-700 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-slate-950 transition-all"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-950/80 border border-slate-700 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-slate-950 transition"
                 />
                 {pendingSearch && (
                   <button
@@ -1280,7 +1274,7 @@ export default function MyWorkPage() {
             {/* Urgency Filter Chips & Pending Summary Tiles */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                <span className="text-slate-400 font-bold text-[11px] mr-1">Filter By Age:</span>
+                <span className="text-slate-400 font-semibold text-[11px] mr-1">Filter By Age:</span>
                 <SlideTabs
                   options={[
                     { id: 'all', label: `All (${pendingEntries.length})` },
@@ -1294,18 +1288,18 @@ export default function MyWorkPage() {
                   fullWidth={false}
                   className="bg-slate-900 border border-slate-800 p-1"
                   pillClassName={cn(
-                    'shadow-2xs transition-all duration-[480ms]',
+                    'shadow-2xs transition duration-[480ms]',
                     pendingFilterUrgency === 'all' && 'bg-slate-100 border border-slate-100',
                     pendingFilterUrgency === 'fresh' && 'bg-emerald-600 border border-emerald-500',
                     pendingFilterUrgency === 'attention' && 'bg-amber-600 border border-amber-500',
                     pendingFilterUrgency === 'overdue' && 'bg-rose-600 border border-rose-500'
                   )}
-                  activeTextClassName={pendingFilterUrgency === 'all' ? 'text-slate-950 font-bold' : 'text-white font-bold'}
+                  activeTextClassName={pendingFilterUrgency === 'all' ? 'text-slate-950 font-semibold' : 'text-white font-semibold'}
                 />
               </div>
 
               <div className="text-xs text-slate-400 font-medium">
-                Waiting for sign-off: <strong className="text-amber-400 font-bold">{totalPendingWaiting} item(s)</strong> across <strong className="text-slate-100 font-bold">{filteredPendingEntries.length}</strong> task(s)
+                Waiting for sign-off: <strong className="text-amber-400 font-semibold">{totalPendingWaiting} item(s)</strong> across <strong className="text-slate-100 font-semibold">{filteredPendingEntries.length}</strong> task(s)
               </div>
             </div>
 
@@ -1323,7 +1317,7 @@ export default function MyWorkPage() {
                 <div className="w-12 h-12 rounded-full bg-emerald-950/60 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-800/60">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold text-slate-100">All Caught Up! No Pending Approvals</h3>
+                <h3 className="text-base font-semibold text-slate-100">All Caught Up! No Pending Approvals</h3>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto">
                   {pendingSearch || pendingFilterUrgency !== 'all'
                     ? 'No pending approvals match your search filter criteria.'
@@ -1371,7 +1365,7 @@ export default function MyWorkPage() {
                               <h3 className="text-xs font-semibold text-slate-100">
                                 {clientName}
                               </h3>
-                              <span className="text-[11px] font-bold text-amber-300 bg-amber-950/70 border border-amber-800/60 px-2 py-0.5 rounded-full">
+                              <span className="text-[11px] font-semibold text-amber-300 bg-amber-950/70 border border-amber-800/60 px-2 py-0.5 rounded-full">
                                 {clientItems.length} awaiting sign-off
                               </span>
                             </div>
@@ -1381,7 +1375,7 @@ export default function MyWorkPage() {
                               <span className="text-slate-600">•</span>
                               <span>Approved: <strong className="text-violet-400">{clientApproved}</strong></span>
                               <span className="text-slate-600">•</span>
-                              <span className="text-amber-400 font-bold">Waiting: {clientDone - clientApproved}</span>
+                              <span className="text-amber-400 font-semibold">Waiting: {clientDone - clientApproved}</span>
                             </div>
                           </div>
 
@@ -1399,7 +1393,7 @@ export default function MyWorkPage() {
                                   <div className="space-y-1.5 flex-1 min-w-0">
                                     <div className="flex flex-wrap items-center gap-2">
                                       {/* Original Work Date Tag */}
-                                      <span className="font-bold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-[11px]">
+                                      <span className="font-semibold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-[11px]">
                                         📅 {formatDisplayDate(entry.work_date)}
                                       </span>
 
@@ -1410,7 +1404,7 @@ export default function MyWorkPage() {
                                       </span>
 
                                       {/* Designer Tag */}
-                                      <span className="px-2 py-0.5 rounded bg-violet-950/70 text-violet-300 border border-violet-800/60 font-bold text-[11px]">
+                                      <span className="px-2 py-0.5 rounded bg-violet-950/70 text-violet-300 border border-violet-800/60 font-semibold text-[11px]">
                                         By {entry.profile?.name || 'Designer'}
                                       </span>
 
@@ -1453,7 +1447,7 @@ export default function MyWorkPage() {
                                     return (
                                       <div className="flex items-center space-x-3 shrink-0 justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-slate-800">
                                         <div className="text-right text-xs">
-                                          <div className="text-slate-500 text-[11px] font-bold">
+                                          <div className="text-slate-500 text-[11px] font-semibold">
                                             Done / Approved
                                           </div>
                                           <div className="text-sm font-semibold text-slate-100">
@@ -1467,7 +1461,7 @@ export default function MyWorkPage() {
                                             <button
                                               type="button"
                                               onClick={() => setSelectedApprovalEntry(entry)}
-                                              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all border shadow-2xs hover:scale-105 active:scale-95 cursor-pointer ${
+                                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition border shadow-2xs active:scale-95 cursor-pointer ${
                                                 (entry.quantity_approved || 0) > 0
                                                   ? 'bg-amber-950/70 hover:bg-amber-900/80 text-amber-300 border-amber-800/60'
                                                   : 'bg-rose-950/70 hover:bg-rose-900/80 text-rose-300 border-rose-800/60'
@@ -1493,7 +1487,7 @@ export default function MyWorkPage() {
                                               type="button"
                                               onClick={() => handleDismissPending(entry)}
                                               disabled={dismissingId === entry.id}
-                                              className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-slate-100 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 shadow-2xs transition-all cursor-pointer flex items-center space-x-1"
+                                              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-slate-100 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 shadow-2xs transition cursor-pointer flex items-center space-x-1"
                                               title="Dismiss from pending queue (e.g. client chose 1 of multiple options)"
                                             >
                                               <span>Dismiss</span>

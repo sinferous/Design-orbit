@@ -9,7 +9,7 @@ import { Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { BrandMark } from '@/components/ui/BrandMark';
-import { Diya, Rangoli, Toran } from '@/components/ui/Diwali';
+import { Rangoli, Toran } from '@/components/ui/Diwali';
 
 const PRESET_ACCOUNTS = [
   { name: 'Choose your account', email: '' },
@@ -173,7 +173,7 @@ export default function LoginPage() {
           >
             <span className={`flex flex-col items-center gap-1.5 ${counterClass}`}>
               <span
-                className={`flex items-center justify-center w-11 h-11 rounded-full text-sm font-semibold transition-all duration-300 ${
+                className={`flex items-center justify-center w-11 h-11 rounded-full text-sm font-semibold transition duration-300 ${
                   isSelected
                     ? 'bg-[#55cb98] text-[#06140d] scale-110'
                     : 'bg-[#232322] text-slate-200 group-hover/planet:bg-[#30302e]'
@@ -198,7 +198,7 @@ export default function LoginPage() {
         <Toran className="absolute top-0 inset-x-0" />
         <div className="flex items-center gap-3 relative z-10">
           <BrandMark size={34} />
-          <span className="font-display font-bold text-xl text-slate-50">Design Orbit</span>
+          <span className="font-display font-semibold text-xl text-slate-50">Design Orbit</span>
         </div>
 
         <div className="relative mx-auto w-full max-w-[520px] aspect-square my-6">
@@ -208,7 +208,7 @@ export default function LoginPage() {
             <Rangoli size={250} className="absolute opacity-35 animate-orbit" />
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <BrandMark size={128} className="animate-orbit-slow" />
+            <BrandMark size={128} />
           </div>
           {renderPlanets(innerCrew, 32, -Math.PI / 2, 'animate-orbit', '[animation:orbitSpin_24s_linear_infinite_reverse] motion-reduce:[animation:none]')}
           {renderPlanets(outerCrew, 48, Math.PI / 5, 'animate-orbit-slow', '[animation:orbitSpin_60s_linear_infinite] motion-reduce:[animation:none]')}
@@ -221,10 +221,6 @@ export default function LoginPage() {
           <p className="mt-4 text-base text-slate-400 leading-relaxed">
             Daily work, client hours and approvals for the Webtree creative team, in one place. Pick your planet to start.
           </p>
-          <div className="mt-6 flex items-center gap-2 text-sm text-[#f2a93b]">
-            <Diya size={24} />
-            <span>Happy Diwali from the Webtree team</span>
-          </div>
         </div>
       </section>
 
@@ -233,7 +229,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm mx-auto">
           <div className="flex items-center gap-3 lg:hidden mb-10">
             <BrandMark size={32} />
-            <span className="font-display font-bold text-xl text-slate-50">Design Orbit</span>
+            <span className="font-display font-semibold text-xl text-slate-50">Design Orbit</span>
           </div>
 
           <h1 className="font-display text-[32px] leading-tight font-semibold text-slate-50">Sign in</h1>
