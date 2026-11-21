@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BrandMark } from '@/components/ui/BrandMark';
+import { TeamStatus } from '@/components/layout/TeamStatus';
 import { Diya, Toran } from '@/components/ui/Diwali';
 import { getLoggedInUser, logoutUser, isAdminUser } from '@/lib/services/work-entry';
 
@@ -437,6 +438,9 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             })}
           </nav>
         </div>
+
+        {/* Team status: who is working and what everyone is up to */}
+        <TeamStatus />
       </div>
 
       {/* Bottom User Profile Dock */}
