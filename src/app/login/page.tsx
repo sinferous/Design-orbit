@@ -151,8 +151,10 @@ export default function LoginPage() {
       const m = acc.name.match(/^(.*?)\s*\((.*)\)\s*$/);
       return { name: (m ? m[1] : acc.name).trim(), email: acc.email };
     });
-  const innerCrew = crew.filter((_, i) => i % 2 === 0);
-  const outerCrew = crew.filter((_, i) => i % 2 === 1);
+  // Varun always sits on the outer orbit; everyone else alternates
+  const onOuter = (c: { name: string }, i: number) => c.name.toLowerCase() === 'varun' || i % 2 === 1;
+  const innerCrew = crew.filter((c, i) => !onOuter(c, i));
+  const outerCrew = crew.filter((c, i) => onOuter(c, i));
   const selectedEmail = email.trim().toLowerCase();
 
   const renderPlanets = (list: typeof crew, radius: number, offset: number, spinClass: string, counterClass: string) => (
@@ -169,7 +171,7 @@ export default function LoginPage() {
             onClick={() => setEmail(member.email)}
             title={`Sign in as ${member.name}`}
             className="absolute -translate-x-1/2 -translate-y-1/2 group/planet cursor-pointer"
-            style={{ left: `${x}%`, top: `${y}%` }}
+            style={{ left: `${x.toFixed(3)}%`, top: `${y.toFixed(3)}%` }}
           >
             <span className={`flex flex-col items-center gap-1.5 ${counterClass}`}>
               <span
