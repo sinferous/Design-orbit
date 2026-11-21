@@ -60,7 +60,9 @@ export function TeamStatus() {
 
   useEffect(() => {
     load();
-    const t = window.setInterval(load, 30_000);
+    const t = window.setInterval(() => {
+      if (!document.hidden) load();
+    }, 60_000);
     const onFocus = () => load();
     const onTimer = () => window.setTimeout(load, 800);
     window.addEventListener('focus', onFocus);

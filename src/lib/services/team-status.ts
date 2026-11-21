@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/client';
-import { getActiveRunningWorkEntries } from './work-entry';
 
 export interface MemberStatus {
   id: string;
@@ -65,9 +64,13 @@ export async function fetchTeamStatuses(myProfileId?: string): Promise<MemberSta
     rows = Array.isArray(plain.data) ? plain.data : [];
   }
 
+  // Light query: only the fields the panel shows
   let running: any[] = [];
   try {
-    running = await getActiveRunningWorkEntries('all');
+    const { data } = await (supabase.from('work_entries') as any)
+      .select('user_id, description, client:clients(name)')
+      .not('timer_started_at', 'is', null);
+    running = Array.isArray(data) ? data : [];
   } catch {
     running = [];
   }

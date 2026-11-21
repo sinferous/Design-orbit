@@ -183,14 +183,16 @@ export default function DashboardPage() {
 
   // Periodic background poll (every 5 seconds) to keep team's active timers synced live on dashboard
   useEffect(() => {
+    // Every 20s, only while this tab is visible (keeps the database connection pool free)
     const pollInterval = setInterval(() => {
+      if (document.hidden) return;
       const todayStr = new Date().toISOString().split('T')[0];
       fetchWorkEntriesByDate(todayStr)
         .then(newEntries => {
           setTodayEntries(newEntries);
         })
         .catch(() => {});
-    }, 5000);
+    }, 20000);
 
     return () => clearInterval(pollInterval);
   }, []);

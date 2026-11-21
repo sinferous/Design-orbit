@@ -157,13 +157,15 @@ export default function MyWorkPage() {
 
   // Background polling every 5s so all team members' active timers appear live in real-time
   useEffect(() => {
+    // Every 20s, only while this tab is visible (keeps the database connection pool free)
     const pollTimer = setInterval(async () => {
+      if (document.hidden) return;
       try {
         const userIdToFetch = selectedUserFilter === 'my_work' ? (activeProfile?.id || 'p1') : (selectedUserFilter === 'all' ? undefined : selectedUserFilter);
         const data = await fetchWorkEntriesByDate(selectedDate, userIdToFetch);
         setEntries(data);
       } catch (e) {}
-    }, 5000);
+    }, 20000);
 
     return () => clearInterval(pollTimer);
   }, [selectedDate, selectedUserFilter, activeProfile]);

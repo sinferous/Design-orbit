@@ -918,11 +918,14 @@ export function FloatingPipTimer() {
     window.addEventListener('storage', handleStorage);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
+    // Sync every 10s (the clock itself ticks locally). Skip background tabs unless the pop-out timer is open.
     const pollInterval = setInterval(() => {
+      const pipOpen = Boolean((window as any).documentPictureInPicture?.window);
+      if (document.hidden && !pipOpen) return;
       if (!isLoginPage) {
         refreshTimers();
       }
-    }, 2500);
+    }, 10000);
 
     return () => {
       window.removeEventListener('design_orbit_timer_event', handleCustomEvent);

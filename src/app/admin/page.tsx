@@ -148,10 +148,11 @@ export default function AdminDashboardPage() {
     if (!isAuthorized) return;
     loadData();
 
-    // 5-second polling to capture team members' live timers in real-time
+    // Poll every 15s, only while this tab is visible (keeps the database connection pool free)
     const pollInterval = setInterval(() => {
+      if (document.hidden) return;
       loadData();
-    }, 5000);
+    }, 15000);
     return () => clearInterval(pollInterval);
   }, [isAuthorized]);
 
