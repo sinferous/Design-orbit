@@ -78,8 +78,7 @@ export function DesignerActivityModal({
           <div className="py-16 text-center">
             <OrbitLoader
               size="md"
-              text="Loading deliverable activity matrix..."
-              subtitle="Calculating daily submission volumes and consistency"
+              text="Loading activity"
             />
           </div>
         ) : activity ? (

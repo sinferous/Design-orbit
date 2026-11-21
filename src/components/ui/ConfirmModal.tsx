@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { AlertTriangle, Trash2, X, Check } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 
 export interface ConfirmModalProps {
   isOpen: boolean;
@@ -24,64 +24,85 @@ export function ConfirmModal({
   onConfirm,
   onClose,
 }: ConfirmModalProps) {
+  const [busy, setBusy] = useState(false);
+
+  // Escape closes the dialog
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !busy) onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, busy, onClose]);
+
   if (!isOpen) return null;
 
   const isDanger = variant === 'danger';
 
+  const handleConfirm = async () => {
+    setBusy(true);
+    try {
+      await onConfirm();
+      onClose();
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl shadow-black/80 max-w-md w-full p-6 space-y-5 animate-in zoom-in-95 duration-200 relative">
-        {/* Close Button */}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-150"
+      onClick={() => !busy && onClose()}
+    >
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="confirm-title"
+        aria-describedby="confirm-message"
+        onClick={e => e.stopPropagation()}
+        className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#141413] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.55)] animate-in fade-in zoom-in-[0.98] duration-150"
+      >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-          title="Close dialog"
+          disabled={busy}
+          className="absolute top-3.5 right-3.5 inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/[0.06] transition-colors cursor-pointer"
+          aria-label="Close"
         >
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-start space-x-4">
-          <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
-              isDanger
-                ? 'bg-red-950/80 text-red-400 border border-red-800/60'
-                : 'bg-amber-950/80 text-amber-400 border border-amber-800/60'
-            }`}
-          >
-            {isDanger ? <Trash2 className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
-          </div>
-
-          <div className="space-y-1.5 pt-0.5">
-            <h3 className="text-lg font-semibold text-slate-100 leading-tight">{title}</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">{message}</p>
-          </div>
+        <div className="pr-8 space-y-1.5">
+          <h3 id="confirm-title" className="text-base font-medium text-slate-50">
+            {title}
+          </h3>
+          <p id="confirm-message" className="text-sm text-slate-400 leading-relaxed">
+            {message}
+          </p>
         </div>
 
-        {/* Buttons */}
-        <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-2 mt-6">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 text-xs font-semibold text-slate-300 bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:text-white rounded-xl transition-colors cursor-pointer"
+            disabled={busy}
+            className="h-9 px-3.5 text-sm text-slate-300 hover:text-white rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer"
           >
             {cancelText}
           </button>
-
           <button
             type="button"
-            onClick={async () => {
-              await onConfirm();
-              onClose();
-            }}
-            className={`px-5 py-2.5 text-xs font-semibold text-white rounded-xl shadow-sm transition-colors cursor-pointer flex items-center space-x-1.5 ${
+            autoFocus
+            onClick={handleConfirm}
+            disabled={busy}
+            className={`h-9 px-3.5 text-sm font-medium rounded-lg border transition-colors cursor-pointer btn-tactile disabled:opacity-60 ${
               isDanger
-                ? 'bg-red-600 hover:bg-red-500 shadow-red-900/30'
-                : 'bg-amber-600 hover:bg-amber-500 shadow-amber-900/30'
+                ? 'text-rose-200 bg-rose-500/[0.12] border-rose-500/30 hover:bg-rose-500/20 hover:text-white'
+                : 'text-slate-100 bg-white/[0.06] border-white/[0.1] hover:bg-white/[0.1]'
             }`}
           >
-            {isDanger ? <Trash2 className="w-4 h-4" /> : <Check className="w-4 h-4" />}
-            <span>{confirmText}</span>
+            {busy ? 'Working…' : confirmText}
           </button>
         </div>
       </div>

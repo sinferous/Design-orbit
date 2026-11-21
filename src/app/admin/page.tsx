@@ -275,8 +275,7 @@ export default function AdminDashboardPage() {
         <div className="text-center p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-w-sm mx-auto">
           <OrbitLoader
             size="lg"
-            text="Verifying Administrator Authorization..."
-            subtitle="Restricted executive area. Validating access credentials."
+            text="Checking access"
           />
         </div>
       </div>
@@ -863,8 +862,7 @@ export default function AdminDashboardPage() {
               <div className="py-12 text-center">
                 <OrbitLoader
                   size="md"
-                  text="Streaming agency deliverables..."
-                  subtitle="Synchronizing today's team output"
+                  text="Loading today's work"
                 />
               </div>
             ) : todayEntries.length === 0 ? (

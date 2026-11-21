@@ -278,7 +278,6 @@ export default function DashboardPage() {
     try {
       const updated = await startWorkEntryTimer(entry.id, todayEntries, currentProfileId);
       setTodayEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
-      showToast(`Timer started: "${entry.description.slice(0, 24)}${entry.description.length > 24 ? '...' : ''}"`, 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to start timer', 'error');
     } finally {
@@ -317,7 +316,7 @@ export default function DashboardPage() {
     try {
       const updated = await stopWorkEntryTimer(entry.id, entry, currentProfileId, 'stop');
       setTodayEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
-      showToast(`Timer stopped! Recorded ${formatWorkEntryDuration(newTotal)}.`, 'success');
+      showToast(`Timer stopped · ${formatWorkEntryDuration(newTotal)} saved`, 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to stop timer', 'error');
     } finally {
@@ -553,22 +552,14 @@ export default function DashboardPage() {
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
               <h1 className="font-display text-2xl sm:text-[28px] leading-tight font-medium text-slate-50">
-                Today
+                Hi, {currentUser.name.split(' ')[0]}
               </h1>
               <Diya size={26} className="-mt-1" />
             </div>
             <p className="text-sm text-slate-400 font-normal">
-              {currentUser.name}&rsquo;s week, sign-offs and today&rsquo;s log
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+              {FESTIVE && <span className="text-[#f2a93b]"> · Happy Diwali</span>}
             </p>
-          </div>
-
-          <div className="flex items-center flex-wrap gap-2.5">
-            {/* Live System Sync Pill */}
-            <div className="flex items-center space-x-2 px-1 text-sm text-slate-400 tabular-nums">
-              {FESTIVE && <span className="text-[#f2a93b]">Happy Diwali</span>}
-              {FESTIVE && <span aria-hidden="true" className="text-slate-600">·</span>}
-              <span>{formattedCurrentDate}</span>
-            </div>
           </div>
         </div>
 
@@ -882,7 +873,7 @@ export default function DashboardPage() {
             {/* Transaction Rows List */}
             {loading ? (
               <div className="p-12 text-center flex flex-col items-center justify-center">
-                <OrbitLoader size="md" text="Syncing deliverable feed..." />
+                <OrbitLoader size="md" text="Loading today's work" />
               </div>
             ) : filteredFeed.length === 0 ? (
               <div className="p-10 text-center space-y-3 bg-white/[0.02] rounded-xl border border-white/[0.06]">

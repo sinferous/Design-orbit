@@ -795,8 +795,7 @@ export default function ExcelSyncPage() {
                 <div className="py-16 text-center text-slate-400 flex flex-col items-center justify-center">
                   <OrbitLoader
                     size="md"
-                    text={`Fetching daily deliverables for ${selectedDate}...`}
-                    subtitle="Syncing with Supabase database"
+                    text={`Loading ${selectedDate}`}
                   />
                 </div>
               ) : editableDailyRows.length === 0 ? (
@@ -1172,8 +1171,7 @@ export default function ExcelSyncPage() {
                 <div className="py-16 text-center text-slate-400 flex flex-col items-center justify-center">
                   <OrbitLoader
                     size="md"
-                    text={`Fetching weekly deliverables for ${weekLabel}...`}
-                    subtitle="Compiling company 6-column sheet"
+                    text={`Loading ${weekLabel}`}
                     showCyclingText
                   />
                 </div>

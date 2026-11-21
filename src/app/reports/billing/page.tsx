@@ -462,7 +462,7 @@ export default function ClientTimeTrackingReportPage() {
       <span>
         {parts.map((part, i) =>
           regex.test(part) ? (
-            <span key={i} className="text-violet-300 font-semibold bg-violet-950/90 px-1 py-0.5 rounded border border-violet-800/60">
+            <span key={i} className="text-emerald-200 bg-emerald-400/15 rounded px-0.5">
               {part}
             </span>
           ) : (
@@ -524,38 +524,47 @@ export default function ClientTimeTrackingReportPage() {
       ? Math.round(filteredReportData.totalTimeSecondsAll / filteredReportData.totalDoneAll / 60)
       : 0;
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
-      <Navbar userName="Gajesh" />
+  const maxClientSeconds = Math.max(1, ...filteredReportData.clientSummaries.map(c => c.totalTimeSeconds));
+  const shortDate = (dateStr: string) =>
+    parseLocalDate(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-      {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
+  const presetBtn = (preset: 'today' | 'this_week' | 'this_month' | 'last_30') =>
+    `h-8 px-3 rounded-md text-xs transition-colors cursor-pointer ${
+      isPresetActive(preset) ? 'bg-white/[0.08] text-white' : 'text-slate-400 hover:text-slate-200'
+    }`;
+  const filterLabel = 'block text-xs text-slate-500 mb-1.5';
+  const chip = 'inline-flex items-center gap-1.5 h-7 pl-2.5 pr-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-xs text-slate-300';
+  const chipX = 'inline-flex items-center justify-center w-5 h-5 rounded text-slate-500 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer';
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+      <Navbar />
+
       <ReportsSubNav>
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
+          className="inline-flex items-center gap-1.5 h-8 px-3 text-xs text-slate-300 hover:text-white rounded-lg border border-white/[0.08] hover:bg-white/[0.05] transition-colors whitespace-nowrap cursor-pointer"
         >
-          <Download className="w-4 h-4 text-violet-400" />
-          <span className="hidden sm:inline">Export Time CSV</span>
-          <span className="sm:hidden">CSV</span>
+          <Download className="w-3.5 h-3.5 text-slate-400" />
+          Export CSV
         </button>
       </ReportsSubNav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
-        {/* Header Banner with Rich Date Range Picker */}
-        <div className="bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-100">Client Time Tracking Report</h1>
-            <p className="text-sm text-slate-400 mt-0.5">
-              Review exact time spent by team members across clients and deliverables.
-            </p>
+            <h1 className="text-2xl sm:text-3xl font-medium text-slate-50">Client hours</h1>
+            <p className="text-sm text-slate-400 mt-1">Time the team spent on each client</p>
           </div>
 
-          {/* Rich Calendar Dropdown Control */}
-          <div className="flex flex-wrap items-center gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800 relative">
+          {/* Range picker */}
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => handleRangeDelta(-7)}
-              className="p-2 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shrink-0 cursor-pointer shadow-2xs"
-              title="Previous 7 Days"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
+              title="Back 7 days"
+              aria-label="Back 7 days"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -564,155 +573,108 @@ export default function ClientTimeTrackingReportPage() {
               <button
                 type="button"
                 onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                className="flex items-center space-x-2.5 px-4 py-2 bg-slate-800/80 rounded-lg border border-slate-700 hover:border-violet-500/50 hover:bg-slate-700/60 shadow-2xs transition text-xs font-semibold text-slate-200 cursor-pointer"
+                className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg border border-white/[0.08] hover:bg-white/[0.05] text-sm text-slate-200 transition-colors cursor-pointer tabular-nums"
               >
-                <Calendar className="w-4 h-4 text-violet-400 shrink-0" />
-                <span>{getWeekRangeLabel()}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                {getWeekRangeLabel()}
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
               </button>
 
               {isCalendarOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-30"
-                    onClick={() => setIsCalendarOpen(false)}
-                  />
-                  <div className="absolute right-0 sm:left-0 mt-2 z-40 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl shadow-black/50 p-4 w-[320px] sm:w-[350px] space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
-                    {/* Calendar Month Header */}
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <div className="fixed inset-0 z-30" onClick={() => setIsCalendarOpen(false)} />
+                  <div className="absolute right-0 mt-2 z-40 w-[310px] rounded-xl border border-white/[0.08] bg-[#151514] p-3.5 shadow-[0_24px_60px_rgba(0,0,0,0.55)] space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
+                    <div className="flex items-center justify-between">
                       <button
                         type="button"
                         onClick={() => handleMonthDelta(-1)}
-                        className="p-1 rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-md text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+                        aria-label="Previous month"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
-                      <span className="text-[11px] font-semibold text-slate-200">
+                      <span className="text-sm text-slate-200">
                         {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleMonthDelta(1)}
-                        className="p-1 rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-md text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+                        aria-label="Next month"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
 
-                    {/* Calendar Grid */}
-                    <div className="space-y-1">
-                      {/* Weekday labels */}
-                      <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-400 pb-1">
-                        <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
-                      </div>
-
-                      {/* Days grid */}
-                      <div className="grid grid-cols-7 gap-0.5">
-                        {generateCalendarDays(viewDate).map(dayObj => {
-                          const dStr = formatLocalDate(dayObj.date);
-                          const active = isSelected(dayObj.date);
-                          const hoverActive = isInHoverRange(dayObj.date);
-                          const start = isStart(dayObj.date);
-                          const end = isEnd(dayObj.date);
-                          const isToday = dStr === formatLocalDate(new Date());
-
-                          return (
-                            <button
-                              key={dayObj.key}
-                              type="button"
-                              onMouseEnter={() => setHoveredDate(dStr)}
-                              onMouseLeave={() => setHoveredDate(null)}
-                              onClick={() => {
-                                handleSelectWeekFromDate(dayObj.date);
-                              }}
-                              className={`h-8 w-8 sm:h-9 sm:w-9 text-xs font-semibold rounded-md flex items-center justify-center transition cursor-pointer relative ${
-                                !dayObj.isCurrentMonth ? 'text-slate-600' : 'text-slate-300 hover:bg-slate-800'
-                              } ${
-                                active
-                                  ? 'bg-violet-950/80 text-violet-300 font-semibold border border-violet-700'
-                                  : hoverActive
-                                  ? 'bg-slate-800/60 border border-dashed border-slate-600'
-                                  : ''
-                              } ${
-                                start ? '!bg-violet-600 !text-white !border-violet-500 shadow-xs' : ''
-                              } ${
-                                end ? '!bg-violet-600 !text-white !border-violet-500 shadow-xs' : ''
-                              }`}
-                            >
-                              {dayObj.date.getDate()}
-                              {isToday && !active && (
-                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-violet-400 rounded-full" />
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
+                    <div className="grid grid-cols-7 text-center text-[11px] text-slate-500">
+                      <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
                     </div>
 
-                    {/* Manual Range inputs */}
-                    <div className="border-t border-slate-800 pt-3 space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex flex-col">
-                          <span className="text-[11px] text-slate-400 font-semibold">
-                            Start Date
-                          </span>
-                          <input
-                            type="date"
-                            value={startDate}
-                            onChange={e => setStartDate(e.target.value)}
-                            className="font-semibold text-slate-200 focus:outline-none bg-slate-950 px-2 py-1 rounded border border-slate-700 text-xs w-full"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[11px] text-slate-400 font-semibold">
-                            End Date
-                          </span>
-                          <input
-                            type="date"
-                            value={endDate}
-                            onChange={e => setEndDate(e.target.value)}
-                            className="font-semibold text-slate-200 focus:outline-none bg-slate-950 px-2 py-1 rounded border border-slate-700 text-xs w-full"
-                          />
-                        </div>
-                      </div>
+                    <div className="grid grid-cols-7 gap-y-0.5">
+                      {generateCalendarDays(viewDate).map(dayObj => {
+                        const dStr = formatLocalDate(dayObj.date);
+                        const active = isSelected(dayObj.date);
+                        const hoverActive = isInHoverRange(dayObj.date);
+                        const edge = isStart(dayObj.date) || isEnd(dayObj.date);
+                        const isToday = dStr === formatLocalDate(new Date());
 
-                      {/* Presets & Actions inside popup */}
-                      <div className="flex flex-wrap items-center justify-between text-[11px] font-semibold border-t border-slate-800 pt-2 gap-1">
-                        <button
-                          type="button"
-                          onClick={() => applyPreset('this_week')}
-                          className={`cursor-pointer transition-colors ${
-                            isPresetActive('this_week') ? 'text-violet-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          This Week
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyPreset('this_month')}
-                          className={`cursor-pointer transition-colors ${
-                            isPresetActive('this_month') ? 'text-violet-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          This Month
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyPreset('last_30')}
-                          className={`cursor-pointer transition-colors ${
-                            isPresetActive('last_30') ? 'text-violet-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          30 Days
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIsCalendarOpen(false)}
-                          className="px-3 py-1 bg-violet-600 hover:bg-violet-500 text-white rounded-md cursor-pointer transition-colors shadow-2xs font-semibold"
-                        >
-                          Apply
-                        </button>
-                      </div>
+                        return (
+                          <button
+                            key={dayObj.key}
+                            type="button"
+                            onMouseEnter={() => setHoveredDate(dStr)}
+                            onMouseLeave={() => setHoveredDate(null)}
+                            onClick={() => handleSelectWeekFromDate(dayObj.date)}
+                            className={`relative h-9 text-xs tabular-nums flex items-center justify-center transition-colors cursor-pointer ${
+                              edge
+                                ? 'bg-emerald-500 text-[#0b1410] font-medium rounded-md'
+                                : active
+                                  ? 'bg-emerald-400/10 text-emerald-200'
+                                  : hoverActive
+                                    ? 'bg-white/[0.05] text-slate-200'
+                                    : dayObj.isCurrentMonth
+                                      ? 'text-slate-300 hover:bg-white/[0.05] rounded-md'
+                                      : 'text-slate-600 rounded-md'
+                            }`}
+                          >
+                            {dayObj.date.getDate()}
+                            {isToday && !active && (
+                              <span className="absolute bottom-1 w-1 h-1 bg-emerald-400 rounded-full" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 border-t border-white/[0.06] pt-3">
+                      <label className="text-[11px] text-slate-500">
+                        From
+                        <input
+                          type="date"
+                          value={startDate}
+                          onChange={e => setStartDate(e.target.value)}
+                          className="mt-1 w-full h-8 px-2 rounded-md bg-white/[0.03] border border-white/[0.08] text-xs text-slate-200 focus:outline-none focus:border-emerald-400/40 [color-scheme:dark]"
+                        />
+                      </label>
+                      <label className="text-[11px] text-slate-500">
+                        To
+                        <input
+                          type="date"
+                          value={endDate}
+                          onChange={e => setEndDate(e.target.value)}
+                          className="mt-1 w-full h-8 px-2 rounded-md bg-white/[0.03] border border-white/[0.08] text-xs text-slate-200 focus:outline-none focus:border-emerald-400/40 [color-scheme:dark]"
+                        />
+                      </label>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setIsCalendarOpen(false)}
+                        className="h-7 px-3 rounded-md bg-white/[0.08] hover:bg-white/[0.12] text-xs text-slate-100 cursor-pointer transition-colors"
+                      >
+                        Done
+                      </button>
                     </div>
                   </div>
                 </>
@@ -721,503 +683,278 @@ export default function ClientTimeTrackingReportPage() {
 
             <button
               onClick={() => handleRangeDelta(7)}
-              className="p-2 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shrink-0 cursor-pointer shadow-2xs"
-              title="Next 7 Days"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
+              title="Forward 7 days"
+              aria-label="Forward 7 days"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Filter Controls & Presets Bar */}
-        <div className="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-sm space-y-4">
-          {/* Quick Presets Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-            <div className="flex items-center space-x-1.5 overflow-x-auto text-xs font-semibold">
-              <span className="text-slate-400 text-[11px] font-semibold mr-1">
-                Quick Ranges:
-              </span>
-              <button
-                type="button"
-                onClick={() => applyPreset('today')}
-                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                  isPresetActive('today')
-                    ? 'bg-violet-950/80 text-violet-400 border border-violet-800 font-semibold shadow-2xs'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
-                }`}
-              >
-                Today
-              </button>
-              <button
-                type="button"
-                onClick={() => applyPreset('this_week')}
-                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                  isPresetActive('this_week')
-                    ? 'bg-violet-950/80 text-violet-400 border border-violet-800 font-semibold shadow-2xs'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
-                }`}
-              >
-                This Week (Tue-Mon)
-              </button>
-              <button
-                type="button"
-                onClick={() => applyPreset('this_month')}
-                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                  isPresetActive('this_month')
-                    ? 'bg-violet-950/80 text-violet-400 border border-violet-800 font-semibold shadow-2xs'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
-                }`}
-              >
-                This Month
-              </button>
-              <button
-                type="button"
-                onClick={() => applyPreset('last_30')}
-                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                  isPresetActive('last_30')
-                    ? 'bg-violet-950/80 text-violet-400 border border-violet-800 font-semibold shadow-2xs'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
-                }`}
-              >
-                Last 30 Days
-              </button>
-            </div>
-
-            <div className="text-xs text-slate-400 font-medium">
-              Active Range: <strong className="text-slate-200">{getWeekRangeLabel()}</strong>
-            </div>
+        {/* Quick ranges + filters */}
+        <div className="space-y-3">
+          <div className="inline-flex flex-wrap gap-1 rounded-lg bg-white/[0.03] border border-white/[0.05] p-0.5">
+            <button type="button" onClick={() => applyPreset('today')} className={presetBtn('today')}>Today</button>
+            <button type="button" onClick={() => applyPreset('this_week')} className={presetBtn('this_week')}>This week</button>
+            <button type="button" onClick={() => applyPreset('this_month')} className={presetBtn('this_month')}>This month</button>
+            <button type="button" onClick={() => applyPreset('last_30')} className={presetBtn('last_30')}>Last 30 days</button>
           </div>
 
-          {/* Filter Dropdowns Grid - 4 Columns */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
-                Filter Client
-              </label>
+              <label className={filterLabel}>Client</label>
               <RichSelect
                 value={selectedClient}
                 onChange={val => setSelectedClient(String(val))}
-                options={[
-                  { value: '', label: 'All Clients' },
-                  ...clients.map(c => ({ value: c.id, label: c.name })),
-                ]}
+                options={[{ value: '', label: 'All clients' }, ...clients.map(c => ({ value: c.id, label: c.name }))]}
                 size="sm"
                 searchable
-                placeholder="All Clients"
+                placeholder="All clients"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
-                Filter Team Member
-              </label>
+              <label className={filterLabel}>Person</label>
               <RichSelect
                 value={selectedUser}
                 onChange={val => setSelectedUser(String(val))}
-                options={[
-                  { value: '', label: 'All Team Members' },
-                  ...profiles.map(p => ({
-                    value: p.id,
-                    label: p.name,
-                  })),
-                ]}
+                options={[{ value: '', label: 'Everyone' }, ...profiles.map(p => ({ value: p.id, label: p.name }))]}
                 size="sm"
-                placeholder="All Team Members"
+                placeholder="Everyone"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
-                Filter Work Type
-              </label>
+              <label className={filterLabel}>Work type</label>
               <RichSelect
                 value={selectedWorkType}
                 onChange={val => setSelectedWorkType(String(val))}
-                options={[
-                  { value: '', label: 'All Work Types' },
-                  ...workTypes.map(wt => ({ value: wt.id, label: wt.name })),
-                ]}
+                options={[{ value: '', label: 'All types' }, ...workTypes.map(wt => ({ value: wt.id, label: wt.name }))]}
                 size="sm"
-                placeholder="All Work Types"
+                placeholder="All types"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
-                Filter Description
-              </label>
+              <label className={filterLabel}>Description</label>
               <DescriptionAutocomplete
                 value={descriptionFilter}
                 onChange={setDescriptionFilter}
                 suggestions={billingDescriptionSuggestions}
-                placeholder="Search description..."
+                placeholder="Search descriptions"
                 size="sm"
                 allowClear
               />
             </div>
           </div>
 
-          {/* Active Filters Applied Row */}
           {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-800">
-              <span className="text-[11px] font-semibold text-slate-400">
-                Filters Applied:
-              </span>
-
+            <div className="flex flex-wrap items-center gap-2">
               {selectedClient && (
-                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 text-xs shadow-2xs">
-                  <span className="text-slate-400">Client:</span>
-                  <span className="font-semibold text-slate-100">{selectedClientName}</span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedClient('')}
-                    className="p-0.5 hover:text-red-400 text-slate-400 rounded transition-colors cursor-pointer"
-                    title="Remove client filter"
-                  >
+                <span className={chip}>
+                  {selectedClientName}
+                  <button type="button" onClick={() => setSelectedClient('')} className={chipX} aria-label="Remove client filter">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
-
               {selectedUser && (
-                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 text-xs shadow-2xs">
-                  <span className="text-slate-400">Team:</span>
-                  <span className="font-semibold text-slate-100">{selectedUserName}</span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedUser('')}
-                    className="p-0.5 hover:text-red-400 text-slate-400 rounded transition-colors cursor-pointer"
-                    title="Remove team filter"
-                  >
+                <span className={chip}>
+                  {selectedUserName}
+                  <button type="button" onClick={() => setSelectedUser('')} className={chipX} aria-label="Remove person filter">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
-
               {selectedWorkType && (
-                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 text-xs shadow-2xs">
-                  <span className="text-slate-400">Type:</span>
-                  <span className="font-semibold text-slate-100">{selectedWorkTypeName}</span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedWorkType('')}
-                    className="p-0.5 hover:text-red-400 text-slate-400 rounded transition-colors cursor-pointer"
-                    title="Remove work type filter"
-                  >
+                <span className={chip}>
+                  {selectedWorkTypeName}
+                  <button type="button" onClick={() => setSelectedWorkType('')} className={chipX} aria-label="Remove work type filter">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
-
               {descriptionFilter.trim() && (
-                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 text-xs shadow-2xs">
-                  <span className="text-slate-400">Description:</span>
-                  <span className="font-semibold text-slate-100">&ldquo;{descriptionFilter}&rdquo;</span>
-                  <button
-                    type="button"
-                    onClick={() => setDescriptionFilter('')}
-                    className="p-0.5 hover:text-red-400 text-slate-400 rounded transition-colors cursor-pointer"
-                    title="Remove description filter"
-                  >
+                <span className={chip}>
+                  &ldquo;{descriptionFilter}&rdquo;
+                  <button type="button" onClick={() => setDescriptionFilter('')} className={chipX} aria-label="Remove description filter">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
-
-              <button
-                type="button"
-                onClick={clearAllFilters}
-                className="text-xs text-slate-400 hover:text-slate-200 underline cursor-pointer ml-1"
-              >
-                Clear All
+              <button type="button" onClick={clearAllFilters} className="text-xs text-slate-400 hover:text-white cursor-pointer ml-1">
+                Clear all
               </button>
             </div>
           )}
         </div>
 
-        {/* Time & Deliverables KPI Overview Cards - 2x2 on Mobile */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
-                Total Time
-              </div>
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400 shrink-0" />
-            </div>
-            <div className="text-xl sm:text-3xl font-semibold text-slate-100 truncate">
+        {/* Totals */}
+        <div className="bento-card grid grid-cols-2 lg:grid-cols-4 [&>*]:border-white/[0.06] [&>*:nth-child(even)]:border-l lg:[&>*:not(:first-child)]:border-l [&>*:nth-child(-n+2)]:border-b lg:[&>*:nth-child(-n+2)]:border-b-0">
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Time tracked</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums truncate">
               {formatReportTime(filteredReportData.totalTimeSecondsAll)}
             </div>
-            <p className="text-[11px] sm:text-xs text-violet-400 font-semibold truncate">
-              {filteredReportData.totalDecimalHoursAll} decimal hrs
-            </p>
+            <div className="mt-1 text-xs text-slate-500 tabular-nums">{filteredReportData.totalDecimalHoursAll} hours</div>
           </div>
-
-          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
-                Active Clients
-              </div>
-              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Clients</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums">
+              {activeClientsCount}
+              <span className="text-lg text-slate-500"> / {filteredReportData.clientSummaries.length}</span>
             </div>
-            <div className="text-2xl sm:text-3xl font-semibold text-indigo-400">
-              {activeClientsCount} <span className="text-xs font-normal text-slate-400">/ {filteredReportData.clientSummaries.length}</span>
-            </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 truncate">Clients with activity</p>
+            <div className="mt-1 text-xs text-slate-500">had work in this range</div>
           </div>
-
-          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
-                Deliverables
-              </div>
-              <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400 shrink-0" />
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Deliverables</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums">{filteredReportData.totalDoneAll}</div>
+            <div className="mt-1 text-xs text-slate-500">
+              <span className="text-emerald-400">{filteredReportData.totalApprovedAll}</span> approved
             </div>
-            <div className="text-2xl sm:text-3xl font-semibold text-violet-400">
-              {filteredReportData.totalDoneAll}
-            </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 truncate">
-              {filteredReportData.totalApprovedAll} approved items
-            </p>
           </div>
-
-          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
-                Avg Time / Item
-              </div>
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Average per deliverable</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums">
+              {avgMinutesPerItem}
+              <span className="text-lg text-slate-500"> min</span>
             </div>
-            <div className="text-2xl sm:text-3xl font-semibold text-amber-400">
-              {avgMinutesPerItem} <span className="text-xs font-normal text-slate-400">min</span>
-            </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 truncate">Per completed item</p>
+            <div className="mt-1 text-xs text-slate-500">of tracked time</div>
           </div>
         </div>
 
-        {/* Client-by-Client Time Cards */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
-              <Building2 className="w-4 h-4 text-violet-400" />
-              <span>Client-Wise Time Breakdown</span>
-            </h2>
-            <span className="text-xs text-slate-400 font-medium">
-              Click any client card to inspect individual tasks and time spent
-            </span>
+        {/* Clients */}
+        <div className="bento-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/[0.06] flex items-baseline justify-between gap-3">
+            <h2 className="text-sm font-medium text-slate-100">By client</h2>
+            <span className="text-xs text-slate-500">Open a client to see each task</span>
           </div>
 
           {loading ? (
-            <div className="bg-slate-900 p-12 rounded-xl border border-slate-800 text-center">
-              <OrbitLoader
-                size="lg"
-                text="Calculating client time & billable hours..."
-                subtitle="Aggregating deliverable durations across team members and clients"
-              />
+            <div className="p-12 text-center">
+              <OrbitLoader size="lg" text="Adding up client hours" />
             </div>
           ) : filteredReportData.clientSummaries.length === 0 ? (
-            <div className="bg-slate-900 p-12 rounded-xl border border-slate-800 text-center text-slate-400">
-              <p className="text-sm font-semibold text-slate-200">
-                {descriptionFilter.trim()
-                  ? `No deliverables found matching "${descriptionFilter}".`
-                  : 'No client records found for this date range.'}
+            <div className="p-12 text-center">
+              <p className="text-sm text-slate-200">
+                {descriptionFilter.trim() ? `Nothing matches “${descriptionFilter}”` : 'No client work in this range'}
               </p>
               <p className="text-xs text-slate-500 mt-1">
                 {descriptionFilter.trim() ? (
-                  <button
-                    type="button"
-                    onClick={() => setDescriptionFilter('')}
-                    className="text-violet-400 hover:underline cursor-pointer"
-                  >
-                    Clear description filter
+                  <button type="button" onClick={() => setDescriptionFilter('')} className="text-slate-300 hover:text-white cursor-pointer">
+                    Clear the search
                   </button>
                 ) : (
-                  'Try expanding the date filter or resetting your filters.'
+                  'Try a wider date range or fewer filters'
                 )}
               </p>
             </div>
           ) : (
-            filteredReportData.clientSummaries.map(client => {
-              const isExpanded = Boolean(expandedClients[client.clientId]);
+            <div className="divide-y divide-white/[0.05]">
+              {filteredReportData.clientSummaries.map(client => {
+                const isExpanded = Boolean(expandedClients[client.clientId]);
+                const types = Object.entries(client.workTypeBreakdown).filter(
+                  ([, data]) => data.count > 0 || data.timeSeconds > 0
+                );
 
-              return (
-                <div
-                  key={client.clientId}
-                  className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm overflow-hidden transition hover:border-slate-700"
-                >
-                  {/* Client Summary Header Bar */}
-                  <div className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    {/* Client Identity & Deliverables */}
-                    <div className="flex items-center space-x-4 min-w-0">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-semibold text-xl flex items-center justify-center shadow-2xs shrink-0">
-                        {client.clientName.charAt(0)}
-                      </div>
+                return (
+                  <div key={client.clientId}>
+                    <button
+                      type="button"
+                      onClick={() => toggleClientExpand(client.clientId)}
+                      aria-expanded={isExpanded}
+                      className="w-full text-left px-5 py-4 grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_220px_20px] items-center gap-x-6 gap-y-2 hover:bg-white/[0.015] transition-colors cursor-pointer"
+                    >
                       <div className="min-w-0">
-                        <div className="flex items-center space-x-2">
-                          <h3 className="text-lg font-semibold text-slate-100 truncate">
-                            {client.clientName}
-                          </h3>
-                        </div>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          {client.totalDone} deliverable(s) done &bull; {client.totalApproved} approved
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Time Metrics & Action */}
-                    <div className="flex flex-wrap items-center justify-between lg:justify-end gap-5">
-                      {/* Tracked Time */}
-                      <div className="text-right">
-                        <div className="text-[11px] font-semibold text-slate-400">
-                          Time Spent
-                        </div>
-                        <div className="text-base font-semibold text-slate-100 flex items-center justify-end space-x-1">
-                          <Clock className="w-4 h-4 text-amber-400" />
-                          <span>{formatReportTime(client.totalTimeSeconds)}</span>
-                        </div>
-                        <div className="text-[11px] text-slate-400 font-medium">
-                          {client.decimalHours} hrs
+                        <div className="text-sm font-medium text-slate-100 truncate">{client.clientName}</div>
+                        <div className="mt-0.5 text-xs text-slate-500 truncate">
+                          {types.length > 0
+                            ? types.map(([name, data]) => `${name} ${data.count}`).join(' · ')
+                            : 'No deliverables'}
                         </div>
                       </div>
-
-                      {/* Expand / Collapse Button */}
-                      <button
-                        type="button"
-                        onClick={() => toggleClientExpand(client.clientId)}
-                        className="px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-xs font-semibold text-slate-300 flex items-center space-x-1 transition-colors cursor-pointer shrink-0"
-                      >
-                        <span>{isExpanded ? 'Hide Tasks' : 'Inspect Tasks'}</span>
-                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Work Type Badges Row */}
-                  <div className="px-6 py-3 bg-slate-950/60 border-t border-slate-800 flex flex-wrap items-center gap-2">
-                    <span className="text-[11px] font-semibold text-slate-400 mr-1">
-                      Deliverables:
-                    </span>
-                    {Object.entries(client.workTypeBreakdown)
-                      .filter(([_, data]) => data.count > 0 || data.timeSeconds > 0)
-                      .map(([wtName, data]) => (
+                      <div className="hidden md:block h-1.5 rounded-full bg-white/[0.05] overflow-hidden">
                         <div
-                          key={wtName}
-                          className="px-2.5 py-1 bg-slate-900 rounded-md border border-slate-800 text-xs text-slate-300 flex items-center space-x-1.5 shadow-2xs"
-                        >
-                          <span className="font-semibold text-slate-100">{wtName}:</span>
-                          <span className="font-semibold text-violet-400">{data.count} items</span>
-                          {data.timeSeconds > 0 && (
-                            <span className="text-[11px] text-amber-300 bg-amber-950/60 border border-amber-800/60 px-1.5 py-0.5 rounded font-display tabular-nums font-semibold">
-                              ⏱ {formatReportTime(data.timeSeconds)}
-                            </span>
-                          )}
+                          className="h-full rounded-full bg-emerald-400/80"
+                          style={{ width: `${(client.totalTimeSeconds / maxClientSeconds) * 100}%` }}
+                        />
+                      </div>
+                      <div className="text-right tabular-nums">
+                        <div className="font-display text-base text-white">{formatReportTime(client.totalTimeSeconds)}</div>
+                        <div className="text-xs text-slate-500">
+                          {client.decimalHours} h · {client.totalDone} made · <span className="text-emerald-400">{client.totalApproved}</span> approved
                         </div>
-                      ))}
-                    {Object.values(client.workTypeBreakdown).every(
-                      data => data.count === 0 && data.timeSeconds === 0
-                    ) && (
-                      <span className="text-xs text-slate-500 italic">No deliverable breakdown recorded</span>
+                      </div>
+                      <ChevronDown
+                        className={`hidden md:block w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-5 pb-4">
+                        {client.entries.length === 0 ? (
+                          <p className="text-xs text-slate-500 py-3">No tasks logged for this client in this range</p>
+                        ) : (
+                          <div className="overflow-x-auto rounded-lg border border-white/[0.05] bg-black/20">
+                            <table className="w-full text-left text-sm">
+                              <thead className="text-xs text-slate-500">
+                                <tr className="border-b border-white/[0.05]">
+                                  <th className="px-3 py-2.5 font-normal">Date</th>
+                                  <th className="px-3 py-2.5 font-normal">Person</th>
+                                  <th className="px-3 py-2.5 font-normal">Task</th>
+                                  <th className="px-3 py-2.5 font-normal text-right">Approved</th>
+                                  <th className="px-3 py-2.5 font-normal text-right">Time</th>
+                                  <th className="px-3 py-2.5 font-normal text-right">Hours</th>
+                                  <th className="px-3 py-2.5 font-normal w-8"><span className="sr-only">Link</span></th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-white/[0.04] tabular-nums">
+                                {client.entries.map(entry => {
+                                  const entrySecs = entry.time_spent_seconds || 0;
+                                  const decHrs = formatReportHoursDecimal(entrySecs);
+                                  const url = entry.project_url || entry.best_work_url;
+
+                                  return (
+                                    <tr key={entry.id} className="text-slate-300 hover:bg-white/[0.015]">
+                                      <td className="px-3 py-2.5 text-xs text-slate-500 whitespace-nowrap">{shortDate(entry.work_date)}</td>
+                                      <td className="px-3 py-2.5 whitespace-nowrap">{entry.profile?.name || 'Designer'}</td>
+                                      <td className="px-3 py-2.5 min-w-[220px]">
+                                        <span className="text-slate-100">{renderHighlightedDescription(entry.description || '–', descriptionFilter)}</span>
+                                        <span className="ml-2 text-xs text-slate-500">{entry.work_type?.name || 'Task'}</span>
+                                      </td>
+                                      <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                                        <span className="text-emerald-400">{entry.quantity_approved}</span>
+                                        <span className="text-slate-500"> / {entry.quantity_done}</span>
+                                      </td>
+                                      <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                                        {entrySecs > 0 ? formatReportTime(entrySecs) : <span className="text-slate-600">–</span>}
+                                      </td>
+                                      <td className="px-3 py-2.5 text-right text-slate-500 whitespace-nowrap">{decHrs > 0 ? `${decHrs}` : '–'}</td>
+                                      <td className="px-3 py-2.5 text-right">
+                                        {url && (
+                                          <a
+                                            href={url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex text-slate-500 hover:text-emerald-400 transition-colors"
+                                            title="Open link"
+                                            aria-label="Open link"
+                                          >
+                                            <ExternalLink className="w-3.5 h-3.5" />
+                                          </a>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-
-                  {/* Detailed Drilldown of Deliverables */}
-                  {isExpanded && (
-                    <div className="p-5 sm:p-6 border-t border-slate-800 bg-slate-950/40 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-semibold text-slate-300">
-                          Logged Deliverables & Tasks ({client.entries.length} items)
-                        </h4>
-                        <span className="text-xs text-slate-400">
-                          Sorted newest first
-                        </span>
-                      </div>
-
-                      {client.entries.length === 0 ? (
-                        <p className="text-xs text-slate-400 italic p-4 text-center bg-slate-900 rounded-lg border border-slate-800">
-                          No deliverables logged under this client for the selected date range.
-                        </p>
-                      ) : (
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs text-slate-300">
-                            <thead className="bg-slate-900 text-[11px] font-semibold text-slate-400 border-b border-slate-800">
-                              <tr>
-                                <th className="px-3 py-2.5">Date</th>
-                                <th className="px-3 py-2.5">Designer</th>
-                                <th className="px-3 py-2.5">Deliverable</th>
-                                <th className="px-3 py-2.5">Description</th>
-                                <th className="px-3 py-2.5 text-center">Qty Done</th>
-                                <th className="px-3 py-2.5 text-center">Qty Approved</th>
-                                <th className="px-3 py-2.5 text-right">Time Spent</th>
-                                <th className="px-3 py-2.5 text-right">Decimal Hrs</th>
-                                <th className="px-3 py-2.5 text-center">Link</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-800/80">
-                              {client.entries.map(entry => {
-                                const entrySecs = entry.time_spent_seconds || 0;
-                                const decHrs = formatReportHoursDecimal(entrySecs);
-                                const url = entry.project_url || entry.best_work_url;
-
-                                return (
-                                  <tr key={entry.id} className="hover:bg-slate-850 transition-colors">
-                                    <td className="px-3 py-2.5 font-semibold text-slate-200 whitespace-nowrap">
-                                      {entry.work_date}
-                                    </td>
-                                    <td className="px-3 py-2.5 font-semibold text-slate-300 whitespace-nowrap">
-                                      {entry.profile?.name || 'Designer'}
-                                    </td>
-                                    <td className="px-3 py-2.5">
-                                      <span className="px-2 py-0.5 rounded bg-violet-950/80 text-violet-300 border border-violet-800/60 font-semibold text-[11px] whitespace-nowrap">
-                                        {entry.work_type?.name || 'Task'}
-                                      </span>
-                                    </td>
-                                    <td className="px-3 py-2.5 text-slate-300 max-w-xs break-words">
-                                      {renderHighlightedDescription(entry.description || '-', descriptionFilter)}
-                                    </td>
-                                    <td className="px-3 py-2.5 text-center font-semibold text-slate-100">
-                                      {entry.quantity_done}
-                                    </td>
-                                    <td className="px-3 py-2.5 text-center font-semibold text-violet-400">
-                                      {entry.quantity_approved}
-                                    </td>
-                                    <td className="px-3 py-2.5 text-right font-display tabular-nums font-semibold text-slate-100 whitespace-nowrap">
-                                      {entrySecs > 0 ? (
-                                        <span className="text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/60">
-                                          ⏱ {formatReportTime(entrySecs)}
-                                        </span>
-                                      ) : (
-                                        <span className="text-slate-500">&mdash;</span>
-                                      )}
-                                    </td>
-                                    <td className="px-3 py-2.5 text-right font-display tabular-nums text-slate-400 whitespace-nowrap">
-                                      {decHrs > 0 ? `${decHrs}h` : '0.00h'}
-                                    </td>
-                                    <td className="px-3 py-2.5 text-center whitespace-nowrap">
-                                      {url ? (
-                                        <a
-                                          href={url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-violet-400 hover:text-violet-300 inline-flex items-center"
-                                          title="View Deliverable"
-                                        >
-                                          <ExternalLink className="w-3.5 h-3.5" />
-                                        </a>
-                                      ) : (
-                                        <span className="text-slate-600">&mdash;</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
       </main>

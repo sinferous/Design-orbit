@@ -42,7 +42,7 @@ export default function WeeklyReportPage() {
       delete copy[profileId];
       return copy;
     });
-    showToast('Weekly Best Work link removed.', 'success');
+    showToast('Best work link removed', 'success');
   };
 
   // Persistent helper for Weekly Best Work Links per week & profile
@@ -101,7 +101,7 @@ export default function WeeklyReportPage() {
   };
 
   const getWeekRangeLabel = () => {
-    if (!startDate || !endDate) return 'Select Week Range';
+    if (!startDate || !endDate) return 'Pick a week';
     const start = parseLocalDate(startDate);
     const end = parseLocalDate(endDate);
     return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
@@ -191,7 +191,7 @@ export default function WeeklyReportPage() {
       setBestWorkLinks(dbLinksMap);
     } catch (err) {
       console.error('Failed to load weekly report:', err);
-      showToast('Failed to load weekly report.', 'error');
+      showToast('Could not load the week. Try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -244,40 +244,38 @@ export default function WeeklyReportPage() {
   });
   const totalActiveClients = activeClientSet.size;
 
+  const shortDay = (dateStr: string) =>
+    parseLocalDate(dateStr).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
+
   return (
     <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
-      {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
       <ReportsSubNav>
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-xs"
+          className="inline-flex items-center gap-1.5 h-8 px-3 text-xs text-slate-300 hover:text-white rounded-lg border border-white/[0.08] hover:bg-white/[0.05] transition-colors whitespace-nowrap cursor-pointer"
         >
-          <Download className="w-4 h-4 text-blue-400" />
-          <span className="hidden sm:inline">Export CSV</span>
-          <span className="sm:hidden">CSV</span>
+          <Download className="w-3.5 h-3.5 text-slate-400" />
+          Export CSV
         </button>
       </ReportsSubNav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
-        {/* Weekly Header Banner */}
-        <div className="bento-card p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-slate-100">
-              Weekly Team Review
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Screen-friendly layout for weekly team discussions and work explanations.
-            </p>
+            <h1 className="text-2xl sm:text-3xl font-medium text-slate-50">Weekly review</h1>
+            <p className="text-sm text-slate-400 mt-1">What each person made this week, for the team meeting</p>
           </div>
 
-          {/* Week Navigation */}
-          <div className="w-full md:w-auto flex items-center justify-center space-x-2">
+          {/* Week picker */}
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => handleWeekDelta(-1)}
-              className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-300 hover:bg-white/[0.08] hover:text-white transition-colors shrink-0 cursor-pointer shadow-xs"
-              title="Previous Week"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
+              title="Previous week"
+              aria-label="Previous week"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -286,96 +284,81 @@ export default function WeeklyReportPage() {
               <button
                 type="button"
                 onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-white/[0.04] hover:bg-white/[0.08] rounded-xl border border-white/[0.08] hover:border-blue-500/40 shadow-xs transition text-xs font-semibold text-slate-200 cursor-pointer group"
+                className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg border border-white/[0.08] hover:bg-white/[0.05] text-sm text-slate-200 transition-colors cursor-pointer tabular-nums"
               >
-                <Calendar className="w-4 h-4 text-blue-400 shrink-0 transition-transform" />
-                <span>{getWeekRangeLabel()}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 group-hover:text-slate-200 transition-colors" />
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                {getWeekRangeLabel()}
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
               </button>
 
               {isCalendarOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-30"
-                    onClick={() => setIsCalendarOpen(false)}
-                  />
-                  <div className="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 mt-2 z-40 bg-slate-900 border border-slate-800 rounded-xl shadow-xl shadow-black/50 p-3.5 sm:p-4 w-[calc(100vw-48px)] sm:w-[340px] max-w-[340px] space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
-                    {/* Calendar Month Header */}
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <div className="fixed inset-0 z-30" onClick={() => setIsCalendarOpen(false)} />
+                  <div className="absolute right-0 mt-2 z-40 w-[300px] rounded-xl border border-white/[0.08] bg-[#151514] p-3.5 shadow-[0_24px_60px_rgba(0,0,0,0.55)] space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
+                    <div className="flex items-center justify-between">
                       <button
                         type="button"
                         onClick={() => handleMonthDelta(-1)}
-                        className="p-1 rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-md text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+                        aria-label="Previous month"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
-                      <span className="text-[11px] font-semibold text-slate-200">
+                      <span className="text-sm text-slate-200">
                         {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleMonthDelta(1)}
-                        className="p-1 rounded-md border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-md text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+                        aria-label="Next month"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
 
-                    {/* Calendar Grid */}
-                    <div className="space-y-1">
-                      {/* Weekday labels */}
-                      <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-slate-400 pb-1">
-                        <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
-                      </div>
-
-                      {/* Days grid */}
-                      <div className="grid grid-cols-7 gap-0.5">
-                        {generateCalendarDays(viewDate).map((dayObj) => {
-                          const dStr = formatLocalDate(dayObj.date);
-                          const active = isSelected(dayObj.date);
-                          const hoverActive = isInHoverRange(dayObj.date);
-                          const start = isStart(dayObj.date);
-                          const end = isEnd(dayObj.date);
-                          const isToday = dStr === formatLocalDate(new Date());
-
-                          return (
-                            <button
-                              key={dayObj.key}
-                              type="button"
-                              onMouseEnter={() => setHoveredDate(dStr)}
-                              onMouseLeave={() => setHoveredDate(null)}
-                              onClick={() => {
-                                handleSelectWeekFromDate(dayObj.date);
-                              }}
-                              className={`h-8 w-8 sm:h-9 sm:w-9 text-xs font-semibold rounded-md flex items-center justify-center transition cursor-pointer relative ${
-                                !dayObj.isCurrentMonth ? 'text-slate-600' : 'text-slate-300 hover:bg-slate-800'
-                              } ${
-                                active
-                                  ? 'bg-blue-500/15 text-blue-300 font-semibold border border-blue-500/30'
-                                  : hoverActive
-                                  ? 'bg-slate-800/60 border border-dashed border-slate-600'
-                                  : ''
-                              } ${
-                                start ? '!bg-blue-600 !text-white !border-blue-500 shadow-xs' : ''
-                              } ${
-                                end ? '!bg-blue-600 !text-white !border-blue-500 shadow-xs' : ''
-                              }`}
-                            >
-                              {dayObj.date.getDate()}
-                              {isToday && !active && (
-                                <span className="absolute bottom-1 w-1.5 h-1.5 bg-blue-400 rounded-full" />
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
+                    <div className="grid grid-cols-7 text-center text-[11px] text-slate-500">
+                      <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
                     </div>
 
-                    <div className="border-t border-slate-800 pt-3 space-y-3">
-                      <div className="text-[11px] text-slate-400 font-medium">
-                        Showing week cycle starting Tuesday.
-                      </div>
-                      <div className="flex items-center justify-between text-xs">
+                    <div className="grid grid-cols-7 gap-y-0.5">
+                      {generateCalendarDays(viewDate).map((dayObj) => {
+                        const dStr = formatLocalDate(dayObj.date);
+                        const active = isSelected(dayObj.date);
+                        const hoverActive = isInHoverRange(dayObj.date);
+                        const edge = isStart(dayObj.date) || isEnd(dayObj.date);
+                        const isToday = dStr === formatLocalDate(new Date());
+
+                        return (
+                          <button
+                            key={dayObj.key}
+                            type="button"
+                            onMouseEnter={() => setHoveredDate(dStr)}
+                            onMouseLeave={() => setHoveredDate(null)}
+                            onClick={() => handleSelectWeekFromDate(dayObj.date)}
+                            className={`relative h-9 text-xs tabular-nums flex items-center justify-center transition-colors cursor-pointer ${
+                              edge
+                                ? 'bg-emerald-500 text-[#0b1410] font-medium rounded-md'
+                                : active
+                                  ? 'bg-emerald-400/10 text-emerald-200'
+                                  : hoverActive
+                                    ? 'bg-white/[0.05] text-slate-200'
+                                    : dayObj.isCurrentMonth
+                                      ? 'text-slate-300 hover:bg-white/[0.05] rounded-md'
+                                      : 'text-slate-600 rounded-md'
+                            }`}
+                          >
+                            {dayObj.date.getDate()}
+                            {isToday && !active && (
+                              <span className="absolute bottom-1 w-1 h-1 bg-emerald-400 rounded-full" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-white/[0.06] pt-3 text-xs">
+                      <div className="flex items-center gap-3">
                         <button
                           type="button"
                           onClick={() => {
@@ -384,9 +367,9 @@ export default function WeeklyReportPage() {
                             setEndDate(range.endDate);
                             setViewDate(new Date());
                           }}
-                          className="text-blue-400 hover:text-blue-300 cursor-pointer font-semibold"
+                          className="text-slate-300 hover:text-white cursor-pointer"
                         >
-                          This Week
+                          This week
                         </button>
                         <button
                           type="button"
@@ -398,19 +381,20 @@ export default function WeeklyReportPage() {
                             setEndDate(range.endDate);
                             setViewDate(lastWeek);
                           }}
-                          className="text-slate-400 hover:text-slate-200 cursor-pointer font-medium"
+                          className="text-slate-400 hover:text-white cursor-pointer"
                         >
-                          Last Week
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIsCalendarOpen(false)}
-                          className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md cursor-pointer transition-colors shadow-xs font-semibold"
-                        >
-                          Apply
+                          Last week
                         </button>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsCalendarOpen(false)}
+                        className="h-7 px-3 rounded-md bg-white/[0.08] hover:bg-white/[0.12] text-slate-100 cursor-pointer transition-colors"
+                      >
+                        Done
+                      </button>
                     </div>
+                    <p className="text-[11px] text-slate-500">Weeks run Tuesday to Monday</p>
                   </div>
                 </>
               )}
@@ -418,318 +402,222 @@ export default function WeeklyReportPage() {
 
             <button
               onClick={() => handleWeekDelta(1)}
-              className="p-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shrink-0 cursor-pointer shadow-2xs"
-              title="Next Week"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
+              title="Next week"
+              aria-label="Next week"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Weekly Team Overview Bar - Bento Matrix Tiles */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
-            <div>
-              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Team Created</div>
-              <div className="text-2xl sm:text-3xl font-semibold text-slate-100 font-display mt-1">{grandTotalCreated}</div>
-            </div>
-            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-2">Items produced</p>
+        {/* Team totals */}
+        <div className="bento-card grid grid-cols-2 lg:grid-cols-4 [&>*]:border-white/[0.06] [&>*:nth-child(even)]:border-l lg:[&>*:not(:first-child)]:border-l [&>*:nth-child(-n+2)]:border-b lg:[&>*:nth-child(-n+2)]:border-b-0">
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Deliverables</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums">{grandTotalCreated}</div>
+            <div className="mt-1 text-xs text-slate-500">made by the team</div>
           </div>
-
-          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
-            <div>
-              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Team Approved</div>
-              <div className="text-2xl sm:text-3xl font-semibold text-emerald-400 font-display mt-1">{grandTotalApproved}</div>
-            </div>
-            <p className="text-[11px] text-emerald-400/90 font-semibold sm:text-xs truncate mt-2">{grandApprovalRate}% approval rate</p>
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Approved</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-emerald-400 tabular-nums">{grandTotalApproved}</div>
+            <div className="mt-1 text-xs text-slate-500">{grandApprovalRate}% of deliverables</div>
           </div>
-
-          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
-            <div>
-              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Time Tracked</div>
-              <div className="text-lg sm:text-2xl font-semibold text-amber-400 flex items-center space-x-1.5 mt-1 font-display tabular-nums">
-                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 shrink-0" />
-                <span className="truncate">{formatReportTime(grandTotalSeconds)}</span>
-              </div>
-            </div>
-            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-2">Deliverable time</p>
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Time tracked</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums truncate">{formatReportTime(grandTotalSeconds)}</div>
+            <div className="mt-1 text-xs text-slate-500">on timers</div>
           </div>
-
-          <div className="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group">
-            <div>
-              <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Active Clients</div>
-              <div className="text-2xl sm:text-3xl font-semibold text-violet-400 flex items-center space-x-1.5 mt-1 font-display">
-                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400 shrink-0" />
-                <span>{totalActiveClients}</span>
-              </div>
-            </div>
-            <p className="text-[11px] text-slate-400 sm:text-xs truncate mt-2">Brands this week</p>
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Clients</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums">{totalActiveClients}</div>
+            <div className="mt-1 text-xs text-slate-500">worked on</div>
           </div>
         </div>
 
-        {/* Team Member Cards */}
+        {/* People */}
         {loading ? (
           <div className="bento-card p-12 text-center">
-            <OrbitLoader
-              size="lg"
-              text="Aggregating weekly creative review..."
-              subtitle="Calculating deliverables and approval ratios across the team"
-              showCyclingText
-            />
+            <OrbitLoader size="lg" text="Loading the week" />
+          </div>
+        ) : summaries.length === 0 ? (
+          <div className="bento-card p-12 text-center">
+            <p className="text-sm text-slate-200">Nobody logged work this week</p>
+            <p className="text-xs text-slate-500 mt-1">Pick another week above</p>
           </div>
         ) : (
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-4">
             {summaries.map(s => {
               const isExpanded = expandedUser === s.profile.id;
-              const userBestWork = bestWorkLinks[s.profile.id] || '';
+              const bestWork = bestWorkLinks[s.profile.id] || '';
+              const types = Object.entries(s.workTypeBreakdown)
+                .filter(([typeName, data]) => typeName.trim().toLowerCase() !== 'working' && data.done > 0)
+                .sort((a, b) => b[1].done - a[1].done);
+              const maxType = Math.max(1, ...types.map(([, d]) => d.done));
 
               return (
-                <div
-                  key={s.profile.id}
-                  className="bento-card overflow-hidden transition"
-                >
-                  {/* Card Header */}
-                  <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 border-b border-slate-800">
-                    <div className="flex items-center space-x-3.5 sm:space-x-4">
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-semibold text-lg sm:text-xl flex items-center justify-center shadow-sm shrink-0">
+                <div key={s.profile.id} className="bento-card overflow-hidden">
+                  {/* Person */}
+                  <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/[0.08] text-slate-200 font-display text-base flex items-center justify-center shrink-0">
                         {s.profile.name.charAt(0)}
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                          <h2 className="text-base sm:text-lg font-semibold text-slate-100 truncate">{s.profile.name}</h2>
-                          <span className="px-2 py-0.5 rounded-md text-[11px] sm:text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-                            {s.profile.designation || 'Team'}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-400 mt-0.5 truncate">
-                          {s.entries.length} daily entry record(s) logged this week
+                        <h2 className="text-base font-medium text-slate-50 truncate">{s.profile.name}</h2>
+                        <p className="text-xs text-slate-500 truncate">
+                          {s.profile.designation || 'Team'}
+                          <span className="mx-1.5 text-slate-700">·</span>
+                          {s.entries.length} {s.entries.length === 1 ? 'entry' : 'entries'}
                         </p>
                       </div>
                     </div>
 
-                    {/* Stats Summary & Expand Trigger */}
-                    <div className="flex items-center justify-between lg:justify-end gap-2.5 sm:gap-6 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-800">
-                      <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:space-x-6 flex-1 sm:flex-initial">
-                        {/* Created / Approved Mini-Tile */}
-                        <div className="bg-slate-950/60 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-800">
-                          <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Created / Approved</div>
-                          <div className="text-sm sm:text-lg font-semibold text-slate-100">
-                            {s.totalCreated} <span className="text-slate-500 font-normal">/</span>{' '}
-                            <span className="text-violet-400">{s.totalApproved}</span>
-                          </div>
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <div className="font-display text-xl font-medium text-white tabular-nums">
+                          {s.totalApproved}
+                          <span className="text-sm text-slate-500"> / {s.totalCreated}</span>
                         </div>
-
-                        {/* Approval Rate Mini-Tile */}
-                        <div className="bg-slate-950/60 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none text-left sm:text-right border sm:border-0 border-slate-800">
-                          <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Approval Rate</div>
-                          <div className="text-sm sm:text-lg font-semibold text-violet-400">{s.approvalRate}%</div>
+                        <div className="text-xs text-slate-500">approved</div>
+                      </div>
+                      <div className="w-28 hidden sm:block">
+                        <div className="flex items-baseline justify-between text-xs">
+                          <span className="text-slate-500">Rate</span>
+                          <span className="text-slate-200 tabular-nums">{s.approvalRate}%</span>
+                        </div>
+                        <div className="mt-1.5 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                          <div className="h-full rounded-full bg-emerald-400" style={{ width: `${Math.min(100, s.approvalRate)}%` }} />
                         </div>
                       </div>
-
-                      {/* Styled Action Button for Inspect Entries */}
                       <button
                         onClick={() => toggleExpand(s.profile.id)}
-                        className="px-3 py-2 sm:p-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors flex items-center space-x-1 shrink-0 cursor-pointer shadow-2xs"
-                        title={isExpanded ? 'Hide Details' : 'Inspect Daily Entries'}
+                        className="inline-flex items-center gap-1 h-8 px-3 text-xs text-slate-300 hover:text-white rounded-lg border border-white/[0.08] hover:bg-white/[0.05] transition-colors cursor-pointer shrink-0"
+                        aria-expanded={isExpanded}
                       >
-                        <span className="whitespace-nowrap">{isExpanded ? 'Hide' : 'Inspect'}</span>
-                        <span className="hidden sm:inline whitespace-nowrap">{isExpanded ? 'Details' : 'Entries'}</span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4 ml-0.5 text-slate-400" /> : <ChevronDown className="w-4 h-4 ml-0.5 text-slate-400" />}
+                        {isExpanded ? 'Hide entries' : 'Entries'}
+                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
                       </button>
                     </div>
                   </div>
 
-                  {/* Work Type Summary Table */}
-                  <div className="p-3.5 sm:p-6 bg-slate-950/50 space-y-3 sm:space-y-4">
-                    <h3 className="text-xs font-semibold text-slate-300">
-                      Work Type Aggregation — {s.profile.name}
-                    </h3>
-
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-1.5 sm:gap-2">
-                      {Object.entries(s.workTypeBreakdown)
-                        .filter(([typeName]) => typeName.trim().toLowerCase() !== 'working')
-                        .map(([typeName, data]) => {
-                          const hasWork = data.done > 0;
-                          return (
-                            <div
-                              key={typeName}
-                              className={`p-2 sm:p-3 rounded-lg border text-center transition ${
-                                hasWork
-                                  ? 'bg-slate-900 border-violet-500/50 shadow-2xs ring-1 ring-violet-500/20'
-                                  : 'bg-slate-900/40 border-slate-800/80 opacity-40 hover:opacity-75'
-                              }`}
-                            >
-                              <div className={`text-[11px] sm:text-xs font-semibold truncate ${hasWork ? 'text-slate-200' : 'text-slate-400'}`}>
-                                {typeName}
-                              </div>
-                              <div className="text-xs sm:text-sm font-semibold text-slate-100 mt-0.5">
-                                {data.done}{' '}
-                                <span className={`text-[10px] sm:text-xs font-semibold ${hasWork ? 'text-violet-400' : 'text-slate-500'}`}>
-                                  ({data.approved})
-                                </span>
-                              </div>
+                  {/* By work type */}
+                  <div className="px-5 pb-5">
+                    {types.length === 0 ? (
+                      <p className="text-xs text-slate-500">No deliverables logged this week</p>
+                    ) : (
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2.5">
+                        {types.map(([typeName, data]) => (
+                          <div key={typeName}>
+                            <div className="flex items-baseline justify-between gap-3 text-sm">
+                              <span className="text-slate-300 truncate">{typeName}</span>
+                              <span className="text-xs text-slate-500 tabular-nums shrink-0">
+                                {data.approved > 0 ? (
+                                  <><span className="text-emerald-400">{data.approved}</span> of <span className="text-slate-100">{data.done}</span> approved</>
+                                ) : (
+                                  <span className="text-slate-100">{data.done}</span>
+                                )}
+                              </span>
                             </div>
-                          );
-                        })}
-                    </div>
-
-                    {/* Featured Weekly Best Work Feature */}
-                    <div className="p-3 bg-gradient-to-r from-amber-950/30 via-slate-900/60 to-slate-900 border border-amber-800/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                      <div className="flex items-center space-x-2 text-xs font-semibold text-slate-200">
-                        <Award className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span>Featured Weekly Best Work:</span>
+                            <div className="mt-1 h-1 rounded-full bg-white/[0.05] overflow-hidden relative">
+                              <div className="absolute inset-y-0 left-0 rounded-full bg-slate-500/60" style={{ width: `${(data.done / maxType) * 100}%` }} />
+                              <div className="absolute inset-y-0 left-0 rounded-full bg-emerald-400" style={{ width: `${(data.approved / maxType) * 100}%` }} />
+                            </div>
+                          </div>
+                        ))}
                       </div>
-
-                      <div className="flex items-center space-x-2 w-full sm:w-auto">
-                        {bestWorkLinks[s.profile.id] ? (
-                          <>
-                            <a
-                              href={bestWorkLinks[s.profile.id]}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-semibold text-amber-300 bg-amber-950/50 hover:bg-amber-900/60 border border-amber-700/60 rounded-xl transition-colors flex items-center justify-center space-x-1.5 cursor-pointer shadow-2xs"
-                              title="Open Featured Best Work Link"
-                            >
-                              <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                              <span className="truncate max-w-[180px]">View Best Work ↗</span>
-                            </a>
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setModalConfig({
-                                  isOpen: true,
-                                  profileId: s.profile.id,
-                                  designerName: s.profile.name,
-                                  currentUrl: bestWorkLinks[s.profile.id],
-                                });
-                              }}
-                              className="px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer shrink-0"
-                              title="Edit or Remove Best Work Link"
-                            >
-                              <Edit2 className="w-3.5 h-3.5 text-slate-400" />
-                              <span>Edit / Remove</span>
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setModalConfig({
-                                isOpen: true,
-                                profileId: s.profile.id,
-                                designerName: s.profile.name,
-                                currentUrl: '',
-                              });
-                            }}
-                            className="w-full sm:w-auto px-3.5 py-1.5 text-xs font-semibold text-white webtree-gradient-btn rounded-xl shadow-2xs transition-transform active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>Add Best Work</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                    )}
                   </div>
 
-                  {/* Expandable Daily Entries Drill-down Grouped Client-Wise */}
-                  {isExpanded && (
-                    <div className="p-3.5 sm:p-6 border-t border-slate-800 space-y-3 sm:space-y-4 bg-slate-900">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-semibold text-slate-300">
-                          Client-Wise Work Entries ({s.entries.length} Total Items)
-                        </h4>
-                        <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
-                          Organized by Client Name (A-Z)
-                        </span>
-                      </div>
+                  {/* Best work */}
+                  <div className="px-5 py-3 border-t border-white/[0.06] flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-sm min-w-0">
+                      <Award className="w-4 h-4 text-slate-500 shrink-0" />
+                      <span className="text-slate-400 shrink-0">Best work</span>
+                      {bestWork && (
+                        <a
+                          href={bestWork}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-slate-100 hover:text-emerald-400 transition-colors truncate"
+                          title={bestWork}
+                        >
+                          <span className="truncate">{bestWork.replace(/^https?:\/\/(www\.)?/, '')}</span>
+                          <ExternalLink className="w-3 h-3 shrink-0" />
+                        </a>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setModalConfig({
+                          isOpen: true,
+                          profileId: s.profile.id,
+                          designerName: s.profile.name,
+                          currentUrl: bestWork,
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 h-8 px-3 text-xs text-slate-300 hover:text-white rounded-lg hover:bg-white/[0.05] transition-colors cursor-pointer shrink-0"
+                    >
+                      {bestWork ? <Edit2 className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                      {bestWork ? 'Change' : 'Add link'}
+                    </button>
+                  </div>
 
+                  {/* Entries, by client */}
+                  {isExpanded && (
+                    <div className="border-t border-white/[0.06] bg-black/20 px-5 py-4">
                       {s.entries.length === 0 ? (
-                        <p className="text-xs text-slate-400 italic">No entries logged for this week.</p>
+                        <p className="text-xs text-slate-500">No entries this week</p>
                       ) : (
                         (() => {
-                          // Group entries by Client
                           const clientMap: Record<string, typeof s.entries> = {};
                           s.entries.forEach(entry => {
-                            const clientName = entry.client?.name || 'General / Internal';
+                            const clientName = entry.client?.name || 'Internal';
                             if (!clientMap[clientName]) clientMap[clientName] = [];
                             clientMap[clientName].push(entry);
                           });
-
                           const sortedClients = Object.keys(clientMap).sort((a, b) => a.localeCompare(b));
 
                           return (
-                            <div className="space-y-3 sm:space-y-4">
+                            <div className="space-y-5">
                               {sortedClients.map(clientName => {
                                 const items = clientMap[clientName];
                                 return (
-                                  <div
-                                    key={clientName}
-                                    className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950/60 shadow-2xs"
-                                  >
-                                    {/* Client Header */}
-                                    <div className="px-3 sm:px-4 py-2 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
-                                      <div className="flex items-center space-x-2 truncate">
-                                        <Building2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-                                        <span className="font-semibold text-xs text-slate-100 truncate">
-                                          {clientName}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center space-x-2 shrink-0">
-                                        <span className="text-[11px] font-semibold text-violet-300 bg-violet-950/60 px-2 py-0.5 rounded-full border border-violet-800/60">
-                                          {items.length} item(s)
-                                        </span>
-                                      </div>
+                                  <div key={clientName}>
+                                    <div className="flex items-baseline gap-2 mb-1.5">
+                                      <h4 className="text-sm font-medium text-slate-100">{clientName}</h4>
+                                      <span className="text-xs text-slate-500">{items.length}</span>
                                     </div>
-
-                                    {/* Entries for this Client */}
-                                    <div className="p-2 sm:p-3 space-y-2 bg-slate-950/40">
-                                      {items.map(entry => (
-                                        <div
-                                          key={entry.id}
-                                          className="p-2.5 sm:p-3 bg-slate-900 rounded-lg border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:bg-slate-850 hover:border-slate-700 transition-colors"
-                                        >
-                                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
-                                            <span className="font-semibold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-[10px] sm:text-[11px] shrink-0">
-                                              {entry.work_date}
-                                            </span>
-                                            <span className="px-2 py-0.5 rounded bg-violet-950/80 text-violet-300 border border-violet-800/60 font-semibold text-[10px] sm:text-[11px] shrink-0">
-                                              {entry.work_type?.name || 'Work'}
-                                            </span>
-                                            <span className="text-slate-200 font-medium break-words">{entry.description}</span>
-                                            {(entry.project_url || entry.best_work_url) && (
-                                              <a
-                                                href={entry.project_url || entry.best_work_url!}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center space-x-1 text-violet-400 hover:text-violet-300 font-semibold underline shrink-0"
-                                                title="Open Project URL"
-                                              >
-                                                <ExternalLink className="w-3 h-3" />
-                                                <span>Project Link</span>
-                                              </a>
-                                            )}
-                                          </div>
-
-                                          <div className="flex items-center space-x-3 sm:space-x-4 shrink-0 text-slate-400 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-800 justify-between sm:justify-end">
-                                            <span>
-                                              Done: <strong className="text-slate-100">{entry.quantity_done}</strong>
-                                            </span>
-                                            <span>
-                                              Approved: <strong className="text-violet-400">{entry.quantity_approved}</strong>
-                                            </span>
-                                            <span
-                                              className={`font-semibold px-2 py-0.5 rounded text-[10px] ${
-                                                entry.quantity_approved > 0 || entry.status === 'Reviewed'
-                                                  ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-800/60'
-                                                  : 'bg-amber-950/70 text-amber-300 border border-amber-800/60'
-                                              }`}
-                                            >
-                                              {entry.status}
+                                    <div className="divide-y divide-white/[0.04]">
+                                      {items.map(entry => {
+                                        const link = entry.project_url || entry.best_work_url;
+                                        const done = entry.quantity_approved >= entry.quantity_done && entry.quantity_done > 0;
+                                        return (
+                                          <div key={entry.id} className="py-2 grid grid-cols-[64px_1fr_auto] items-baseline gap-3 text-sm">
+                                            <span className="text-xs text-slate-500 tabular-nums">{shortDay(entry.work_date)}</span>
+                                            <div className="min-w-0">
+                                              <span className="text-slate-200">{entry.description}</span>
+                                              <span className="text-xs text-slate-500 ml-2">{entry.work_type?.name || 'Work'}</span>
+                                              {link && (
+                                                <a
+                                                  href={link}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className="inline-flex items-center gap-0.5 ml-2 text-xs text-slate-400 hover:text-emerald-400 transition-colors"
+                                                >
+                                                  Link
+                                                  <ExternalLink className="w-3 h-3" />
+                                                </a>
+                                              )}
+                                            </div>
+                                            <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 tabular-nums">
+                                              <span className={`w-1.5 h-1.5 rounded-full ${done ? 'bg-emerald-400' : entry.quantity_approved > 0 ? 'bg-emerald-400/50' : 'bg-amber-400'}`} />
+                                              {entry.quantity_approved} / {entry.quantity_done}
                                             </span>
                                           </div>
-                                        </div>
-                                      ))}
+                                        );
+                                      })}
                                     </div>
                                   </div>
                                 );
@@ -747,7 +635,6 @@ export default function WeeklyReportPage() {
         )}
       </main>
 
-      {/* Weekly Best Work Modal */}
       {modalConfig && (
         <WeeklyBestWorkModal
           isOpen={modalConfig.isOpen}

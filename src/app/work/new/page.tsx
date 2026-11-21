@@ -18,7 +18,7 @@ export default function NewWorkEntryPage() {
 
         <Suspense fallback={
           <div className="p-12 text-center bg-slate-900 rounded-xl border border-slate-800">
-            <OrbitLoader size="md" text="Loading work form..." />
+            <OrbitLoader size="md" text="Loading" />
           </div>
         }>
           <WorkEntryForm />

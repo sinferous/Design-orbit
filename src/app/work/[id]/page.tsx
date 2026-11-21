@@ -67,8 +67,7 @@ export default function EditWorkEntryPage({ params }: EditWorkEntryPageProps) {
           <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
             <OrbitLoader
               size="md"
-              text="Loading entry details..."
-              subtitle="Fetching deliverable records from Supabase"
+              text="Loading the entry"
             />
           </div>
         ) : error ? (
@@ -78,7 +77,7 @@ export default function EditWorkEntryPage({ params }: EditWorkEntryPageProps) {
         ) : (
           <Suspense fallback={
             <div className="p-12 text-center bg-slate-900 rounded-xl border border-slate-800">
-              <OrbitLoader size="md" text="Loading form..." />
+              <OrbitLoader size="md" text="Loading" />
             </div>
           }>
             <WorkEntryForm initialData={entry} isEditMode={true} />

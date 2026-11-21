@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, X, Building2, Layers, AlertCircle } from 'lucide-react';
+import { X, Minus, Plus } from 'lucide-react';
 import { WorkEntryWithDetails } from '@/types';
 import { updateWorkEntry } from '@/lib/services/work-entry';
 import { useToast } from '@/components/ui/ToastContext';
@@ -45,28 +45,14 @@ export function QuickApprovalModal({
 
   const maxQty = entry.quantity_done || 1;
   const isFullyApproved = approvedQty === maxQty;
-  const isPartiallyApproved = approvedQty > 0 && approvedQty < maxQty;
   const isNotApproved = approvedQty === 0;
+  const unchanged = approvedQty === (entry.quantity_approved || 0);
 
-  const handleIncrement = () => {
-    if (approvedQty < maxQty) {
-      setApprovedQty(prev => prev + 1);
-    }
-  };
-
-  const handleDecrement = () => {
-    if (approvedQty > 0) {
-      setApprovedQty(prev => prev - 1);
-    }
-  };
-
-  const handleApproveAll = () => {
-    setApprovedQty(maxQty);
-  };
-
-  const handleResetZero = () => {
-    setApprovedQty(0);
-  };
+  const status = isFullyApproved
+    ? { dot: 'bg-emerald-400', text: maxQty === 1 ? 'Approved' : 'All approved' }
+    : isNotApproved
+      ? { dot: 'bg-amber-400', text: 'Not approved yet' }
+      : { dot: 'bg-emerald-400/60', text: 'Partly approved' };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -86,7 +72,7 @@ export function QuickApprovalModal({
         status: approvedQty > 0 ? 'Reviewed' : 'Submitted',
       };
 
-      // When turning not approved to approved, pop a bit of tiny celebratory confetti!
+      // A small burst from the save button when something gets its first approval
       if (wasNotApproved && isNowApproved) {
         if (saveBtnRef.current) {
           const rect = saveBtnRef.current.getBoundingClientRect();
@@ -99,162 +85,118 @@ export function QuickApprovalModal({
       }
 
       showToast(
-        approvedQty > 0
-          ? `Marked ${approvedQty} of ${maxQty} approved!`
-          : 'Deliverable marked as Not Approved.',
+        approvedQty > 0 ? `${approvedQty} of ${maxQty} approved` : 'Marked as not approved',
         'success'
       );
       onSuccess(fullUpdated);
       onClose();
     } catch (err: any) {
       console.error('Failed to update approval:', err);
-      showToast(err.message || 'Failed to update approval status.', 'error');
+      showToast(err.message || 'Could not save the approval. Try again.', 'error');
     } finally {
       setIsSaving(false);
     }
   };
 
+  const stepBtn =
+    'inline-flex w-10 h-10 items-center justify-center rounded-full border border-white/[0.1] text-slate-300 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent';
+
+  const presetBtn = (active: boolean) =>
+    `h-8 px-3 rounded-md text-sm transition-colors cursor-pointer ${
+      active ? 'bg-white/[0.1] text-white' : 'text-slate-400 hover:text-slate-200'
+    }`;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div 
-        className="relative w-full max-w-md bg-slate-900 rounded-2xl shadow-2xl shadow-black/80 border border-slate-700 overflow-hidden transform transition"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-150"
+      onClick={() => !isSaving && onClose()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="approval-title"
+        className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#141413] shadow-[0_24px_60px_rgba(0,0,0,0.55)] animate-in fade-in zoom-in-[0.98] duration-150"
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 text-white flex items-center justify-between">
-          <div className="flex items-center space-x-2.5">
-            <div>
-              <h3 className="text-sm font-semibold tracking-tight text-white">Update Approval</h3>
-              <p className="text-[11px] text-slate-400">Set approved deliverables count</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-3.5 right-3.5 inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/[0.06] transition-colors cursor-pointer"
+          aria-label="Close"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* What is being approved */}
+        <div className="p-5 pr-12">
+          <p className="text-xs text-slate-500">
+            {entry.client?.name || 'Client work'}
+            <span className="mx-1.5 text-slate-700">·</span>
+            {entry.work_type?.name || 'Deliverable'}
+          </p>
+          <h3 id="approval-title" className="mt-1 text-base font-medium text-slate-50 leading-snug line-clamp-2">
+            {entry.description}
+          </h3>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-5">
-          {/* Deliverable info card */}
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center space-x-1.5 font-semibold text-slate-200">
-                <Building2 className="w-3.5 h-3.5 text-violet-400" />
-                <span>{entry.client?.name || 'Client Work'}</span>
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-950 text-violet-300 border border-violet-800">
-                {entry.work_type?.name || 'Deliverable'}
-              </span>
-            </div>
-            <p className="text-xs font-semibold text-slate-300 leading-snug line-clamp-2">
-              {entry.description}
-            </p>
-          </div>
-
-          {/* Stepper counter */}
-          <div className="text-center space-y-3">
-            <div className="text-xs font-semibold text-slate-400">
-              Approved Deliverables
-            </div>
-
-            <div className="flex items-center justify-center space-x-4">
+        {/* Approved count */}
+        <div className="px-5 pb-5">
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-5">
+            <div className="flex items-center justify-between">
               <button
                 type="button"
-                onClick={handleDecrement}
+                onClick={() => setApprovedQty(q => Math.max(0, q - 1))}
                 disabled={approvedQty <= 0}
-                className="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xl flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95 border border-slate-700"
-                title="Decrease approved count"
+                className={stepBtn}
+                aria-label="One fewer approved"
               >
-                -
+                <Minus className="w-4 h-4" />
               </button>
 
-              <div className="px-5 py-2 bg-slate-950 border border-slate-800 rounded-xl min-w-[120px] shadow-inner">
-                <span className="text-3xl font-semibold text-white tracking-tight">
+              <div className="text-center" aria-live="polite">
+                <div className="font-display text-4xl font-medium text-white tabular-nums leading-none">
                   {approvedQty}
-                </span>
-                <span className="text-sm font-semibold text-slate-500 ml-1.5">
-                  / {maxQty}
-                </span>
+                  <span className="text-lg text-slate-500"> / {maxQty}</span>
+                </div>
+                <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-400">
+                  <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+                  {status.text}
+                </div>
               </div>
 
               <button
                 type="button"
-                onClick={handleIncrement}
+                onClick={() => setApprovedQty(q => Math.min(maxQty, q + 1))}
                 disabled={approvedQty >= maxQty}
-                className="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xl flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95 border border-slate-700"
-                title="Increase approved count"
+                className={stepBtn}
+                aria-label="One more approved"
               >
-                +
+                <Plus className="w-4 h-4" />
               </button>
-            </div>
-
-            {/* Status helper feedback */}
-            <div className="pt-1">
-              {isFullyApproved && (
-                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60">
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>✓ 100% Fully Approved ({approvedQty} of {maxQty})</span>
-                </span>
-              )}
-              {isPartiallyApproved && (
-                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-violet-950/70 text-violet-300 border border-violet-800/60">
-                  <Layers className="w-3.5 h-3.5 text-violet-400" />
-                  <span>Partially Approved ({approvedQty} of {maxQty})</span>
-                </span>
-              )}
-              {isNotApproved && (
-                <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/70 text-amber-300 border border-amber-800/60">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-                  <span>0 Approved &bull; Not Approved</span>
-                </span>
-              )}
             </div>
           </div>
 
-          {/* Quick Presets */}
-          <div className="pt-2 border-t border-slate-800">
-            <div className="text-[11px] font-semibold text-slate-400 mb-2">Quick Presets</div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={handleApproveAll}
-                className={`py-2 px-3 rounded-lg text-xs font-semibold transition border flex items-center justify-center space-x-1.5 cursor-pointer ${
-                  isFullyApproved
-                    ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
-                    : 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/50'
-                }`}
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>All Approved ({maxQty})</span>
+          {/* Shortcuts */}
+          <div className="mt-3 flex items-center justify-between">
+            <span className="text-xs text-slate-500">Set to</span>
+            <div className="inline-flex gap-1 rounded-lg bg-white/[0.03] p-0.5">
+              <button type="button" onClick={() => setApprovedQty(0)} className={presetBtn(isNotApproved)}>
+                None
               </button>
-
-              <button
-                type="button"
-                onClick={handleResetZero}
-                className={`py-2 px-3 rounded-lg text-xs font-semibold transition border flex items-center justify-center space-x-1.5 cursor-pointer ${
-                  isNotApproved
-                    ? 'bg-amber-600 text-white border-amber-500 shadow-sm'
-                    : 'bg-amber-950/40 text-amber-300 border-amber-800/60 hover:bg-amber-900/50'
-                }`}
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Not Approved (0)</span>
+              <button type="button" onClick={() => setApprovedQty(maxQty)} className={presetBtn(isFullyApproved)}>
+                All {maxQty}
               </button>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-slate-950 border-t border-slate-800 flex items-center justify-end space-x-2.5">
+        <div className="flex items-center justify-end gap-2 border-t border-white/[0.06] px-5 py-3.5">
           <button
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="px-4 py-2 text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg transition-colors cursor-pointer"
+            className="h-9 px-3.5 text-sm text-slate-300 hover:text-white rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -262,11 +204,10 @@ export function QuickApprovalModal({
             ref={saveBtnRef}
             type="button"
             onClick={handleSave}
-            disabled={isSaving}
-            className="px-5 py-2 text-xs font-semibold text-white webtree-gradient-btn rounded-lg shadow-sm hover:opacity-95 transition disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
+            disabled={isSaving || unchanged}
+            className="h-9 px-4 text-sm font-medium rounded-lg bg-emerald-500 text-[#0b1410] hover:bg-emerald-400 transition-colors cursor-pointer btn-tactile disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Check className="w-3.5 h-3.5" />
-            <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+            {isSaving ? 'Saving…' : 'Save'}
           </button>
         </div>
       </div>

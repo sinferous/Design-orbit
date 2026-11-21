@@ -245,16 +245,16 @@ export default function MyWorkPage() {
 
   const handleDelete = (id: string) => {
     confirmDialog({
-      title: 'Delete Work Entry',
-      message: 'Are you sure you want to delete this work entry? This action cannot be undone.',
-      confirmText: 'Delete Entry',
+      title: 'Delete this entry?',
+      message: 'It comes off your log and reports for good. This can’t be undone.',
+      confirmText: 'Delete',
       variant: 'danger',
       onConfirm: async () => {
         setDeletingId(id);
         try {
           setEntries(prev => prev.filter(e => e.id !== id));
           await deleteWorkEntry(id);
-          showToast('Work entry deleted successfully.', 'success');
+          showToast('Entry deleted', 'success');
           await loadEntries();
         } catch (err) {
           setEntries(prev => prev.filter(e => e.id !== id));
@@ -268,9 +268,9 @@ export default function MyWorkPage() {
 
   const handleDismissPending = (entry: WorkEntryWithDetails) => {
     confirmDialog({
-      title: 'Dismiss from Pending Queue',
-      message: `Dismiss "${entry.description}" from pending approvals? Your work time and completed quantity (${entry.quantity_done}) will stay 100% intact.`,
-      confirmText: 'Dismiss from Queue',
+      title: 'Remove from pending?',
+      message: `“${entry.description}” leaves the pending list. Its time and count stay on your log.`,
+      confirmText: 'Remove',
       variant: 'warning',
       onConfirm: async () => {
         setDismissingId(entry.id);
@@ -287,7 +287,7 @@ export default function MyWorkPage() {
                 : e
             )
           );
-          showToast('Deliverable dismissed from pending approvals queue.', 'success');
+          showToast('Removed from pending', 'success');
         } catch (err: any) {
           showToast('Failed to dismiss item. Please try again.', 'error');
         } finally {
@@ -391,7 +391,6 @@ export default function MyWorkPage() {
     try {
       const updated = await startWorkEntryTimer(entry.id, entries, activeProfile.id);
       setEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
-      showToast(`Timer started: "${entry.description.slice(0, 24)}${entry.description.length > 24 ? '...' : ''}"`, 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to start timer', 'error');
       loadEntries();
@@ -433,7 +432,7 @@ export default function MyWorkPage() {
     try {
       const updated = await stopWorkEntryTimer(entry.id, entry, activeProfile.id, 'stop');
       setEntries(prev => prev.map(e => (e.id === entry.id ? { ...e, ...updated } : e)));
-      showToast(`Timer stopped! Recorded ${formatWorkEntryDuration(newTotal)}.`, 'success');
+      showToast(`Timer stopped · ${formatWorkEntryDuration(newTotal)} saved`, 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to stop timer', 'error');
       loadEntries();
@@ -856,8 +855,7 @@ export default function MyWorkPage() {
           <div className="bento-card p-12 text-center">
             <OrbitLoader
               size="md"
-              text="Loading daily work log..."
-              subtitle="Synchronizing deliverables from Supabase"
+              text="Loading your log"
             />
           </div>
         ) : entries.length === 0 ? (
@@ -904,28 +902,23 @@ export default function MyWorkPage() {
 
                   return (
                     <div key={clientName} className="bento-card overflow-hidden">
-                      {/* Client Header Bar */}
-                      <div className="px-6 py-3.5 bg-white/[0.02] border-b border-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="flex items-center space-x-2.5">
-                          <div>
-                            <h3 className="text-xs font-semibold text-slate-100">
-                              {clientName}
-                            </h3>
-                          </div>
-                          <span className="text-[11px] font-medium text-slate-300 bg-white/[0.04] border border-white/[0.08] px-2.5 py-0.5 rounded-full">
-                            {clientEntries.length} item(s)
+                      {/* Client header */}
+                      <div className="px-5 py-3 border-b border-white/[0.06] flex items-center justify-between gap-3">
+                        <div className="flex items-baseline gap-2 min-w-0">
+                          <h3 className="text-sm font-medium text-slate-100 truncate">{clientName}</h3>
+                          <span className="text-xs text-slate-500 shrink-0">
+                            {clientEntries.length} {clientEntries.length === 1 ? 'entry' : 'entries'}
                           </span>
                         </div>
-
-                        <div className="flex items-center space-x-4 text-xs font-medium text-slate-400">
-                          <span>Total Qty: <strong className="text-slate-100 font-semibold">{clientDone}</strong></span>
-                          <span className="text-slate-600">•</span>
-                          <span>Approved: <strong className="text-emerald-400 font-semibold">{clientApproved}</strong></span>
+                        <div className="text-xs text-slate-500 tabular-nums shrink-0">
+                          <span className="text-slate-300">{clientDone}</span> logged
+                          <span className="mx-1.5 text-slate-700">·</span>
+                          <span className={clientApproved > 0 ? 'text-emerald-400' : 'text-slate-300'}>{clientApproved}</span> approved
                         </div>
                       </div>
 
-                      {/* Items for this Client */}
-                      <div className="divide-y divide-white/[0.06]">
+                      {/* Entries for this client */}
+                      <div className="divide-y divide-white/[0.05]">
                         {clientEntries.map(entry => {
                           const isMyEntry = Boolean(
                             activeProfile && (
@@ -934,260 +927,174 @@ export default function MyWorkPage() {
                               (entry.profile && activeProfile.email && entry.profile.email && entry.profile.email.toLowerCase() === activeProfile.email.toLowerCase())
                             )
                           );
+                          const isRunning = Boolean(entry.timer_started_at);
+                          const trackedSeconds = calculateWorkEntrySeconds(entry, nowMs);
+                          const link = entry.project_url || entry.best_work_url;
+                          const inProgress = isInProgressEntry(entry);
+                          const fullyApproved = entry.quantity_approved >= entry.quantity_done;
+                          const approvalDot = fullyApproved
+                            ? 'bg-emerald-400'
+                            : entry.quantity_approved > 0
+                              ? 'bg-emerald-400/50'
+                              : 'bg-amber-400';
+                          const approvalText = fullyApproved
+                            ? entry.quantity_done === 1 ? 'Approved' : `All ${entry.quantity_done} approved`
+                            : `${entry.quantity_approved} of ${entry.quantity_done} approved`;
 
                           return (
                             <div
                               key={entry.id}
-                              className={`p-5 transition flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                                entry.timer_started_at
-                                  ? isMyEntry
-                                    ? 'bg-amber-950/25 border-l-4 border-l-amber-500 shadow-2xs'
-                                    : 'bg-emerald-950/25 border-l-4 border-l-emerald-500 shadow-2xs'
-                                  : 'hover:bg-white/[0.02]'
+                              className={`relative px-5 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6 transition-colors ${
+                                isRunning ? 'bg-emerald-400/[0.03]' : 'hover:bg-white/[0.015]'
                               }`}
                             >
-                              {/* Left Section: Work Type & Description */}
-                              <div className="space-y-2 flex-1">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span className="px-2.5 py-0.5 rounded-md text-xs font-medium bg-white/[0.04] text-slate-300 border border-white/[0.08]">
-                                    {entry.work_type?.name || 'Work'}
-                                  </span>
+                              {isRunning && <span className="absolute left-0 top-3 bottom-3 w-0.5 rounded-full bg-emerald-400" />}
 
+                              {/* What was done */}
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium text-slate-100 leading-snug">{entry.description}</p>
+                                <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-slate-500">
+                                  <span className="text-slate-400">{entry.work_type?.name || 'Work'}</span>
                                   {selectedUserFilter !== 'my_work' && entry.profile && (
-                                    <span className="text-xs text-slate-400 font-medium">
-                                      By <strong className="text-slate-200">{entry.profile.name}</strong>
-                                    </span>
+                                    <>
+                                      <span className="text-slate-700">·</span>
+                                      <span>{entry.profile.name}</span>
+                                    </>
                                   )}
-
-                                  {entry.timer_started_at && isMyEntry && (
-                                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-950/80 text-amber-300 border border-amber-700/60">
-                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
-                                      <span>Timer Active</span>
-                                    </span>
+                                  {!isRunning && trackedSeconds > 0 && (
+                                    <>
+                                      <span className="text-slate-700">·</span>
+                                      <span className="tabular-nums" title="Time tracked">{formatWorkEntryDuration(trackedSeconds)}</span>
+                                    </>
+                                  )}
+                                  {link && (
+                                    <>
+                                      <span className="text-slate-700">·</span>
+                                      <a
+                                        href={link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-slate-400 hover:text-emerald-400 transition-colors"
+                                        title={link}
+                                      >
+                                        Open link
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    </>
                                   )}
                                 </div>
-
-                                <p className="text-sm font-semibold text-slate-100 leading-snug">
-                                  {entry.description}
-                                </p>
-
-                                {(entry.project_url || entry.best_work_url) && (
-                                  <div className="pt-1.5 flex items-center space-x-2">
-                                    <a
-                                      href={entry.project_url || entry.best_work_url!}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 border border-blue-500/25 transition-colors shadow-2xs cursor-pointer group"
-                                      title="Open Deliverable URL in new tab"
-                                    >
-                                      <ExternalLink className="w-3.5 h-3.5 text-blue-400 transition-transform shrink-0" />
-                                      <span>View Project Link ↗</span>
-                                      <span className="text-[11px] text-blue-300/70 font-normal truncate max-w-xs ml-1 border-l border-blue-500/25 pl-1.5">
-                                        {entry.project_url || entry.best_work_url}
-                                      </span>
-                                    </a>
-                                  </div>
-                                )}
-
                                 {entry.notes && (
-                                  <p className="text-xs text-slate-400 italic">
-                                    Note: {entry.notes}
-                                  </p>
+                                  <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">{entry.notes}</p>
                                 )}
                               </div>
 
-                              {/* Right Section: Quantities, Status, Timer & Action Icons */}
-                              <div className="flex flex-wrap items-center space-x-3 sm:space-x-5 justify-between md:justify-end gap-y-2">
-                                {isInProgressEntry(entry) ? (
-                                  <div className="flex items-center">
-                                    <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/70 text-amber-300 border border-amber-800/60 shadow-2xs">
-                                      <span>⏳ Working</span>
-                                      <span className="text-[11px] text-amber-400 font-semibold">(0 qty • Time logged)</span>
-                                    </span>
-                                  </div>
+                              {/* Status, timer, actions */}
+                              <div className="flex items-center gap-2 shrink-0">
+                                {inProgress ? (
+                                  <span className="inline-flex items-center gap-1.5 h-8 px-2.5 text-xs text-slate-400">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                                    Time only
+                                  </span>
+                                ) : isMyEntry || isAdmin ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedApprovalEntry(entry)}
+                                    className="inline-flex items-center gap-1.5 h-8 pl-2.5 pr-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer tabular-nums"
+                                    title="Update approved count"
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full ${approvalDot}`} />
+                                    {approvalText}
+                                    <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                                  </button>
                                 ) : (
-                                  <>
-                                    <div className="flex items-center space-x-4 text-xs">
-                                      <div className="text-center">
-                                        <div className="text-slate-500 text-[11px] font-semibold">Qty</div>
-                                        <div className="text-base font-semibold text-slate-100">{entry.quantity_done}</div>
-                                      </div>
+                                  <span className="inline-flex items-center gap-1.5 h-8 px-2.5 text-xs text-slate-400 tabular-nums">
+                                    <span className={`w-1.5 h-1.5 rounded-full ${approvalDot}`} />
+                                    {approvalText}
+                                  </span>
+                                )}
 
-                                      <div className="text-center">
-                                        <div className="text-slate-500 text-[11px] font-semibold">Approved</div>
-                                        <div className="text-base font-semibold text-violet-400">{entry.quantity_approved}</div>
-                                      </div>
-                                    </div>
-
-                                    {/* Quick Interactive Approval Action */}
-                                    {isMyEntry || isAdmin ? (
+                                {/* Timer */}
+                                {isMyEntry ? (
+                                  isRunning ? (
+                                    <div className="flex items-center gap-1">
+                                      <span className="inline-flex items-center gap-1.5 h-8 px-2 font-display text-sm text-emerald-300 tabular-nums">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-beacon" />
+                                        {formatWorkEntryStopwatch(trackedSeconds)}
+                                      </span>
                                       <button
                                         type="button"
-                                        onClick={() => setSelectedApprovalEntry(entry)}
-                                        className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition border shadow-2xs active:scale-95 cursor-pointer ${
-                                          entry.quantity_approved === entry.quantity_done
-                                            ? 'bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border-emerald-800/60'
-                                            : entry.quantity_approved > 0
-                                            ? 'bg-violet-950/70 hover:bg-violet-900/80 text-violet-300 border-violet-800/60'
-                                            : 'bg-amber-950/70 hover:bg-amber-900/80 text-amber-300 border-amber-800/60'
-                                        }`}
-                                        title="Click to update approved count"
+                                        onClick={() => handleStopTimer(entry)}
+                                        disabled={timerLoadingId === entry.id}
+                                        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs text-slate-200 border border-white/[0.1] hover:bg-white/[0.06] transition-colors cursor-pointer disabled:opacity-50"
+                                        title="Stop the timer and save the time"
                                       >
-                                        {entry.quantity_approved === entry.quantity_done ? (
-                                          <>
-                                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                            <span>Approved ({entry.quantity_approved})</span>
-                                            <span className="text-[10px] opacity-60">▾</span>
-                                          </>
-                                        ) : entry.quantity_approved > 0 ? (
-                                          <>
-                                            <Check className="w-3.5 h-3.5 text-violet-400" />
-                                            <span>Partial ({entry.quantity_approved}/{entry.quantity_done})</span>
-                                            <span className="text-[10px] opacity-60">▾</span>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-                                            <span>Not Approved (0)</span>
-                                            <span className="text-[10px] opacity-60">▾</span>
-                                          </>
-                                        )}
+                                        <Square className="w-2.5 h-2.5 fill-current" />
+                                        Stop
                                       </button>
-                                    ) : (
-                                      <span
-                                        className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1 border ${
-                                          entry.quantity_approved > 0
-                                            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-800/60'
-                                            : 'bg-amber-950/70 text-amber-300 border-amber-800/60'
-                                        }`}
-                                      >
-                                        {entry.quantity_approved > 0 ? (
-                                          <>
-                                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                            <span>Approved ({entry.quantity_approved})</span>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-                                            <span>Not Approved</span>
-                                          </>
-                                        )}
-                                      </span>
-                                    )}
-                                  </>
-                                )}
-
-                                {/* Timer Controls: Start / Stop & Stopwatch */}
-                                {isMyEntry ? (
-                                  <div className="flex items-center space-x-1.5 shrink-0">
-                                    {entry.timer_started_at ? (
-                                      // Active running timer: live clock + Stop button
-                                      <div className="flex items-center space-x-1.5">
-                                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-950/80 text-amber-300 border border-amber-700/60 rounded-lg font-display tabular-nums text-xs font-semibold shadow-2xs">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
-                                          <Clock className="w-3 h-3 text-amber-400" />
-                                          <span>{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleStopTimer(entry)}
-                                          disabled={timerLoadingId === entry.id}
-                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition cursor-pointer disabled:opacity-50"
-                                          title="Stop timer and record time in DB"
-                                        >
-                                          <Square className="w-2.5 h-2.5 fill-current" />
-                                          <span>Stop</span>
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={async () => {
-                                            if (typeof window !== 'undefined') {
-                                              try {
-                                                const opened = await window.designOrbitPipManager?.openPip(entry);
-                                                if (!opened) {
-                                                  showToast('Unable to open floating timer. Ensure popups are allowed.', 'error');
-                                                }
-                                              } catch (err: any) {
-                                                showToast(err.message || 'Could not launch floating timer', 'error');
+                                      <button
+                                        type="button"
+                                        onClick={async () => {
+                                          if (typeof window !== 'undefined') {
+                                            try {
+                                              const opened = await window.designOrbitPipManager?.openPip(entry);
+                                              if (!opened) {
+                                                showToast('Could not open the floating timer. Allow popups for this site.', 'error');
                                               }
+                                            } catch (err: any) {
+                                              showToast(err.message || 'Could not open the floating timer', 'error');
                                             }
-                                          }}
-                                          className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer shadow-2xs"
-                                          title="Float timer outside browser (Picture-in-Picture)"
-                                        >
-                                          <ExternalLink className="w-3 h-3 text-slate-400" />
-                                          <span className="hidden sm:inline">Float PiP</span>
-                                        </button>
-                                      </div>
-                                    ) : (
-                                      // Idle timer: Accumulated time badge + Start button
-                                      <div className="flex items-center space-x-1.5">
-                                        {calculateWorkEntrySeconds(entry, nowMs) > 0 && (
-                                          <span
-                                            title={`Total time tracked: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
-                                            className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-xs font-display tabular-nums font-semibold"
-                                          >
-                                            <Clock className="w-3 h-3 text-slate-400" />
-                                            <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
-                                          </span>
-                                        )}
-                                        <button
-                                          type="button"
-                                          onClick={() => handleStartTimer(entry)}
-                                          disabled={timerLoadingId === entry.id}
-                                          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-violet-950/60 hover:bg-violet-900/80 text-violet-300 border border-violet-800/60 hover:border-violet-600 rounded-lg text-xs font-semibold shadow-2xs transition cursor-pointer disabled:opacity-50"
-                                          title="Start timer for this task"
-                                        >
-                                          <Play className="w-2.5 h-2.5 fill-violet-400 text-violet-400" />
-                                          <span>Start</span>
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  // Read-only time spent badge for other teammates with live ticker if active
-                                  <div className="flex items-center space-x-1.5 shrink-0">
-                                    {entry.timer_started_at ? (
-                                      <span
-                                        title={`${entry.profile?.name || 'Teammate'} is actively working on this right now`}
-                                        className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded-lg font-display tabular-nums text-xs font-semibold shadow-2xs"
+                                          }
+                                        }}
+                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+                                        title="Pop out the timer"
+                                        aria-label="Pop out the timer"
                                       >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
-                                        <Clock className="w-3.5 h-3.5 text-emerald-400" />
-                                        <span>{formatWorkEntryStopwatch(calculateWorkEntrySeconds(entry, nowMs))}</span>
-                                        <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-900/60 px-1.5 py-0.5 rounded border border-emerald-700/50">Live</span>
-                                      </span>
-                                    ) : (
-                                      calculateWorkEntrySeconds(entry, nowMs) > 0 && (
-                                        <span
-                                          title={`Time spent: ${formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}`}
-                                          className="inline-flex items-center space-x-1 px-2 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg text-xs font-display tabular-nums font-medium"
-                                        >
-                                          <Clock className="w-3 h-3 text-slate-500" />
-                                          <span>{formatWorkEntryDuration(calculateWorkEntrySeconds(entry, nowMs))}</span>
-                                        </span>
-                                      )
-                                    )}
-                                  </div>
+                                        <ExternalLink className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStartTimer(entry)}
+                                      disabled={timerLoadingId === entry.id}
+                                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs text-emerald-300 border border-emerald-400/25 hover:bg-emerald-400/10 hover:text-emerald-200 transition-colors cursor-pointer disabled:opacity-50"
+                                      title="Start a timer for this entry"
+                                    >
+                                      <Play className="w-2.5 h-2.5 fill-current" />
+                                      Start
+                                    </button>
+                                  )
+                                ) : (
+                                  isRunning && (
+                                    <span
+                                      title={`${entry.profile?.name || 'A teammate'} is working on this now`}
+                                      className="inline-flex items-center gap-1.5 h-8 px-2 font-display text-sm text-emerald-300 tabular-nums"
+                                    >
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-beacon" />
+                                      {formatWorkEntryStopwatch(trackedSeconds)}
+                                    </span>
+                                  )
                                 )}
 
-                                {/* Actions: Only visible and editable on the user's OWN work! */}
+                                {/* Edit and delete, own entries only */}
                                 {isMyEntry && (
-                                  <div className="flex items-center space-x-1 border-l border-slate-800 pl-3">
+                                  <div className="flex items-center ml-1 pl-2 border-l border-white/[0.06]">
                                     <Link
                                       href={`/work/${entry.id}`}
-                                      className="p-1.5 text-slate-400 hover:text-violet-400 rounded-lg hover:bg-slate-800 transition-colors"
-                                      title="Edit my entry"
+                                      className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
+                                      title="Edit"
+                                      aria-label="Edit entry"
                                     >
-                                      <Edit2 className="w-4 h-4" />
+                                      <Edit2 className="w-3.5 h-3.5" />
                                     </Link>
                                     <button
                                       onClick={() => handleDelete(entry.id)}
                                       disabled={deletingId === entry.id}
-                                      className="p-1.5 text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
-                                      title="Delete my entry"
+                                      className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 transition-colors disabled:opacity-50 cursor-pointer"
+                                      title="Delete"
+                                      aria-label="Delete entry"
                                     >
-                                      <Trash2 className="w-4 h-4" />
+                                      <Trash2 className="w-3.5 h-3.5" />
                                     </button>
                                   </div>
                                 )}
@@ -1308,8 +1215,7 @@ export default function MyWorkPage() {
               <div className="bg-slate-900 rounded-xl border border-slate-800 p-12 text-center">
                 <OrbitLoader
                   size="md"
-                  text="Scanning for pending client approvals..."
-                  subtitle="Checking past deliverables needing sign-off"
+                  text="Loading pending work"
                 />
               </div>
             ) : filteredPendingEntries.length === 0 ? (

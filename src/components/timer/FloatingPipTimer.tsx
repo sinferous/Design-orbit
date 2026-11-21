@@ -590,7 +590,6 @@ export function FloatingPipTimer() {
         pipWindowRef.current.focus();
         pipWindowRef.current.resizeTo(targetWidth, targetHeight);
       } catch (e) {}
-      showToast('Floating desktop timer focused', 'success');
       return true;
     }
 
@@ -624,7 +623,6 @@ export function FloatingPipTimer() {
           pipContainerRef.current = container;
           pipWindowRef.current = pip;
           setPipWindow(pip);
-          showToast('Desktop timer popped out (Always on Top)', 'success');
           return true;
         } catch (pipErr: any) {
           console.warn('Document Picture-in-Picture request failed, trying popup fallback:', pipErr);
@@ -675,7 +673,6 @@ export function FloatingPipTimer() {
           pipContainerRef.current = container;
           pipWindowRef.current = popup;
           setPipWindow(popup);
-          showToast('Floating desktop timer opened', 'success');
           return true;
         } else {
           showToast('Popup blocked by browser. Please allow popups for Design Orbit in your address bar.', 'error');

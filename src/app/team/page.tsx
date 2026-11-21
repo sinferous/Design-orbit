@@ -87,9 +87,9 @@ export default function TeamPage() {
 
   const handleDeleteMember = (id: string, memberName: string) => {
     confirmDialog({
-      title: 'Remove Team Member',
-      message: `Are you sure you want to remove "${memberName}" from the team? This action cannot be undone.`,
-      confirmText: 'Remove Member',
+      title: 'Remove this person?',
+      message: `${memberName} loses access to Design Orbit. This can’t be undone.`,
+      confirmText: 'Remove',
       variant: 'danger',
       onConfirm: async () => {
         setDeletingId(id);
@@ -233,8 +233,7 @@ export default function TeamPage() {
           <div className="p-12 text-center">
             <OrbitLoader
               size="md"
-              text="Loading team profiles..."
-              subtitle="Synchronizing creative roster and activity strips"
+              text="Loading the team"
             />
           </div>
         ) : (

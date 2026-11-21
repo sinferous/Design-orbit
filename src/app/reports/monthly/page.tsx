@@ -106,39 +106,40 @@ export default function MonthlyReportPage() {
     showToast('Monthly report CSV exported', 'success');
   };
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
-      <Navbar userName="Gajesh" />
+  const monthName = months.find(m => m.value === selectedMonth)?.name || '';
+  const activeTypes = reportData.summaries.filter(s => s.totalDone > 0).length;
+  const rows = [...reportData.summaries].sort((a, b) => b.totalDone - a.totalDone);
+  const maxDone = Math.max(1, ...rows.map(r => r.totalDone));
 
-      {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
+  const filterLabel = 'block text-xs text-slate-500 mb-1.5';
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+      <Navbar />
+
       <ReportsSubNav>
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
+          className="inline-flex items-center gap-1.5 h-8 px-3 text-xs text-slate-300 hover:text-white rounded-lg border border-white/[0.08] hover:bg-white/[0.05] transition-colors whitespace-nowrap cursor-pointer"
         >
-          <Download className="w-4 h-4 text-violet-400" />
-          <span className="hidden sm:inline">Export CSV</span>
-          <span className="sm:hidden">CSV</span>
+          <Download className="w-3.5 h-3.5 text-slate-400" />
+          Export CSV
         </button>
       </ReportsSubNav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
-        {/* Header & Controls */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-slate-100">Monthly Performance Report</h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Aggregated monthly totals and work type distribution calculated from daily entries.
-            </p>
-          </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-medium text-slate-50">
+            {monthName} {selectedYear}
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">Monthly totals by work type</p>
         </div>
 
-        {/* Month / Year & Filters Bar */}
-        <div className="bg-slate-900 p-3.5 sm:p-4 rounded-xl border border-slate-800 shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+        {/* Filters */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">
-              Month
-            </label>
+            <label className={filterLabel}>Month</label>
             <RichSelect
               value={selectedMonth}
               onChange={val => setSelectedMonth(Number(val))}
@@ -146,11 +147,8 @@ export default function MonthlyReportPage() {
               size="sm"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">
-              Year
-            </label>
+            <label className={filterLabel}>Year</label>
             <RichSelect
               value={selectedYear}
               onChange={val => setSelectedYear(Number(val))}
@@ -160,149 +158,126 @@ export default function MonthlyReportPage() {
               size="sm"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">
-              Team Member
-            </label>
+            <label className={filterLabel}>Person</label>
             <RichSelect
               value={selectedUser}
               onChange={val => setSelectedUser(String(val))}
-              options={[
-                { value: '', label: 'All Team Members' },
-                ...profiles.map(p => ({
-                  value: p.id,
-                  label: p.name,
-                })),
-              ]}
+              options={[{ value: '', label: 'Everyone' }, ...profiles.map(p => ({ value: p.id, label: p.name }))]}
               size="sm"
-              placeholder="All Team Members"
+              placeholder="Everyone"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">
-              Work Type
-            </label>
+            <label className={filterLabel}>Work type</label>
             <RichSelect
               value={selectedWorkType}
               onChange={val => setSelectedWorkType(String(val))}
-              options={[
-                { value: '', label: 'All Work Types' },
-                ...workTypes.map(wt => ({ value: wt.id, label: wt.name })),
-              ]}
+              options={[{ value: '', label: 'All types' }, ...workTypes.map(wt => ({ value: wt.id, label: wt.name }))]}
               size="sm"
-              placeholder="All Work Types"
+              placeholder="All types"
             />
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">
-              Client
-            </label>
+          <div className="col-span-2 md:col-span-1">
+            <label className={filterLabel}>Client</label>
             <RichSelect
               value={selectedClient}
               onChange={val => setSelectedClient(String(val))}
-              options={[
-                { value: '', label: 'All Clients' },
-                ...clients.map(c => ({ value: c.id, label: c.name })),
-              ]}
+              options={[{ value: '', label: 'All clients' }, ...clients.map(c => ({ value: c.id, label: c.name }))]}
               size="sm"
               searchable
-              placeholder="All Clients"
+              placeholder="All clients"
             />
           </div>
         </div>
 
-        {/* Monthly Summary Statistics - 2x2 Grid on Mobile */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
-              {months.find(m => m.value === selectedMonth)?.name} Created
-            </div>
-            <div className="text-2xl sm:text-3xl font-semibold text-slate-100">{reportData.totalDoneAll}</div>
-            <p className="text-[11px] sm:text-xs text-slate-400 truncate">Items this month</p>
+        {/* Totals */}
+        <div className="bento-card grid grid-cols-2 lg:grid-cols-4 [&>*]:border-white/[0.06] [&>*:nth-child(even)]:border-l lg:[&>*:not(:first-child)]:border-l [&>*:nth-child(-n+2)]:border-b lg:[&>*:nth-child(-n+2)]:border-b-0">
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Deliverables</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums">{reportData.totalDoneAll}</div>
+            <div className="mt-1 text-xs text-slate-500">in {monthName}</div>
           </div>
-
-          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">
-              {months.find(m => m.value === selectedMonth)?.name} Approved
-            </div>
-            <div className="text-2xl sm:text-3xl font-semibold text-violet-400">{reportData.totalApprovedAll}</div>
-            <p className="text-[11px] sm:text-xs text-emerald-400 font-medium truncate">{reportData.overallApprovalRate}% approved</p>
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Approved</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-emerald-400 tabular-nums">{reportData.totalApprovedAll}</div>
+            <div className="mt-1 text-xs text-slate-500">{reportData.overallApprovalRate}% of deliverables</div>
           </div>
-
-          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Time Logged</div>
-            <div className="text-xl sm:text-3xl font-semibold text-amber-400 flex items-center space-x-1 sm:space-x-1.5">
-              <Clock className="w-5 h-5 text-amber-400 shrink-0" />
-              <span className="truncate">{formatReportTime(reportData.totalTimeSecondsAll || 0)}</span>
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Time tracked</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums truncate">
+              {formatReportTime(reportData.totalTimeSecondsAll || 0)}
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 truncate">
-              {((reportData.totalTimeSecondsAll || 0) / 3600).toFixed(1)} decimal hrs
-            </p>
+            <div className="mt-1 text-xs text-slate-500 tabular-nums">
+              {((reportData.totalTimeSecondsAll || 0) / 3600).toFixed(1)} hours
+            </div>
           </div>
-
-          <div className="bg-slate-900 p-3.5 sm:p-5 rounded-xl border border-slate-800 shadow-2xs space-y-0.5 sm:space-y-1">
-            <div className="text-[11px] sm:text-xs font-semibold text-slate-400 truncate">Active Categories</div>
-            <div className="text-2xl sm:text-3xl font-semibold text-indigo-400">
-              {reportData.summaries.filter(s => s.totalDone > 0).length} / {reportData.summaries.length}
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Work types used</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums">
+              {activeTypes}
+              <span className="text-lg text-slate-500"> / {reportData.summaries.length}</span>
             </div>
-            <p className="text-[11px] sm:text-xs text-slate-400 truncate">Work types active</p>
+            <div className="mt-1 text-xs text-slate-500">had work this month</div>
           </div>
         </div>
 
-        {/* Breakdown Table */}
-        <div className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-100">Work Type Breakdown Table</h2>
-            <span className="text-xs text-slate-400">
-              {months.find(m => m.value === selectedMonth)?.name} {selectedYear}
-            </span>
+        {/* Breakdown */}
+        <div className="bento-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/[0.06] flex items-baseline justify-between">
+            <h2 className="text-sm font-medium text-slate-100">By work type</h2>
+            <span className="text-xs text-slate-500">Most made first</span>
           </div>
 
           {loading ? (
             <div className="p-12 text-center">
-              <OrbitLoader
-                size="lg"
-                text="Aggregating monthly performance report..."
-                subtitle="Calculating deliverable volume, approval rates, and work type metrics"
-              />
+              <OrbitLoader size="lg" text="Loading the month" />
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-slate-300">
-                <thead className="bg-slate-950/80 text-xs font-semibold text-slate-400 border-b border-slate-800">
-                  <tr>
-                    <th className="px-6 py-3.5">Work Type</th>
-                    <th className="px-6 py-3.5 text-right">Created Quantity</th>
-                    <th className="px-6 py-3.5 text-right">Approved Quantity</th>
-                    <th className="px-6 py-3.5 text-right">Approval Rate</th>
-                    <th className="px-6 py-3.5 text-right">Time Spent</th>
+              <table className="w-full text-left text-sm">
+                <thead className="text-xs text-slate-500">
+                  <tr className="border-b border-white/[0.06]">
+                    <th className="px-5 py-3 font-normal">Work type</th>
+                    <th className="px-5 py-3 font-normal w-[34%] hidden md:table-cell"></th>
+                    <th className="px-5 py-3 font-normal text-right">Made</th>
+                    <th className="px-5 py-3 font-normal text-right">Approved</th>
+                    <th className="px-5 py-3 font-normal text-right">Rate</th>
+                    <th className="px-5 py-3 font-normal text-right">Time</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800 bg-slate-900">
-                  {reportData.summaries.map(s => (
-                    <tr key={s.workType.id} className="hover:bg-slate-800/60 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-slate-200">{s.workType.name}</td>
-                      <td className="px-6 py-4 text-right font-semibold text-slate-100">{s.totalDone}</td>
-                      <td className="px-6 py-4 text-right font-semibold text-violet-400">{s.totalApproved}</td>
-                      <td className="px-6 py-4 text-right font-semibold text-indigo-400">{s.approvalRate}%</td>
-                      <td className="px-6 py-4 text-right font-display tabular-nums font-semibold text-amber-400">
-                        {formatReportTime(s.totalTimeSeconds || 0)}
-                      </td>
-                    </tr>
-                  ))}
-                  <tr className="bg-slate-950/90 font-semibold text-slate-100 border-t-2 border-slate-700">
-                    <td className="px-6 py-4">Total</td>
-                    <td className="px-6 py-4 text-right text-slate-100">{reportData.totalDoneAll}</td>
-                    <td className="px-6 py-4 text-right text-violet-400">{reportData.totalApprovedAll}</td>
-                    <td className="px-6 py-4 text-right text-indigo-400">{reportData.overallApprovalRate}%</td>
-                    <td className="px-6 py-4 text-right font-display tabular-nums font-semibold text-amber-400">
-                      {formatReportTime(reportData.totalTimeSecondsAll || 0)}
-                    </td>
-                  </tr>
+                <tbody className="divide-y divide-white/[0.04] tabular-nums">
+                  {rows.map(s => {
+                    const empty = s.totalDone === 0;
+                    return (
+                      <tr key={s.workType.id} className={empty ? 'text-slate-600' : 'text-slate-300 hover:bg-white/[0.015]'}>
+                        <td className={`px-5 py-3 ${empty ? '' : 'text-slate-100'}`}>{s.workType.name}</td>
+                        <td className="px-5 py-3 hidden md:table-cell">
+                          {!empty && (
+                            <div className="h-1.5 rounded-full bg-white/[0.05] overflow-hidden relative">
+                              <div className="absolute inset-y-0 left-0 rounded-full bg-slate-500/60" style={{ width: `${(s.totalDone / maxDone) * 100}%` }} />
+                              <div className="absolute inset-y-0 left-0 rounded-full bg-emerald-400" style={{ width: `${(s.totalApproved / maxDone) * 100}%` }} />
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-right">{s.totalDone}</td>
+                        <td className={`px-5 py-3 text-right ${empty ? '' : 'text-emerald-400'}`}>{s.totalApproved}</td>
+                        <td className="px-5 py-3 text-right">{empty ? '–' : `${s.approvalRate}%`}</td>
+                        <td className="px-5 py-3 text-right">{s.totalTimeSeconds ? formatReportTime(s.totalTimeSeconds) : '–'}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
+                <tfoot className="tabular-nums">
+                  <tr className="border-t border-white/[0.08] text-slate-100">
+                    <td className="px-5 py-3.5 font-medium">Total</td>
+                    <td className="hidden md:table-cell" />
+                    <td className="px-5 py-3.5 text-right">{reportData.totalDoneAll}</td>
+                    <td className="px-5 py-3.5 text-right text-emerald-400">{reportData.totalApprovedAll}</td>
+                    <td className="px-5 py-3.5 text-right">{reportData.overallApprovalRate}%</td>
+                    <td className="px-5 py-3.5 text-right">{formatReportTime(reportData.totalTimeSecondsAll || 0)}</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           )}

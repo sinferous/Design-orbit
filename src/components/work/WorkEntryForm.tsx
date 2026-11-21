@@ -341,8 +341,7 @@ export function WorkEntryForm({ initialData, isEditMode = false }: WorkEntryForm
       <div className="p-12 text-center bg-slate-900 rounded-xl border border-slate-800">
         <OrbitLoader
           size="md"
-          text="Loading form options..."
-          subtitle="Fetching active clients and deliverable types"
+          text="Loading"
         />
       </div>
     );

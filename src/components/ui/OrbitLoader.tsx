@@ -22,127 +22,70 @@ export function OrbitLoader({
   subtitle,
   className,
 }: OrbitLoaderProps) {
-  // Scaling configuration for the dotted orbit, 2 orbiting circles, and center circle
+  const gradId = React.useId().replace(/:/g, '');
+
+  // One thin track, one planet with a fading tail, a small still core.
   const config = {
-    sm: {
-      svgSize: 32,
-      r: 10.5,
-      dotR: 2.2,
-      centerR: 3.2,
-      strokeWidth: 1.5,
-      dashArray: '2.5 3.5',
-    },
-    md: {
-      svgSize: 46,
-      r: 16,
-      dotR: 3.2,
-      centerR: 4.8,
-      strokeWidth: 1.75,
-      dashArray: '3 4',
-    },
-    lg: {
-      svgSize: 62,
-      r: 22,
-      dotR: 4,
-      centerR: 6.5,
-      strokeWidth: 2,
-      dashArray: '3.5 5',
-    },
-    fullscreen: {
-      svgSize: 76,
-      r: 28,
-      dotR: 5,
-      centerR: 8.5,
-      strokeWidth: 2.2,
-      dashArray: '4 6',
-    },
+    sm: { box: 24, r: 9, dot: 2, core: 1.75, stroke: 1.5 },
+    md: { box: 32, r: 12, dot: 2.5, core: 2.25, stroke: 1.5 },
+    lg: { box: 40, r: 15, dot: 3, core: 2.75, stroke: 1.75 },
+    fullscreen: { box: 48, r: 18, dot: 3.25, core: 3, stroke: 2 },
   }[size];
 
-  const center = config.svgSize / 2;
+  const c = config.box / 2;
+  const circumference = 2 * Math.PI * config.r;
 
   const content = (
     <div className={cn('flex flex-col items-center justify-center select-none', className)}>
       <div
-        className="relative flex items-center justify-center"
-        style={{ width: config.svgSize, height: config.svgSize }}
+        className="relative"
+        style={{ width: config.box, height: config.box }}
         role="status"
-        aria-label="Loading..."
+        aria-label={text || 'Loading'}
       >
         <svg
-          width={config.svgSize}
-          height={config.svgSize}
-          viewBox={`0 0 ${config.svgSize} ${config.svgSize}`}
+          width={config.box}
+          height={config.box}
+          viewBox={`0 0 ${config.box} ${config.box}`}
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <linearGradient id={`orbit-center-grad-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#55cb98" />
-              <stop offset="100%" stopColor="#7ddbae" />
+            <linearGradient id={`tail-${gradId}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="50%" stopColor="#55cb98" stopOpacity="0" />
+              <stop offset="100%" stopColor="#55cb98" stopOpacity="0.9" />
             </linearGradient>
           </defs>
 
-          {/* Prominent Center Circle / Orbital Core */}
-          <circle
-            cx={center}
-            cy={center}
-            r={config.centerR}
-            fill={`url(#orbit-center-grad-${size})`}
-          />
+          {/* Track */}
+          <circle cx={c} cy={c} r={config.r} stroke="rgba(255,255,255,0.08)" strokeWidth={config.stroke} />
 
-          {/* Dotted Circle Orbit Track */}
-          <circle
-            cx={center}
-            cy={center}
-            r={config.r}
-            fill="none"
-            stroke="#334155"
-            strokeWidth={config.strokeWidth}
-            strokeDasharray={config.dashArray}
-            strokeLinecap="round"
-          />
+          {/* Core */}
+          <circle cx={c} cy={c} r={config.core} fill="#55cb98" opacity="0.55" />
 
-          {/* Rotating Group containing the 2 Circles moving in orbit */}
+          {/* Planet and its tail */}
           <g
-            className="animate-spin"
-            style={{
-              animationDuration: '2.2s',
-              animationTimingFunction: 'linear',
-              transformOrigin: `${center}px ${center}px`,
-            }}
+            className="animate-spin motion-reduce:animate-none"
+            style={{ animationDuration: '1.1s', transformOrigin: `${c}px ${c}px` }}
           >
-            {/* Circle 1 - Top of orbit */}
             <circle
-              cx={center}
-              cy={center - config.r}
-              r={config.dotR}
-              fill="#7ddbae"
+              cx={c}
+              cy={c}
+              r={config.r}
+              stroke={`url(#tail-${gradId})`}
+              strokeWidth={config.stroke}
+              strokeLinecap="round"
+              strokeDasharray={`${circumference * 0.25} ${circumference}`}
             />
-
-            {/* Circle 2 - Bottom of orbit, 180° opposite */}
-            <circle
-              cx={center}
-              cy={center + config.r}
-              r={config.dotR}
-              fill="#3eb181"
-            />
+            <circle cx={c} cy={c + config.r} r={config.dot} fill="#7ddbae" />
           </g>
         </svg>
       </div>
 
-      {/* Optional Label and Subtitle */}
       {(text || subtitle) && (
-        <div className="mt-3 text-center max-w-xs space-y-0.5">
-          {text && (
-            <p className="text-xs font-semibold tracking-wide text-slate-300">
-              {text}
-            </p>
-          )}
-          {subtitle && (
-            <p className="text-[11px] text-slate-500 font-medium">
-              {subtitle}
-            </p>
-          )}
+        <div className="mt-3 text-center max-w-xs">
+          {text && <p className="text-sm text-slate-400">{text}</p>}
+          {subtitle && <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>}
         </div>
       )}
     </div>
@@ -150,7 +93,7 @@ export function OrbitLoader({
 
   if (size === 'fullscreen') {
     return (
-      <div className="fixed inset-0 z-50 bg-[#0e0e0d]/90 backdrop-blur-md flex flex-col items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 bg-[#0c0c0b]/90 backdrop-blur-sm flex flex-col items-center justify-center p-4">
         {content}
       </div>
     );
@@ -160,7 +103,7 @@ export function OrbitLoader({
 }
 
 /**
- * Aurora Glass Shimmer Row for tabular & card skeleton loading
+ * Shimmer row for tabular & card skeleton loading
  */
 export function ShimmerSkeleton({
   className,
@@ -172,12 +115,12 @@ export function ShimmerSkeleton({
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-slate-900/80 border border-slate-800/60',
+        'relative overflow-hidden bg-white/[0.03]',
         rounded,
         className
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-400/15 via-fuchsia-400/15 to-transparent animate-shimmer-sweep pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent animate-shimmer-sweep pointer-events-none" />
     </div>
   );
 }

@@ -254,7 +254,7 @@ export function TodoListWidget({ userId, className }: TodoListWidgetProps) {
           <div className="p-8 text-center flex flex-col items-center justify-center">
             <OrbitLoader
               size="sm"
-              text="Loading private tasks..."
+              text="Loading tasks"
             />
           </div>
         ) : filteredTodos.length === 0 ? (

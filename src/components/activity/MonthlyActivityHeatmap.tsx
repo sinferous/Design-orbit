@@ -1,25 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  DayActivity,
-  MonthlyDesignerActivity,
-  calculateHeatIntensity,
-  MONTH_NAMES
-} from '@/lib/services/activity';
+import { DayActivity, MonthlyDesignerActivity } from '@/lib/services/activity';
 import { formatWorkEntryDuration } from '@/lib/services/work-entry';
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle2,
-  Clock,
-  Briefcase,
-  Sparkles,
-  X,
-  ExternalLink,
-  Users
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface MonthlyActivityHeatmapProps {
   activity: MonthlyDesignerActivity;
@@ -30,22 +14,27 @@ interface MonthlyActivityHeatmapProps {
 }
 
 /**
- * Returns GitHub-style background, border, and text classes for intensity 0-4
+ * Background and text classes for heat intensity 0-4 (green scale).
  */
 export function getIntensityClass(intensity: 0 | 1 | 2 | 3 | 4): string {
   switch (intensity) {
     case 1:
-      return 'bg-violet-950/80 hover:bg-violet-900/80 border-violet-800/80 text-violet-300';
+      return 'bg-emerald-400/10 hover:bg-emerald-400/15 border-transparent text-emerald-200';
     case 2:
-      return 'bg-violet-900/80 hover:bg-violet-800/80 border-violet-700/80 text-violet-100 font-semibold';
+      return 'bg-emerald-400/25 hover:bg-emerald-400/30 border-transparent text-emerald-100';
     case 3:
-      return 'bg-violet-600 hover:bg-violet-500 border-violet-500 text-white font-semibold shadow-xs';
+      return 'bg-emerald-400/50 hover:bg-emerald-400/60 border-transparent text-white';
     case 4:
-      return 'bg-violet-500 hover:bg-violet-400 border-violet-400 text-slate-950 font-semibold shadow-sm';
+      return 'bg-emerald-400 hover:bg-emerald-300 border-transparent text-[#0b1410]';
     case 0:
     default:
-      return 'bg-slate-800/70 hover:bg-slate-750 border-slate-700/60 text-slate-500';
+      return 'bg-white/[0.03] hover:bg-white/[0.06] border-transparent text-slate-500';
   }
+}
+
+function longDate(dateStr: string) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 }
 
 export function MonthlyActivityHeatmap({
@@ -56,212 +45,133 @@ export function MonthlyActivityHeatmap({
 }: MonthlyActivityHeatmapProps) {
   const [selectedDay, setSelectedDay] = useState<DayActivity | null>(null);
 
-  // Month navigation
   const handlePrevMonth = () => {
     if (!onMonthChange) return;
-    if (activity.month === 1) {
-      onMonthChange(activity.year - 1, 12);
-    } else {
-      onMonthChange(activity.year, activity.month - 1);
-    }
+    setSelectedDay(null);
+    if (activity.month === 1) onMonthChange(activity.year - 1, 12);
+    else onMonthChange(activity.year, activity.month - 1);
   };
 
   const handleNextMonth = () => {
     if (!onMonthChange) return;
-    if (activity.month === 12) {
-      onMonthChange(activity.year + 1, 1);
-    } else {
-      onMonthChange(activity.year, activity.month + 1);
-    }
+    setSelectedDay(null);
+    if (activity.month === 12) onMonthChange(activity.year + 1, 1);
+    else onMonthChange(activity.year, activity.month + 1);
   };
 
-  // Calculate calendar offset for Day 1
+  // Monday-first calendar offset for day 1
   const firstDay = activity.daysList[0];
   const firstDayOfWeek = firstDay ? firstDay.dayOfWeek : 0;
   const paddingCols = (firstDayOfWeek + 6) % 7;
 
+  const approvalRate =
+    activity.totalQuantityDone > 0
+      ? Math.round((activity.totalQuantityApproved / activity.totalQuantityDone) * 100)
+      : 0;
+
+  const navBtn =
+    'inline-flex items-center justify-center w-8 h-8 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer';
+
   return (
-    <div className={`bg-slate-900 rounded-2xl border border-slate-800 shadow-sm p-4 sm:p-6 space-y-5 text-slate-100 ${className}`}>
-      {/* Header: Title, Designer Badge (Optional), Month Navigator */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+    <div className={`bento-card p-5 sm:p-6 space-y-6 text-slate-100 ${className}`}>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {showProfileHeader ? (
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-semibold flex items-center justify-center text-base shadow-sm shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 shrink-0 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-emerald-300 font-display flex items-center justify-center">
               {activity.profile.name.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h3 className="text-base sm:text-lg font-semibold text-slate-100 leading-tight">
-                  {activity.profile.name}
-                </h3>
-                <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-                  {activity.profile.designation || 'Designer'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Deliverable Activity & Production Consistency Matrix
-              </p>
+            <div className="min-w-0">
+              <h3 className="text-base font-medium text-slate-50 truncate">{activity.profile.name}</h3>
+              <p className="text-sm text-slate-500 truncate">{activity.profile.designation || 'Designer'}</p>
             </div>
           </div>
         ) : (
-          <div className="flex items-center space-x-2.5">
-            <Calendar className="w-4 h-4 shrink-0 text-slate-500 group-hover:text-slate-300 transition-colors" />
-            <div>
-              <h3 className="text-base font-semibold text-slate-100 leading-tight">
-                Monthly Activity Heatmap
-              </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Daily deliverable rhythm & production output
-              </p>
-            </div>
+          <div>
+            <h3 className="text-sm font-medium text-slate-100">Your month</h3>
+            <p className="text-sm text-slate-500 mt-0.5">Each square is a day. Greener means more made.</p>
           </div>
         )}
 
-        {/* Month Selector Controls */}
-        <div className="flex items-center space-x-2 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={handlePrevMonth}
-            disabled={!onMonthChange}
-            className="p-1.5 rounded-lg border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors disabled:opacity-30 cursor-pointer"
-            title="Previous Month"
-          >
+        <div className="flex items-center gap-1.5 self-start sm:self-auto">
+          <button type="button" onClick={handlePrevMonth} disabled={!onMonthChange} className={navBtn} aria-label="Previous month">
             <ChevronLeft className="w-4 h-4" />
           </button>
-
-          <span className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs font-semibold text-slate-200 min-w-[125px] text-center">
+          <span className="min-w-[128px] text-center text-sm text-slate-200 tabular-nums">
             {activity.monthName} {activity.year}
           </span>
-
-          <button
-            type="button"
-            onClick={handleNextMonth}
-            disabled={!onMonthChange}
-            className="p-1.5 rounded-lg border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors disabled:opacity-30 cursor-pointer"
-            title="Next Month"
-          >
+          <button type="button" onClick={handleNextMonth} disabled={!onMonthChange} className={navBtn} aria-label="Next month">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Monthly Output & Consistency Summary KPI Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-        <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[11px] font-semibold text-slate-400 truncate">
-            Active Output Days
+      {/* Totals */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-5 rounded-xl border border-white/[0.06] py-4 [&>*]:px-4 [&>*:not(:first-child)]:sm:border-l [&>*:nth-child(even)]:border-l [&>*]:border-white/[0.06]">
+        <div>
+          <div className="text-xs text-slate-500">Days with work</div>
+          <div className="mt-1 font-display text-2xl font-medium text-white tabular-nums">
+            {activity.activeDaysCount}
+            <span className="text-base text-slate-500"> / {activity.daysInMonth}</span>
           </div>
-          <div className="flex items-baseline space-x-1 mt-0.5">
-            <span className="text-xl sm:text-2xl font-semibold text-slate-100">
-              {activity.activeDaysCount}
-            </span>
-            <span className="text-xs text-slate-400">/ {activity.daysInMonth} d</span>
-          </div>
-          <span className="text-[11px] font-semibold text-violet-400">
-            {activity.consistencyPercentage}% consistency
-          </span>
+          <div className="mt-0.5 text-xs text-slate-500">{activity.consistencyPercentage}% of the month</div>
         </div>
-
-        <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[11px] font-semibold text-slate-400 truncate">
-            Tasks Logged
+        <div>
+          <div className="text-xs text-slate-500">Made</div>
+          <div className="mt-1 font-display text-2xl font-medium text-white tabular-nums">{activity.totalQuantityDone}</div>
+          <div className="mt-0.5 text-xs text-slate-500">
+            in {activity.totalTasks} {activity.totalTasks === 1 ? 'entry' : 'entries'}
           </div>
-          <div className="text-xl sm:text-2xl font-semibold text-slate-100 mt-0.5">
-            {activity.totalTasks}
-          </div>
-          <span className="text-[11px] text-slate-400 font-medium">
-            {activity.totalQuantityDone} deliverables produced
-          </span>
         </div>
-
-        <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[11px] font-semibold text-slate-400 truncate">
-            Deliverables Approved
-          </div>
-          <div className="text-xl sm:text-2xl font-semibold text-violet-400 mt-0.5">
-            {activity.totalQuantityApproved}
-          </div>
-          <span className="text-[11px] text-violet-300 font-semibold">
-            {activity.totalQuantityDone > 0
-              ? `${Math.round((activity.totalQuantityApproved / activity.totalQuantityDone) * 100)}% approval`
-              : '0% approval'}
-          </span>
+        <div>
+          <div className="text-xs text-slate-500">Approved</div>
+          <div className="mt-1 font-display text-2xl font-medium text-emerald-400 tabular-nums">{activity.totalQuantityApproved}</div>
+          <div className="mt-0.5 text-xs text-slate-500">{approvalRate}% of made</div>
         </div>
-
-        <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-          <div className="text-[11px] font-semibold text-slate-400 truncate">
-            Deliverable Time
-          </div>
-          <div className="text-lg sm:text-xl font-semibold text-amber-400 font-display tabular-nums mt-0.5 truncate">
+        <div>
+          <div className="text-xs text-slate-500">Time tracked</div>
+          <div className="mt-1 font-display text-2xl font-medium text-white tabular-nums truncate">
             {formatWorkEntryDuration(activity.totalSeconds)}
           </div>
-          <span className="text-[11px] text-slate-400 font-medium truncate">
-            Total logged hours
-          </span>
+          <div className="mt-0.5 text-xs text-slate-500">on timers</div>
         </div>
       </div>
 
-      {/* GitHub-Style 7-Column Calendar Heatmap */}
+      {/* Calendar */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-300">
-            Daily Output Matrix — {activity.monthName}
-          </span>
-          <span className="text-[11px] text-slate-400">
-            Click any day to inspect deliverables
-          </span>
-        </div>
-
-        {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-1.5 sm:gap-2 text-center text-[11px] sm:text-xs font-semibold text-slate-500">
+        <div className="grid grid-cols-7 gap-1.5 text-center text-xs text-slate-500">
           <span>Mon</span>
           <span>Tue</span>
           <span>Wed</span>
           <span>Thu</span>
           <span>Fri</span>
           <span>Sat</span>
-          <span className="text-rose-400">Sun</span>
+          <span>Sun</span>
         </div>
 
-        {/* Heatmap Grid */}
-        <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-          {/* Empty padding boxes before day 1 */}
+        <div className="grid grid-cols-7 gap-1.5">
           {Array.from({ length: paddingCols }).map((_, i) => (
-            <div
-              key={`empty-${i}`}
-              className="h-10 sm:h-12 rounded-lg bg-slate-950/30 border border-dashed border-slate-800"
-            />
+            <div key={`empty-${i}`} className="h-11 sm:h-14" />
           ))}
 
-          {/* Actual days in month */}
-          {activity.daysList.map((day) => {
+          {activity.daysList.map(day => {
             const isSelected = selectedDay?.dateStr === day.dateStr;
-            const isSunday = day.dayOfWeek === 0;
+            const hasWork = day.quantityDone > 0 || day.tasksCount > 0;
 
             return (
               <button
                 key={day.dateStr}
                 type="button"
-                onClick={() => setSelectedDay(day)}
-                className={`h-10 sm:h-12 px-2 py-1.5 rounded-lg border transition flex items-center justify-between cursor-pointer relative group ${
-                  getIntensityClass(day.intensity)
-                } ${
-                  isSelected
-                    ? 'ring-2 ring-violet-400 ring-offset-1 ring-offset-slate-900 scale-[1.03] z-10'
-                    : ''
-                } ${
-                  isSunday && day.quantityDone === 0 && day.tasksCount === 0 ? 'opacity-40' : ''
-                }`}
-                title={`${day.dateStr}: ${day.quantityDone} work(s) done (${day.tasksCount} task entries)`}
+                onClick={() => setSelectedDay(isSelected ? null : day)}
+                className={`h-11 sm:h-14 p-1.5 sm:p-2 rounded-md border flex flex-col justify-between text-left transition-colors cursor-pointer ${getIntensityClass(
+                  day.intensity
+                )} ${isSelected ? 'ring-1 ring-white/70 ring-offset-2 ring-offset-[#141413]' : ''}`}
+                title={`${longDate(day.dateStr)}: ${day.quantityDone} made`}
+                aria-pressed={isSelected}
               >
-                <span className="text-xs sm:text-sm font-semibold">
-                  {day.dayNumber}
-                </span>
-
-                {(day.quantityDone > 0 || day.tasksCount > 0) && (
-                  <span className="text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-black/40 text-white">
-                    {day.quantityDone}
-                  </span>
+                <span className="text-[11px] tabular-nums leading-none opacity-80">{day.dayNumber}</span>
+                {hasWork && (
+                  <span className="self-end font-display text-sm sm:text-base leading-none tabular-nums">{day.quantityDone}</span>
                 )}
               </button>
             );
@@ -269,88 +179,60 @@ export function MonthlyActivityHeatmap({
         </div>
       </div>
 
-      {/* GitHub-Style Legend */}
-      <div className="pt-2 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-        <div className="flex items-center space-x-2">
-          <span>Production Activity:</span>
-          <span className="text-[11px] text-slate-500">Less</span>
-          <div className="flex items-center space-x-1">
-            <span className="w-3.5 h-3.5 rounded-xs bg-slate-800/70 border border-slate-700/60" title="0 works done (Off/Idle)" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-violet-950/80 border border-violet-800/80" title="1-4 works done" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-violet-900/80 border border-violet-700/80" title="5-9 works done" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-violet-600 border border-violet-500" title="10-15 works done" />
-            <span className="w-3.5 h-3.5 rounded-xs bg-violet-500 border border-violet-400" title="16+ works done" />
+      {/* Legend */}
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="flex items-center gap-2">
+          <span>Less</span>
+          <div className="flex items-center gap-1">
+            {([0, 1, 2, 3, 4] as const).map(n => (
+              <span key={n} className={`w-3 h-3 rounded-[3px] ${getIntensityClass(n).split(' ')[0]}`} />
+            ))}
           </div>
-          <span className="text-[11px] text-slate-500">More</span>
+          <span>More</span>
         </div>
-
-        <div className="text-[11px] text-slate-500">
-          Implicit attendance tracked automatically from daily deliverables
-        </div>
+        <span>Click a day to see what was made</span>
       </div>
 
-      {/* Interactive Day Drill-down Inspector */}
+      {/* Day detail */}
       {selectedDay && (
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-violet-400" />
-              <h4 className="text-xs sm:text-sm font-semibold text-slate-100">
-                Deliverables Logged on {selectedDay.dateStr}
-              </h4>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-950 text-violet-300 border border-violet-800">
-                {selectedDay.quantityDone} work{selectedDay.quantityDone === 1 ? '' : 's'} ({selectedDay.tasksCount} {selectedDay.tasksCount === 1 ? 'task' : 'tasks'})
-              </span>
+        <div className="rounded-xl border border-white/[0.06] bg-black/20 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/[0.06]">
+            <div className="min-w-0">
+              <h4 className="text-sm font-medium text-slate-100">{longDate(selectedDay.dateStr)}</h4>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {selectedDay.quantityDone} made · {selectedDay.tasksCount} {selectedDay.tasksCount === 1 ? 'entry' : 'entries'}
+              </p>
             </div>
-
             <button
               type="button"
               onClick={() => setSelectedDay(null)}
-              className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
+              aria-label="Close day"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {selectedDay.entries.length === 0 ? (
-            <div className="py-4 text-center text-xs text-slate-500 italic">
-              No deliverable tasks were submitted on this date.
-            </div>
+            <p className="px-4 py-6 text-center text-sm text-slate-500">Nothing logged this day</p>
           ) : (
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-              {selectedDay.entries.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="bg-slate-900 p-2.5 sm:p-3 rounded-lg border border-slate-800 shadow-xs flex items-center justify-between gap-3 text-xs"
-                >
-                  <div className="min-w-0 space-y-0.5">
-                    <div className="flex items-center space-x-2 flex-wrap">
-                      <span className="font-semibold text-slate-100 truncate">
-                        {entry.client?.name || 'Client'}
-                      </span>
-                      <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-                        {entry.work_type?.name || 'Deliverable'}
-                      </span>
-                      {entry.quantity_done > 0 && (
-                        <span className="text-[10px] text-slate-400 font-medium">
-                          Qty: {entry.quantity_done}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-slate-300 text-[11px] truncate">
-                      {entry.description || 'Deliverable design work'}
+            <div className="divide-y divide-white/[0.04] max-h-72 overflow-y-auto">
+              {selectedDay.entries.map(entry => (
+                <div key={entry.id} className="px-4 py-3 flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm text-slate-100 truncate">{entry.description || 'Untitled task'}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 truncate">
+                      {entry.client?.name || 'Client'} · {entry.work_type?.name || 'Task'}
                     </p>
                   </div>
-
-                  <div className="flex items-center space-x-3 shrink-0 text-right">
+                  <div className="shrink-0 text-right text-xs tabular-nums">
                     <div>
-                      <div className="font-semibold text-violet-400">
-                        {entry.quantity_approved} app.
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-display tabular-nums">
-                        {formatWorkEntryDuration(entry.time_spent_seconds || 0)}
-                      </div>
+                      <span className="text-emerald-400">{entry.quantity_approved}</span>
+                      <span className="text-slate-500"> / {entry.quantity_done} approved</span>
                     </div>
+                    {(entry.time_spent_seconds || 0) > 0 && (
+                      <div className="text-slate-500 mt-0.5">{formatWorkEntryDuration(entry.time_spent_seconds || 0)}</div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -363,7 +245,7 @@ export function MonthlyActivityHeatmap({
 }
 
 /**
- * Compact Mini Activity Heat Strip (Ideal for profile cards & table rows)
+ * Compact mini heat strip (profile cards and table rows)
  */
 export function MiniActivityHeatStrip({
   daysList,
@@ -373,14 +255,12 @@ export function MiniActivityHeatStrip({
   className?: string;
 }) {
   return (
-    <div className={`flex items-center space-x-1 overflow-x-auto py-1 ${className}`}>
-      {daysList.map((day) => (
+    <div className={`flex items-center gap-1 overflow-x-auto py-1 ${className}`}>
+      {daysList.map(day => (
         <div
           key={day.dateStr}
-          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-xs border shrink-0 transition-transform ${getIntensityClass(
-            day.intensity
-          )}`}
-          title={`${day.dateStr}: ${day.tasksCount} task(s), ${day.quantityDone} created`}
+          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-[3px] border shrink-0 ${getIntensityClass(day.intensity)}`}
+          title={`${day.dateStr}: ${day.quantityDone} made`}
         />
       ))}
     </div>

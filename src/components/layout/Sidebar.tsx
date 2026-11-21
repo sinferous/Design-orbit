@@ -62,10 +62,10 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
   }, [isInsideReports]);
 
   const reportSubItems = [
-    { label: 'Weekly Meeting', href: '/reports/weekly' },
-    { label: 'Monthly Summary', href: '/reports/monthly' },
-    { label: 'Overall Analytics', href: '/reports/overall' },
-    { label: 'Client Hours & Billing', href: '/reports/billing' },
+    { label: 'Weekly review', href: '/reports/weekly' },
+    { label: 'Monthly', href: '/reports/monthly' },
+    { label: 'All time', href: '/reports/overall' },
+    { label: 'Client hours', href: '/reports/billing' },
   ];
 
   const navItems = [
@@ -425,12 +425,6 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                                 )}
                               >
                                 <span className="truncate">{sub.label}</span>
-                                <ChevronRight
-                                  className={cn(
-                                    'w-3 h-3 transition-transform group-hover/sub:translate-x-0.5',
-                                    isSubActive ? 'text-blue-400' : 'text-slate-600'
-                                  )}
-                                />
                               </Link>
                             );
                           })}
@@ -447,53 +441,36 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
 
       {/* Bottom User Profile Dock */}
       <div className="p-3 border-t border-white/[0.06]">
-        <div className="flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.035] transition-colors group">
+        <div className="flex items-center gap-1 rounded-xl">
           <Link
             href="/settings"
             onClick={onCloseMobile}
-            className="flex items-center space-x-2.5 min-w-0 flex-1"
+            title="Profile and settings"
+            className={`flex items-center gap-3 min-w-0 flex-1 p-2 rounded-xl transition-colors ${
+              pathname === '/settings' ? 'bg-white/[0.05]' : 'hover:bg-white/[0.035]'
+            }`}
           >
-            <div className="relative shrink-0">
-              <div className="w-8 h-8 rounded-full bg-[#232322] flex items-center justify-center text-xs font-semibold text-slate-200">
-                {currentUser.charAt(0).toUpperCase()}
-              </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0c0c0b]" />
+            <div className="w-9 h-9 shrink-0 rounded-full bg-emerald-400/[0.12] border border-emerald-400/20 flex items-center justify-center font-display text-sm text-emerald-300">
+              {currentUser.charAt(0).toUpperCase()}
             </div>
-
-            <div className="min-w-0 flex-1 text-left">
-              <div className="text-[13px] font-medium text-slate-100 truncate">
-                {currentUser}
-              </div>
-              <div className="text-[11px] text-slate-500 truncate flex items-center">
-                {isAdmin ? (
-                  <span className="text-amber-400 font-medium flex items-center">
-                    <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> Admin
-                  </span>
-                ) : (
-                  <span>Settings</span>
-                )}
+            <div className="min-w-0 flex-1 text-left leading-tight">
+              <div className="text-sm text-slate-100 truncate">{currentUser}</div>
+              <div className="mt-0.5 text-xs text-slate-500 truncate">
+                {isAdmin ? 'Admin' : userEmail || 'Profile and settings'}
               </div>
             </div>
+            <Settings className="w-3.5 h-3.5 text-slate-600 shrink-0" />
           </Link>
 
-          <div className="flex items-center space-x-1 pl-1">
-            <Link
-              href="/settings"
-              onClick={onCloseMobile}
-              title="Settings"
-              className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] rounded-lg transition-colors"
-            >
-              <Settings className="w-3.5 h-3.5" />
-            </Link>
-            <button
-              type="button"
-              onClick={handleLogout}
-              title="Sign Out"
-              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            title="Sign out"
+            aria-label="Sign out"
+            className="inline-flex items-center justify-center w-8 h-8 shrink-0 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-colors cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </aside>

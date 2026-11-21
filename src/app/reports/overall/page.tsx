@@ -23,7 +23,7 @@ export default function OverallReportPage() {
       const data = await getOverallReportData(groupBy);
       setDataItems(data);
     } catch {
-      showToast('Failed to load overall report.', 'error');
+      showToast('Could not load the totals. Try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -51,114 +51,104 @@ export default function OverallReportPage() {
   const grandApproved = dataItems.reduce((acc, curr) => acc + curr.totalApproved, 0);
   const maxDone = Math.max(...dataItems.map(i => i.totalDone), 1);
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
-      <Navbar userName="Gajesh" />
+  const grandRate = grandDone > 0 ? Math.round((grandApproved / grandDone) * 100) : 0;
+  const grandSeconds = dataItems.reduce((acc, curr) => acc + (curr.totalTimeSeconds || 0), 0);
+  const sorted = [...dataItems].sort((a, b) => b.totalDone - a.totalDone);
+  const groupNoun = groupBy === 'person' ? 'people' : groupBy === 'client' ? 'clients' : 'work types';
 
-      {/* Sub-Navigation for Reports with Smooth Gliding Underline */}
+  return (
+    <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+      <Navbar />
+
       <ReportsSubNav>
         <button
           onClick={handleExportCSV}
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-2xs"
+          className="inline-flex items-center gap-1.5 h-8 px-3 text-xs text-slate-300 hover:text-white rounded-lg border border-white/[0.08] hover:bg-white/[0.05] transition-colors whitespace-nowrap cursor-pointer"
         >
-          <Download className="w-4 h-4 text-violet-400" />
-          <span className="hidden sm:inline">Export CSV</span>
-          <span className="sm:hidden">CSV</span>
+          <Download className="w-3.5 h-3.5 text-slate-400" />
+          Export CSV
         </button>
       </ReportsSubNav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-slate-100">Overall / All-Time Analytics</h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Long-term aggregated performance and deliverable breakdown.
-            </p>
+            <h1 className="text-2xl sm:text-3xl font-medium text-slate-50">All time</h1>
+            <p className="text-sm text-slate-400 mt-1">Everything the team has logged, by {groupNoun}</p>
           </div>
 
-          {/* Grouping Switcher with Smooth Gliding Pill */}
           <SlideTabs
             options={[
-              { id: 'person', label: 'By Person', icon: Users },
-              { id: 'work_type', label: 'By Work Type', icon: Layers },
-              { id: 'client', label: 'By Client', icon: Briefcase },
+              { id: 'person', label: 'People', icon: Users },
+              { id: 'work_type', label: 'Work types', icon: Layers },
+              { id: 'client', label: 'Clients', icon: Briefcase },
             ]}
             value={groupBy}
             onChange={(val) => setGroupBy(val as 'person' | 'work_type' | 'client')}
             size="sm"
             fullWidth={false}
-            className="bg-slate-900 border border-slate-800 p-1 w-full sm:w-auto"
-            pillClassName="bg-violet-600 border border-violet-500/50 shadow-2xs"
+            className="bg-white/[0.03] border border-white/[0.06] p-1 w-full sm:w-auto"
+            pillClassName="bg-white/[0.08] border border-white/[0.08]"
           />
         </div>
 
-        {/* Visual Progress Bar Chart Cards */}
-        <div className="bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-800 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <div>
-              <h2 className="text-base font-semibold text-slate-100">
-                Aggregated Distribution (Grouped by {groupBy.replace('_', ' ')})
-              </h2>
-              <p className="text-xs text-slate-400">
-                Visual ratio of Created vs Approved items across categories
-              </p>
+        {/* Totals */}
+        <div className="bento-card grid grid-cols-3 divide-x divide-white/[0.06]">
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Deliverables</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums">{grandDone}</div>
+          </div>
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Approved</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-emerald-400 tabular-nums">
+              {grandApproved}
+              <span className="text-base text-slate-500"> · {grandRate}%</span>
             </div>
-            <div className="flex items-center space-x-4 text-xs font-semibold text-slate-300">
-              <span className="flex items-center space-x-1">
-                <span className="w-3 h-3 rounded-full bg-violet-500 inline-block" />
-                <span>Created</span>
+          </div>
+          <div className="p-5">
+            <div className="text-xs text-slate-500">Time tracked</div>
+            <div className="mt-1.5 font-display text-3xl font-medium text-white tabular-nums truncate">{formatReportTime(grandSeconds)}</div>
+          </div>
+        </div>
+
+        {/* Ranking */}
+        <div className="bento-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between gap-3">
+            <h2 className="text-sm font-medium text-slate-100 capitalize">{groupNoun}</h2>
+            <div className="flex items-center gap-4 text-xs text-slate-500">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-1.5 rounded-full bg-slate-500/60" /> Made
               </span>
-              <span className="flex items-center space-x-1">
-                <span className="w-3 h-3 rounded-full bg-indigo-500 inline-block" />
-                <span>Approved</span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-1.5 rounded-full bg-emerald-400" /> Approved
               </span>
             </div>
           </div>
 
           {loading ? (
             <div className="p-12 text-center">
-              <OrbitLoader
-                size="lg"
-                text="Aggregating overall report data..."
-                subtitle="Compiling deliverables, approval ratios, and client distributions"
-              />
+              <OrbitLoader size="lg" text="Loading all-time totals" />
             </div>
+          ) : sorted.length === 0 ? (
+            <p className="p-12 text-center text-sm text-slate-500">Nothing logged yet</p>
           ) : (
-            <div className="space-y-5">
-              {dataItems.map(item => {
-                const percentDone = Math.round((item.totalDone / maxDone) * 100);
-                const percentApproved = item.totalDone > 0 ? Math.round((item.totalApproved / maxDone) * 100) : 0;
-
+            <div className="divide-y divide-white/[0.04]">
+              {sorted.map((item, i) => {
+                const pctDone = (item.totalDone / maxDone) * 100;
+                const pctApproved = (item.totalApproved / maxDone) * 100;
                 return (
-                  <div key={item.id} className="space-y-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-1">
-                      <span className="font-semibold text-slate-100 text-sm">{item.name}</span>
-                      <div className="flex items-center space-x-3 text-slate-400 font-medium">
-                        <span>
-                          Created: <strong className="text-slate-100 font-semibold">{item.totalDone}</strong>
-                        </span>
-                        <span>
-                          Approved: <strong className="text-violet-400 font-semibold">{item.totalApproved}</strong> ({item.approvalRate}%)
-                        </span>
-                        {(item.totalTimeSeconds || 0) > 0 && (
-                          <span className="text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60 font-display tabular-nums font-semibold flex items-center space-x-1">
-                            <Clock className="w-3 h-3 text-amber-400" />
-                            <span>{formatReportTime(item.totalTimeSeconds || 0)}</span>
-                          </span>
-                        )}
-                      </div>
+                  <div key={item.id} className="px-5 py-3.5 grid grid-cols-[24px_minmax(0,1fr)] md:grid-cols-[24px_minmax(0,200px)_minmax(0,1fr)_330px] items-center gap-x-4 gap-y-2">
+                    <span className="text-xs text-slate-600 tabular-nums">{i + 1}</span>
+                    <span className="text-sm text-slate-100 truncate">{item.name}</span>
+                    <div className="col-start-2 md:col-start-auto h-1.5 rounded-full bg-white/[0.05] overflow-hidden relative">
+                      <div className="absolute inset-y-0 left-0 rounded-full bg-slate-500/60" style={{ width: `${pctDone}%` }} />
+                      <div className="absolute inset-y-0 left-0 rounded-full bg-emerald-400" style={{ width: `${pctApproved}%` }} />
                     </div>
-
-                    <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex relative">
-                      <div
-                        className="h-full bg-violet-500 rounded-l-full transition duration-500"
-                        style={{ width: `${percentDone}%` }}
-                      />
-                      <div
-                        className="h-full bg-indigo-500 rounded-r-full -ml-1 transition duration-500 opacity-90"
-                        style={{ width: `${percentApproved}%` }}
-                      />
+                    <div className="col-start-2 md:col-start-auto flex items-center gap-4 text-xs text-slate-500 tabular-nums md:justify-end">
+                      <span><span className="text-slate-100">{item.totalDone}</span> made</span>
+                      <span><span className="text-emerald-400">{item.totalApproved}</span> approved · {item.approvalRate}%</span>
+                      {(item.totalTimeSeconds || 0) > 0 && <span>{formatReportTime(item.totalTimeSeconds || 0)}</span>}
                     </div>
                   </div>
                 );

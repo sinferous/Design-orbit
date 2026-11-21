@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
 import {
@@ -18,7 +17,7 @@ import {
 } from '@/lib/services/activity';
 import { MonthlyActivityHeatmap } from '@/components/activity/MonthlyActivityHeatmap';
 import { Profile } from '@/types';
-import { KeyRound, Lock, ArrowLeft, User, Eye, EyeOff, Sparkles, Activity } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
@@ -103,19 +102,19 @@ export default function SettingsPage() {
     e.preventDefault();
 
     if (currentPassword !== dbPassword) {
-      showToast('Current password does not match database record.', 'error');
+      showToast('Current password is wrong', 'error');
       return;
     }
     if (!newPassword) {
-      showToast('Please enter a new password', 'error');
+      showToast('Enter a new password', 'error');
       return;
     }
     if (newPassword.length < 6) {
-      showToast('New password must be at least 6 characters long', 'error');
+      showToast('Use at least 6 characters', 'error');
       return;
     }
     if (newPassword !== confirmPassword) {
-      showToast('New passwords do not match', 'error');
+      showToast('The new passwords don’t match', 'error');
       return;
     }
 
@@ -136,71 +135,97 @@ export default function SettingsPage() {
       setConfirmPassword('');
       showToast('Password updated', 'success');
     } catch (err: any) {
-      showToast(err.message || 'Failed to update password in database', 'error');
+      showToast(err.message || 'Could not update the password. Try again.', 'error');
     } finally {
       setUpdating(false);
     }
   };
 
+  const initial = (currentUser.name || '?').charAt(0).toUpperCase();
+  const canSubmit = !updating && newPassword.length > 0 && confirmPassword.length > 0;
+  const mismatch = confirmPassword.length > 0 && newPassword !== confirmPassword;
+  const tooShort = newPassword.length > 0 && newPassword.length < 6;
+
+  const inputCls =
+    'block w-full h-10 pl-3 pr-10 text-sm rounded-lg bg-white/[0.03] border border-white/[0.08] text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-400/50 focus:bg-white/[0.04] transition-colors';
+  const eyeCls =
+    'absolute inset-y-0 right-0 w-10 flex items-center justify-center text-slate-500 hover:text-slate-200 cursor-pointer';
+
+  const passwordField = (
+    id: string,
+    label: string,
+    value: string,
+    setValue: (v: string) => void,
+    shown: boolean,
+    setShown: (v: boolean) => void,
+    opts: { placeholder?: string; autoComplete: string; hint?: React.ReactNode }
+  ) => (
+    <div>
+      <label htmlFor={id} className="block text-xs text-slate-400 mb-1.5">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={id}
+          type={shown ? 'text' : 'password'}
+          required
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          placeholder={opts.placeholder}
+          autoComplete={opts.autoComplete}
+          className={inputCls}
+        />
+        <button
+          type="button"
+          onClick={() => setShown(!shown)}
+          className={eyeCls}
+          aria-label={shown ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
+        >
+          {shown ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+      </div>
+      {opts.hint && <p className="mt-1.5 text-xs">{opts.hint}</p>}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
         {/* Header */}
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-100">
-              Profile & Account Settings
-            </h1>
-            <p className="text-sm text-slate-400 mt-0.5">
-              {isAdmin
-                ? 'Manage your administrative security credentials and account settings.'
-                : 'Review your monthly deliverable heatmap, daily work entries, and manage your security credentials.'}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-medium text-slate-50">Settings</h1>
+          <p className="text-sm text-slate-400 mt-1">
+            {isAdmin ? 'Your account and password' : 'Your profile, your month and your password'}
+          </p>
+        </div>
+
+        {/* Profile */}
+        <section className="bento-card p-5 sm:p-6 flex items-center gap-4">
+          <div className="w-14 h-14 shrink-0 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-emerald-300 font-display text-xl flex items-center justify-center">
+            {initial}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-medium text-slate-50 truncate">{currentUser.name}</h2>
+              {isAdmin && (
+                <span className="inline-flex items-center h-5 px-2 rounded-md bg-white/[0.06] text-[11px] text-slate-300">
+                  Admin
+                </span>
+              )}
+            </div>
+            <p className="mt-0.5 text-sm text-slate-400 truncate">
+              {[profile?.designation, currentUser.email].filter(Boolean).join(' · ') || 'No email on file'}
             </p>
           </div>
+        </section>
 
-          <Link
-            href={isAdmin ? '/admin' : '/dashboard'}
-            className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>{isAdmin ? 'Back to Admin Dashboard' : 'Back to Dashboard'}</span>
-          </Link>
-        </div>
-
-        {/* User Card */}
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-semibold flex items-center justify-center text-xl shadow-sm">
-              {currentUser.name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <div className="px-3 py-1 bg-slate-950/80 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200 flex items-center space-x-2 w-fit">
-                  <User className="w-3.5 h-3.5 text-violet-400" />
-                  <span>{currentUser.name}</span>
-                </div>
-                {profile?.designation && (
-                  <span className="text-xs font-semibold text-slate-300 bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-md">
-                    {profile.designation}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-400 mt-1">{currentUser.email || 'varun@webtreeonline.com'}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Profile-Specific Monthly Heatmap & Daily Deliverables Inspector (Exempt for Admin) */}
+        {/* Monthly activity (designers only) */}
         {!isAdmin && (
           loadingActivity ? (
-            <div className="bg-slate-900 p-12 rounded-2xl border border-slate-800 shadow-sm text-center">
-              <OrbitLoader
-                size="md"
-                text="Loading your deliverable heatmap & activity matrix..."
-                subtitle="Compiling daily output rhythm and consistency data"
-              />
+            <div className="bento-card p-12">
+              <OrbitLoader size="md" text="Loading your month" />
             </div>
           ) : activity ? (
             <MonthlyActivityHeatmap
@@ -214,108 +239,45 @@ export default function SettingsPage() {
           ) : null
         )}
 
-        {/* Change Password Card */}
-        <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm space-y-6">
-          <div className="border-b border-slate-800 pb-4">
-            <h2 className="text-base font-semibold text-slate-100 flex items-center space-x-2">
-              <KeyRound className="w-5 h-5 text-violet-400" />
-              <span>Change Password</span>
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Ensure your new password is at least 6 characters long.
-            </p>
+        {/* Password */}
+        <section className="bento-card p-5 sm:p-6 grid gap-6 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)]">
+          <div>
+            <h2 className="text-sm font-medium text-slate-100">Password</h2>
+            <p className="mt-1 text-sm text-slate-500">Use at least 6 characters. You stay signed in after changing it.</p>
           </div>
 
-          <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Current Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-slate-500" />
-                </div>
-                <input
-                  type={showCurrent ? 'text' : 'password'}
-                  required
-                  value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)}
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 text-slate-100 bg-slate-950/90"
-                />
+          {loadingPassword ? (
+            <div className="py-6">
+              <OrbitLoader size="sm" />
+            </div>
+          ) : (
+            <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
+              {passwordField('current-password', 'Current password', currentPassword, setCurrentPassword, showCurrent, setShowCurrent, {
+                autoComplete: 'current-password',
+              })}
+              {passwordField('new-password', 'New password', newPassword, setNewPassword, showNew, setShowNew, {
+                placeholder: 'At least 6 characters',
+                autoComplete: 'new-password',
+                hint: tooShort ? <span className="text-slate-500">{6 - newPassword.length} more to go</span> : undefined,
+              })}
+              {passwordField('confirm-password', 'Confirm new password', confirmPassword, setConfirmPassword, showConfirm, setShowConfirm, {
+                placeholder: 'Type it again',
+                autoComplete: 'new-password',
+                hint: mismatch ? <span className="text-rose-300">Doesn’t match the new password</span> : undefined,
+              })}
+
+              <div className="pt-1">
                 <button
-                  type="button"
-                  onClick={() => setShowCurrent(!showCurrent)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+                  type="submit"
+                  disabled={!canSubmit}
+                  className="inline-flex items-center justify-center h-10 px-5 rounded-lg bg-emerald-500 text-sm font-medium text-[#0b1410] hover:bg-emerald-400 disabled:bg-white/[0.06] disabled:text-slate-500 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
-                  {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {updating ? 'Updating…' : 'Update password'}
                 </button>
               </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                New Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-slate-500" />
-                </div>
-                <input
-                  type={showNew ? 'text' : 'password'}
-                  required
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 text-slate-100 bg-slate-950/90 placeholder-slate-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowNew(!showNew)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
-                >
-                  {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Confirm New Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-slate-500" />
-                </div>
-                <input
-                  type={showConfirm ? 'text' : 'password'}
-                  required
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter new password"
-                  className="block w-full pl-9 pr-10 py-2.5 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 text-slate-100 bg-slate-950/90 placeholder-slate-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
-                >
-                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={updating}
-                className="inline-flex justify-center items-center space-x-2 px-6 py-2.5 text-sm font-semibold text-white webtree-gradient-btn rounded-lg shadow-sm disabled:opacity-50 cursor-pointer"
-              >
-                <KeyRound className="w-4 h-4" />
-                <span>{updating ? 'Updating Password...' : 'Update Password'}</span>
-              </button>
-            </div>
-          </form>
-        </div>
+            </form>
+          )}
+        </section>
       </main>
     </div>
   );
