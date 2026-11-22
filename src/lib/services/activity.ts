@@ -1,3 +1,4 @@
+import { workweekFor } from '@/lib/workweek';
 import { createClient } from '@/lib/supabase/client';
 import { WorkEntryWithDetails, Profile } from '@/types';
 import { fetchProfiles, isAdminUser } from './work-entry';
@@ -164,6 +165,7 @@ export function buildDesignerActivity(
     entriesByDate.set(e.work_date, list);
   });
 
+  const { daysOff } = workweekFor(profile.email);
   let activeDaysCount = 0;
   let totalWorkingDays = 0;
   let totalTasks = 0;
@@ -176,8 +178,8 @@ export function buildDesignerActivity(
     const dateObj = new Date(year, month - 1, day);
     const dayOfWeek = dateObj.getDay();
 
-    // Standard working day count (Mon through Sat, Sunday off)
-    if (dayOfWeek !== 0) {
+    // Working day count: India Mon–Sat (Sunday off), Bahrain Sun–Thu (Fri, Sat off)
+    if (!daysOff.includes(dayOfWeek)) {
       totalWorkingDays++;
     }
 

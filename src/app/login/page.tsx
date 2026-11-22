@@ -293,25 +293,45 @@ export default function LoginPage() {
                     Logins are more secure now. Your old password worked; pick a new one to finish. At least {MIN_PASSWORD_LENGTH} characters.
                   </p>
                 </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  autoFocus
-                  autoComplete="new-password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="New password"
-                  className="block w-full h-11 px-3.5 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
-                />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Type it again"
-                  className="block w-full h-11 px-3.5 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    autoFocus
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New password"
+                    className="block w-full h-11 pl-3.5 pr-10 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 focus:outline-none cursor-pointer"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Type it again"
+                    className="block w-full h-11 pl-3.5 pr-10 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 focus:outline-none cursor-pointer"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() => { setFirstLogin(false); setNewPassword(''); setConfirmPassword(''); }}

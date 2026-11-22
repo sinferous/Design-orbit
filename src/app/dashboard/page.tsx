@@ -553,6 +553,7 @@ export default function DashboardPage() {
         {/* Top Utility Command Header (Personal Workspace) */}
         <GreetingTile
           name={currentUser.name}
+          email={currentUser.email}
           profileId={currentProfileId}
           ready={!loading}
           nowMs={nowMs}

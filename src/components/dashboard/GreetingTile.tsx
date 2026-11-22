@@ -6,6 +6,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { WorkEntryWithDetails } from '@/types';
 import { WeeklyUserSummary } from '@/lib/services/reports';
 import { calculateWorkEntrySeconds } from '@/lib/services/work-entry';
+import { workweekFor } from '@/lib/workweek';
 
 /** How long one message stays before a new one is picked: random between these. */
 const MIN_HOLD_MS = 2 * 60 * 60 * 1000;
@@ -15,6 +16,11 @@ interface Facts {
   name: string;
   hour: number;
   weekday: number; // 0 Sunday .. 6 Saturday
+  isWeekend: boolean;
+  isFirstWorkday: boolean;
+  isLastWorkday: boolean;
+  firstWorkdayName: string; // Monday, or Sunday for the Bahrain team
+  lastWorkdayName: string; // Friday, or Thursday for the Bahrain team
   pending: number;
   oldestPendingDays: number;
   madeToday: number;
@@ -71,7 +77,7 @@ const LINES: Line[] = [
   },
   {
     id: 'nothing-today',
-    when: f => f.madeToday === 0 && !f.timerClient && f.hour < 17 && f.weekday !== 0,
+    when: f => f.madeToday === 0 && !f.timerClient && f.hour < 17 && !f.isWeekend,
     text: () => 'Nothing logged yet today. What’s first on the board?',
     action: { label: 'Log work', href: '/work/new' },
   },
@@ -107,14 +113,14 @@ const LINES: Line[] = [
   },
   {
     id: 'monday',
-    when: f => f.weekday === 1 && f.weekMade === 0,
-    text: () => 'Monday again. New week, clean board.',
+    when: f => f.isFirstWorkday && f.weekMade === 0,
+    text: f => `${f.firstWorkdayName} again. New week, clean board.`,
     action: { label: 'Log work', href: '/work/new' },
   },
   {
     id: 'friday',
-    when: f => f.weekday === 5 && f.pending > 0,
-    text: f => `Friday. ${plural(f.pending, 'pending approval stands', 'pending approvals stand')} between you and the weekend.`,
+    when: f => f.isLastWorkday && f.pending > 0,
+    text: f => `${f.lastWorkdayName}. ${plural(f.pending, 'pending approval stands', 'pending approvals stand')} between you and the weekend.`,
     action: PENDING,
   },
 
@@ -135,12 +141,12 @@ const LINES: Line[] = [
   },
   {
     id: 'sass-friday-clear',
-    when: f => f.weekday === 5 && f.pending === 0,
-    text: () => 'Friday and nothing pending. Who even are you?',
+    when: f => f.isLastWorkday && f.pending === 0,
+    text: f => `${f.lastWorkdayName} and nothing pending. Who even are you?`,
   },
   {
     id: 'sass-noon-empty',
-    when: f => f.madeToday === 0 && !f.timerClient && f.hour >= 12 && f.hour < 18 && f.weekday !== 0 && f.weekday !== 6,
+    when: f => f.madeToday === 0 && !f.timerClient && f.hour >= 12 && f.hour < 18 && !f.isWeekend,
     text: () => 'Past noon and the log is empty. Bold strategy.',
     action: { label: 'Log work', href: '/work/new' },
   },
@@ -177,8 +183,8 @@ const LINES: Line[] = [
   },
   {
     id: 'sass-monday-coffee',
-    when: f => f.weekday === 1 && f.hour < 12,
-    text: () => 'Monday morning. Coffee first, revisions second.',
+    when: f => f.isFirstWorkday && f.hour < 12,
+    text: f => `${f.firstWorkdayName} morning. Coffee first, revisions second.`,
   },
   {
     id: 'sass-late',
@@ -187,7 +193,7 @@ const LINES: Line[] = [
   },
   {
     id: 'sass-weekend',
-    when: f => f.weekday === 0 || f.weekday === 6,
+    when: f => f.isWeekend,
     text: f => `It’s the weekend, ${f.name}. Why are you here?`,
   },
   {
@@ -258,6 +264,7 @@ function writeStored(key: string, value: Stored) {
 
 interface Props {
   name: string;
+  email?: string;
   profileId?: string;
   ready: boolean;
   nowMs: number;
@@ -270,6 +277,7 @@ interface Props {
 
 export function GreetingTile({
   name,
+  email,
   profileId,
   ready,
   nowMs,
@@ -280,6 +288,7 @@ export function GreetingTile({
   titleAccessory,
 }: Props) {
   const firstName = name.split(' ')[0];
+  const workweek = workweekFor(email);
   const now = new Date(nowMs);
   const hour = now.getHours();
 
@@ -321,6 +330,11 @@ export function GreetingTile({
       name: firstName,
       hour,
       weekday: now.getDay(),
+      isWeekend: workweek.weekend.includes(now.getDay()),
+      isFirstWorkday: now.getDay() === workweek.firstWorkday,
+      isLastWorkday: now.getDay() === workweek.lastWorkday,
+      firstWorkdayName: workweek.firstWorkdayName,
+      lastWorkdayName: workweek.lastWorkdayName,
       pending,
       oldestPendingDays,
       madeToday: myTodayEntries.reduce((acc, e) => acc + (e.quantity_done || 0), 0),
@@ -335,7 +349,7 @@ export function GreetingTile({
     };
     // nowMs changes every second while a timer runs; minutes are enough here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingEntries, myTodayEntries, myWeek, firstName, hour, Math.floor(nowMs / 60_000)]);
+  }, [pendingEntries, myTodayEntries, myWeek, firstName, email, hour, Math.floor(nowMs / 60_000)]);
 
   const [lineId, setLineId] = useState<string | null>(null);
   const storeKey = `design_orbit_greeting_${profileId || firstName.toLowerCase()}`;
