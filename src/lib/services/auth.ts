@@ -129,3 +129,25 @@ export function makeTemporaryPassword(): string {
   const num = 1000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 9000);
   return `${pick()}-${num}-${pick()}`;
 }
+
+/**
+ * Keeps the name and profile stored in this browser in line with the signed-in login.
+ * Fixes browsers that still remember a profile which was merged or removed.
+ * Returns true when it changed something.
+ */
+export async function syncStoredProfileWithSession(
+  stored: { name?: string; email?: string; profileId?: string } | null,
+  save: (name: string, email: string, profileId: string) => void
+): Promise<boolean> {
+  const profile = await profileForSession();
+  if (!profile) return false;
+  if (
+    stored?.profileId === profile.id &&
+    stored?.name === profile.name &&
+    (stored?.email || '').toLowerCase() === (profile.email || '').toLowerCase()
+  ) {
+    return false;
+  }
+  save(profile.name, profile.email, profile.id);
+  return true;
+}
