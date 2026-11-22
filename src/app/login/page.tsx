@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { setLoggedInUser, fetchProfiles, getUserPasswordFromDB, isAdminUser } from '@/lib/services/work-entry';
-import { Profile } from '@/types';
+import { setLoggedInUser, isAdminUser } from '@/lib/services/work-entry';
+import { fetchLoginDirectory, signIn, completeFirstLogin, MIN_PASSWORD_LENGTH, type SessionProfile } from '@/lib/services/auth';
 import { Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
@@ -28,6 +27,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  // First sign-in after the switch to real logins: choose a new password
+  const [firstLogin, setFirstLogin] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [accountOptions, setAccountOptions] = useState(PRESET_ACCOUNTS);
   const router = useRouter();
   const { showToast } = useToast();
@@ -39,7 +42,7 @@ export default function LoginPage() {
 
     async function loadAccounts() {
       try {
-        const dbProfiles = await fetchProfiles();
+        const dbProfiles = await fetchLoginDirectory();
         if (dbProfiles && dbProfiles.length > 0) {
           const sorted = [...dbProfiles]
             .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
@@ -61,87 +64,64 @@ export default function LoginPage() {
 
   const handleSelectAccount = (selectedEmail: string) => {
     if (!selectedEmail) return;
+    setFirstLogin(false);
     setEmail(selectedEmail);
+  };
+
+  const finishLogin = (profile: SessionProfile) => {
+    setLoggedInUser(profile.name, profile.email || email.trim().toLowerCase(), profile.id);
+    showToast(`Welcome back, ${profile.name}.`, 'success');
+    const destination = isAdminUser(profile) ? '/admin' : '/dashboard';
+    setTimeout(() => {
+      router.push(destination);
+      router.refresh();
+    }, 300);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
     const inputEmail = email.trim().toLowerCase();
-    const inputPassword = password.trim();
 
     if (!inputEmail) {
-      showToast('Please enter your work email.', 'error');
-      setLoading(false);
+      showToast('Enter your work email.', 'error');
+      return;
+    }
+    if (!password) {
+      showToast('Enter your password.', 'error');
       return;
     }
 
-    if (!inputPassword) {
-      showToast('Please enter your password.', 'error');
-      setLoading(false);
-      return;
-    }
-
-    // 1. Fetch DB Profiles & verify email exists in Database directory
-    let profilesList: Profile[] = [];
+    setLoading(true);
     try {
-      profilesList = await fetchProfiles();
-    } catch {
-      profilesList = [];
-    }
-
-    const profileMatch = profilesList.find(
-      p => p.email && p.email.toLowerCase() === inputEmail
-    );
-
-    if (!profileMatch) {
-      showToast(`No account found for "${inputEmail}". Please check your email or select a valid team profile.`, 'error');
-      setLoading(false);
-      return;
-    }
-
-    // 2. Strict Password Verification against DB / account password
-    const isConfigured = Boolean(
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-supabase-project')
-    );
-
-    let authenticated = false;
-
-    if (isConfigured) {
-      try {
-        const supabase = createClient();
-        const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
-          email: inputEmail,
-          password: inputPassword,
-        });
-
-        if (!authErr && authData?.user) {
-          authenticated = true;
+      if (firstLogin) {
+        if (newPassword.length < MIN_PASSWORD_LENGTH) {
+          showToast(`Use at least ${MIN_PASSWORD_LENGTH} characters.`, 'error');
+          return;
         }
-      } catch (err) {
-        console.warn('Supabase auth attempt:', err);
-      }
-    }
-
-    if (!authenticated) {
-      const validPassword = getUserPasswordFromDB(profileMatch, inputEmail);
-      if (inputPassword !== validPassword) {
-        showToast('Incorrect password entered. Access denied.', 'error');
-        setLoading(false);
+        if (newPassword !== confirmPassword) {
+          showToast('The new passwords don’t match.', 'error');
+          return;
+        }
+        if (newPassword === password) {
+          showToast('Choose a password different from your old one.', 'error');
+          return;
+        }
+        const result = await completeFirstLogin(inputEmail, password, newPassword);
+        if (result.status === 'ok') finishLogin(result.profile);
+        else if (result.status === 'error') showToast(result.message, 'error');
         return;
       }
+
+      const result = await signIn(inputEmail, password);
+      if (result.status === 'ok') finishLogin(result.profile);
+      else if (result.status === 'needs_new_password') setFirstLogin(true);
+      else showToast(result.message, 'error');
+    } catch (err) {
+      console.warn('Sign-in failed:', err);
+      showToast('Could not reach the server. Try again in a minute.', 'error');
+    } finally {
+      setLoading(false);
     }
-
-    const userName = profileMatch.name;
-    setLoggedInUser(userName, profileMatch.email || inputEmail, profileMatch.id);
-    showToast(`Welcome back, ${userName}! Signed in successfully.`, 'success');
-
-    const destination = isAdminUser(profileMatch) ? '/admin' : '/dashboard';
-    setTimeout(() => {
-      router.push(destination);
-    }, 400);
   };
 
   // Team members drawn as planets on the orbit (names from the live account list)
@@ -264,6 +244,7 @@ export default function LoginPage() {
                   type="email"
                   required
                   value={email}
+                  readOnly={firstLogin}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@webtreeonline.com"
                   className="block w-full h-11 pl-10 pr-3 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
@@ -282,6 +263,8 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
+                  readOnly={firstLogin}
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
@@ -302,13 +285,50 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {firstLogin && (
+              <div className="space-y-4 rounded-2xl border border-[#55cb98]/25 bg-[#55cb98]/[0.05] p-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-100">Choose a new password</p>
+                  <p className="mt-1 text-[13px] text-slate-400">
+                    Logins are more secure now. Your old password worked; pick a new one to finish. At least {MIN_PASSWORD_LENGTH} characters.
+                  </p>
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  autoFocus
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="New password"
+                  className="block w-full h-11 px-3.5 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
+                />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Type it again"
+                  className="block w-full h-11 px-3.5 text-[15px] border border-white/[0.09] rounded-xl focus:outline-none focus:border-[#55cb98] focus:ring-4 focus:ring-[#55cb98]/15 text-slate-100 bg-[#141413] placeholder:text-slate-500 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => { setFirstLogin(false); setNewPassword(''); setConfirmPassword(''); }}
+                  className="text-[13px] text-slate-400 hover:text-slate-200 cursor-pointer"
+                >
+                  Use a different account
+                </button>
+              </div>
+            )}
+
             <div>
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full h-11 flex justify-center items-center gap-2 px-4 text-[15px] rounded-full webtree-gradient-btn cursor-pointer"
               >
-                <span>{loading ? 'Signing in…' : 'Sign in'}</span>
+                <span>{loading ? 'Signing in…' : firstLogin ? 'Save and sign in' : 'Sign in'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

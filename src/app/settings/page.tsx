@@ -5,12 +5,11 @@ import { Navbar } from '@/components/layout/Navbar';
 import { createClient } from '@/lib/supabase/client';
 import {
   getLoggedInUser,
-  updateProfilePasswordInDB,
   fetchProfileByEmail,
   fetchProfiles,
-  getUserPasswordFromDB,
   isAdminUser
 } from '@/lib/services/work-entry';
+import { changeMyPassword, MIN_PASSWORD_LENGTH } from '@/lib/services/auth';
 import {
   fetchMonthlyDesignerActivity,
   MonthlyDesignerActivity
@@ -23,7 +22,6 @@ import { OrbitLoader } from '@/components/ui/OrbitLoader';
 
 export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState('');
-  const [dbPassword, setDbPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -73,11 +71,6 @@ export default function SettingsPage() {
 
           if (activeProf) {
             setProfile(activeProf);
-            if (user.email) {
-              const pass = getUserPasswordFromDB(activeProf, user.email);
-              setDbPassword(pass);
-              setCurrentPassword(pass);
-            }
           }
         } catch (err) {
           console.error('Failed to load profile data:', err);
@@ -101,16 +94,16 @@ export default function SettingsPage() {
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (currentPassword !== dbPassword) {
-      showToast('Current password is wrong', 'error');
+    if (!currentPassword) {
+      showToast('Enter your current password', 'error');
       return;
     }
     if (!newPassword) {
       showToast('Enter a new password', 'error');
       return;
     }
-    if (newPassword.length < 6) {
-      showToast('Use at least 6 characters', 'error');
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      showToast(`Use at least ${MIN_PASSWORD_LENGTH} characters`, 'error');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -121,16 +114,8 @@ export default function SettingsPage() {
     setUpdating(true);
 
     try {
-      if (currentUser.email) {
-        await updateProfilePasswordInDB(currentUser.email, newPassword);
-      }
-
-      if (typeof window !== 'undefined' && currentUser.email) {
-        localStorage.setItem(`design_orbit_pass_${currentUser.email.toLowerCase()}`, newPassword);
-      }
-
-      setDbPassword(newPassword);
-      setCurrentPassword(newPassword);
+      await changeMyPassword(currentPassword, newPassword);
+      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       showToast('Password updated', 'success');
@@ -144,7 +129,7 @@ export default function SettingsPage() {
   const initial = (currentUser.name || '?').charAt(0).toUpperCase();
   const canSubmit = !updating && newPassword.length > 0 && confirmPassword.length > 0;
   const mismatch = confirmPassword.length > 0 && newPassword !== confirmPassword;
-  const tooShort = newPassword.length > 0 && newPassword.length < 6;
+  const tooShort = newPassword.length > 0 && newPassword.length < MIN_PASSWORD_LENGTH;
 
   const inputCls =
     'block w-full h-10 pl-3 pr-10 text-sm rounded-lg bg-white/[0.03] border border-white/[0.08] text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-400/50 focus:bg-white/[0.04] transition-colors';
@@ -258,7 +243,7 @@ export default function SettingsPage() {
               {passwordField('new-password', 'New password', newPassword, setNewPassword, showNew, setShowNew, {
                 placeholder: 'At least 6 characters',
                 autoComplete: 'new-password',
-                hint: tooShort ? <span className="text-slate-500">{6 - newPassword.length} more to go</span> : undefined,
+                hint: tooShort ? <span className="text-slate-500">{MIN_PASSWORD_LENGTH - newPassword.length} more to go</span> : undefined,
               })}
               {passwordField('confirm-password', 'Confirm new password', confirmPassword, setConfirmPassword, showConfirm, setShowConfirm, {
                 placeholder: 'Type it again',

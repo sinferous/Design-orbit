@@ -16,7 +16,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Read authenticated session cookie
+  // 2. The design_orbit_auth cookie is only a hint (it is not signed): it picks the landing
+  // page. Whether someone is logged in, and whether they are an admin, comes from the
+  // signed Supabase session below.
   const authCookie = request.cookies.get('design_orbit_auth')?.value;
   let userSession: { name?: string; email?: string; profileId?: string; isAdmin?: boolean } | null = null;
 
@@ -36,9 +38,12 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  let authUserId: string | null = null;
+  let supabase: ReturnType<typeof createServerClient> | null = null;
+
   if (supabaseUrl && supabaseAnonKey && !supabaseUrl.includes('your-supabase-project')) {
     try {
-      const supabase = createServerClient(
+      supabase = createServerClient(
         supabaseUrl,
         supabaseAnonKey,
         {
@@ -60,7 +65,8 @@ export async function middleware(request: NextRequest) {
           },
         }
       );
-      await supabase.auth.getUser();
+      const { data } = await supabase.auth.getUser();
+      authUserId = data?.user?.id ?? null;
     } catch (err) {
       console.error('Supabase middleware check warning:', err);
     }
@@ -68,7 +74,7 @@ export async function middleware(request: NextRequest) {
 
   const isPublicRoute = pathname === '/login';
   const isRootRoute = pathname === '/';
-  const isLoggedIn = Boolean(userSession?.name);
+  const isLoggedIn = Boolean(authUserId);
 
   // 3. Root URL handling: Route to appropriate dashboard or login
   if (isRootRoute) {
@@ -97,8 +103,17 @@ export async function middleware(request: NextRequest) {
 
   // 6. Admin Route Authorization Guard:
   // If user is accessing /admin but is NOT an administrator, redirect to /dashboard
-  if (pathname.startsWith('/admin') && !userSession?.isAdmin) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (pathname.startsWith('/admin')) {
+    let isAdmin = false;
+    try {
+      const { data } = await (supabase as any).rpc('is_admin');
+      isAdmin = data === true;
+    } catch {
+      isAdmin = false;
+    }
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
   }
 
   // 7. Retired Route: Excel Sync is no longer needed (system officially approved)

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
-import { fetchProfiles, createProfileRecord, deleteProfileRecord } from '@/lib/services/work-entry';
+import { fetchProfiles, createProfileRecord } from '@/lib/services/work-entry';
+import { adminRemoveMember, adminSetTemporaryPassword, makeTemporaryPassword } from '@/lib/services/auth';
 import { fetchMonthlyTeamActivity, MonthlyTeamActivity } from '@/lib/services/activity';
 import { MiniActivityHeatStrip } from '@/components/activity/MonthlyActivityHeatmap';
 import { DesignerActivityModal } from '@/components/activity/DesignerActivityModal';
 import { Profile } from '@/types';
-import { Users, Mail, Plus, Trash2, UserPlus, X, Calendar, Activity } from 'lucide-react';
+import { Users, Mail, Plus, Trash2, UserPlus, X, Calendar, Activity, KeyRound } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
@@ -24,6 +25,7 @@ export default function TeamPage() {
   const [email, setEmail] = useState('');
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [resettingId, setResettingId] = useState<string | null>(null);
   const [teamActivity, setTeamActivity] = useState<MonthlyTeamActivity | null>(null);
   const [selectedModalUserId, setSelectedModalUserId] = useState<string | null>(null);
 
@@ -65,11 +67,14 @@ export default function TeamPage() {
 
     setAdding(true);
     try {
-      await createProfileRecord({
+      const created = await createProfileRecord({
         name: name.trim(),
         designation: finalDesignation,
         email: email.trim() || undefined,
       });
+      const tempPassword = makeTemporaryPassword();
+      await adminSetTemporaryPassword(created.id, tempPassword);
+      showTemporaryPassword(name.trim(), tempPassword);
 
       setName('');
       setEmail('');
@@ -85,6 +90,46 @@ export default function TeamPage() {
     }
   };
 
+  const showTemporaryPassword = (memberName: string, tempPassword: string) => {
+    confirmDialog({
+      title: `Temporary password for ${memberName}`,
+      message: `${tempPassword}
+
+Send it to ${memberName} privately. They sign in with it once and choose their own password. It won’t be shown again.`,
+      confirmText: 'Copy password',
+      cancelText: 'Done',
+      variant: 'info',
+      onConfirm: async () => {
+        try {
+          await navigator.clipboard.writeText(tempPassword);
+          showToast('Copied', 'success');
+        } catch {
+          showToast('Copy failed. Select the password and copy it by hand.', 'error');
+        }
+      },
+    });
+  };
+
+  const handleResetPassword = (id: string, memberName: string) => {
+    confirmDialog({
+      title: `Reset ${memberName}’s password?`,
+      message: `${memberName} is signed out everywhere and gets a temporary password to choose a new one.`,
+      confirmText: 'Reset password',
+      onConfirm: async () => {
+        setResettingId(id);
+        try {
+          const tempPassword = makeTemporaryPassword();
+          await adminSetTemporaryPassword(id, tempPassword);
+          setTimeout(() => showTemporaryPassword(memberName, tempPassword), 250);
+        } catch (err: any) {
+          showToast(err.message || 'Could not reset the password', 'error');
+        } finally {
+          setResettingId(null);
+        }
+      },
+    });
+  };
+
   const handleDeleteMember = (id: string, memberName: string) => {
     confirmDialog({
       title: 'Remove this person?',
@@ -94,11 +139,11 @@ export default function TeamPage() {
       onConfirm: async () => {
         setDeletingId(id);
         try {
-          await deleteProfileRecord(id);
+          await adminRemoveMember(id);
           showToast(`Team member "${memberName}" removed.`, 'success');
           await loadTeam();
-        } catch {
-          showToast('Failed to remove team member', 'error');
+        } catch (err: any) {
+          showToast(err.message || 'Failed to remove team member', 'error');
         } finally {
           setDeletingId(null);
         }
@@ -261,6 +306,15 @@ export default function TeamPage() {
                       </div>
                     </div>
 
+                    <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleResetPassword(profile.id, profile.name)}
+                      disabled={resettingId === profile.id}
+                      className="p-1.5 text-slate-500 hover:text-slate-200 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+                      title={`Reset ${profile.name}’s password`}
+                    >
+                      <KeyRound className="w-4.5 h-4.5" />
+                    </button>
                     <button
                       onClick={() => handleDeleteMember(profile.id, profile.name)}
                       disabled={deletingId === profile.id}
@@ -269,6 +323,7 @@ export default function TeamPage() {
                     >
                       <Trash2 className="w-4.5 h-4.5" />
                     </button>
+                    </div>
                   </div>
 
                   {/* Monthly Output & Activity Strip (GitHub-Style) */}

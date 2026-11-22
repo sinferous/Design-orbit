@@ -47,10 +47,11 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
     }
   }, [router]);
 
-  const handleLogout = (e: React.MouseEvent) => {
+  const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
-    logoutUser();
+    await logoutUser();
     router.push('/login');
+    router.refresh();
   };
 
   const isInsideReports = pathname.startsWith('/reports');

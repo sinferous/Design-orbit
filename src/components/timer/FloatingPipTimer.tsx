@@ -420,7 +420,7 @@ export function FloatingPipTimer() {
   const [pipWindow, setPipWindow] = useState<Window | null>(null);
   const [operatingId, setOperatingId] = useState<string | null>(null);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
-  const { showToast } = useToast();
+  const { showToast, confirmDialog } = useToast();
 
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string; profileId?: string } | null>(null);
   const [currentProfileId, setCurrentProfileId] = useState<string | null>(null);
@@ -1078,6 +1078,56 @@ export function FloatingPipTimer() {
   };
 
   const runningCount = entries.filter(e => Boolean(e.timer_started_at)).length;
+
+  // 7 pm nudge (device time): once a day, if a timer is still running, offer to pause it.
+  const pauseRef = useRef(handlePause);
+  pauseRef.current = handlePause;
+  useEffect(() => {
+    const NUDGE_HOUR = 19;
+    const check = () => {
+      const now = new Date();
+      if (now.getHours() < NUDGE_HOUR) return;
+      const running = entriesRef.current.filter(e => Boolean(e.timer_started_at));
+      if (running.length === 0) return;
+
+      const today = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+      const key = `design_orbit_7pm_nudge_${currentProfileIdRef.current || 'me'}`;
+      try {
+        if (localStorage.getItem(key) === today) return;
+        localStorage.setItem(key, today);
+      } catch {
+        return; // no storage: skip rather than nag on every check
+      }
+
+      const what = running.length === 1
+        ? (running[0].client?.name || running[0].description || 'your work')
+        : `${running.length} things`;
+      const hourLabel = now.getHours() === NUDGE_HOUR ? 'It’s 7 pm' : 'It’s past 7 pm';
+
+      if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification('Design Orbit', { body: `${hourLabel}. Your timer is still running on ${what}.` });
+        } catch {}
+      }
+
+      confirmDialog({
+        title: `${hourLabel}. Still working?`,
+        message: `Your timer is still running on ${what}. Pause it if you’re done for the day.`,
+        confirmText: running.length === 1 ? 'Pause timer' : 'Pause timers',
+        cancelText: 'Keep going',
+        variant: 'info',
+        onConfirm: async () => {
+          for (const entry of entriesRef.current.filter(e => Boolean(e.timer_started_at))) {
+            await pauseRef.current(entry);
+          }
+        },
+      });
+    };
+
+    check();
+    const id = setInterval(check, 60_000);
+    return () => clearInterval(id);
+  }, [confirmDialog]);
 
   // Compact render for the pop-out window and the docked corner widget
   const renderContent = (isInsidePip: boolean) => {

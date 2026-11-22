@@ -221,7 +221,7 @@ export function setLoggedInUser(name: string, email: string, profileId?: string)
   }
 }
 
-export function logoutUser() {
+export async function logoutUser(): Promise<void> {
   if (typeof window !== 'undefined') {
     try {
       localStorage.removeItem('design_orbit_logged_in_name');
@@ -236,7 +236,7 @@ export function logoutUser() {
       } catch (e) {}
       if (isSupabaseConfigured()) {
         const supabase = createClient();
-        supabase.auth.signOut();
+        await supabase.auth.signOut();
       }
     } catch (e) {
       console.warn('Failed to sign out:', e);
@@ -1148,36 +1148,6 @@ export function clearLocalSessionData() {
   mockWorkEntriesStore = [];
 }
 
-export async function updateProfilePasswordInDB(email: string, newPassword: string): Promise<void> {
-  const trimmedEmail = email.trim().toLowerCase();
-  if (!trimmedEmail) throw new Error('Email is required');
-
-  if (isSupabaseConfigured()) {
-    try {
-      const supabase = createClient();
-      const { error } = await (supabase.from('profiles') as any)
-        .update({ password: newPassword, updated_at: new Date().toISOString() })
-        .ilike('email', trimmedEmail);
-
-      if (error) {
-        if (error.message.includes("Could not find the 'password' column") || error.message.includes('password')) {
-          throw new Error(`Database column missing: Please run "ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS password TEXT DEFAULT 'strongpassword';" in Supabase SQL Editor.`);
-        }
-        console.error('Supabase password update error:', error.message);
-        throw new Error(`Database Error: ${error.message}`);
-      }
-    } catch (err: any) {
-      console.error('Failed to update password in DB:', err);
-      throw err;
-    }
-  }
-
-  const match = INITIAL_MOCK_PROFILES.find(p => p.email && p.email.toLowerCase() === trimmedEmail);
-  if (match) {
-    (match as any).password = newPassword;
-  }
-}
-
 export async function fetchProfileByEmail(email: string): Promise<Profile | null> {
   const trimmedEmail = email.trim().toLowerCase();
   if (!trimmedEmail) return null;
@@ -1200,17 +1170,6 @@ export async function fetchProfileByEmail(email: string): Promise<Profile | null
 
   const profiles = await fetchProfiles();
   return profiles.find(p => p.email && p.email.toLowerCase() === trimmedEmail) || null;
-}
-
-export function getUserPasswordFromDB(profile?: Profile | null, email?: string): string {
-  if (profile && (profile as any).password) {
-    return (profile as any).password;
-  }
-  if (typeof window !== 'undefined' && email) {
-    const customPass = localStorage.getItem(`design_orbit_pass_${email.toLowerCase()}`);
-    if (customPass) return customPass;
-  }
-  return 'strongpassword';
 }
 
 export async function fetchWeeklyBestWorkRecords(weekStartDate: string): Promise<Record<string, string>> {
