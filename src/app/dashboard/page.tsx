@@ -53,6 +53,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { TodoListWidget } from '@/components/dashboard/TodoListWidget';
+import { GreetingTile } from '@/components/dashboard/GreetingTile';
 import { useToast } from '@/components/ui/ToastContext';
 import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
@@ -550,20 +551,17 @@ export default function DashboardPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-7 animate-fade-in-up">
         {/* Top Utility Command Header (Personal Workspace) */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <h1 className="font-display text-2xl sm:text-[28px] leading-tight font-medium text-slate-50">
-                Hi, {currentUser.name.split(' ')[0]}
-              </h1>
-              <Diya size={26} className="-mt-1" />
-            </div>
-            <p className="text-sm text-slate-400 font-normal">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-              {FESTIVE && <span className="text-[#f2a93b]"> · Happy Diwali</span>}
-            </p>
-          </div>
-        </div>
+        <GreetingTile
+          name={currentUser.name}
+          profileId={currentProfileId}
+          ready={!loading}
+          nowMs={nowMs}
+          pendingEntries={pendingApprovals}
+          myTodayEntries={myTodayEntries}
+          myWeek={weeklyData.find(w => w.profile?.id === currentProfileId)}
+          titleAccessory={<Diya size={26} className="-mt-1" />}
+          festiveNote={FESTIVE && <span className="text-[#f2a93b]"> · Happy Diwali</span>}
+        />
 
         {/* Hero Bento Grid: Individual Velocity Spline + To-Do List Widget */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
