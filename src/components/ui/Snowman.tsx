@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const GONE_KEY = 'design_orbit_snowman_gone_at';
-const RESPAWN_MS = 5 * 60_000;
+const RESPAWN_MS = 30_000;
 const BURST_SIZE = 360;
 /** Length of the build-up animation in globals.css (.snowman-build) */
 const BUILD_MS = 2400;
@@ -35,7 +35,7 @@ function readGoneAt(): number | null {
 }
 
 /**
- * A small snowman. Click it and it bursts; it is rebuilt after 5 minutes.
+ * A small snowman. Click it and it bursts; it is rebuilt after 30 seconds.
  * The parent places it with className; it keeps its space while gone.
  */
 export function Snowman({ className }: { className?: string }) {
