@@ -55,6 +55,7 @@ import { RichSelect } from '@/components/ui/RichSelect';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
 import { generateEmailTableHtml, generateCleanPlainText, copyToClipboardWithHtml } from '@/lib/services/email-formatter';
 import { GreetingStrip } from '@/components/dashboard/GreetingStrip';
+import { Snowman } from '@/components/ui/Snowman';
 
 export default function MyWorkPage() {
   const formatLocalDate = (d: Date): string => {
@@ -500,7 +501,7 @@ export default function MyWorkPage() {
   const totalPendingWaiting = totalPendingDone - totalPendingApproved;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a09] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar userName={activeProfile?.name || 'Gajesh'} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
@@ -552,8 +553,9 @@ export default function MyWorkPage() {
         )}
 
         {/* Primary View Mode Switcher: Daily Calendar vs Pending Approvals Queue */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+        <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
           {/* Primary View Mode Switcher with Smooth Gliding Pill */}
+          <div className="flex items-center w-full sm:w-auto">
           <SlideTabs
             options={[
               {
@@ -590,6 +592,11 @@ export default function MyWorkPage() {
                 : 'bg-white/[0.08] border border-white/[0.1] text-white shadow-xs'
             )}
           />
+          {/* Snowman stands on the divider, right after the Pending tab */}
+          <span className="relative hidden md:block w-16 self-stretch ml-2 shrink-0">
+            <Snowman className="absolute left-0 bottom-[-15px]" />
+          </span>
+          </div>
 
           <span className="text-xs text-slate-400 font-normal hidden sm:inline">
             {workViewMode === 'pending'

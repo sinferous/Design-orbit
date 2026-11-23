@@ -7,6 +7,7 @@ import { WorkEntryWithDetails } from '@/types';
 import { WeeklyUserSummary } from '@/lib/services/reports';
 import { calculateWorkEntrySeconds } from '@/lib/services/work-entry';
 import { workweekFor } from '@/lib/workweek';
+import { SnowCap } from '@/components/ui/SnowCap';
 
 /** How long one message stays before a new one is picked: random between these. */
 const MIN_HOLD_MS = 2 * 60 * 60 * 1000;
@@ -410,6 +411,7 @@ export function GreetingTile({
   const showAction = line?.action && line.action.href.split('?')[0] !== currentPath;
 
   return (
+    <div className="relative">
     <section className="bento-card relative overflow-hidden h-[280px] sm:h-[248px] flex flex-col justify-center px-5 py-6 sm:px-8 sm:py-7">
       {/* Orbit drawing, the brand motif: two rings, a slow planet */}
       <svg
@@ -476,5 +478,7 @@ export function GreetingTile({
         )}
       </div>
     </section>
+    <SnowCap />
+    </div>
   );
 }

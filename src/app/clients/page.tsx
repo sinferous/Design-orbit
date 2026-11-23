@@ -240,7 +240,7 @@ export default function ClientsPage() {
   const nextSort: Record<SortKey, SortKey> = { recent: 'work', work: 'name', name: 'recent' };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">

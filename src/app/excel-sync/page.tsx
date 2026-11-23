@@ -632,7 +632,7 @@ export default function ExcelSyncPage() {
   const isCurrentWeek = weekStartDate === initialWeek.startDate;
 
   return (
-    <div className="min-h-screen bg-[#0a0a09] text-slate-100 flex flex-col relative md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen text-slate-100 flex flex-col relative md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <CreativeBackground />
       <Navbar />
 

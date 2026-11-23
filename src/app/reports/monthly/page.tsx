@@ -114,7 +114,7 @@ export default function MonthlyReportPage() {
   const filterLabel = 'block text-xs text-slate-500 mb-1.5';
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0c0c0b] md:pl-64 lg:pl-68 pt-14 md:pt-0">
+    <div className="min-h-screen flex flex-col md:pl-64 lg:pl-68 pt-14 md:pt-0">
       <Navbar />
 
       <ReportsSubNav>
