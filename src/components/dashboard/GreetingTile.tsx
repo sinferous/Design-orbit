@@ -273,6 +273,10 @@ interface Props {
   myWeek?: WeeklyUserSummary;
   festiveNote?: React.ReactNode;
   titleAccessory?: React.ReactNode;
+  /** hide the action button when it points at this path */
+  currentPath?: string;
+  /** page name shown before the date, when the tile is the page header */
+  eyebrow?: string;
 }
 
 export function GreetingTile({
@@ -286,6 +290,8 @@ export function GreetingTile({
   myWeek,
   festiveNote,
   titleAccessory,
+  currentPath,
+  eyebrow,
 }: Props) {
   const firstName = name.split(' ')[0];
   const workweek = workweekFor(email);
@@ -401,8 +407,10 @@ export function GreetingTile({
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
+  const showAction = line?.action && line.action.href.split('?')[0] !== currentPath;
+
   return (
-    <section className="bento-card relative overflow-hidden px-5 py-6 sm:px-8 sm:py-7">
+    <section className="bento-card relative overflow-hidden h-[280px] sm:h-[248px] flex flex-col justify-center px-5 py-6 sm:px-8 sm:py-7">
       {/* Orbit drawing, the brand motif: two rings, a slow planet */}
       <svg
         viewBox="0 0 240 240"
@@ -439,6 +447,7 @@ export function GreetingTile({
       <div className="relative max-w-2xl md:pr-40 space-y-4">
         <div className="space-y-1.5">
           <p className="text-xs text-slate-500">
+            {eyebrow && <span className="text-slate-300 font-medium">{eyebrow} · </span>}
             {now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             {festiveNote}
           </p>
@@ -449,14 +458,14 @@ export function GreetingTile({
               {titleAccessory && <span className="inline-block align-middle ml-2">{titleAccessory}</span>}
             </span>
             {line ? (
-              <span className="block mt-1 text-slate-400">{line.text(facts)}</span>
+              <span className="block mt-1 text-slate-400 line-clamp-3">{line.text(facts)}</span>
             ) : (
               <span className="block mt-2 h-6 w-64 max-w-full rounded bg-white/[0.04]" />
             )}
           </h1>
         </div>
 
-        {line?.action && (
+        {showAction && line?.action && (
           <Link
             href={line.action.href}
             className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-emerald-500 text-sm font-medium text-[#0b1410] hover:bg-emerald-400 transition-colors"

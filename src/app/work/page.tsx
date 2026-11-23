@@ -54,6 +54,7 @@ import { QuickApprovalModal } from '@/components/work/QuickApprovalModal';
 import { RichSelect } from '@/components/ui/RichSelect';
 import { OrbitLoader } from '@/components/ui/OrbitLoader';
 import { generateEmailTableHtml, generateCleanPlainText, copyToClipboardWithHtml } from '@/lib/services/email-formatter';
+import { GreetingStrip } from '@/components/dashboard/GreetingStrip';
 
 export default function MyWorkPage() {
   const formatLocalDate = (d: Date): string => {
@@ -503,8 +504,13 @@ export default function MyWorkPage() {
       <Navbar userName={activeProfile?.name || 'Gajesh'} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
+        {/* For the team the greeting tile is the page header; admins keep the plain title */}
+        {!isAdmin && <GreetingStrip eyebrow={selectedUserFilter === 'my_work' ? 'My log' : 'Team log'} />}
+
         {/* Header & Main Actions */}
+        {(isAdmin || (selectedUserFilter === 'my_work' && entries.length > 0)) && (
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {isAdmin && (
           <div>
             <h1 className="text-2xl font-semibold text-slate-100">
               {isAdmin ? 'Team log' : (selectedUserFilter === 'my_work' ? 'My log' : 'Team log')}
@@ -517,8 +523,9 @@ export default function MyWorkPage() {
                   : 'Everything the team logged')}
             </p>
           </div>
+          )}
 
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto md:ml-auto justify-end">
             {!isAdmin && selectedUserFilter === 'my_work' && entries.length > 0 && (
               <div className="flex items-center space-x-2">
                 <button
@@ -542,6 +549,7 @@ export default function MyWorkPage() {
             )}
           </div>
         </div>
+        )}
 
         {/* Primary View Mode Switcher: Daily Calendar vs Pending Approvals Queue */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
