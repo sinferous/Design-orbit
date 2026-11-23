@@ -14,6 +14,7 @@ import {
   Sparkles,
   ChevronRight,
   ShieldAlert,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BrandMark } from '@/components/ui/BrandMark';
@@ -89,6 +90,17 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
       icon: Building2,
       badge: null,
     },
+    // Admins manage people and reset passwords on the Team page
+    ...(isAdmin
+      ? [
+          {
+            label: 'Team',
+            href: '/team',
+            icon: Users,
+            badge: null,
+          },
+        ]
+      : []),
     {
       label: 'Reports',
       href: '/reports/weekly',
