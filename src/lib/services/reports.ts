@@ -357,16 +357,16 @@ export async function getClientBillingReportData(
   const [ey, em, ed] = endDateStr.split('-').map(Number);
   const start = new Date(sy, sm - 1, sd, 12, 0, 0);
   const end = new Date(ey, em - 1, ed, 12, 0, 0);
-  let allEntries: WorkEntryWithDetails[] = [];
-
+  const days: string[] = [];
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dayNum = String(d.getDate()).padStart(2, '0');
-    const dStr = `${y}-${m}-${dayNum}`;
-    const dayEntries = await fetchWorkEntriesByDate(dStr, userIdFilter || undefined);
-    allEntries.push(...dayEntries);
+    days.push(`${y}-${m}-${dayNum}`);
   }
+  // All days in parallel; the range is at most a few weeks of small queries
+  const perDay = await Promise.all(days.map(dStr => fetchWorkEntriesByDate(dStr, userIdFilter || undefined)));
+  let allEntries: WorkEntryWithDetails[] = perDay.flat();
 
   // Filter out Admin entries
   allEntries = allEntries.filter(e => e.profile?.name !== 'Admin');

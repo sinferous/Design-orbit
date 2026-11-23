@@ -10,7 +10,6 @@ import {
   BarChart3,
   PlusCircle,
   LogOut,
-  Settings,
   Sparkles,
   ChevronRight,
   ShieldAlert,
@@ -462,21 +461,20 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
           <Link
             href="/settings"
             onClick={onCloseMobile}
-            title="Profile and settings"
-            className={`flex items-center gap-3 min-w-0 flex-1 p-2 rounded-xl transition-colors ${
+            title={userEmail ? `${userEmail} · Profile and settings` : 'Profile and settings'}
+            className={`flex items-center gap-2.5 min-w-0 flex-1 p-2 rounded-xl transition-colors ${
               pathname === '/settings' ? 'bg-white/[0.05]' : 'hover:bg-white/[0.035]'
             }`}
           >
-            <div className="w-9 h-9 shrink-0 rounded-full bg-emerald-400/[0.12] border border-emerald-400/20 flex items-center justify-center font-display text-sm text-emerald-300">
+            <div className="w-8 h-8 shrink-0 rounded-full bg-emerald-400/[0.12] border border-emerald-400/20 flex items-center justify-center font-display text-sm text-emerald-300">
               {currentUser.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1 text-left leading-tight">
               <div className="text-sm text-slate-100 truncate">{currentUser}</div>
-              <div className="mt-0.5 text-xs text-slate-500 truncate">
+              <div className="mt-0.5 text-[11px] text-slate-500 truncate">
                 {isAdmin ? 'Admin' : userEmail || 'Profile and settings'}
               </div>
             </div>
-            <Settings className="w-3.5 h-3.5 text-slate-600 shrink-0" />
           </Link>
 
           <button
@@ -484,7 +482,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             onClick={handleLogout}
             title="Sign out"
             aria-label="Sign out"
-            className="inline-flex items-center justify-center w-8 h-8 shrink-0 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center w-7 h-8 shrink-0 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-colors cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import {
@@ -17,6 +17,7 @@ import {
   fetchClients,
   fetchAllClientDescriptions,
   ClientDescriptionItem,
+  calculateWorkEntrySeconds,
 } from '@/lib/services/work-entry';
 import { Profile, WorkType, Client } from '@/types';
 import {
@@ -125,8 +126,10 @@ export default function ClientTimeTrackingReportPage() {
     loadOptions();
   }, []);
 
+  const requestId = useRef(0);
   const loadReport = useCallback(async () => {
-    if (!startDate || !endDate) return;
+    if (!startDate || !endDate || startDate > endDate) return;
+    const id = ++requestId.current;
     setLoading(true);
     try {
       const data = await getClientBillingReportData(
@@ -136,12 +139,14 @@ export default function ClientTimeTrackingReportPage() {
         selectedUser || undefined,
         selectedWorkType || undefined
       );
+      if (id !== requestId.current) return;
       setReportData(data);
     } catch (err) {
+      if (id !== requestId.current) return;
       console.error('Failed to load time report:', err);
       showToast('Failed to load time report', 'error');
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
   }, [startDate, endDate, selectedClient, selectedUser, selectedWorkType]);
 
@@ -163,27 +168,45 @@ export default function ClientTimeTrackingReportPage() {
     setViewDate(next);
   };
 
-  // Step range forward / backward by 7 days
-  const handleRangeDelta = (days: number) => {
+  // A range that is exactly one calendar month
+  const isWholeMonth = (() => {
+    if (!startDate || !endDate) return false;
+    const s = parseLocalDate(startDate);
+    const e = parseLocalDate(endDate);
+    const lastDay = new Date(s.getFullYear(), s.getMonth() + 1, 0).getDate();
+    return s.getDate() === 1 && e.getFullYear() === s.getFullYear() && e.getMonth() === s.getMonth() && e.getDate() === lastDay;
+  })();
+  const rangeDays = (() => {
+    if (!startDate || !endDate) return 7;
+    const ms = parseLocalDate(endDate).getTime() - parseLocalDate(startDate).getTime();
+    return Math.max(1, Math.round(ms / 86400000) + 1);
+  })();
+  const stepLabel = isWholeMonth ? 'month' : rangeDays === 1 ? 'day' : `${rangeDays} days`;
+
+  // Step the range back or forward by its own length (a day, a week, a month)
+  const handleRangeDelta = (direction: -1 | 1) => {
     if (!startDate || !endDate) return;
     const currStart = parseLocalDate(startDate);
-    const currEnd = parseLocalDate(endDate);
-    currStart.setDate(currStart.getDate() + days);
-    currEnd.setDate(currEnd.getDate() + days);
-    const sStr = formatLocalDate(currStart);
-    const eStr = formatLocalDate(currEnd);
-    setStartDate(sStr);
-    setEndDate(eStr);
-    setViewDate(currStart);
+    let nextStart: Date;
+    let nextEnd: Date;
+    if (isWholeMonth) {
+      nextStart = new Date(currStart.getFullYear(), currStart.getMonth() + direction, 1, 12, 0, 0);
+      nextEnd = new Date(nextStart.getFullYear(), nextStart.getMonth() + 1, 0, 12, 0, 0);
+    } else {
+      const currEnd = parseLocalDate(endDate);
+      nextStart = new Date(currStart.getFullYear(), currStart.getMonth(), currStart.getDate() + direction * rangeDays, 12, 0, 0);
+      nextEnd = new Date(currEnd.getFullYear(), currEnd.getMonth(), currEnd.getDate() + direction * rangeDays, 12, 0, 0);
+    }
+    setStartDate(formatLocalDate(nextStart));
+    setEndDate(formatLocalDate(nextEnd));
+    setViewDate(nextStart);
   };
 
   // Select week starting from clicked day
   const handleSelectWeekFromDate = (date: Date) => {
-    const startStr = formatLocalDate(date);
-    const endDateObj = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 6, 12, 0, 0);
-    const endStr = formatLocalDate(endDateObj);
-    setStartDate(startStr);
-    setEndDate(endStr);
+    const range = getWeekRange(date);
+    setStartDate(range.startDate);
+    setEndDate(range.endDate);
   };
 
   // Date range presets
@@ -208,8 +231,7 @@ export default function ClientTimeTrackingReportPage() {
       setEndDate(`${y}-${String(m).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`);
       setViewDate(today);
     } else if (preset === 'last_30') {
-      const past = new Date();
-      past.setDate(today.getDate() - 30);
+      const past = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29, 12, 0, 0);
       setStartDate(formatLocalDate(past));
       setEndDate(formatLocalDate(today));
       setViewDate(today);
@@ -235,8 +257,7 @@ export default function ClientTimeTrackingReportPage() {
       return startDate === mStart && endDate === mEnd;
     }
     if (preset === 'last_30') {
-      const past = new Date();
-      past.setDate(today.getDate() - 30);
+      const past = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29, 12, 0, 0);
       return startDate === formatLocalDate(past) && endDate === formatLocalDate(today);
     }
     return false;
@@ -268,14 +289,8 @@ export default function ClientTimeTrackingReportPage() {
   };
 
   const getHoverWeekRange = (dateStr: string) => {
-    const d = parseLocalDate(dateStr);
-    const startStr = formatLocalDate(d);
-    const endDateObj = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 6, 12, 0, 0);
-    const endStr = formatLocalDate(endDateObj);
-    return {
-      start: startStr,
-      end: endStr,
-    };
+    const range = getWeekRange(parseLocalDate(dateStr));
+    return { start: range.startDate, end: range.endDate };
   };
 
   const isInHoverRange = (d: Date) => {
@@ -346,7 +361,7 @@ export default function ClientTimeTrackingReportPage() {
         const totalDone = clientMatchedEntries.reduce((acc, curr) => acc + curr.quantity_done, 0);
         const totalApproved = clientMatchedEntries.reduce((acc, curr) => acc + curr.quantity_approved, 0);
         const totalTimeSeconds = clientMatchedEntries.reduce(
-          (acc, curr) => acc + (curr.time_spent_seconds || 0),
+          (acc, curr) => acc + calculateWorkEntrySeconds(curr),
           0
         );
         const decimalHours = formatReportHoursDecimal(totalTimeSeconds);
@@ -357,7 +372,7 @@ export default function ClientTimeTrackingReportPage() {
           if (wtName.trim().toLowerCase() === 'working') return;
           if (!breakdown[wtName]) breakdown[wtName] = { count: 0, timeSeconds: 0 };
           breakdown[wtName].count += e.quantity_done;
-          breakdown[wtName].timeSeconds += (e.time_spent_seconds || 0);
+          breakdown[wtName].timeSeconds += calculateWorkEntrySeconds(e);
         });
 
         return {
@@ -374,7 +389,7 @@ export default function ClientTimeTrackingReportPage() {
       .sort((a, b) => b.totalTimeSeconds - a.totalTimeSeconds || b.totalDone - a.totalDone);
 
     const totalTimeSecondsAll = matchedEntries.reduce(
-      (acc, curr) => acc + (curr.time_spent_seconds || 0),
+      (acc, curr) => acc + calculateWorkEntrySeconds(curr),
       0
     );
     const totalDecimalHoursAll = formatReportHoursDecimal(totalTimeSecondsAll);
@@ -401,7 +416,7 @@ export default function ClientTimeTrackingReportPage() {
       if (!desc) return;
       const lower = desc.toLowerCase();
       const existing = map.get(lower);
-      const secs = e.time_spent_seconds || 0;
+      const secs = calculateWorkEntrySeconds(e);
       if (existing) {
         existing.count += 1;
         existing.timeSeconds += secs;
@@ -473,11 +488,14 @@ export default function ClientTimeTrackingReportPage() {
     );
   };
 
+  // Clients with no work in the range only add empty rows
+  const visibleClients = filteredReportData.clientSummaries.filter(c => c.entries.length > 0);
+
   // Export Time Tracking CSV (Clean: without rates or currency)
   const handleExportCSV = () => {
     const rows: Record<string, any>[] = [];
 
-    filteredReportData.clientSummaries.forEach(client => {
+    visibleClients.forEach(client => {
       if (client.entries.length === 0) {
         rows.push({
           'Client Name': client.clientName,
@@ -492,7 +510,7 @@ export default function ClientTimeTrackingReportPage() {
         });
       } else {
         client.entries.forEach(entry => {
-          const entrySecs = entry.time_spent_seconds || 0;
+          const entrySecs = calculateWorkEntrySeconds(entry);
           const decHrs = formatReportHoursDecimal(entrySecs);
           rows.push({
             'Client Name': client.clientName,
@@ -561,10 +579,10 @@ export default function ClientTimeTrackingReportPage() {
           {/* Range picker */}
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => handleRangeDelta(-7)}
+              onClick={() => handleRangeDelta(-1)}
               className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
-              title="Back 7 days"
-              aria-label="Back 7 days"
+              title={`Back 1 ${stepLabel.replace(/^\d+ days$/, 'period')}`}
+              aria-label={`Back ${stepLabel}`}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -652,7 +670,14 @@ export default function ClientTimeTrackingReportPage() {
                         <input
                           type="date"
                           value={startDate}
-                          onChange={e => setStartDate(e.target.value)}
+                          max={endDate || undefined}
+                          onChange={e => {
+                            const v = e.target.value;
+                            if (!v) return;
+                            setStartDate(v);
+                            if (endDate && v > endDate) setEndDate(v);
+                            setViewDate(parseLocalDate(v));
+                          }}
                           className="mt-1 w-full h-8 px-2 rounded-md bg-white/[0.03] border border-white/[0.08] text-xs text-slate-200 focus:outline-none focus:border-emerald-400/40 [color-scheme:dark]"
                         />
                       </label>
@@ -661,7 +686,13 @@ export default function ClientTimeTrackingReportPage() {
                         <input
                           type="date"
                           value={endDate}
-                          onChange={e => setEndDate(e.target.value)}
+                          min={startDate || undefined}
+                          onChange={e => {
+                            const v = e.target.value;
+                            if (!v) return;
+                            setEndDate(v);
+                            if (startDate && v < startDate) setStartDate(v);
+                          }}
                           className="mt-1 w-full h-8 px-2 rounded-md bg-white/[0.03] border border-white/[0.08] text-xs text-slate-200 focus:outline-none focus:border-emerald-400/40 [color-scheme:dark]"
                         />
                       </label>
@@ -682,10 +713,10 @@ export default function ClientTimeTrackingReportPage() {
             </div>
 
             <button
-              onClick={() => handleRangeDelta(7)}
+              onClick={() => handleRangeDelta(1)}
               className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
-              title="Forward 7 days"
-              aria-label="Forward 7 days"
+              title={`Forward 1 ${stepLabel.replace(/^\d+ days$/, 'period')}`}
+              aria-label={`Forward ${stepLabel}`}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -832,7 +863,7 @@ export default function ClientTimeTrackingReportPage() {
             <div className="p-12 text-center">
               <OrbitLoader size="lg" text="Adding up client hours" />
             </div>
-          ) : filteredReportData.clientSummaries.length === 0 ? (
+          ) : visibleClients.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-sm text-slate-200">
                 {descriptionFilter.trim() ? `Nothing matches “${descriptionFilter}”` : 'No client work in this range'}
@@ -849,7 +880,7 @@ export default function ClientTimeTrackingReportPage() {
             </div>
           ) : (
             <div className="divide-y divide-white/[0.05]">
-              {filteredReportData.clientSummaries.map(client => {
+              {visibleClients.map(client => {
                 const isExpanded = Boolean(expandedClients[client.clientId]);
                 const types = Object.entries(client.workTypeBreakdown).filter(
                   ([, data]) => data.count > 0 || data.timeSeconds > 0

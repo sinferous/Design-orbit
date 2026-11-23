@@ -8,7 +8,7 @@ import {
   copyToClipboardWithHtml,
   formatEmailSubject,
 } from '@/lib/services/email-formatter';
-import { X, Copy, Check, Mail, ExternalLink } from 'lucide-react';
+import { X, Copy, Check, ExternalLink } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastContext';
 
 interface EmailDayLogModalProps {
@@ -33,38 +33,40 @@ export function EmailDayLogModal({
 
   const tableHtml = generateEmailTableHtml(entries, designerName, selectedDate);
   const plainText = generateCleanPlainText(entries, designerName, selectedDate);
-  const emailSubject = formatEmailSubject(selectedDate);
+  const emailSubject = formatEmailSubject(selectedDate, designerName);
+
+  const markCopied = (type: string) => {
+    setCopiedType(type);
+    setTimeout(() => setCopiedType(null), 2500);
+  };
 
   const handleCopyRich = async () => {
     const success = await copyToClipboardWithHtml(tableHtml, plainText);
     if (success) {
-      setCopiedType('rich');
-      showToast('Copied Rich Email Format! Paste (Ctrl+V) directly into Gmail or Outlook.', 'success');
-      setTimeout(() => setCopiedType(null), 2500);
+      markCopied('rich');
+      showToast('Email copied. Paste it into Gmail or Outlook', 'success');
     } else {
-      showToast('Failed to copy to clipboard', 'error');
+      showToast('Could not copy to the clipboard', 'error');
     }
   };
 
   const handleCopyPlain = async () => {
     try {
       await navigator.clipboard.writeText(plainText);
-      setCopiedType('plain');
-      showToast('Copied clean plain-text to clipboard!', 'success');
-      setTimeout(() => setCopiedType(null), 2500);
+      markCopied('plain');
+      showToast('Text copied', 'success');
     } catch {
-      showToast('Failed to copy text', 'error');
+      showToast('Could not copy the text', 'error');
     }
   };
 
   const handleCopySubject = async () => {
     try {
       await navigator.clipboard.writeText(emailSubject);
-      setCopiedType('subject');
-      showToast('Copied email subject line!', 'success');
-      setTimeout(() => setCopiedType(null), 2500);
+      markCopied('subject');
+      showToast('Subject copied', 'success');
     } catch {
-      showToast('Failed to copy subject', 'error');
+      showToast('Could not copy the subject', 'error');
     }
   };
 
@@ -76,115 +78,88 @@ export function EmailDayLogModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#141413] rounded-2xl shadow-2xl shadow-black/80 border border-white/[0.08] max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-        
-        {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-white/[0.07] flex items-center justify-between bg-[#0c0c0b]">
-          <div className="flex items-center space-x-3">
-            <div>
-              <h3 className="text-base font-semibold text-slate-100">
-                Email Daily Work Log
-              </h3>
-              <p className="text-xs text-slate-400">
-                Formatted for clean rendering in Gmail, Outlook, Apple Mail, and messaging apps.
-              </p>
-            </div>
-          </div>
-
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="email-day-log-title"
+        className="bg-[#141413] rounded-2xl shadow-2xl shadow-black/80 border border-white/[0.08] max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+      >
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between gap-4">
+          <h3 id="email-day-log-title" className="text-base font-medium text-slate-100">
+            Email day log
+          </h3>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-white/[0.05] rounded-lg transition-colors cursor-pointer"
+            className="w-8 h-8 inline-flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/[0.05] rounded-lg transition-colors cursor-pointer"
+            aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Live Preview Area */}
-        <div className="flex-1 overflow-y-auto p-6 bg-[#0c0c0b]">
-          <div className="bg-[#141413] rounded-xl border border-white/[0.07] shadow-sm p-6 max-w-3xl mx-auto">
-            {/* Mock Email Client Header */}
-            <div className="border-b border-white/[0.07] pb-3 mb-4 text-xs text-slate-400 space-y-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <span className="text-slate-200">
-                    <strong className="font-semibold">Subject: </strong>
-                    <span className="text-slate-100 font-medium">{emailSubject}</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopySubject}
-                    className="p-1 hover:bg-white/[0.05] text-slate-400 hover:text-slate-200 rounded transition-colors cursor-pointer"
-                    title="Copy subject line"
-                  >
-                    {copiedType === 'subject' ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Content Preview */}
-            <div
-              className="overflow-x-auto rounded-lg bg-white p-3 text-slate-900"
-              dangerouslySetInnerHTML={{ __html: tableHtml }}
-            />
+        {/* Subject, then the email as it will look */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+          <div className="flex items-center gap-2 text-sm min-w-0">
+            <span className="text-slate-500 shrink-0">Subject</span>
+            <span className="text-slate-100 truncate">{emailSubject}</span>
+            <button
+              type="button"
+              onClick={handleCopySubject}
+              className="w-7 h-7 shrink-0 inline-flex items-center justify-center text-slate-500 hover:text-slate-200 hover:bg-white/[0.05] rounded-md transition-colors cursor-pointer"
+              aria-label="Copy subject"
+              title="Copy subject"
+            >
+              {copiedType === 'subject' ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+            </button>
           </div>
+
+          <div
+            className="overflow-x-auto rounded-xl bg-white px-6 py-5 text-slate-900"
+            dangerouslySetInnerHTML={{ __html: tableHtml }}
+          />
         </div>
 
-        {/* Modal Action Footer */}
-        <div className="px-6 py-4 border-t border-white/[0.07] bg-[#101010] flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs text-slate-400 text-center sm:text-left">
-            Click <strong>Copy for Email</strong>, then press <kbd className="px-1.5 py-0.5 bg-white/[0.06] border border-white/[0.1] rounded text-[11px] font-mono text-slate-300">Ctrl + V</kbd> in your email composer.
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
+        {/* Actions */}
+        <div className="px-6 py-4 border-t border-white/[0.06] flex justify-end">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
             <button
               type="button"
               onClick={handleOpenMailto}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-slate-300 webtree-secondary-btn rounded-xl transition-colors cursor-pointer"
-              title="Open draft in default mail application"
+              className="inline-flex items-center gap-1.5 h-9 px-3 text-xs text-slate-400 hover:text-slate-100 hover:bg-white/[0.05] rounded-lg transition-colors cursor-pointer"
+              title="Open a draft in your mail app"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Email Draft</span>
+              Open in mail app
             </button>
 
             <button
               type="button"
               onClick={handleCopyPlain}
-              className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-slate-300 webtree-secondary-btn rounded-xl transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 px-3 text-xs text-slate-200 border border-white/[0.1] hover:bg-white/[0.05] rounded-lg transition-colors cursor-pointer"
+              title="Copy as plain text, for chat apps"
             >
               {copiedType === 'plain' ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-300">Copied Text!</span>
-                </>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
               ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Plain Text</span>
-                </>
+                <Copy className="w-3.5 h-3.5" />
               )}
+              {copiedType === 'plain' ? 'Copied' : 'Copy as text'}
             </button>
 
             <button
               type="button"
               onClick={handleCopyRich}
-              className="inline-flex items-center space-x-2 px-5 py-2 text-xs font-semibold text-white webtree-gradient-btn rounded-xl shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 px-4 text-xs font-medium text-[#0b0b0a] bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors cursor-pointer"
+              title="Copy with the table, for Gmail and Outlook"
             >
-              {copiedType === 'rich' ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>Copied for Email!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  <span>Copy for Email (Rich HTML)</span>
-                </>
-              )}
+              {copiedType === 'rich' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedType === 'rich' ? 'Copied' : 'Copy email'}
             </button>
           </div>
         </div>
