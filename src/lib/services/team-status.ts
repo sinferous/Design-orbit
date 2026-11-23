@@ -10,6 +10,39 @@ export interface MemberStatus {
   /** Description of the task whose timer is running right now, if any */
   workingOn: string | null;
   workingClient: string | null;
+  /** When the running timer started, and the time logged on that task before it */
+  workingStartedAt: string | null;
+  workingBaseSeconds: number;
+}
+
+export interface MemberTodayEntry {
+  id: string;
+  description: string;
+  client: string | null;
+  quantity: number;
+  running: boolean;
+}
+
+function localDate(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** One person's entries for today, newest first. Loaded only when their card opens. */
+export async function fetchMemberToday(profileId: string): Promise<MemberTodayEntry[]> {
+  const supabase = createClient();
+  const { data, error } = await (supabase.from('work_entries') as any)
+    .select('id, description, quantity_done, timer_started_at, client:clients(name)')
+    .eq('user_id', profileId)
+    .eq('work_date', localDate())
+    .order('created_at', { ascending: false });
+  if (error || !Array.isArray(data)) return [];
+  return data.map((e: any) => ({
+    id: e.id,
+    description: e.description || 'Untitled task',
+    client: e.client?.name ?? null,
+    quantity: Number(e.quantity_done) || 0,
+    running: Boolean(e.timer_started_at),
+  }));
 }
 
 export interface StatusInput {
@@ -68,7 +101,7 @@ export async function fetchTeamStatuses(myProfileId?: string): Promise<MemberSta
   let running: any[] = [];
   try {
     const { data } = await (supabase.from('work_entries') as any)
-      .select('user_id, description, client:clients(name)')
+      .select('user_id, description, timer_started_at, time_spent_seconds, client:clients(name)')
       .not('timer_started_at', 'is', null);
     running = Array.isArray(data) ? data : [];
   } catch {
@@ -105,6 +138,8 @@ export async function fetchTeamStatuses(myProfileId?: string): Promise<MemberSta
         expiresAt,
         workingOn: run ? run.description || 'A task' : null,
         workingClient: run?.client?.name ?? null,
+        workingStartedAt: run?.timer_started_at ?? null,
+        workingBaseSeconds: Number(run?.time_spent_seconds) || 0,
       };
     });
 }

@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getLoggedInUser } from '@/lib/services/work-entry';
-import { fetchTeamStatuses, saveMyStatus, isStatusSyncedToTeam, MemberStatus } from '@/lib/services/team-status';
+import {
+  fetchTeamStatuses,
+  fetchMemberToday,
+  saveMyStatus,
+  isStatusSyncedToTeam,
+  MemberStatus,
+  MemberTodayEntry,
+} from '@/lib/services/team-status';
 import { cn } from '@/lib/utils';
 
 const PRESETS: { emoji: string; text: string }[] = [
@@ -30,6 +37,170 @@ function expiryFor(choice: ClearAfter): string | null {
   if (choice === '4h') return new Date(now.getTime() + 4 * 3600_000).toISOString();
   if (choice === 'today') return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
   return null;
+}
+
+function formatElapsed(totalSeconds: number) {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  return h > 0 ? `${h} h ${m} m` : `${m} m`;
+}
+
+function clearsLabel(expiresAt: string | null, nowMs: number) {
+  if (!expiresAt) return null;
+  const at = new Date(expiresAt);
+  const left = at.getTime() - nowMs;
+  if (left <= 0) return null;
+  if (left < 3600_000) return `Clears in ${Math.max(1, Math.round(left / 60_000))} min`;
+  if (at.toDateString() === new Date(nowMs).toDateString()) {
+    return at.getHours() === 23 && at.getMinutes() === 59
+      ? 'Clears tonight'
+      : `Clears at ${at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+  }
+  return `Clears ${at.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })}`;
+}
+
+function Avatar({ m, size = 'sm' }: { m: MemberStatus; size?: 'sm' | 'md' }) {
+  return (
+  <div className={cn('relative shrink-0', size === 'md' ? 'w-8 h-8' : 'w-7 h-7')}>
+    <div
+      className={cn(
+        'w-full h-full rounded-full flex items-center justify-center font-display text-[11px]',
+        m.workingOn ? 'bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/50' : 'bg-white/[0.05] text-slate-400'
+      )}
+    >
+      {m.name.charAt(0).toUpperCase()}
+    </div>
+    {m.emoji && (
+      <span className="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-[#0c0c0b] flex items-center justify-center text-[10px] leading-none">
+        {m.emoji}
+      </span>
+    )}
+  </div>
+  );
+}
+
+const HOVER_OPEN_MS = 300;
+const HOVER_CLOSE_MS = 150;
+const TODAY_SHOWN = 3;
+
+function MemberCard({
+  ref,
+  m,
+  today,
+  pos,
+  onEnter,
+  onLeave,
+  onClose,
+}: {
+  ref: React.Ref<HTMLDivElement>;
+  m: MemberStatus;
+  today: MemberTodayEntry[] | 'loading' | undefined;
+  pos: { left: number; top: number } | null;
+  onEnter: () => void;
+  onLeave: () => void;
+  onClose: () => void;
+}) {
+  // Ticks the running timer while the card is open
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const t = window.setInterval(() => setNowMs(Date.now()), 30_000);
+    return () => window.clearInterval(t);
+  }, []);
+
+  const hasStatus = Boolean(m.text || m.emoji);
+  const clears = hasStatus ? clearsLabel(m.expiresAt, nowMs) : null;
+  const elapsed = m.workingStartedAt
+    ? m.workingBaseSeconds + Math.max(0, Math.floor((nowMs - new Date(m.workingStartedAt).getTime()) / 1000))
+    : null;
+  const entries = Array.isArray(today) ? today : [];
+  const deliverables = entries.reduce((sum, e) => sum + e.quantity, 0);
+  const shown = entries.slice(0, TODAY_SHOWN);
+  const more = entries.length - shown.length;
+
+  return (
+    <div
+      ref={ref}
+      role="dialog"
+      aria-label={`${m.name}'s status`}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+      style={{
+        left: pos?.left ?? -9999,
+        top: pos?.top ?? 0,
+        opacity: pos ? 1 : 0,
+        transform: pos ? 'translateX(0)' : 'translateX(-6px)',
+      }}
+      className="fixed z-[100] w-72 max-w-[calc(100vw-16px)] rounded-xl border border-white/[0.1] bg-[#121211] p-3.5 shadow-[0_16px_48px_rgba(0,0,0,0.55)] transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none"
+    >
+      <div className="flex items-center gap-2.5">
+        <Avatar m={m} size="md" />
+        <div className="min-w-0 leading-tight">
+          <div className="text-[14px] text-slate-100 truncate">{m.name}</div>
+          {m.designation && <div className="text-[11px] text-slate-500 truncate">{m.designation}</div>}
+        </div>
+      </div>
+
+      {hasStatus && (
+        <div className="mt-3 flex gap-2">
+          {m.emoji && <span className="text-base leading-5 shrink-0">{m.emoji}</span>}
+          <div className="min-w-0">
+            {m.text && <p className="text-[13px] leading-5 text-slate-200 break-words">{m.text}</p>}
+            {clears && <p className="text-[11px] text-slate-500 mt-0.5">{clears}</p>}
+          </div>
+        </div>
+      )}
+
+      {m.workingOn && (
+        <div className="mt-3 pt-3 border-t border-white/[0.06]">
+          <div className="text-[11px] text-slate-500 mb-1">Working on now</div>
+          <div className="flex items-start gap-2">
+            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] leading-5 text-emerald-200 break-words">
+                {m.workingClient && <span className="text-emerald-300/70">{m.workingClient} · </span>}
+                {m.workingOn}
+              </p>
+              {elapsed !== null && (
+                <p className="text-[11px] text-slate-500 tabular-nums">{formatElapsed(elapsed)}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!hasStatus && !m.workingOn && (
+        <p className="mt-3 text-[12px] text-slate-500">No status and no timer running.</p>
+      )}
+
+      <div className="mt-3 pt-3 border-t border-white/[0.06]">
+        <div className="text-[11px] text-slate-500 mb-1.5">Today</div>
+        {today === 'loading' || today === undefined ? (
+          <p className="text-[12px] text-slate-600">Loading…</p>
+        ) : entries.length === 0 ? (
+          <p className="text-[12px] text-slate-500">Nothing logged yet.</p>
+        ) : (
+          <>
+            <ul className="space-y-1">
+              {shown.map(e => (
+                <li key={e.id} className="flex items-baseline gap-2 text-[12px]">
+                  <span className={cn('min-w-0 flex-1 truncate', e.running ? 'text-emerald-200' : 'text-slate-300')}>
+                    {e.client && <span className="text-slate-500">{e.client} · </span>}
+                    {e.description}
+                  </span>
+                  <span className="shrink-0 tabular-nums text-slate-400">{e.quantity}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-[11px] text-slate-500">
+              {deliverables} {deliverables === 1 ? 'deliverable' : 'deliverables'} today
+              {more > 0 && ` · ${more} more ${more === 1 ? 'task' : 'tasks'}`}
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function TeamStatus() {
@@ -85,6 +256,112 @@ export function TeamStatus() {
       .filter(m => m.id !== myRow?.id)
       .sort((a, b) => score(a) - score(b) || a.name.localeCompare(b.name));
   }, [members, myRow]);
+
+  // Teammate card: opens on hover (mouse) after a short delay, click or tap pins it
+  const [cardId, setCardId] = useState<string | null>(null);
+  const [cardPinned, setCardPinned] = useState(false);
+  const [cardPos, setCardPos] = useState<{ left: number; top: number } | null>(null);
+  const [today, setToday] = useState<Record<string, MemberTodayEntry[] | 'loading'>>({});
+  const rowRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const cardRef = useRef<HTMLDivElement>(null);
+  const hoverTimer = useRef<number | null>(null);
+  const cardMember = cardId ? members.find(m => m.id === cardId) || null : null;
+
+  const clearHoverTimer = () => {
+    if (hoverTimer.current !== null) {
+      window.clearTimeout(hoverTimer.current);
+      hoverTimer.current = null;
+    }
+  };
+
+  const loadToday = useCallback((id: string) => {
+    setToday(prev => ({ ...prev, [id]: 'loading' }));
+    fetchMemberToday(id)
+      .then(list => setToday(prev => ({ ...prev, [id]: list })))
+      .catch(() => setToday(prev => ({ ...prev, [id]: [] })));
+  }, []);
+
+  const openCard = (id: string, pinned: boolean) => {
+    clearHoverTimer();
+    setEditing(false);
+    setCardPinned(pinned);
+    if (id !== cardId) {
+      setCardPos(null);
+      setCardId(id);
+      loadToday(id);
+    }
+  };
+
+  const closeCard = () => {
+    clearHoverTimer();
+    setCardId(null);
+    setCardPinned(false);
+  };
+
+  const onRowEnter = (id: string) => {
+    if (cardPinned) return;
+    clearHoverTimer();
+    hoverTimer.current = window.setTimeout(() => openCard(id, false), cardId ? 0 : HOVER_OPEN_MS);
+  };
+
+  const onRowLeave = () => {
+    if (cardPinned) return;
+    clearHoverTimer();
+    hoverTimer.current = window.setTimeout(closeCard, HOVER_CLOSE_MS);
+  };
+
+  const onRowClick = (id: string) => {
+    if (cardId === id && cardPinned) closeCard();
+    else openCard(id, true);
+  };
+
+  useEffect(() => () => clearHoverTimer(), []);
+
+  // Place the card beside the sidebar, level with the row; flip under it on narrow screens
+  useLayoutEffect(() => {
+    if (!cardId) return;
+    const place = () => {
+      const row = rowRefs.current[cardId]?.getBoundingClientRect();
+      const card = cardRef.current;
+      if (!row || !card) return;
+      const w = card.offsetWidth;
+      const h = card.offsetHeight;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const aside = rowRefs.current[cardId]?.closest('aside')?.getBoundingClientRect();
+      let left = (aside ? aside.right : row.right) + 8;
+      let top = row.top - 8;
+      if (left + w > vw - 8) {
+        left = Math.max(8, Math.min(row.left, vw - w - 8));
+        top = row.bottom + 6;
+      }
+      top = Math.max(8, Math.min(top, vh - h - 8));
+      setCardPos({ left, top });
+    };
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [cardId, today, members]);
+
+  // A pinned card closes on outside click or Escape; any card closes on Escape
+  useEffect(() => {
+    if (!cardId) return;
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (cardRef.current?.contains(t)) return;
+      if (Object.values(rowRefs.current).some(r => r?.contains(t))) return;
+      closeCard();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeCard();
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+    // closeCard only touches setters and the timer ref
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardId]);
 
 
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -151,6 +428,7 @@ export function TeamStatus() {
   }, [editing]);
 
   const openEditor = () => {
+    closeCard();
     setDraftEmoji(myRow?.emoji || '🎧');
     setDraftText(myRow?.text || '');
     setClearAfter('today');
@@ -175,23 +453,6 @@ export function TeamStatus() {
 
   const firstName = (n: string) => n.split(' ')[0];
 
-  const Avatar = ({ m, size = 'sm' }: { m: MemberStatus; size?: 'sm' | 'md' }) => (
-    <div className={cn('relative shrink-0', size === 'md' ? 'w-8 h-8' : 'w-7 h-7')}>
-      <div
-        className={cn(
-          'w-full h-full rounded-full flex items-center justify-center font-display text-[11px]',
-          m.workingOn ? 'bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/50' : 'bg-white/[0.05] text-slate-400'
-        )}
-      >
-        {m.name.charAt(0).toUpperCase()}
-      </div>
-      {m.emoji && (
-        <span className="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-[#0c0c0b] flex items-center justify-center text-[10px] leading-none">
-          {m.emoji}
-        </span>
-      )}
-    </div>
-  );
 
   // Custom status wins; with none set, show the live timer
   const subline = (m: MemberStatus) => {
@@ -380,19 +641,46 @@ export function TeamStatus() {
       {/* Everyone else */}
       <ul className="space-y-0.5">
         {sorted.map(m => (
-          <li
-            key={m.id}
-            className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.02] transition-colors"
-            title={m.text ? `${m.name}: ${m.emoji ?? ''} ${m.text}` : m.workingOn ? `${m.name}: working on ${m.workingOn}` : m.name}
-          >
-            <Avatar m={m} />
-            <div className="min-w-0 flex-1 leading-tight">
-              <div className="text-[13px] text-slate-300 truncate">{firstName(m.name)}</div>
-              <div className="text-[11px] flex min-w-0">{subline(m)}</div>
-            </div>
+          <li key={m.id}>
+            <button
+              ref={el => {
+                rowRefs.current[m.id] = el;
+              }}
+              type="button"
+              onPointerEnter={e => e.pointerType === 'mouse' && onRowEnter(m.id)}
+              onPointerLeave={e => e.pointerType === 'mouse' && onRowLeave()}
+              onClick={() => onRowClick(m.id)}
+              aria-expanded={cardId === m.id}
+              aria-haspopup="dialog"
+              className={cn(
+                'w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-left transition-colors cursor-pointer',
+                cardId === m.id ? 'bg-white/[0.04]' : 'hover:bg-white/[0.02]'
+              )}
+            >
+              <Avatar m={m} />
+              <div className="min-w-0 flex-1 leading-tight">
+                <div className="text-[13px] text-slate-300 truncate">{firstName(m.name)}</div>
+                <div className="text-[11px] flex min-w-0">{subline(m)}</div>
+              </div>
+            </button>
           </li>
         ))}
       </ul>
+
+      {/* Teammate card */}
+      {cardMember && createPortal(
+        <MemberCard
+          key={cardMember.id}
+          ref={cardRef}
+          m={cardMember}
+          today={today[cardMember.id]}
+          pos={cardPos}
+          onEnter={() => !cardPinned && clearHoverTimer()}
+          onLeave={() => !cardPinned && onRowLeave()}
+          onClose={closeCard}
+        />,
+        document.body
+      )}
     </section>
   );
 }
