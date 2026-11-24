@@ -129,6 +129,8 @@ export function generateEmailTableHtml(
   </table>
 
   <p style="margin: 24px 0 0 0;">Regards,<br>${safeName}</p>
+
+  <p style="margin: 28px 0 0 0; font-size: 11px; color: #9ca3af;">Design Orbit &middot; Webtree Creative Team</p>
 </div>
   `.trim();
 }
@@ -296,7 +298,7 @@ export function generateCleanPlainText(
     });
   });
 
-  lines.push('', `Total: ${totalCompletedQty}`, '', 'Regards,', safeName);
+  lines.push('', `Total: ${totalCompletedQty}`, '', 'Regards,', safeName, '', 'Design Orbit · Webtree Creative Team');
   return lines.join('\n');
 }
 

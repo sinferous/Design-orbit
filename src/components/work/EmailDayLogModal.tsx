@@ -50,16 +50,6 @@ export function EmailDayLogModal({
     }
   };
 
-  const handleCopyPlain = async () => {
-    try {
-      await navigator.clipboard.writeText(plainText);
-      markCopied('plain');
-      showToast('Text copied', 'success');
-    } catch {
-      showToast('Could not copy the text', 'error');
-    }
-  };
-
   const handleCopySubject = async () => {
     try {
       await navigator.clipboard.writeText(emailSubject);
@@ -136,20 +126,6 @@ export function EmailDayLogModal({
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Open in mail app
-            </button>
-
-            <button
-              type="button"
-              onClick={handleCopyPlain}
-              className="inline-flex items-center gap-1.5 h-9 px-3 text-xs text-slate-200 border border-white/[0.1] hover:bg-white/[0.05] rounded-lg transition-colors cursor-pointer"
-              title="Copy as plain text, for chat apps"
-            >
-              {copiedType === 'plain' ? (
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-              ) : (
-                <Copy className="w-3.5 h-3.5" />
-              )}
-              {copiedType === 'plain' ? 'Copied' : 'Copy as text'}
             </button>
 
             <button
