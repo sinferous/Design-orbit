@@ -692,6 +692,15 @@ export default function MyWorkPage() {
             )}
 
             <div className="flex items-center justify-center space-x-2">
+              {/* Sits left of the arrows so the date controls stay put when it appears */}
+              {selectedDate !== todayStr && (
+                <button
+                  onClick={() => setSelectedDate(todayStr)}
+                  className="px-2 py-1 text-xs font-semibold text-violet-300 bg-violet-950/70 rounded-md border border-violet-800/60 hover:bg-violet-900/80"
+                >
+                  Today
+                </button>
+              )}
               <button
                 onClick={() => handleDateChange(-1)}
                 className="p-1.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors shrink-0"
@@ -829,15 +838,6 @@ export default function MyWorkPage() {
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
-
-              {selectedDate !== todayStr && (
-                <button
-                  onClick={() => setSelectedDate(todayStr)}
-                  className="px-2 py-1 text-xs font-semibold text-violet-300 bg-violet-950/70 rounded-md border border-violet-800/60 hover:bg-violet-900/80"
-                >
-                  Today
-                </button>
-              )}
             </div>
           </div>
         </div>
